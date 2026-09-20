@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เพิ่มพื้นที่ใหม่ - Spacemate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #F1F4F8;
+            --primary-color: #a46309;
+            --primary-light: #fbeedb;
+            --card-bg: #FFFFFF;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+
+        /* Header */
+        .header {
+            background-color: rgba(241, 244, 248, 0.95);
+            backdrop-filter: blur(8px);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-left: -0.5rem;
+            margin-right: 1rem;
+        }
+        .back-btn:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            color: var(--primary-color);
+            border-color: #cbd5e1;
+        }
+        .back-btn:active {
+            transform: translateY(0);
+        }
+
+        .header-title {
+            flex-grow: 1;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-right: 1.25rem; /* Balance the back button */
+        }
+
+        /* Form Container */
+        .form-container {
+            padding: 1.5rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-card {
+            background-color: var(--card-bg);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+            border: 1px solid rgba(164, 99, 9, 0.08);
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .form-card:hover {
+            box-shadow: 0 15px 40px rgba(164, 99, 9, 0.08);
+        }
+
+        .type-selector {
+            display: flex;
+            background-color: #f8fafc;
+            border-radius: 16px;
+            padding: 6px;
+            gap: 6px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.04);
+        }
+
+        .type-btn {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #64748b;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .type-btn.active {
+            background: linear-gradient(135deg, #a46309 0%, #8f5506 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(164, 99, 9, 0.25);
+            transform: scale(1.02);
+        }
+
+        /* Input Fields */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .form-label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 1rem;
+            color: var(--text-main);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: #f8fafc;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #a46309;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(164, 99, 9, 0.1);
+        }
+
+        /* Upload Box */
+        .upload-box {
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 2.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-muted);
+            background-color: #f8fafc;
+        }
+
+        .upload-box:hover {
+            border-color: #a46309;
+            background-color: #fffaf0;
+            color: #a46309;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(164, 99, 9, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            color: #a46309;
+            transition: transform 0.3s ease;
+        }
+        
+        .upload-box:hover .upload-icon {
+            transform: scale(1.1) translateY(-5px);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Days Selector */
+        .days-selector {
+            display: flex;
+            gap: 0.25rem;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .day-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .day-btn:hover {
+            border-color: rgba(164, 99, 9, 0.4);
+            color: #a46309;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .day-btn.active {
+            background: linear-gradient(135deg, #a46309 0%, #8f5506 100%);
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 6px 15px rgba(164, 99, 9, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* Price Input */
+        .price-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .price-input-wrapper .form-input {
+            padding-right: 2.5rem;
+        }
+
+        .currency-suffix {
+            position: absolute;
+            right: 16px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #a46309 0%, #8f5506 100%);
+            color: white;
+            border: none;
+            font-family: inherit;
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(164, 99, 9, 0.25);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .submit-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: all 0.5s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(164, 99, 9, 0.35);
+        }
+        
+        .submit-btn:hover::after {
+            left: 100%;
+        }
+        
+        .submit-btn:active {
+            transform: scale(0.98) translateY(0);
+        }
+
+        @media (max-width: 480px) {
+            .day-btn {
+                width: 38px;
+                height: 38px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <a href="main_owner.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+        <h1 class="header-title">เพิ่มพื้นที่ใหม่</h1>
+    </header>
+
+    <!-- Main Content -->
+    <main class="form-container">
+        <div class="form-card">
+            
+            <!-- Type Selector -->
+            <div class="type-selector">
+                <button type="button" class="type-btn active" onclick="selectType('market', this)">ตลาด</button>
+                <button type="button" class="type-btn" onclick="selectType('event', this)">อีเวนต์</button>
+            </div>
+
+            <!-- Name Input -->
+            <div class="form-group">
+                <label class="form-label">ชื่อตลาด / อีเวนต์</label>
+                <input type="text" id="venue-name" class="form-input" placeholder="กรอกชื่อสถานที่ของคุณ">
+            </div>
+
+            <!-- Location Input -->
+            <div class="form-group">
+                <label class="form-label">ที่ตั้งตลาด / อีเวนต์</label>
+                <textarea id="venue-location" class="form-input" placeholder="กรอกข้อมูลที่ตั้งตลาด หรืออีเวนต์ของคุณ..." rows="3" style="resize: vertical; font-family: inherit;"></textarea>
+            </div>
+
+            <!-- Additional Details -->
+            <div class="form-group">
+                <label class="form-label">รายละเอียดเพิ่มเติม</label>
+                <textarea id="venue-desc" class="form-input" placeholder="กรอกรายละเอียดเพิ่มเติม เช่น สิ่งอำนวยความสะดวก, กฎระเบียบ, กลุ่มเป้าหมาย..." rows="4" style="resize: vertical; font-family: inherit;"></textarea>
+            </div>
+
+            <!-- Cover Image -->
+            <div class="form-group">
+                <label class="form-label">รูปภาพปก</label>
+                <div class="upload-box" id="upload-box" onclick="document.getElementById('venue-image-file').click()">
+                    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                    <div style="font-weight: 600; color: var(--text-main);">คลิกเพื่ออัปโหลดรูปภาพ</div>
+                    <div style="font-size: 0.85rem;">PNG, JPG (แนะนำขนาดไม่เกิน 2MB)</div>
+                </div>
+                <input type="file" id="venue-image-file" class="file-input" accept="image/png, image/jpeg" onchange="handleImageSelect(event)">
+                
+                <!-- Image Preview -->
+                <div id="image-preview" style="margin-top: 10px; display: none; position: relative;">
+                    <img id="preview-img" src="" alt="Preview" style="width: 100%; max-height: 250px; object-fit: cover; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <button type="button" onclick="removeImage()" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Blueprint Image -->
+            <div class="form-group">
+                <label class="form-label">รูปแผนผัง (Blueprint)</label>
+                <div class="upload-box" id="blueprint-upload-box" onclick="document.getElementById('venue-blueprint-file').click()">
+                    <i class="fa-solid fa-map upload-icon"></i>
+                    <div style="font-weight: 600; color: var(--text-main);">คลิกเพื่ออัปโหลดแผนผัง</div>
+                    <div style="font-size: 0.85rem;">PNG, JPG (แนะนำขนาดไม่เกิน 2MB)</div>
+                </div>
+                <input type="file" id="venue-blueprint-file" class="file-input" accept="image/png, image/jpeg" onchange="handleBlueprintSelect(event)">
+                
+                <!-- Blueprint Preview -->
+                <div id="blueprint-preview" style="margin-top: 10px; display: none; position: relative;">
+                    <img id="blueprint-preview-img" src="" alt="Preview" style="width: 100%; max-height: 250px; object-fit: contain; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <button type="button" onclick="removeBlueprint()" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Operating Days -->
+            <div class="form-group">
+                <label class="form-label">วันที่เปิดให้บริการ</label>
+                <div class="days-selector" id="venue-days">
+                    <button type="button" class="day-btn" onclick="toggleDay(this)">จ.</button>
+                    <button type="button" class="day-btn" onclick="toggleDay(this)">อ.</button>
+                    <button type="button" class="day-btn" onclick="toggleDay(this)">พ.</button>
+                    <button type="button" class="day-btn" onclick="toggleDay(this)">พฤ.</button>
+                    <button type="button" class="day-btn" onclick="toggleDay(this)">ศ.</button>
+                    <button type="button" class="day-btn" onclick="toggleDay(this)">ส.</button>
+                    <button type="button" class="day-btn" onclick="toggleDay(this)">อา.</button>
+                </div>
+            </div>
+
+            <!-- Operating Hours -->
+            <div class="form-group">
+                <label class="form-label">เวลาเปิด-ปิดให้บริการ</label>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <div style="flex: 1;">
+                        <input type="time" id="venue-time-start" class="text-input form-input" style="width: 100%; box-sizing: border-box;">
+                    </div>
+                    <span style="color: var(--text-muted); font-weight: 500;">ถึง</span>
+                    <div style="flex: 1;">
+                        <input type="time" id="venue-time-end" class="text-input form-input" style="width: 100%; box-sizing: border-box;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Price Input -->
+            <div class="form-group">
+                <label class="form-label">ราคาเริ่มต้น (ต่อวัน/งาน)</label>
+                <div class="price-input-wrapper">
+                    <input type="number" id="venue-price" class="form-input" placeholder="0.00">
+                    <span class="currency-suffix">฿</span>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="button" class="submit-btn" onclick="submitForm()">ยืนยันการลงทะเบียน</button>
+
+        </div>
+    </main>
+
+    <!-- Supabase Core & Custom Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabase.js"></script>
+
+    <!-- JavaScript -->
+    <script>
+        let currentOwnerId = null;
+
+        // Ensure user is Owner and logged in
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const session = await getSession();
+                if (!session) {
+                    window.location.replace('../index.html');
+                    return;
+                }
+                
+                const { data: profile } = await supabaseClient
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', session.user.id)
+                    .single();
+                    
+                if (profile && profile.role !== 'owner') {
+                    window.location.replace('../user/main_user.html');
+                    return;
+                }
+                
+                currentOwnerId = session.user.id;
+            } catch (err) {
+                console.error('Auth Check Error:', err);
+            }
+        });
+
+        // Handle Type Selector
+        function selectType(type, btnElement) {
+            document.querySelectorAll('.type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            btnElement.classList.add('active');
+        }
+
+        // Handle Days Toggle
+        function toggleDay(btnElement) {
+            btnElement.classList.toggle('active');
+        }
+
+        let selectedBase64Image = null;
+
+        // Handle Image Selection and Base64 Conversion
+        function handleImageSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Optional: validate size (e.g., max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('ไฟล์รูปภาพมีขนาดใหญ่เกินไป (สูงสุด 2MB)');
+                event.target.value = ''; // clear
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                selectedBase64Image = e.target.result;
+                document.getElementById('preview-img').src = selectedBase64Image;
+                document.getElementById('image-preview').style.display = 'block';
+                document.getElementById('upload-box').style.display = 'none';
+            }
+            reader.readAsDataURL(file);
+        }
+
+        // Remove Selected Image
+        function removeImage() {
+            selectedBase64Image = null;
+            document.getElementById('venue-image-file').value = '';
+            document.getElementById('image-preview').style.display = 'none';
+            document.getElementById('upload-box').style.display = 'flex';
+        }
+
+        let selectedBlueprintBase64 = null;
+
+        // Handle Blueprint Selection
+        function handleBlueprintSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                alert('ไฟล์รูปแผนผังมีขนาดใหญ่เกินไป (สูงสุด 2MB)');
+                event.target.value = ''; // clear
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                selectedBlueprintBase64 = e.target.result;
+                document.getElementById('blueprint-preview-img').src = selectedBlueprintBase64;
+                document.getElementById('blueprint-preview').style.display = 'block';
+                document.getElementById('blueprint-upload-box').style.display = 'none';
+            }
+            reader.readAsDataURL(file);
+        }
+
+        // Remove Selected Blueprint
+        function removeBlueprint() {
+            selectedBlueprintBase64 = null;
+            document.getElementById('venue-blueprint-file').value = '';
+            document.getElementById('blueprint-preview').style.display = 'none';
+            document.getElementById('blueprint-upload-box').style.display = 'flex';
+        }
+
+        // Handle Submit Data to Supabase
+        async function submitForm() {
+            if (!currentOwnerId) {
+                alert('เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่');
+                window.location.replace('../index.html');
+                return;
+            }
+
+            const submitBtn = document.querySelector('.submit-btn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
+
+            const type = document.querySelector('.type-btn.active').innerText.includes('ตลาด') ? 'market' : 'event';
+            const name = document.getElementById('venue-name').value.trim();
+            const location = document.getElementById('venue-location').value.trim();
+            const descRaw = document.getElementById('venue-desc').value.trim();
+            const coverImgUrl = selectedBase64Image;
+            const mapImgUrl = selectedBlueprintBase64;
+            
+            const activeDays = Array.from(document.querySelectorAll('#venue-days .day-btn.active')).map(btn => btn.innerText).join(', ');
+            const timeStart = document.getElementById('venue-time-start').value;
+            const timeEnd = document.getElementById('venue-time-end').value;
+            const price = document.getElementById('venue-price').value;
+
+            if (!name || !location) {
+                alert('กรุณากรอกชื่อและที่ตั้งให้ครบถ้วนครับ');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                return;
+            }
+
+            // Combine extra fields into description
+            const extraDetails = [
+                descRaw,
+                activeDays ? `วันที่เปิดให้บริการ: ${activeDays}` : null,
+                timeStart || timeEnd ? `เวลาให้บริการ: ${timeStart || '-'} ถึง ${timeEnd || '-'}` : null,
+                price ? `ราคาเริ่มต้น: ${price} บาท` : null
+            ].filter(Boolean).join('\n\n');
+
+            try {
+                const { error } = await supabaseClient
+                    .from('venues')
+                    .insert([
+                        {
+                            owner_id: currentOwnerId,
+                            type: type,
+                            name: name,
+                            description: extraDetails,
+                            location: location,
+                            address_details: location, // Duplicate for now
+                            map_image_url: mapImgUrl || null,
+                            cover_image_url: coverImgUrl || null, // Note: You need to add this column in Supabase!
+                            is_active: true
+                        }
+                    ]);
+
+                if (error) throw error;
+
+                alert('ลงทะเบียนพื้นที่สำเร็จ!');
+                window.location.href = 'main_owner.html';
+
+            } catch (error) {
+                console.error('Error inserting venue:', error);
+                alert('เกิดข้อผิดพลาดในการบันทึก: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        }
+    </script>
+
+</body>
+</html>

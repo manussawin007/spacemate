@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ข้อมูลผู้เช่าล็อค - Spacemate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-color: #F1F4F8;
+            --primary-color: #a46309;
+            --primary-light: #fbeedb;
+            --card-bg: #FFFFFF;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            
+            /* Status Colors */
+            --status-vacant: #10b981; /* Green */
+            --status-rented: #f59e0b; /* Orange */
+            --status-overdue: #ef4444; /* Red */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--card-bg);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-left: -0.5rem;
+            margin-right: 1rem;
+        }
+        .back-btn:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            color: var(--primary-color);
+            border-color: #cbd5e1;
+        }
+        .back-btn:active {
+            transform: translateY(0);
+        }
+
+        .header-title-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .header-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.1rem;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            padding: 1rem 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+            overflow-x: auto;
+            scrollbar-width: none; /* Firefox */
+        }
+        .filter-bar::-webkit-scrollbar {
+            display: none; /* Chrome */
+        }
+
+        .filter-chip {
+            background-color: white;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 0.4rem 1.25rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .filter-chip.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* Stall Grid */
+        .stall-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            padding: 0 1.5rem 2rem 1.5rem;
+        }
+
+        .stall-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid transparent;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .stall-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .stall-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.25rem;
+        }
+
+        .stall-id {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        .status-vacant { background-color: #d1fae5; color: var(--status-vacant); }
+        .status-rented { background-color: #fef3c7; color: var(--status-rented); }
+        .status-overdue { background-color: #fee2e2; color: var(--status-overdue); }
+
+        .tenant-info {
+            font-size: 0.85rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .tenant-info i {
+            color: var(--text-muted);
+            width: 14px;
+        }
+
+        .expiry-info {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 0.25rem;
+        }
+
+        .expiry-info.overdue {
+            color: var(--status-overdue);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-card {
+            background-color: var(--card-bg);
+            width: 90%;
+            max-width: 400px;
+            border-radius: 16px;
+            padding: 1.5rem;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-tab {
+            padding: 0.5rem 0;
+            background: none;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .modal-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .modal-detail-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-detail-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.1rem;
+        }
+
+        .modal-detail-text h4 {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            margin-bottom: 0.1rem;
+        }
+
+        .modal-detail-text p {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .contact-btn {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.85rem;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 500;
+            margin-top: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+        }
+
+        .contact-btn:hover {
+            background-color: #8c5407;
+        }
+
+        /* Graph Button */
+        .graph-btn {
+            background: none;
+            border: none;
+            font-size: 1.35rem;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: transform 0.2s;
+        }
+        
+        .graph-btn:active {
+            transform: scale(0.9);
+        }
+
+        /* Blueprint Section */
+        .blueprint-section {
+            padding: 1rem 1.5rem;
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            display: none; /* hidden if no blueprint */
+            text-align: center;
+        }
+        .blueprint-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .blueprint-image:hover {
+            opacity: 0.9;
+        }
+
+        /* Add Space Button */
+        .add-space-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 10px rgba(164, 99, 9, 0.2);
+            white-space: nowrap;
+        }
+
+        /* Form Group */
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            background: var(--bg-color);
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <a href="main_owner.html" class="back-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <div class="header-title-wrapper" style="flex: 1;">
+            <h1 class="header-title">ข้อมูลพื้นที่เช่า</h1>
+            <p class="header-subtitle" id="venue-name-display">กำลังโหลด...</p>
+        </div>
+        <button class="graph-btn" onclick="openGraphModal()">
+            <i class="fa-solid fa-chart-pie"></i>
+        </button>
+    </header>
+
+    <!-- Blueprint Section -->
+    <div class="blueprint-section" id="blueprint-section">
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem; text-align: left;">แผนผังพื้นที่ (Blueprint)</p>
+        <img id="blueprint-image" src="" alt="Blueprint" class="blueprint-image" onclick="window.open(this.src, '_blank')">
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar" style="justify-content: space-between; align-items: center;">
+        <div style="display: flex; gap: 0.75rem; overflow-x: auto; scrollbar-width: none;">
+            <button class="filter-chip active" onclick="setFilter(this, 'all')">ทั้งหมด (<span id="count-all">0</span>)</button>
+            <button class="filter-chip" onclick="setFilter(this, 'rented')">เช่าแล้ว (<span id="count-rented">0</span>)</button>
+            <button class="filter-chip" onclick="setFilter(this, 'vacant')">ว่าง (<span id="count-vacant">0</span>)</button>
+        </div>
+        <button class="add-space-btn" onclick="openAddSpaceModal()">
+            <i class="fa-solid fa-plus"></i> เพิ่มล็อค
+        </button>
+    </div>
+
+    <!-- Stall Grid -->
+    <main class="stall-grid" id="spaces-grid">
+        <!-- Dynamic Cards Here -->
+    </main>
+
+    <!-- Tenant Detail Modal -->
+    <div class="modal-overlay" id="tenantModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 class="modal-title">รายละเอียดล็อค <span id="modal-stall-id">A-01</span></h2>
+                <button class="close-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="modal-detail-row">
+                <div class="modal-detail-icon"><i class="fa-regular fa-user"></i></div>
+                <div class="modal-detail-text">
+                    <h4>ชื่อผู้เช่า</h4>
+                    <p id="modal-tenant-name">สมหญิง ใจดี</p>
+                </div>
+            </div>
+
+            <div class="modal-detail-row">
+                <div class="modal-detail-icon"><i class="fa-solid fa-phone"></i></div>
+                <div class="modal-detail-text">
+                    <h4>เบอร์ติดต่อ</h4>
+                    <p id="modal-tenant-phone">081-234-5678</p>
+                </div>
+            </div>
+
+            <div class="modal-detail-row">
+                <div class="modal-detail-icon"><i class="fa-regular fa-calendar"></i></div>
+                <div class="modal-detail-text">
+                    <h4>สถานะ / วันหมดอายุ</h4>
+                    <p id="modal-tenant-expiry">15 ส.ค. 2026</p>
+                </div>
+            </div>
+
+            <button class="contact-btn" id="modal-action-btn">
+                <i class="fa-solid fa-shop"></i> จัดการล็อค
+            </button>
+        </div>
+    </div>
+
+    <!-- Add Space Modal -->
+    <div class="modal-overlay" id="addSpaceModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 class="modal-title">เพิ่มล็อค/พื้นที่เช่า</h2>
+                <button class="close-btn" onclick="closeAddSpaceModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="modal-tabs">
+                <button class="modal-tab active" onclick="switchAddSpaceTab('single')">เพิ่มทีละล็อค</button>
+                <button class="modal-tab" onclick="switchAddSpaceTab('bulk')">เพิ่มรวดเร็ว (Bulk Add)</button>
+            </div>
+
+            <!-- Tab: Single -->
+            <div id="tab-single" class="tab-content active">
+                <form id="addSpaceForm" onsubmit="submitAddSpace(event)">
+                    <div class="form-group">
+                        <label>ชื่อล็อค / หมายเลข (เช่น A1)</label>
+                        <input type="text" id="spaceNumber" required placeholder="Ex. A1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>โซน (ตัวเลือกเสริม)</label>
+                        <input type="text" id="spaceZone" placeholder="Ex. โซนอาหาร">
+                    </div>
+
+                    <div class="form-group">
+                        <label>ราคาค่าเช่า (บาท)</label>
+                        <input type="number" id="spacePrice" required placeholder="500">
+                    </div>
+
+                    <div class="form-group">
+                        <label>ขนาด (ตัวเลือกเสริม)</label>
+                        <input type="text" id="spaceSize" placeholder="Ex. 2x2 เมตร">
+                    </div>
+
+                    <button type="submit" class="contact-btn" id="saveSpaceBtn">
+                        <i class="fa-solid fa-save"></i> บันทึกข้อมูล
+                    </button>
+                </form>
+            </div>
+
+            <!-- Tab: Bulk -->
+            <div id="tab-bulk" class="tab-content">
+                <form id="bulkAddSpaceForm" onsubmit="submitBulkAddSpace(event)">
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                            <label>คำนำหน้า</label>
+                            <input type="text" id="bulkPrefix" placeholder="Ex. A-">
+                        </div>
+                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                            <label>เริ่มที่เลข</label>
+                            <input type="number" id="bulkStart" required placeholder="1" min="1">
+                        </div>
+                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                            <label>ถึงเลข</label>
+                            <input type="number" id="bulkEnd" required placeholder="10" min="1">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>โซน (ตัวเลือกเสริม)</label>
+                        <input type="text" id="bulkZone" placeholder="Ex. โซนอาหาร">
+                    </div>
+
+                    <div class="form-group">
+                        <label>ราคาค่าเช่า (บาท)</label>
+                        <input type="number" id="bulkPrice" required placeholder="500" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label>ขนาด (ตัวเลือกเสริม)</label>
+                        <input type="text" id="bulkSize" placeholder="Ex. 2x2 เมตร">
+                    </div>
+
+                    <button type="submit" class="contact-btn" id="saveBulkSpaceBtn">
+                        <i class="fa-solid fa-layer-group"></i> สร้างล็อคทั้งหมด
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graph Modal -->
+    <div class="modal-overlay" id="graphModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 class="modal-title">สถิติสถานะล็อค</h2>
+                <button class="close-btn" onclick="closeGraphModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div style="position: relative; height: 250px; width: 100%;">
+                <canvas id="statusChart"></canvas>
+            </div>
+            
+            <div style="margin-top: 1.5rem; text-align: center; font-size: 0.95rem; color: var(--text-muted);">
+                <p>รวมทั้งหมด <strong id="total-graph-count">0</strong> ล็อค</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/supabase.js"></script>
+    <script>
+        let currentVenueId = null;
+        let globalSpaces = [];
+        let statusChartInstance = null;
+
+        // 1. Check Auth & Init
+        async function initPage() {
+            const { data: { session }, error } = await supabaseClient.auth.getSession();
+            if (error || !session) {
+                window.location.href = '../index.html';
+                return;
+            }
+
+            // Get Venue ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            currentVenueId = urlParams.get('id');
+
+            if (!currentVenueId) {
+                alert('ไม่พบข้อมูลสถานที่');
+                window.location.href = 'main_owner.html';
+                return;
+            }
+
+            await loadVenueDetails();
+            await loadSpaces();
+        }
+
+        // 2. Load Venue Details
+        async function loadVenueDetails() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('venues')
+                    .select('*')
+                    .eq('id', currentVenueId)
+                    .single();
+                
+                if (error) throw error;
+                if (data) {
+                    document.getElementById('venue-name-display').innerText = data.name + ' (ของฉัน)';
+                    if (data.map_image_url) {
+                        document.getElementById('blueprint-section').style.display = 'block';
+                        document.getElementById('blueprint-image').src = data.map_image_url;
+                    }
+                }
+            } catch (err) {
+                console.error("Error loading venue:", err);
+            }
+        }
+
+        // 3. Load Spaces
+        async function loadSpaces() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('spaces')
+                    .select('*')
+                    .eq('venue_id', currentVenueId)
+                    .order('created_at', { ascending: true });
+                
+                if (error) throw error;
+                globalSpaces = data || [];
+                renderSpaces('all');
+            } catch (err) {
+                console.error("Error loading spaces:", err);
+            }
+        }
+
+        // 4. Render Spaces
+        function renderSpaces(filterType) {
+            const grid = document.getElementById('spaces-grid');
+            grid.innerHTML = '';
+
+            let countAll = globalSpaces.length;
+            let countVacant = 0;
+            let countRented = 0;
+
+            globalSpaces.forEach(space => {
+                if (space.status === 'available') countVacant++;
+                if (space.status === 'booked' || space.status === 'rented') countRented++; // Handle both booked and rented
+            });
+
+            document.getElementById('count-all').innerText = countAll;
+            document.getElementById('count-vacant').innerText = countVacant;
+            document.getElementById('count-rented').innerText = countRented;
+
+            // Filter logic
+            const filtered = globalSpaces.filter(space => {
+                if (filterType === 'all') return true;
+                if (filterType === 'vacant') return space.status === 'available';
+                if (filterType === 'rented') return space.status === 'booked' || space.status === 'rented';
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2rem;">ไม่พบข้อมูลล็อค</p>';
+                return;
+            }
+
+            filtered.forEach(space => {
+                const isVacant = space.status === 'available';
+                const statusClass = isVacant ? 'status-vacant' : 'status-rented';
+                const statusText = isVacant ? 'ว่าง' : 'เช่าแล้ว';
+                const priceFmt = new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(space.price);
+
+                const cardHtml = `
+                    <div class="stall-card ${isVacant ? 'vacant' : 'rented'}" onclick="openSpaceDetail('${space.id}')">
+                        <div class="stall-header">
+                            <span class="stall-id">${space.space_number}</span>
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </div>
+                        <div class="tenant-info" style="color: ${isVacant ? 'var(--text-muted)' : 'var(--text-main)'};">
+                            <i class="fa-solid fa-sack-dollar"></i> ${priceFmt}
+                        </div>
+                        <div class="expiry-info">
+                            <i class="fa-solid fa-layer-group"></i> ${space.zone ? space.zone : 'ไม่ระบุโซน'}
+                        </div>
+                    </div>
+                `;
+                grid.innerHTML += cardHtml;
+            });
+        }
+
+        function setFilter(btn, filterType) {
+            document.querySelectorAll('.filter-chip').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+            renderSpaces(filterType);
+        }
+
+        // Add Space Logic
+        function openAddSpaceModal() {
+            document.getElementById('addSpaceModal').classList.add('active');
+        }
+
+        function closeAddSpaceModal() {
+            document.getElementById('addSpaceModal').classList.remove('active');
+            document.getElementById('addSpaceForm').reset();
+            const bulkForm = document.getElementById('bulkAddSpaceForm');
+            if (bulkForm) bulkForm.reset();
+        }
+
+        function switchAddSpaceTab(tab) {
+            document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'single') {
+                document.querySelectorAll('.modal-tab')[0].classList.add('active');
+                document.getElementById('tab-single').classList.add('active');
+            } else {
+                document.querySelectorAll('.modal-tab')[1].classList.add('active');
+                document.getElementById('tab-bulk').classList.add('active');
+            }
+        }
+
+        async function submitAddSpace(e) {
+            e.preventDefault();
+            const btn = document.getElementById('saveSpaceBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
+
+            const spaceData = {
+                venue_id: currentVenueId,
+                space_number: document.getElementById('spaceNumber').value,
+                zone: document.getElementById('spaceZone').value || null,
+                price: parseFloat(document.getElementById('spacePrice').value),
+                size_details: document.getElementById('spaceSize').value || null,
+                status: 'available'
+            };
+
+            try {
+                const { error } = await supabaseClient.from('spaces').insert([spaceData]);
+                if (error) throw error;
+                closeAddSpaceModal();
+                await loadSpaces(); // Refresh
+                alert('สร้างล็อคสำเร็จ');
+            } catch (err) {
+                console.error(err);
+                alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-save"></i> บันทึกข้อมูล';
+            }
+        }
+
+        async function submitBulkAddSpace(e) {
+            e.preventDefault();
+            const btn = document.getElementById('saveBulkSpaceBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังสร้าง...';
+
+            const prefix = document.getElementById('bulkPrefix').value;
+            const start = parseInt(document.getElementById('bulkStart').value);
+            const end = parseInt(document.getElementById('bulkEnd').value);
+            const zone = document.getElementById('bulkZone').value || null;
+            const price = parseFloat(document.getElementById('bulkPrice').value);
+            const sizeDetails = document.getElementById('bulkSize').value || null;
+
+            if (start > end) {
+                alert('หมายเลขเริ่มต้นต้องน้อยกว่าหรือเท่ากับหมายเลขสิ้นสุด');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-layer-group"></i> สร้างล็อคทั้งหมด';
+                return;
+            }
+
+            const spaces = [];
+            for (let i = start; i <= end; i++) {
+                const formattedNum = i.toString().padStart(2, '0');
+                spaces.push({
+                    venue_id: currentVenueId,
+                    space_number: prefix + formattedNum,
+                    zone: zone,
+                    price: price,
+                    size_details: sizeDetails,
+                    status: 'available'
+                });
+            }
+
+            try {
+                const { error } = await supabaseClient.from('spaces').insert(spaces);
+                if (error) throw error;
+                closeAddSpaceModal();
+                await loadSpaces(); // Refresh
+                alert(`สร้างสำเร็จ ${spaces.length} ล็อค`);
+            } catch (err) {
+                console.error(err);
+                alert('เกิดข้อผิดพลาดในการสร้างล็อคแบบรวดเร็ว');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-layer-group"></i> สร้างล็อคทั้งหมด';
+            }
+        }
+
+        // Detail Modal (Read-only for now)
+        function openSpaceDetail(spaceId) {
+            const space = globalSpaces.find(s => s.id === spaceId);
+            if(!space) return;
+
+            document.getElementById('modal-stall-id').innerText = space.space_number;
+            document.getElementById('modal-tenant-name').innerText = space.status === 'available' ? 'ยังไม่มีผู้เช่า' : 'ข้อมูลผู้เช่า (รอการพัฒนา)';
+            document.getElementById('modal-tenant-phone').innerText = space.price + ' บาท';
+            document.getElementById('modal-tenant-expiry').innerText = space.size_details || 'ไม่ระบุขนาด';
+            
+            document.getElementById('tenantModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('tenantModal').classList.remove('active');
+        }
+
+        // Close modal when clicking outside the card
+        document.getElementById('tenantModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+        document.getElementById('addSpaceModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAddSpaceModal();
+            }
+        });
+
+        // Graph Modal Logic
+        function openGraphModal() {
+            document.getElementById('graphModal').classList.add('active');
+            
+            let countVacant = 0;
+            let countRented = 0;
+            globalSpaces.forEach(s => {
+                if (s.status === 'available') countVacant++;
+                else countRented++;
+            });
+
+            document.getElementById('total-graph-count').innerText = globalSpaces.length;
+
+            if (statusChartInstance) {
+                statusChartInstance.data.datasets[0].data = [countRented, countVacant];
+                statusChartInstance.update();
+            } else {
+                const ctx = document.getElementById('statusChart').getContext('2d');
+                statusChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    plugins: [ChartDataLabels],
+                    data: {
+                        labels: ['เช่าแล้ว', 'ว่าง'],
+                        datasets: [{
+                            data: [countRented, countVacant],
+                            backgroundColor: ['#f59e0b', '#10b981'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            datalabels: {
+                                color: '#fff',
+                                font: { family: "'Prompt', sans-serif", weight: 'bold', size: 14 },
+                                formatter: (value, ctx) => {
+                                    if(value === 0) return '';
+                                    let total = ctx.chart._metasets[ctx.datasetIndex].total;
+                                    return Math.round((value / total) * 100) + '%';
+                                }
+                            },
+                            legend: { position: 'bottom', labels: { font: { family: "'Prompt', sans-serif" } } }
+                        }
+                    }
+                });
+            }
+        }
+
+        function closeGraphModal() {
+            document.getElementById('graphModal').classList.remove('active');
+        }
+        document.getElementById('graphModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeGraphModal();
+            }
+        });
+
+        // Init on load
+        window.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

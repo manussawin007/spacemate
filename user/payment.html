@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spacemate - Payment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #F1F4F8;
+            --primary-color: #a46309;
+            --card-bg: #FFFFFF;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --danger: #ef4444;
+            --danger-bg: #fef2f2;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 90px;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            background: var(--card-bg);
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-right: 1rem;
+        }
+
+        .back-btn:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            color: var(--primary-color);
+            border-color: #cbd5e1;
+        }
+
+        .back-btn:active {
+            transform: translateY(0);
+        }
+
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .countdown-bar {
+            background-color: var(--danger-bg);
+            color: var(--danger);
+            padding: 0.6rem 1.25rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            position: relative;
+            z-index: 99;
+        }
+
+        .container {
+            padding: 1.25rem;
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        /* Receipt Style Card */
+        .receipt-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+            position: relative;
+        }
+
+        .receipt-header {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.6rem;
+            font-size: 0.95rem;
+        }
+
+        .receipt-row span:first-child {
+            color: var(--text-muted);
+        }
+
+        .receipt-row span:last-child {
+            font-weight: 500;
+        }
+
+        .receipt-divider {
+            border-top: 2px dashed #e2e8f0;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        /* Ticket notches */
+        .receipt-divider::before,
+        .receipt-divider::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            width: 20px;
+            height: 20px;
+            background-color: var(--bg-color);
+            border-radius: 50%;
+        }
+
+        .receipt-divider::before {
+            left: -1.25rem;
+            transform: translateX(-50%);
+        }
+
+        .receipt-divider::after {
+            right: -1.25rem;
+            transform: translateX(50%);
+        }
+
+        .receipt-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .receipt-total .price {
+            color: var(--primary-color);
+            font-size: 1.4rem;
+        }
+
+        /* Payment Tabs */
+        .payment-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        .tab-container {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 0.75rem;
+            padding: 0.3rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.75rem;
+            text-align: center;
+            border: none;
+            background: transparent;
+            border-radius: 0.5rem;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: #FFFFFF;
+            color: var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* QR Code */
+        .qr-section {
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        .qr-box {
+            background: #FFFFFF;
+            padding: 1rem;
+            border-radius: 1rem;
+            border: 1px solid #e2e8f0;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .qr-image {
+            width: 180px;
+            height: 180px;
+            object-fit: contain;
+        }
+
+        .save-qr-btn {
+            background: rgba(164, 99, 9, 0.1);
+            color: var(--primary-color);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0 auto;
+        }
+
+        /* Bank Details */
+        .bank-details {
+            background: #f8fafc;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .bank-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #10b981;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .bank-info {
+            flex: 1;
+        }
+
+        .bank-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .acc-name {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .acc-number {
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            color: var(--primary-color);
+            margin-top: 0.2rem;
+        }
+
+        .copy-btn {
+            background: #FFFFFF;
+            border: 1px solid #e2e8f0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s;
+        }
+
+        .copy-btn:active {
+            transform: scale(0.9);
+        }
+
+        /* Slip Upload */
+        .upload-section {
+            margin-top: 1.25rem;
+        }
+
+        .upload-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .upload-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 1rem;
+            padding: 2rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fafafa;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: var(--primary-color);
+            background: rgba(164, 99, 9, 0.02);
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            color: #94a3b8;
+            margin-bottom: 0.75rem;
+        }
+
+        .upload-text {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .upload-text strong {
+            color: var(--primary-color);
+        }
+
+        #slip-input {
+            display: none;
+        }
+
+        /* Image Preview */
+        .preview-container {
+            display: none;
+            position: relative;
+            width: 100%;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .preview-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .remove-preview {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .remove-preview:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.25rem;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: center;
+            z-index: 1000;
+            padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+        }
+
+        .btn-submit {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 2rem;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 1.05rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(164, 99, 9, 0.25);
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-submit:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 5px rgba(164, 99, 9, 0.2);
+        }
+
+        .btn-submit:disabled {
+            background: #cbd5e1;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='book_space.html'">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h2 class="header-title">ชำระเงิน</h2>
+    </div>
+
+    <div class="countdown-bar">
+        <i class="fa-regular fa-clock"></i>
+        กรุณาชำระเงินภายใน <span id="timer">14:59</span>
+    </div>
+
+    <div class="container">
+
+        <!-- Receipt Card -->
+        <div class="receipt-card">
+            <div class="receipt-header">
+                <i class="fa-solid fa-file-invoice"></i> สรุปการจอง
+            </div>
+
+            <div class="receipt-row">
+                <span>หมายเลขการจอง</span>
+                <span id="receipt-booking-ref">กำลังสร้าง...</span>
+            </div>
+            <div class="receipt-row">
+                <span>ตลาด / สถานที่</span>
+                <span id="receipt-venue-name">-</span>
+            </div>
+            <div class="receipt-row">
+                <span>วันที่</span>
+                <span id="receipt-dates">-</span>
+            </div>
+            <div class="receipt-row">
+                <span>พื้นที่ / ล็อค</span>
+                <span id="receipt-space-info">-</span>
+            </div>
+
+            <div class="receipt-divider"></div>
+
+            <div class="receipt-total">
+                <span>ยอดที่ต้องชำระ</span>
+                <span class="price" id="receipt-total-price">฿0</span>
+            </div>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="payment-card">
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="switchTab('qr-tab', this)">PromptPay</button>
+                <button class="tab-btn" onclick="switchTab('bank-tab', this)">โอนผ่านธนาคาร</button>
+            </div>
+
+            <div id="qr-tab" class="tab-content active">
+                <div class="qr-section">
+                    <div class="qr-box">
+                        <img id="qr-image"
+                            src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg"
+                            alt="QR Code" class="qr-image">
+                    </div>
+                    <button class="save-qr-btn" onclick="alert('บันทึกรูป QR Code สำเร็จ')">
+                        <i class="fa-solid fa-download"></i> บันทึก QR Code
+                    </button>
+                </div>
+            </div>
+
+            <div id="bank-tab" class="tab-content">
+                <div class="bank-details">
+                    <div class="bank-logo">K</div>
+                    <div class="bank-info">
+                        <div class="bank-name">ธนาคารกสิกรไทย (KBank)</div>
+                        <div class="acc-name">บจก. สเปซเมท แพลตฟอร์ม</div>
+                        <div class="acc-number" id="acc-num">012-3-45678-9</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyAccount()">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="upload-section">
+                <div class="upload-title">หลักฐานการชำระเงิน</div>
+
+                <div class="upload-area" id="upload-area" onclick="document.getElementById('slip-input').click()">
+                    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                    <div class="upload-text">
+                        <strong>แตะเพื่ออัปโหลดสลิป</strong> หรือลากไฟล์มาวางที่นี่
+                    </div>
+                    <input type="file" id="slip-input" accept="image/*">
+                </div>
+
+                <div class="preview-container" id="preview-container">
+                    <img id="preview-img" class="preview-image" src="" alt="Slip Preview">
+                    <button class="remove-preview" onclick="removeImage()">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="footer">
+        <button class="btn-submit" id="submit-btn" disabled onclick="submitPayment()">
+            ยืนยันการชำระเงิน
+        </button>
+    </div>
+
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabase.js"></script>
+
+    <script>
+        // Parse Query Params
+        const urlParams = new URLSearchParams(window.location.search);
+        const venueId = urlParams.get('venue_id');
+        const spaceId = urlParams.get('space_id');
+        const startDate = urlParams.get('start_date') || new Date().toISOString().split('T')[0];
+        const endDate = urlParams.get('end_date') || startDate;
+        let totalPrice = parseFloat(urlParams.get('total_price')) || 0;
+
+        let currentUser = null;
+        let uploadedSlipBase64 = null;
+
+        // Init and verify Auth
+        async function initPage() {
+            try {
+                const session = await getSession();
+                if (!session) {
+                    alert('กรุณาเข้าสู่ระบบก่อนทำการชำระเงิน');
+                    window.location.replace('../index.html');
+                    return;
+                }
+                currentUser = session.user;
+
+                // Load Venue & Space info from Supabase
+                if (spaceId) {
+                    const { data: spaceData, error: sErr } = await supabaseClient
+                        .from('spaces')
+                        .select('*, venues(*)')
+                        .eq('id', spaceId)
+                        .single();
+
+                    if (!sErr && spaceData) {
+                        const venueName = spaceData.venues ? spaceData.venues.name : 'ตลาดที่เลือก';
+                        document.getElementById('receipt-venue-name').innerText = venueName;
+                        document.getElementById('receipt-space-info').innerText = `โซน ${spaceData.zone || '-'} / ล็อค ${spaceData.space_number}`;
+
+                        if (!totalPrice || totalPrice === 0) {
+                            totalPrice = spaceData.price || 0;
+                        }
+                    }
+                } else if (venueId) {
+                    const { data: vData } = await supabaseClient
+                        .from('venues')
+                        .select('name')
+                        .eq('id', venueId)
+                        .single();
+                    if (vData) document.getElementById('receipt-venue-name').innerText = vData.name;
+                }
+
+                // Update summary UI
+                const randomRef = 'BK-' + Math.floor(1000 + Math.random() * 9000);
+                document.getElementById('receipt-booking-ref').innerText = '#' + randomRef;
+                document.getElementById('receipt-dates').innerText = startDate === endDate ? startDate : `${startDate} ถึง ${endDate}`;
+                document.getElementById('receipt-total-price').innerText = '฿' + totalPrice.toLocaleString();
+
+            } catch (err) {
+                console.error('Init Payment Error:', err);
+            }
+        }
+
+        // Tab Switching
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+
+            btnElement.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Copy Account Number
+        function copyAccount() {
+            const accNum = document.getElementById('acc-num').innerText.replace(/-/g, '');
+            navigator.clipboard.writeText(accNum).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const icon = btn.querySelector('i');
+                icon.className = 'fa-solid fa-check';
+                icon.style.color = '#10b981';
+                setTimeout(() => {
+                    icon.className = 'fa-regular fa-copy';
+                    icon.style.color = '';
+                }, 2000);
+            });
+        }
+
+        // File Upload Preview & Base64 conversion
+        const slipInput = document.getElementById('slip-input');
+        const uploadArea = document.getElementById('upload-area');
+        const previewContainer = document.getElementById('preview-container');
+        const previewImg = document.getElementById('preview-img');
+        const submitBtn = document.getElementById('submit-btn');
+
+        slipInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('ขนาดรูปสลิปต้องไม่เกิน 5MB');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    uploadedSlipBase64 = e.target.result;
+                    previewImg.src = uploadedSlipBase64;
+                    uploadArea.style.display = 'none';
+                    previewContainer.style.display = 'block';
+                    submitBtn.disabled = false;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function removeImage() {
+            slipInput.value = '';
+            uploadedSlipBase64 = null;
+            uploadArea.style.display = 'block';
+            previewContainer.style.display = 'none';
+            submitBtn.disabled = true;
+        }
+
+        // Submit Booking to Supabase
+        async function submitPayment() {
+            if (!currentUser) {
+                alert('กรุณาเข้าสู่ระบบก่อน');
+                window.location.replace('../index.html');
+                return;
+            }
+
+            if (!uploadedSlipBase64) {
+                alert('กรุณาแนบหลักฐานการชำระเงิน (สลิปโอนเงิน)');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกการจอง...';
+
+            try {
+                // If spaceId is missing (e.g. booked without picking space), fetch an available space from venue or fallback
+                let targetSpaceId = spaceId;
+                if (!targetSpaceId && venueId) {
+                    const { data: firstSpace } = await supabaseClient
+                        .from('spaces')
+                        .select('id')
+                        .eq('venue_id', venueId)
+                        .eq('status', 'available')
+                        .limit(1)
+                        .single();
+                    if (firstSpace) targetSpaceId = firstSpace.id;
+                }
+
+                if (!targetSpaceId) {
+                    throw new Error('ไม่พบข้อมูลล็อคพื้นที่ กรุณาย้อนกลับไปเลือกล็อคก่อนทำการจอง');
+                }
+
+                // Insert into Supabase bookings table
+                const { data: newBooking, error: bErr } = await supabaseClient
+                    .from('bookings')
+                    .insert([
+                        {
+                            space_id: targetSpaceId,
+                            user_id: currentUser.id,
+                            start_date: startDate,
+                            end_date: endDate,
+                            total_price: totalPrice,
+                            payment_slip_url: uploadedSlipBase64,
+                            status: 'pending' // Pending owner review
+                        }
+                    ])
+                    .select()
+                    .single();
+
+                if (bErr) throw bErr;
+
+                alert('แจ้งชำระเงินเรียบร้อยแล้ว! ระบบกำลังนำคุณไปยังหน้า E-Ticket');
+                window.location.href = `e_ticket.html?booking_id=${newBooking.id}`;
+
+            } catch (err) {
+                console.error('Payment submit error:', err);
+                alert('เกิดข้อผิดพลาดในการบันทึก: ' + (err.message || 'กรุณาลองใหม่อีกครั้ง'));
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        }
+
+        // Countdown Timer
+        let timeLeft = 14 * 60 + 59;
+        const timerElement = document.getElementById('timer');
+        setInterval(() => {
+            if (timeLeft <= 0) return;
+            timeLeft--;
+            const mins = Math.floor(timeLeft / 60);
+            const secs = timeLeft % 60;
+            timerElement.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }, 1000);
+
+        window.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+
+</html>

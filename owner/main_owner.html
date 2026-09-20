@@ -1,0 +1,3463 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spacemate - Main Owner Dashboard</title>
+    <link rel="icon" type="image/png" href="../images/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --primary-color: #a46309;
+            --primary-light: #fbeedb;
+            --card-bg: #FFFFFF;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            overflow: hidden;
+            width: 100%;
+            height: 100dvh;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+        }
+
+        .app-page {
+            height: 100dvh;
+            overflow-y: auto;
+        }
+
+        /* Sticky Header */
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            padding: 1rem 1.5rem;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .logo {
+            height: 35px;
+            width: auto;
+        }
+
+        .search-container {
+            width: 100%;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 24px;
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            color: var(--text-main);
+            transition: box-shadow 0.2s;
+        }
+
+        .search-bar:focus {
+            box-shadow: 0 0 0 2px rgba(164, 99, 9, 0.3);
+        }
+
+        .location-wrapper {
+            position: relative;
+        }
+
+        .location-btn {
+            background-color: #fbeedb;
+            color: #a46309;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            font-family: inherit;
+            transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 2px 5px rgba(164, 99, 9, 0.1);
+            white-space: nowrap;
+        }
+
+        .location-btn:active {
+            transform: scale(0.95);
+        }
+
+        .location-btn:hover {
+            background-color: #f5dcb3;
+            box-shadow: 0 4px 8px rgba(164, 99, 9, 0.15);
+        }
+
+        .location-chevron {
+            font-size: 0.75rem;
+            transition: transform 0.3s ease;
+        }
+
+        .location-wrapper.open .location-chevron {
+            transform: rotate(180deg);
+        }
+
+        .location-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            z-index: 200;
+            min-width: 180px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .location-wrapper.open .location-dropdown {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .location-dropdown-item {
+            padding: 12px 16px;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .location-dropdown-item i {
+            color: #a46309;
+            width: 16px;
+            text-align: center;
+        }
+
+        .location-dropdown-item:hover {
+            background-color: #fbeedb;
+            color: #a46309;
+        }
+
+        .card-image-container {
+            position: relative;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+            display: none;
+            background: var(--card-bg);
+            border-radius: 20px;
+        }
+
+        .main-content {
+            padding: 1.5rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .tabs-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background-color: #f8fafc;
+            border-radius: 18px;
+            padding: 0.4rem;
+            margin-bottom: 2rem;
+            max-width: 500px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.03);
+            border: 1px solid #e2e8f0;
+        }
+
+        .tab-btn {
+            width: 100%;
+            text-align: center;
+            padding: 0.85rem 0.5rem;
+            border: none;
+            background: transparent;
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .tab-btn:hover:not(.active) {
+            color: var(--primary-color);
+            background-color: rgba(164, 99, 9, 0.05);
+        }
+
+        .tab-btn.active {
+            color: #ffffff;
+            background: linear-gradient(135deg, #a46309 0%, #8f5506 100%);
+            box-shadow: 0 4px 12px rgba(164, 99, 9, 0.25), 0 2px 4px rgba(164, 99, 9, 0.15);
+        }
+
+        /* Views */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .view-section.active {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Listing Cards */
+        .listing-card {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            transition: transform 0.2s ease;
+        }
+
+        .listing-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background-color: #ddd;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            white-space: normal;
+            line-height: 1.4;
+            min-height: 3.5rem;
+        }
+
+        .card-info {
+            display: flex;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            gap: 0.5rem;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid #f1f5f9;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .card-price {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .book-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .book-btn:hover {
+            background-color: #8c5407;
+        }
+        
+        .book-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* Card Stats for Owner */
+        .card-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            background-color: #f8fafc;
+            padding: 1rem;
+            border-radius: 12px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        
+        .stat-item i {
+            color: var(--primary-color);
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Floating Action Button */
+        .fab-btn {
+            position: fixed;
+            bottom: 110px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: 3px solid white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            box-shadow: 0 6px 20px rgba(217, 119, 6, 0.4);
+            cursor: pointer;
+            z-index: 90;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+        }
+
+        .fab-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(217, 119, 6, 0.6);
+        }
+
+        .nav-text {
+            display: none;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding-bottom: 0;
+            }
+            .bottom-nav {
+                top: 0;
+                left: 0;
+                transform: none;
+                width: 250px;
+                height: 100vh;
+                flex-direction: column;
+                align-items: flex-start;
+                justify-content: flex-start;
+                padding: 30px 20px;
+                border-radius: 0;
+                border-right: 1px solid var(--border-color);
+                background-color: var(--card-bg);
+            }
+            .nav-indicator {
+                display: none;
+            }
+            .nav-item {
+                width: 100%;
+                justify-content: flex-start;
+                padding: 15px;
+                border-radius: 12px;
+                margin-bottom: 10px;
+            }
+            .nav-item.active {
+                background-color: var(--primary-light);
+            }
+            .nav-item-content {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                width: 100%;
+            }
+            .nav-text {
+                display: block;
+            }
+            .main-content, .sticky-header, .notif-header, .profile-header {
+                width: 100%;
+            }
+            .tabs-container {
+                width: 100%;
+            }
+            .view-section.active {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                align-items: stretch;
+                gap: 1.5rem;
+            }
+            .fab-btn {
+                right: 40px;
+                bottom: 40px;
+                position: fixed;
+            }
+        }
+
+        /* Bottom Navbar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: max-content;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 20px;
+            border-radius: 50px;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .nav-indicator {
+            position: absolute;
+            background-color: #fbeedb;
+            border-radius: 50px;
+            height: 44px;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 0;
+            z-index: 0;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            opacity: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+            padding: 12px 24px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .nav-item:active {
+            transform: scale(0.9);
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-item.active .nav-icon {
+            transform: scale(1.2);
+            filter: drop-shadow(0 4px 6px rgba(164, 99, 9, 0.4));
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-item-content {
+            position: relative;
+            display: inline-flex;
+        }
+
+        .nav-badge {
+            position: absolute;
+            top: -4px;
+            right: -6px;
+            width: 8px;
+            height: 8px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            display: none;
+        }
+        
+        @media (max-width: 480px) {
+            .card-image {
+                height: 160px;
+            }
+        }
+
+        /* Page Containers */
+        .app-page {
+            display: none;
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .app-page.active {
+            display: block;
+        }
+
+        /* Notifications Styles */
+        .notif-header {
+            position: sticky;
+            top: 0;
+            background-color: rgba(241, 244, 248, 0.95);
+            backdrop-filter: blur(8px);
+            padding: 1.25rem 1.5rem;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        .notif-title {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .notif-clean-btn {
+            background: #fefce8;
+            color: var(--primary-color);
+            border: 1px solid #fef08a;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(164, 99, 9, 0.1);
+            font-family: inherit;
+        }
+        .notif-clean-btn:hover {
+            background: var(--primary-color);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .notif-list {
+            padding: 1rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .notif-date-header {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-top: 0.5rem;
+            margin-bottom: -0.25rem;
+            padding-left: 0.5rem;
+        }
+
+        .notif-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.25rem 1rem;
+            display: flex;
+            gap: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            position: relative;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .notif-card.unread {
+            background-color: rgba(164, 99, 9, 0.03);
+            border: 1px solid rgba(164, 99, 9, 0.1);
+        }
+
+        .notif-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+        }
+
+        .notif-icon-box {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        
+        .notif-icon-box.booking { background-color: #ffedd5; color: #f97316; }
+        .notif-icon-box.payment { background-color: #dcfce7; color: #22c55e; }
+        .notif-icon-box.overdue { background-color: #fee2e2; color: #ef4444; }
+
+        .notif-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .notif-title-text {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-main);
+        }
+
+        .notif-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .notif-time {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-top: 0.25rem;
+        }
+
+        .notif-unread-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            box-shadow: 0 0 0 3px rgba(164, 99, 9, 0.1);
+        }
+
+        /* Profile View Styles */
+        .profile-header {
+            position: sticky;
+            top: 0;
+            background-color: rgba(241, 244, 248, 0.95);
+            backdrop-filter: blur(8px);
+            padding: 1.25rem 1.5rem;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            text-align: center;
+        }
+
+        .profile-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .profile-card {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            margin: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary-light);
+            margin-bottom: 1rem;
+        }
+
+        .profile-name {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-badge {
+            background-color: #dcfce7;
+            color: #166534;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            padding: 0 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.25rem 0.5rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .menu-list {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            margin: 0 1.5rem 2rem 1.5rem;
+            padding: 0.5rem 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            text-decoration: none;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s ease;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item:hover {
+            background-color: #f8fafc;
+        }
+
+        .menu-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 10px;
+            background-color: rgba(164, 99, 9, 0.1);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .menu-text {
+            flex: 1;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .menu-arrow {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+        }
+
+        .menu-item.action-switch .menu-icon {
+            background-color: #e0f2fe;
+            color: #0ea5e9;
+        }
+
+        .menu-item.action-logout .menu-icon {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+        
+        .menu-item.action-logout .menu-text {
+            color: #ef4444;
+        }
+
+        /* Edit Profile Styles */
+        .back-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .back-btn:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            color: var(--primary-color);
+            border-color: #cbd5e1;
+        }
+        .back-btn:active {
+            transform: translateY(0);
+        }
+
+        .edit-avatar-container {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            margin: 0 auto 2.5rem auto;
+        }
+
+        .edit-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #ffffff;
+            box-shadow: 0 10px 30px rgba(164, 99, 9, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .edit-avatar-container:hover .edit-avatar {
+            transform: scale(1.02);
+        }
+
+        .edit-avatar-btn {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a46309 0%, #8f5506 100%);
+            color: white;
+            border: 3px solid #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(164, 99, 9, 0.3);
+        }
+
+        .edit-avatar-btn:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 6px 16px rgba(164, 99, 9, 0.4);
+        }
+
+        .edit-form-card {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.04);
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(164, 99, 9, 0.08);
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .edit-form-card:hover {
+            box-shadow: 0 12px 35px rgba(164, 99, 9, 0.08);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: var(--text-main);
+            background-color: #f8fafc;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #a46309;
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(164, 99, 9, 0.1);
+        }
+
+        .save-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #a46309 0%, #8f5506 100%);
+            color: white;
+            border: none;
+            padding: 1.1rem;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 20px rgba(164, 99, 9, 0.25);
+            font-family: inherit;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .save-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: all 0.5s ease;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(164, 99, 9, 0.35);
+        }
+        
+        .save-btn:hover::after {
+            left: 100%;
+        }
+
+        .save-btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* --- Admin-Style Layout CSS --- */
+        .desktop-app {
+            width: 100%;
+            min-height: 100vh;
+            position: relative;
+            display: block;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 260px;
+            height: 100vh;
+            z-index: 1000;
+            background-color: #FFFFFF;
+            border-right: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 4px 0 24px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem 0;
+        }
+        .sidebar-logo {
+            height: 40px;
+            margin: 0 auto 1.5rem auto;
+            display: block;
+            transition: transform 0.3s;
+        }
+        .sidebar-logo:hover {
+            transform: scale(1.05);
+        }
+        .brand {
+            padding: 0 1.5rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .sidebar-menu-list {
+            list-style: none;
+            padding: 0 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 1;
+        }
+        .sidebar-menu-item {
+            width: 100%;
+        }
+        .sidebar-menu-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 16px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+        }
+        .sidebar-menu-link i {
+            font-size: 1.1rem;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: #f8fafc;
+            color: #94a3b8;
+            transition: all 0.3s ease;
+        }
+        .sidebar-menu-link:hover {
+            background-color: #fef3e5;
+            color: var(--primary-color);
+        }
+        .sidebar-menu-link:hover i {
+            background-color: #fbeedb;
+            color: var(--primary-color);
+            transform: scale(1.05);
+        }
+        .sidebar-menu-link.active {
+            background: linear-gradient(135deg, #a46309 0%, #8f5506 100%);
+            color: #ffffff;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(164, 99, 9, 0.25);
+        }
+        .sidebar-menu-link.active i {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+        .sidebar-footer {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 16px;
+            border: 1px solid #f1f5f9;
+            transition: all 0.2s;
+        }
+        .admin-profile:hover {
+            background: #f1f5f9;
+        }
+        .admin-avatar {
+            width: 42px;
+            height: 42px;
+            background: var(--primary-light);
+            color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .pro-avatar-ring {
+            padding: 4px !important;
+            background: linear-gradient(45deg, #ff2a2a, #ff7a00, #ffc800, #22cc22, #0066ff, #9933ff) !important;
+            border: none !important;
+        }
+
+        .admin-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .admin-info {
+            flex: 1;
+        }
+        .admin-info h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+        }
+        .admin-info span {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.75rem 1rem;
+            border-radius: 16px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            color: #ef4444;
+            background: #fff;
+            border: 1px solid #fee2e2;
+        }
+        .logout-btn i {
+            font-size: 1.1rem;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: #fef2f2;
+            color: #ef4444;
+            transition: all 0.3s ease;
+        }
+        .logout-btn:hover {
+            background-color: #fef2f2;
+            border-color: #fca5a5;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.1);
+        }
+        .logout-btn:hover i {
+            background-color: #fee2e2;
+            transform: scale(1.05);
+        }
+
+        .app-container {
+            width: 100%;
+            min-height: 100vh;
+            position: relative;
+            background: var(--bg-color);
+        }
+        .mobile-header {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .mobile-header-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .mobile-header { display: flex; }
+            .desktop-app { flex-direction: column; }
+            .app-container { padding-bottom: 90px; }
+        }
+        @media (min-width: 768px) {
+            .bottom-nav { display: none !important; }
+
+            /* Hide the old sticky header on desktop since we have sidebar */
+            .sticky-header { display: none; }
+            
+            .app-container { 
+                margin-left: 250px; 
+                width: calc(100% - 250px); 
+            }
+            .main-content {
+                padding: 40px; 
+                width: 100%;
+            }
+            .tabs-container {
+                margin: 0 auto 2rem auto; 
+                width: 100%;
+            }
+            
+            /* Responsive Grid for Cards on Web */
+            .view-section.active {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+                gap: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="desktop-app">
+    <!-- Sidebar Navigation (Desktop Only) -->
+    <aside class="sidebar">
+        <img src="../assets/imagelogo.png" class="sidebar-logo" alt="Spacemate Logo">
+        <ul class="sidebar-menu-list">
+            <li class="sidebar-menu-item">
+                <a class="sidebar-menu-link active" onclick="switchView('home', this)">
+                    <i class="fa-solid fa-house"></i> หน้าแรก
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a class="sidebar-menu-link" onclick="switchView('notif', this)">
+                    <i class="fa-solid fa-bell"></i> การแจ้งเตือน
+                    <span class="nav-badge" style="position: static; margin-left: auto; width: 10px; height: 10px; display: none;"></span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a class="sidebar-menu-link" onclick="switchView('profile', this)">
+                    <i class="fa-solid fa-user"></i> โปรไฟล์
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="admin-profile">
+                <div class="admin-avatar">
+                    <img id="sidebar-owner-avatar-img" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200" alt="Profile">
+                </div>
+                <div class="admin-info">
+                    <h4 id="sidebar-owner-name">กำลังโหลด...</h4>
+                    <span id="sidebar-owner-role">เจ้าของพื้นที่</span>
+                </div>
+            </div>
+            <a href="../index.html" class="logout-btn">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> ออกจากระบบ
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main App Container Area -->
+    <div class="app-container">
+    <!-- Home View Container -->
+    <div id="app-home" class="app-page active">
+        <!-- Sticky Header -->
+    <header class="sticky-header">
+        <div class="header-top">
+            <img src="../assets/imagelogo.png" alt="Spacemate" class="logo">
+        </div>
+        <div class="search-container">
+            <input type="text" id="search-input" class="search-bar" placeholder="ค้นหาตลาดหรืออีเวนต์..." oninput="filterItems()">
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        
+        <!-- Tab Toggles -->
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="switchTab('markets', this)">ตลาดที่ลงทะเบียน</button>
+            <button class="tab-btn" onclick="switchTab('events', this)">อีเวนต์ที่ลงทะเบียน</button>
+        </div>
+
+        <!-- Markets View -->
+        <div id="markets-view" class="view-section active">
+            <div class="empty-state" id="markets-empty" style="display: none;">
+                <h3>ไม่พบตลาดที่ลงทะเบียน</h3>
+                <p>คุณยังไม่มีพื้นที่ตลาดที่เปิดให้บริการในขณะนี้</p>
+            </div>
+            
+            <div id="markets-list" style="display: contents;">
+                <!-- Dynamic Market Cards will be injected here -->
+            </div>
+        </div>
+
+        <!-- Events View -->
+        <div id="events-view" class="view-section">
+            <div class="empty-state" id="events-empty" style="display: none;">
+                <h3>ไม่พบอีเวนต์ที่ลงทะเบียน</h3>
+                <p>คุณยังไม่มีพื้นที่อีเวนต์ที่เปิดให้บริการในขณะนี้</p>
+            </div>
+
+            <div id="events-list" style="display: contents;">
+                <!-- Dynamic Event Cards will be injected here -->
+            </div>
+        </div>
+        
+    </main>
+
+    <!-- Floating Action Button for Adding Market/Event -->
+    <a href="#" onclick="requireOwnerKYC(event, 'add_space_owner.html')" class="fab-btn" title="เพิ่มตลาด/อีเวนต์ใหม่">
+        <i class="fa-solid fa-plus"></i>
+    </a>
+
+    </div>
+
+    <!-- Notifications View Container -->
+    <div id="app-notif" class="app-page" style="display:none;">
+        <header class="notif-header">
+            <h1 class="notif-title">คำขอจอง / การแจ้งเตือน</h1>
+        </header>
+        <div class="notif-list" id="notifications-list">
+            <div style="text-align: center; padding: 2rem; color: #64748b;">
+                <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2rem; margin-bottom: 1rem; color: #a46309;"></i>
+                <p>กำลังโหลดคำขอจอง...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Approval Modal -->
+    <div id="booking-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; padding: 20px;">
+        <div style="background: white; border-radius: 20px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative;">
+            <button onclick="closeBookingModal()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer;"><i class="fa-solid fa-times"></i></button>
+            <div style="padding: 20px; border-bottom: 1px solid #e2e8f0;">
+                <h2 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin: 0;">ตรวจสอบการจอง</h2>
+            </div>
+            <div style="padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: grid; grid-template-columns: 100px 1fr; gap: 10px; font-size: 0.95rem;">
+                    <div style="color: #64748b;">ผู้จอง:</div>
+                    <div id="modal-booker-name" style="font-weight: 600; color: #1e293b;">-</div>
+                    
+                    <div style="color: #64748b;">เบอร์โทร:</div>
+                    <div id="modal-booker-phone" style="font-weight: 500; color: #1e293b;">-</div>
+
+                    <div style="color: #64748b;">สถานที่:</div>
+                    <div id="modal-venue-name" style="font-weight: 500; color: #1e293b;">-</div>
+
+                    <div style="color: #64748b;">หมายเล็คล็อค:</div>
+                    <div id="modal-space-name" style="font-weight: 600; color: #a46309;">-</div>
+
+                    <div style="color: #64748b;">วันที่เริ่ม:</div>
+                    <div id="modal-start-date" style="font-weight: 500; color: #1e293b;">-</div>
+                    
+                    <div style="color: #64748b;">วันที่สิ้นสุด:</div>
+                    <div id="modal-end-date" style="font-weight: 500; color: #1e293b;">-</div>
+
+                    <div style="color: #64748b;">ยอดชำระ:</div>
+                    <div id="modal-total-price" style="font-weight: 700; color: #16a34a; font-size: 1.1rem;">-</div>
+                </div>
+
+                <div style="margin-top: 10px; border-top: 1px dashed #e2e8f0; padding-top: 15px;">
+                    <div style="color: #64748b; font-size: 0.95rem; margin-bottom: 10px; font-weight: 500;">หลักฐานการโอนเงิน (สลิป):</div>
+                    <div style="width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 200px;">
+                        <img id="modal-slip-image" src="" alt="Payment Slip" style="max-width: 100%; max-height: 400px; display: none; object-fit: contain;">
+                        <span id="modal-no-slip" style="color: #94a3b8; font-size: 0.9rem;">ไม่มีรูปสลิป</span>
+                    </div>
+                </div>
+            </div>
+            <div style="padding: 20px; border-top: 1px solid #e2e8f0; display: flex; gap: 10px;">
+                <button onclick="approveBooking()" style="flex: 1; background: #16a34a; color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; font-family: inherit;">อนุมัติการจอง</button>
+                <button onclick="rejectBooking()" style="flex: 1; background: #ef4444; color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; font-family: inherit;">ปฏิเสธ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile View Container -->
+    <div id="app-profile" class="app-page" style="display: none; background: #fff; min-height: 100vh; padding-bottom: 80px;">
+        <!-- Minimal Header -->
+        <div style="padding: 1.5rem 1.5rem 0.5rem; text-align: center;">
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin: 0;">โปรไฟล์</h2>
+        </div>
+
+        <!-- Avatar & Basic Info -->
+        <div style="text-align: center; padding: 1.5rem;">
+            <div style="position: relative; display: inline-block; margin-bottom: 1rem;">
+                <img id="profile-page-avatar-img" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200" alt="Avatar" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+                <!-- Unverified/Verified Badge on Avatar -->
+                <div id="avatar-verified-badge" style="position: absolute; bottom: 0; right: 0; background: #ef4444; color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    <i class="fa-solid fa-exclamation"></i>
+                </div>
+            </div>
+            
+            <h3 id="owner-profile-name" style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin: 0 0 0.25rem;">คุณกำลังโหลด...</h3>
+            
+            <div style="display: flex; justify-content: center; gap: 0.5rem;">
+                <span id="owner-profile-role" style="background: #f1f5f9; color: #475569; padding: 0.35rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;"><i class="fa-solid fa-crown" style="color: #a46309;"></i> กำลังโหลด...</span>
+            </div>
+        </div>
+
+        <!-- Premium Stats -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 0 1.5rem 2rem;">
+            <!-- Stat 1 -->
+            <div style="background: linear-gradient(135deg, #ffffff, #f8fafc); border: 1px solid #e2e8f0; border-radius: 20px; padding: 1rem 0.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.04);">
+                <div id="owner-profile-total-spaces" style="font-size: 1.4rem; font-weight: 800; color: #1e293b; line-height: 1;">0</div>
+                <div style="font-size: 0.75rem; color: #64748b; font-weight: 600; margin-top: 0.35rem; text-align: center;">พื้นที่ทั้งหมด</div>
+            </div>
+            <!-- Stat 2 -->
+            <div style="background: linear-gradient(135deg, #ffffff, #fefce8); border: 1px solid #fef08a; border-radius: 20px; padding: 1rem 0.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(234, 179, 8, 0.08);">
+                <div id="owner-profile-total-tenants" style="font-size: 1.4rem; font-weight: 800; color: #a46309; line-height: 1;">0</div>
+                <div style="font-size: 0.75rem; color: #a46309; font-weight: 600; margin-top: 0.35rem; opacity: 0.8; text-align: center;">ผู้เช่ารวม</div>
+            </div>
+        </div>
+
+        <!-- Menus -->
+        <div style="padding: 0 1.5rem;">
+            <!-- Group 1 -->
+            <div style="margin-bottom: 1.5rem;">
+                <div style="font-size: 0.85rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem; padding-left: 0.5rem;">บัญชีและธุรกิจ</div>
+                
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <!-- Verify -->
+                    <a href="owner_verify.html" style="background: linear-gradient(to right, #ffffff, #f8fafc); border-radius: 20px; border: 1px solid #e2e8f0; padding: 1.25rem; text-decoration: none; display: flex; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: all 0.2s;">
+                        <div style="background: #fefce8; color: #eab308; width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(234, 179, 8, 0.15);">
+                            <i class="fa-solid fa-user-shield"></i>
+                        </div>
+                        <div style="flex: 1; margin-left: 1.25rem; display: flex; align-items: center;">
+                            <div>
+                                <div style="font-weight: 700; color: #1e293b; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    ยืนยันตัวตนเจ้าของพื้นที่
+                                    <span id="owner-kyc-badge" style="font-size: 0.65rem; background: #ef4444; color: white; padding: 0.15rem 0.4rem; border-radius: 8px; font-weight: 700;">ด่วน</span>
+                                </div>
+                                <div id="owner-kyc-subtitle" style="font-size: 0.8rem; color: #64748b; margin-top: 0.2rem;">เพื่อสร้างความน่าเชื่อถือให้ตลาด</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right" style="color: #cbd5e1; font-size: 1rem;"></i>
+                    </a>
+                    
+                    <!-- Edit Profile -->
+                    <a href="javascript:void(0)" onclick="switchView('edit-profile', document.querySelector('.bottom-nav .nav-item:last-child'))" style="background: linear-gradient(to right, #ffffff, #f8fafc); border-radius: 20px; border: 1px solid #e2e8f0; padding: 1.25rem; text-decoration: none; display: flex; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: all 0.2s;">
+                        <div style="background: #eff6ff; color: #3b82f6; width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15);">
+                            <i class="fa-solid fa-user-edit"></i>
+                        </div>
+                        <div style="flex: 1; margin-left: 1.25rem;">
+                            <div style="font-weight: 700; color: #1e293b; font-size: 1rem;">แก้ไขข้อมูลส่วนตัว</div>
+                            <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.2rem;">ข้อมูลติดต่อและรายละเอียดบริษัท</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right" style="color: #cbd5e1; font-size: 1rem;"></i>
+                    </a>
+
+                    <!-- Bank Account -->
+                    <a href="javascript:void(0)" onclick="switchView('bank-account', document.querySelector('.bottom-nav .nav-item:last-child'))" style="background: linear-gradient(to right, #ffffff, #f8fafc); border-radius: 20px; border: 1px solid #e2e8f0; padding: 1.25rem; text-decoration: none; display: flex; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: all 0.2s;">
+                        <div style="background: #ecfdf5; color: #10b981; width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.15);">
+                            <i class="fa-solid fa-university"></i>
+                        </div>
+                        <div style="flex: 1; margin-left: 1.25rem;">
+                            <div style="font-weight: 700; color: #1e293b; font-size: 1rem;">บัญชีธนาคารและการรับเงิน</div>
+                            <div id="profile-bank-summary" style="font-size: 0.8rem; color: #64748b; margin-top: 0.2rem;">ยังไม่ได้ตั้งค่าบัญชี</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right" style="color: #cbd5e1; font-size: 1rem;"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Group 2 -->
+            <div style="margin-bottom: 1.5rem;">
+                <div style="font-size: 0.85rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem; padding-left: 0.5rem;">สิทธิพิเศษและการตั้งค่า</div>
+                
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <!-- Packages -->
+                    <a href="javascript:void(0)" onclick="switchView('packages', document.querySelector('.bottom-nav .nav-item:last-child'))" style="background: linear-gradient(to right, #ffffff, #fffbeb); border-radius: 20px; border: 1px solid #fef08a; padding: 1.25rem; text-decoration: none; display: flex; align-items: center; box-shadow: 0 4px 15px rgba(234, 179, 8, 0.05); transition: all 0.2s;">
+                        <div style="background: linear-gradient(135deg, #a46309, #d97706); color: white; width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(164, 99, 9, 0.25);">
+                            <i class="fa-solid fa-crown"></i>
+                        </div>
+                        <div style="flex: 1; margin-left: 1.25rem;">
+                            <div id="profile-package-status" style="font-weight: 700; color: #a46309; font-size: 1rem;">แพ็กเกจของฉัน (Free)</div>
+                            <div id="profile-package-desc" style="font-size: 0.8rem; color: #d97706; margin-top: 0.2rem;">อัปเกรดเพื่อรับฟีเจอร์เพิ่ม</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right" style="color: #cbd5e1; font-size: 1rem;"></i>
+                    </a>
+                    
+                    <!-- Support -->
+                    <a href="javascript:void(0)" onclick="switchView('support', document.querySelector('.bottom-nav .nav-item:last-child'))" style="background: linear-gradient(to right, #ffffff, #f8fafc); border-radius: 20px; border: 1px solid #e2e8f0; padding: 1.25rem; text-decoration: none; display: flex; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: all 0.2s;">
+                        <div style="background: #f0fdf4; color: #22c55e; width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(34, 197, 94, 0.15);">
+                            <i class="fa-solid fa-headset"></i>
+                        </div>
+                        <div style="flex: 1; margin-left: 1.25rem;">
+                            <div style="font-weight: 700; color: #1e293b; font-size: 1rem;">ศูนย์ช่วยเหลือ / ติดต่อเรา</div>
+                            <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.2rem;">สอบถามปัญหาการใช้งาน</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right" style="color: #cbd5e1; font-size: 1rem;"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Group 3 (Logout) -->
+            <div style="margin-bottom: 40px;">
+                <a href="javascript:void(0)" id="owner-logout-btn" style="background: linear-gradient(to right, #ffffff, #fef2f2); border-radius: 20px; border: 1px solid #fecaca; padding: 1.25rem; text-decoration: none; display: flex; align-items: center; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.05); transition: all 0.2s;">
+                    <div style="background: #fee2e2; color: #ef4444; width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.15);">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    </div>
+                    <div style="flex: 1; margin-left: 1.25rem;">
+                        <div style="font-weight: 700; color: #ef4444; font-size: 1rem;">ออกจากระบบ</div>
+                        <div style="font-size: 0.8rem; color: #f87171; margin-top: 0.2rem;">กลับสู่หน้าหลัก</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile View Container -->
+    <div id="app-edit-profile" class="app-page" style="display: none;">
+        <header class="profile-header" style="display: flex; align-items: center;">
+            <a href="javascript:void(0)" class="back-btn" onclick="switchView('profile', document.querySelector('.bottom-nav .nav-item:last-child'))" style="position: absolute; left: 1.5rem;">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <h1 class="profile-title" style="flex: 1; text-align: center;">แก้ไขข้อมูลส่วนตัว</h1>
+        </header>
+
+        <div style="background-color: #dcfce7; color: #166534; padding: 0.75rem 1rem; text-align: center; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: -0.5rem;">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>ข้อมูลส่วนบุคคลของคุณถูกเข้ารหัสและรักษาความปลอดภัยระดับสูงสุด</span>
+        </div>
+
+        <div class="main-content">
+            <!-- Avatar Section -->
+            <div class="edit-avatar-container">
+                <img id="edit-profile-avatar-img" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200" alt="Avatar" class="edit-avatar">
+                <button class="edit-avatar-btn">
+                    <i class="fa-solid fa-camera"></i>
+                </button>
+            </div>
+
+            <!-- Edit Form -->
+            <div class="edit-form-card">
+                <div class="form-group">
+                    <label class="form-label">ชื่อ-นามสกุล</label>
+                    <input type="text" id="owner-edit-name" class="form-control" value="คุณธนกฤต บริหารพื้นที่">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">เบอร์โทรศัพท์</label>
+                    <input type="tel" id="owner-edit-phone" class="form-control" value="0812345678" maxlength="10" inputmode="numeric" oninput="validateNumberOnly(this, 10)">
+                    <div id="owner-edit-phone-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: none;">⚠️ กรุณากรอกเบอร์โทรศัพท์เป็นตัวเลข 10 หลัก</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">เลขประจำตัวประชาชน (13 หลัก)</label>
+                    <input type="text" id="owner-edit-idcard" class="form-control" value="1100200300405" placeholder="กรอกเลขประจำตัวประชาชน 13 หลัก" maxlength="13" inputmode="numeric" oninput="validateNumberOnly(this, 13)">
+                    <div id="owner-edit-idcard-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: none;">⚠️ กรุณากรอกเลขประจำตัวประชาชนเป็นตัวเลข 13 หลัก</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 0.4rem;">
+                        อีเมล
+                        <i class="fa-solid fa-circle-check" style="color: #16a34a; font-size: 0.9rem;" title="Verified"></i>
+                    </label>
+                    <div style="position: relative;">
+                        <i class="fa-solid fa-lock" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #9ca3af;"></i>
+                        <input type="email" id="owner-edit-email" class="form-control" value="thanakrit.b@example.com" readonly style="background-color: #f3f4f6; color: #6b7280; padding-left: 2.5rem; cursor: not-allowed;">
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem;">ติดต่อฝ่ายบริการลูกค้าหากต้องการเปลี่ยนอีเมล</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ชื่อบริษัท / ชื่อผู้ดูแล</label>
+                    <input type="text" id="owner-edit-company" class="form-control" value="บริษัท บริหารพื้นที่ จำกัด">
+                </div>
+            </div>
+
+
+
+            <button class="save-btn" onclick="saveOwnerProfile()">บันทึกการเปลี่ยนแปลง</button>
+        </div>
+    </div>
+
+    <!-- Bank Account View Container -->
+    <style>
+        .bank-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .bank-tile {
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 1rem 0.25rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: #ffffff;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+        .bank-tile:hover {
+            border-color: rgba(164, 99, 9, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(164, 99, 9, 0.08);
+        }
+        .bank-tile input[type="radio"] {
+            display: none;
+        }
+        .bank-tile input[type="radio"]:checked + .bank-content {
+            color: #a46309;
+            font-weight: 600;
+        }
+        .bank-tile:has(input[type="radio"]:checked) {
+            border-color: #a46309;
+            background-color: #fffaf0;
+            box-shadow: 0 8px 25px rgba(164, 99, 9, 0.15);
+        }
+        .bank-tile:has(input[type="radio"]:checked)::after {
+            content: '\f058';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #a46309;
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: white;
+            border-radius: 50%;
+            font-size: 1.35rem;
+            line-height: 1;
+            box-shadow: 0 2px 8px rgba(164, 99, 9, 0.2);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+        .bank-logo {
+            width: 42px;
+            height: 42px;
+            margin-bottom: 0.5rem;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+        .bank-tile:hover .bank-logo {
+            transform: scale(1.1);
+        }
+        .bank-kbank { background-color: #138f2d; }
+        .bank-scb { background-color: #4e2a81; }
+        .bank-bbl { background-color: #1e4598; }
+        .bank-ktb { background-color: #1ba5e1; }
+        .bank-bay { background-color: #fec43b; color: #333; }
+        .bank-ttb { background-color: #0050f0; }
+        .bank-name {
+            font-size: 0.8rem;
+            color: var(--text-main);
+            font-weight: 500;
+            line-height: 1.2;
+        }
+    </style>
+    <div id="app-bank-account" class="app-page" style="display: none;">
+        <header class="profile-header" style="display: flex; align-items: center;">
+            <a href="javascript:void(0)" class="back-btn" onclick="switchView('profile', document.querySelector('.bottom-nav .nav-item:last-child'))" style="position: absolute; left: 1.5rem;">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <h1 class="profile-title" style="flex: 1; text-align: center;">บัญชีธนาคารและการรับเงิน</h1>
+        </header>
+
+        <div class="main-content">
+            <!-- Active Payout Account Card -->
+            <div id="current-bank-account-section" style="display: none;">
+                <h2 style="font-size: 1rem; color: var(--text-muted); margin-bottom: 0.75rem; margin-top: 0.5rem;">บัญชีรับเงินปัจจุบัน</h2>
+                <div style="background-color: var(--card-bg); border-radius: 16px; padding: 1.25rem; margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; align-items: center; gap: 1rem; border: 1px solid var(--border-color);">
+                    <img id="active-bank-logo" src="../assets/กสิกรไทย.png" alt="Bank Logo" class="bank-logo" style="width: 48px; height: 48px; margin-bottom: 0; object-fit: cover; border-radius: 50%;">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
+                            <div id="active-bank-acc" style="font-weight: 600; font-size: 1.1rem; color: var(--text-main); letter-spacing: 1px;">-</div>
+                            <span style="background-color: #dcfce7; color: #166534; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 12px; font-weight: 600;">● บัญชีรับเงินหลัก</span>
+                        </div>
+                        <div id="active-bank-name" style="font-size: 0.85rem; color: var(--text-muted);">-</div>
+                        <div id="active-bank-owner" style="font-size: 0.9rem; color: var(--text-main); margin-top: 0.2rem;">-</div>
+                    </div>
+                </div>
+                <button id="change-bank-btn" class="save-btn" style="background: #fff; color: var(--primary-color); border: 1px solid var(--primary-color); margin-top: 0;" onclick="showAddBankForm()">แก้ไขบัญชีธนาคาร</button>
+            </div>
+
+            <!-- Form to Add/Edit Bank Account -->
+            <div id="add-bank-account-section">
+                <h2 id="bank-form-title" style="font-size: 1rem; color: var(--text-muted); margin-bottom: 0.75rem;">เพิ่มบัญชีธนาคาร</h2>
+                <div class="edit-form-card" style="padding-bottom: 1.5rem;">
+                <label class="form-label">เลือกธนาคาร</label>
+                <div class="bank-grid">
+                    <label class="bank-tile">
+                        <input type="radio" name="bank_selection" value="kbank" checked>
+                        <div class="bank-content">
+                            <img src="../assets/กสิกรไทย.png" alt="กสิกรไทย" class="bank-logo">
+                            <div class="bank-name">กสิกรไทย</div>
+                        </div>
+                    </label>
+                    <label class="bank-tile">
+                        <input type="radio" name="bank_selection" value="scb">
+                        <div class="bank-content">
+                            <img src="../assets/ไทยพาณิชย์.jpg" alt="ไทยพาณิชย์" class="bank-logo">
+                            <div class="bank-name">ไทยพาณิชย์</div>
+                        </div>
+                    </label>
+                    <label class="bank-tile">
+                        <input type="radio" name="bank_selection" value="bbl">
+                        <div class="bank-content">
+                            <img src="../assets/กรุงเทพ.jpg" alt="กรุงเทพ" class="bank-logo">
+                            <div class="bank-name">กรุงเทพ</div>
+                        </div>
+                    </label>
+                    <label class="bank-tile">
+                        <input type="radio" name="bank_selection" value="ktb">
+                        <div class="bank-content">
+                            <img src="../assets/กรุงไทย.png" alt="กรุงไทย" class="bank-logo">
+                            <div class="bank-name">กรุงไทย</div>
+                        </div>
+                    </label>
+                    <label class="bank-tile">
+                        <input type="radio" name="bank_selection" value="bay">
+                        <div class="bank-content">
+                            <img src="../assets/กรุงศรี.png" alt="กรุงศรีฯ" class="bank-logo">
+                            <div class="bank-name">กรุงศรีฯ</div>
+                        </div>
+                    </label>
+                    <label class="bank-tile">
+                        <input type="radio" name="bank_selection" value="ttb">
+                        <div class="bank-content">
+                            <img src="../assets/ทีทีบี.jpg" alt="ทีทีบี" class="bank-logo">
+                            <div class="bank-name">ทีทีบี</div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">เลขที่บัญชี</label>
+                    <input type="text" id="owner-bank-account-no" class="form-control" placeholder="ระบุเลขที่บัญชีธนาคาร 10-12 หลัก" pattern="[0-9]*" inputmode="numeric" maxlength="12" oninput="validateNumberOnly(this, 10)">
+                    <div id="owner-bank-account-no-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: none;">⚠️ กรุณากรอกเลขที่บัญชีธนาคารเป็นตัวเลข 10-12 หลัก</div>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">
+                        ชื่อบัญชีธนาคาร
+                    </label>
+                    <div style="position: relative;">
+                        <input type="text" id="owner-bank-account-name" class="form-control" placeholder="ระบุชื่อบัญชีธนาคาร">
+                    </div>
+                </div>
+            </div>
+
+            <div style="background-color: #dcfce7; color: #166534; padding: 1rem; border-radius: 12px; font-size: 0.85rem; display: flex; align-items: flex-start; gap: 0.75rem; margin-top: 1.5rem; margin-bottom: 1.5rem;">
+                <i class="fa-solid fa-lock" style="margin-top: 0.2rem; font-size: 1rem;"></i>
+                <span style="line-height: 1.4;">เงินค่าเช่าจะถูกโอนเข้าบัญชีนี้โดยอัตโนมัติหลังจากผู้เช่าชำระเงินเรียบร้อย กรุณาตรวจสอบความถูกต้องของข้อมูล</span>
+            </div>
+
+            <button class="save-btn" onclick="saveOwnerBankAccount()">บันทึกข้อมูลบัญชีธนาคาร</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Packages View Container -->
+    <style>
+        .pkg-card {
+            background-color: #ffffff;
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #f1f5f9;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
+        }
+        .pkg-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.06);
+        }
+        .pkg-card.pro {
+            border: 2px solid transparent;
+            background: linear-gradient(#fff, #fff) padding-box, 
+                        linear-gradient(135deg, #a46309, #fde047, #a46309) border-box;
+            transform: scale(1.03);
+            margin-top: 2.5rem;
+            margin-bottom: 2.5rem;
+            z-index: 10;
+        }
+        .pkg-card.pro::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at top right, rgba(253, 224, 71, 0.15), transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .pkg-card.pro > * {
+            position: relative;
+            z-index: 1;
+        }
+        .pkg-card.pro:hover {
+            box-shadow: 0 20px 50px rgba(164, 99, 9, 0.2);
+            transform: scale(1.05) translateY(-5px);
+        }
+        .pkg-badge {
+            position: absolute;
+            top: -18px;
+            right: 1.5rem;
+            background: linear-gradient(135deg, #a46309, #d97706);
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 0.5rem 1.25rem;
+            border-radius: 20px;
+            box-shadow: 0 6px 15px rgba(164, 99, 9, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .pkg-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+        }
+        .pkg-price {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a46309, #d97706);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.25rem;
+            font-family: 'Prompt', sans-serif;
+        }
+        .pkg-subtext {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+        .pkg-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+        .pkg-feature {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+        .pkg-feature i.fa-check {
+            color: #a46309;
+            background: rgba(164, 99, 9, 0.1);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+        .pkg-feature i.fa-xmark {
+            color: #94a3b8;
+            background: #f1f5f9;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+        .pkg-feature.disabled {
+            color: #94a3b8;
+        }
+        .pkg-btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 16px;
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .pkg-btn-disabled {
+            background-color: #f1f5f9;
+            color: #64748b;
+            cursor: not-allowed;
+            border: 1px solid #e2e8f0;
+        }
+        .pkg-btn-primary {
+            background: linear-gradient(135deg, #a46309 0%, #8f5506 100%);
+            color: white;
+            box-shadow: 0 8px 20px rgba(164, 99, 9, 0.25);
+            animation: pulseGlow 2s infinite;
+        }
+        .pkg-btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(164, 99, 9, 0.4);
+            animation: none;
+        }
+        .pkg-btn-primary:active {
+            transform: scale(0.96);
+        }
+        
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(164, 99, 9, 0.4); }
+            70% { box-shadow: 0 0 0 12px rgba(164, 99, 9, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(164, 99, 9, 0); }
+        }
+    </style>
+    <div id="app-packages" class="app-page" style="display: none;">
+        <header class="profile-header" style="display: flex; align-items: center;">
+            <a href="javascript:void(0)" class="back-btn" onclick="switchView('profile', document.querySelector('.bottom-nav .nav-item:last-child'))" style="position: absolute; left: 1.5rem;">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <h1 class="profile-title" style="flex: 1; text-align: center; font-family: 'Sarabun', 'Prompt', sans-serif;">แพ็กเกจของฉัน</h1>
+        </header>
+
+        <div id="current-package-text" style="background-color: #F8FAFC; color: #475569; padding: 0.75rem 1rem; text-align: center; font-size: 0.9rem; font-weight: 500; border-bottom: 1px solid #E2E8F0;">
+            แพ็กเกจปัจจุบัน: เริ่มต้น (Free)
+        </div>
+
+        <div class="main-content" style="padding-bottom: 6rem; padding-top: 1rem;">
+            
+            <!-- Free Plan -->
+            <div class="pkg-card">
+                <div class="pkg-title">เริ่มต้น (Free)</div>
+                <div class="pkg-price" style="color: #475569;">฿0 <span style="font-size: 0.9rem; font-weight: 400; color: var(--text-muted);">/ เดือน</span></div>
+                <div class="pkg-subtext" style="visibility: hidden;">Spacer</div>
+                
+                <ul class="pkg-features">
+                    <li class="pkg-feature">
+                        <i class="fa-solid fa-check"></i>
+                        <span>จัดการพื้นที่ได้ 1 ตลาด</span>
+                    </li>
+                    <li class="pkg-feature">
+                        <i class="fa-solid fa-check"></i>
+                        <span>รองรับสูงสุด 50 ล็อค</span>
+                    </li>
+                    <li class="pkg-feature">
+                        <i class="fa-solid fa-check"></i>
+                        <span>ดูสถานะการจองพื้นฐาน</span>
+                    </li>
+                    <li class="pkg-feature disabled">
+                        <i class="fa-solid fa-xmark"></i>
+                        <span>ระบบตรวจสลิปอัตโนมัติ</span>
+                    </li>
+                    <li class="pkg-feature disabled">
+                        <i class="fa-solid fa-xmark"></i>
+                        <span>รายงานสถิติเชิงลึก</span>
+                    </li>
+                </ul>
+                
+                <button id="btn-free-plan" class="pkg-btn pkg-btn-disabled" disabled onclick="downgradeToFree()">กำลังใช้งาน</button>
+            </div>
+
+            <!-- Pro Plan -->
+            <div class="pkg-card pro">
+                <div class="pkg-badge"><i class="fa-solid fa-crown" style="color: #fef08a;"></i> ยอดนิยม</div>
+                <div class="pkg-title">มือโปร (Pro)</div>
+                <div class="pkg-price">฿199 <span style="font-size: 0.9rem; font-weight: 400; color: var(--text-muted);">/ เดือน</span></div>
+                <div class="pkg-subtext" style="color: #ea580c; font-weight: 500;">คุ้มค่าที่สุดสำหรับเจ้าของตลาด</div>
+                
+                <ul class="pkg-features">
+                    <li class="pkg-feature">
+                        <i class="fa-solid fa-check"></i>
+                        <span><strong>ไม่จำกัด</strong> จำนวนตลาดและล็อค</span>
+                    </li>
+                    <li class="pkg-feature">
+                        <i class="fa-solid fa-check"></i>
+                        <span>ระบบตรวจสลิปอัตโนมัติด้วย <strong>AI</strong></span>
+                    </li>
+                    <li class="pkg-feature">
+                        <i class="fa-solid fa-check"></i>
+                        <span>แจ้งเตือนทวงค่าเช่าผ่าน SMS</span>
+                    </li>
+                    <li class="pkg-feature">
+                        <i class="fa-solid fa-check"></i>
+                        <span>รายงานสถิติรายได้เชิงลึก</span>
+                    </li>
+                    <li class="pkg-feature">
+                        <i class="fa-solid fa-check"></i>
+                        <span>ซัพพอร์ตระดับพรีเมียม 24/7</span>
+                    </li>
+                </ul>
+                
+                <button id="btn-upgrade-pro" class="pkg-btn pkg-btn-primary" onclick="upgradeToPro()">อัปเกรดเป็น Pro</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Support View Container -->
+    <style>
+        .support-hero {
+            background: linear-gradient(145deg, #ffffff, #fdf9f1);
+            border-radius: 24px;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(164, 99, 9, 0.1);
+            box-shadow: 0 10px 30px rgba(164, 99, 9, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        .support-hero::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(164,99,9,0.05) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+        }
+        .support-icon-circle {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-color), #d98a1c);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 1.25rem auto;
+            box-shadow: 0 10px 25px rgba(164, 99, 9, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+        .support-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        .support-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .contact-section-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 1.25rem;
+            padding-left: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .contact-section-title::before {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 1.15rem;
+            background-color: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        /* LINE Card Premium */
+        .contact-card-premium {
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            text-decoration: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            border: 1px solid rgba(0, 185, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .contact-card-premium:active { transform: scale(0.98); }
+        .contact-card-premium::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background-color: #00B900;
+        }
+        .contact-card-premium .contact-card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #00B900, #009900);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin-right: 1.25rem;
+            box-shadow: 0 8px 15px rgba(0, 185, 0, 0.2);
+            flex-shrink: 0;
+        }
+        .contact-card-info { flex: 1; }
+        .contact-card-title {
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 1.05rem;
+            margin-bottom: 0.25rem;
+        }
+        .contact-card-sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Grid for secondary contacts */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+        .contact-card-small {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 1.25rem;
+            text-align: center;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            border: 1px solid rgba(0,0,0,0.03);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .contact-card-small:active { transform: scale(0.96); }
+        .contact-card-small .icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            color: white;
+            margin-bottom: 0.75rem;
+        }
+        .contact-phone .icon-wrapper {
+            background: linear-gradient(135deg, var(--primary-color), #d98a1c);
+            box-shadow: 0 6px 12px rgba(164, 99, 9, 0.2);
+        }
+        .contact-email .icon-wrapper {
+            background: linear-gradient(135deg, #64748b, #475569);
+            box-shadow: 0 6px 12px rgba(100, 116, 139, 0.2);
+        }
+        .contact-card-small .contact-card-title { font-size: 0.95rem; margin-bottom: 0.15rem; font-weight: 700; color: var(--text-main); }
+        .contact-card-small .contact-card-sub { font-size: 0.8rem; color: var(--text-muted); }
+        
+        /* FAQ Premium Section */
+        .faq-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            border: 1px solid rgba(0,0,0,0.03);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        .faq-card:active { transform: scale(0.98); }
+        .faq-question {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .faq-question i {
+            color: var(--primary-color);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(164, 99, 9, 0.1);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+        .faq-answer {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-top: 0;
+            max-height: 0;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* FAQ Active State */
+        .faq-card.active {
+            border-left: 4px solid var(--primary-color);
+            box-shadow: 0 6px 20px rgba(164, 99, 9, 0.08);
+            border-color: rgba(164, 99, 9, 0.1);
+        }
+        .faq-card.active .faq-question i {
+            transform: rotate(180deg);
+            background: var(--primary-color);
+            color: white;
+        }
+        .faq-card.active .faq-answer {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f1f5f9;
+            max-height: 200px;
+            opacity: 1;
+        }
+    </style>
+    <div id="app-support" class="app-page" style="display: none;">
+        <header class="profile-header" style="display: flex; align-items: center;">
+            <a href="javascript:void(0)" class="back-btn" onclick="switchView('profile', document.querySelector('.bottom-nav .nav-item:last-child'))" style="position: absolute; left: 1.5rem;">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <h1 class="profile-title" style="flex: 1; text-align: center;">ศูนย์ช่วยเหลือ</h1>
+        </header>
+
+        <div class="main-content" style="padding-bottom: 6rem; padding-top: 1rem;">
+            
+            <div class="support-hero">
+                <div class="support-icon-circle">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <div class="support-title">มีคำถามหรือข้อสงสัย?</div>
+                <div class="support-subtitle">ทีมงาน Spacemate และผู้ช่วยอัจฉริยะพร้อมดูแลคุณ</div>
+            </div>
+
+            <div class="contact-section-title">ช่องทางการติดต่อ</div>
+            
+            <!-- LINE Chatbot -->
+            <a href="#" class="contact-card-premium" onclick="alert('เตรียมเชื่อมต่อ LINE Messaging API สำหรับ Chatbot ที่นี่!')">
+                <div class="contact-card-icon">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="contact-card-info">
+                    <div class="contact-card-title">คุยกับผู้ช่วยอัจฉริยะ (LINE Bot)</div>
+                    <div class="contact-card-sub">ให้บริการตลอด 24 ชั่วโมง (เตรียมพร้อมสำหรับอนาคต)</div>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="color: #cbd5e1;"></i>
+            </a>
+
+            <!-- Grid for Phone & Email -->
+            <div class="contact-grid">
+                <!-- Phone -->
+                <a href="tel:020000000" class="contact-card-small contact-phone">
+                    <div class="icon-wrapper">
+                        <i class="fa-solid fa-phone"></i>
+                    </div>
+                    <div class="contact-card-title">โทรศัพท์</div>
+                    <div class="contact-card-sub">02-XXX-XXXX</div>
+                </a>
+
+                <!-- Email -->
+                <a href="mailto:support@spacemate.dev" class="contact-card-small contact-email">
+                    <div class="icon-wrapper">
+                        <i class="fa-solid fa-envelope"></i>
+                    </div>
+                    <div class="contact-card-title">อีเมล</div>
+                    <div class="contact-card-sub">support@spacemate.dev</div>
+                </a>
+            </div>
+
+            <div class="contact-section-title">คำถามที่พบบ่อย (FAQ)</div>
+            
+            <div class="faq-card" onclick="this.classList.toggle('active')">
+                <div class="faq-question">
+                    เงินค่าเช่าจะโอนเข้าบัญชีวันไหน? <i class="fa-solid fa-angle-down"></i>
+                </div>
+                <div class="faq-answer">
+                    ระบบจะทำการโอนเงินเข้าบัญชีหลักของคุณภายใน 1-2 วันทำการ หลังจากที่ระบบตรวจสอบการชำระเงินจากผู้เช่าเรียบร้อยแล้ว
+                </div>
+            </div>
+            
+            <div class="faq-card" onclick="this.classList.toggle('active')">
+                <div class="faq-question">
+                    อยากเปลี่ยนรูปแผนผังตลาดทำอย่างไร? <i class="fa-solid fa-angle-down"></i>
+                </div>
+                <div class="faq-answer">
+                    คุณสามารถไปที่เมนู 'จัดการพื้นที่' และเลือกแก้ไขรายละเอียดของตลาด จากนั้นอัปโหลดรูปแผนผังใหม่ได้เลย
+                </div>
+            </div>
+
+            <div class="faq-card" onclick="this.classList.toggle('active')">
+                <div class="faq-question">
+                    การอัปเกรดเป็นแพ็กเกจ Pro <i class="fa-solid fa-angle-down"></i>
+                </div>
+                <div class="faq-answer">
+                    คุณสามารถอัปเกรดได้ที่เมนู 'แพ็กเกจของฉัน' ในหน้าโปรไฟล์ เพื่อใช้ฟีเจอร์ต่างๆ เช่น ระบบตรวจสลิปอัตโนมัติด้วย AI
+                </div>
+            </div>
+
+        </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <a href="#" onclick="requireOwnerKYC(event, 'add_space_owner.html')" class="fab-btn" id="main-fab">
+        <i class="fa-solid fa-plus"></i>
+    </a>
+    </div>
+</div>
+
+    <!-- Fixed Bottom Navbar -->
+    <nav class="bottom-nav">
+        <div class="nav-indicator"></div>
+        <a href="javascript:void(0)" class="nav-item active" onclick="switchView('home', this)">
+            <span class="nav-item-content">
+                <i class="fa-solid fa-house nav-icon"></i>
+                <span class="nav-text">หน้าแรก</span>
+            </span>
+        </a>
+        <a href="javascript:void(0)" class="nav-item" onclick="switchView('notif', this)">
+            <span class="nav-item-content">
+                <i class="fa-solid fa-bell nav-icon"></i>
+                <span class="nav-text">การแจ้งเตือน</span>
+                <span class="nav-badge"></span>
+            </span>
+        </a>
+        <a href="javascript:void(0)" class="nav-item" onclick="switchView('profile', this)">
+            <span class="nav-item-content">
+                <i class="fa-solid fa-user nav-icon"></i>
+                <span class="nav-text">โปรไฟล์</span>
+            </span>
+        </a>
+    </nav>
+
+    <!-- Tab & Page Switching Logic -->
+    <script>
+        // Switch between Market and Event Tabs in Home View
+        function switchTab(viewId, btnElement) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // Add active class to clicked button
+            btnElement.classList.add('active');
+
+            // Hide all view sections
+            document.querySelectorAll('.view-section').forEach(view => {
+                view.classList.remove('active');
+            });
+            // Show the selected view section
+            document.getElementById(viewId + '-view').classList.add('active');
+
+            // Re-apply filter when tab switches to ensure empty states are correct
+            if (typeof filterItems === 'function') filterItems();
+        }
+
+        function filterItems() {
+            const searchInput = document.getElementById('search-input');
+            const searchText = searchInput ? searchInput.value.toLowerCase().trim() : '';
+            
+            // Filter Markets
+            let marketsCount = 0;
+            document.querySelectorAll('#markets-view .listing-card').forEach(card => {
+                const titleElement = card.querySelector('.card-title');
+                const title = titleElement ? titleElement.textContent.toLowerCase() : '';
+                const textMatch = (searchText === '' || title.includes(searchText) || (card.dataset.location && card.dataset.location.toLowerCase().includes(searchText)));
+
+                if (textMatch) {
+                    card.style.display = 'flex';
+                    marketsCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            const marketsEmpty = document.getElementById('markets-empty');
+            if(marketsEmpty) marketsEmpty.style.display = (marketsCount === 0) ? 'block' : 'none';
+
+            // Filter Events
+            let eventsCount = 0;
+            document.querySelectorAll('#events-view .listing-card').forEach(card => {
+                const titleElement = card.querySelector('.card-title');
+                const title = titleElement ? titleElement.textContent.toLowerCase() : '';
+                const textMatch = (searchText === '' || title.includes(searchText) || (card.dataset.location && card.dataset.location.toLowerCase().includes(searchText)));
+
+                if (textMatch) {
+                    card.style.display = 'flex';
+                    eventsCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            const eventsEmpty = document.getElementById('events-empty');
+            if (eventsEmpty) eventsEmpty.style.display = (eventsCount === 0) ? 'block' : 'none';
+        }
+
+        // Navbar Indicator Logic
+        function updateIndicator(item) {
+            const indicator = document.querySelector('.nav-indicator');
+            if (indicator && item) {
+                indicator.style.width = `${item.offsetWidth}px`;
+                indicator.style.left = `${item.offsetLeft}px`;
+                indicator.style.opacity = '1';
+            }
+        }
+
+        function initOwnerView() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let viewParam = urlParams.get('view') || window.location.hash.replace('#', '');
+            
+            // If coming directly from login page or register page, default to 'home'
+            if (document.referrer && (document.referrer.includes('index.html') || document.referrer.includes('register.html') || document.referrer.endsWith('/spacemate/'))) {
+                sessionStorage.setItem('active_owner_view', 'home');
+                viewParam = 'home';
+            }
+
+            if (!viewParam && document.referrer && document.referrer.includes('owner_verify')) {
+                viewParam = 'profile';
+            }
+            if (!viewParam) {
+                viewParam = sessionStorage.getItem('active_owner_view') || 'home';
+            }
+
+            switchView(viewParam);
+
+            const activeItem = document.querySelector('.nav-item.active');
+            if (activeItem) {
+                setTimeout(() => updateIndicator(activeItem), 50);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initOwnerView();
+            checkAuth();
+
+            window.addEventListener('resize', () => {
+                const currentActive = document.querySelector('.nav-item.active');
+                if (currentActive) updateIndicator(currentActive);
+            });
+        });
+
+        window.addEventListener('pageshow', (event) => {
+            initOwnerView();
+            if (event.persisted) {
+                checkAuth();
+            }
+        });
+
+        // Switch between Main App Pages
+        function switchView(viewId, navElement) {
+            if (viewId) {
+                sessionStorage.setItem('active_owner_view', viewId);
+            }
+
+            // Hide all app-pages
+            document.querySelectorAll('.app-page').forEach(page => {
+                page.style.display = 'none';
+                page.classList.remove('active');
+            });
+
+            // Remove active class from all nav items
+            document.querySelectorAll('.bottom-nav .nav-item, .sidebar-menu-link').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show targeted page
+            const targetPage = document.getElementById('app-' + viewId);
+            if (targetPage) {
+                targetPage.style.display = 'block';
+                // Trigger reflow to restart animation
+                void targetPage.offsetWidth; 
+                targetPage.classList.add('active');
+                
+                // Reset bank account form state when entering
+                if (viewId === 'bank-account' && window.currentUserProfile) {
+                    if (window.currentUserProfile.bank_account_no) {
+                        const currentBankSection = document.getElementById('current-bank-account-section');
+                        const addBankSection = document.getElementById('add-bank-account-section');
+                        const changeBankBtn = document.getElementById('change-bank-btn');
+                        
+                        if (currentBankSection) currentBankSection.style.display = 'block';
+                        if (addBankSection) addBankSection.style.display = 'none';
+                        if (changeBankBtn) changeBankBtn.style.display = 'block';
+                    }
+                }
+            }
+
+            const fabBtn = document.getElementById('main-fab');
+            if (fabBtn) {
+                if (viewId === 'home') {
+                    fabBtn.style.display = 'flex';
+                } else {
+                    fabBtn.style.display = 'none';
+                }
+            }
+
+            const bottomNav = document.querySelector('.bottom-nav');
+            if (bottomNav) {
+                if (viewId === 'edit-profile' || viewId === 'bank-account') {
+                    bottomNav.style.display = 'none';
+                } else {
+                    bottomNav.style.display = 'flex';
+                }
+            }
+
+            // Add active class to matching nav items
+            const matchingNavItems = document.querySelectorAll(`[onclick*="'${viewId}'"]`);
+            matchingNavItems.forEach(item => {
+                item.classList.add('active');
+            });
+
+            // Update bottom nav indicator
+            const activeBottomNav = document.querySelector('.bottom-nav .nav-item.active');
+            if (activeBottomNav) {
+                updateIndicator(activeBottomNav);
+            }
+        }
+
+        function markAllNotificationsAsRead() {
+            const unreadCards = document.querySelectorAll('#app-notif .notif-card.unread');
+            unreadCards.forEach(card => {
+                card.classList.remove('unread');
+                const dot = card.querySelector('.notif-unread-dot');
+                if (dot) dot.style.display = 'none';
+            });
+            document.querySelectorAll('#app-notif .notif-unread-dot').forEach(dot => dot.style.display = 'none');
+            document.querySelectorAll('.nav-badge').forEach(badge => {
+                badge.style.display = 'none';
+            });
+        }
+
+        function markNotificationAsRead(element) {
+            if (element && element.classList.contains('unread')) {
+                element.classList.remove('unread');
+                const dot = element.querySelector('.notif-unread-dot');
+                if (dot) dot.style.display = 'none';
+
+                const remainingUnread = document.querySelectorAll('#app-notif .notif-card.unread');
+                if (remainingUnread.length === 0) {
+                    document.querySelectorAll('.nav-badge').forEach(badge => {
+                        badge.style.display = 'none';
+                    });
+                }
+            }
+        }
+        function validateNumberOnly(input, expectedLength) {
+            input.value = input.value.replace(/[^0-9]/g, '');
+            const errEl = document.getElementById(input.id + '-err');
+            if (errEl) {
+                if (input.value.length > 0 && input.value.length < expectedLength) {
+                    errEl.style.display = 'block';
+                    input.style.borderColor = '#ef4444';
+                } else {
+                    errEl.style.display = 'none';
+                    input.style.borderColor = '';
+                }
+            }
+        }
+
+        async function saveOwnerProfile() {
+            const phoneInput = document.getElementById('owner-edit-phone');
+            const phoneErr = document.getElementById('owner-edit-phone-err');
+            const phoneVal = phoneInput ? phoneInput.value.trim() : '';
+
+            const idInput = document.getElementById('owner-edit-idcard');
+            const idErr = document.getElementById('owner-edit-idcard-err');
+            const idVal = idInput ? idInput.value.trim() : '';
+            
+            const nameInput = document.getElementById('owner-edit-name');
+            const companyInput = document.getElementById('owner-edit-company');
+
+            if (!/^\d{10}$/.test(phoneVal)) {
+                if (phoneErr) phoneErr.style.display = 'block';
+                if (phoneInput) { phoneInput.style.borderColor = '#ef4444'; phoneInput.focus(); }
+                return false;
+            } else {
+                if (phoneErr) phoneErr.style.display = 'none';
+                if (phoneInput) phoneInput.style.borderColor = '';
+            }
+
+            if (idInput && idVal && !/^\d{13}$/.test(idVal)) {
+                if (idErr) idErr.style.display = 'block';
+                if (idInput) { idInput.style.borderColor = '#ef4444'; idInput.focus(); }
+                return false;
+            } else if (idErr) {
+                idErr.style.display = 'none';
+                if (idInput) idInput.style.borderColor = '';
+            }
+
+            try {
+                const session = await getSession();
+                if (!session) return;
+                
+                let displayName = '';
+                if (nameInput && nameInput.value) {
+                    displayName = nameInput.value.trim();
+                }
+
+                const updates = {
+                    phone: phoneVal,
+                    id_card_number: idVal,
+                    company_name: companyInput ? companyInput.value.trim() : ''
+                };
+                
+                if (displayName) {
+                    updates.display_name = displayName;
+                }
+
+                const { error } = await supabaseClient
+                    .from('profiles')
+                    .update(updates)
+                    .eq('id', session.user.id);
+                    
+                if (error) throw error;
+                
+                alert('บันทึกข้อมูลส่วนตัวเรียบร้อยแล้ว');
+                checkAuth();
+                switchView('profile', document.querySelector('.bottom-nav .nav-item:last-child'));
+            } catch (err) {
+                console.error('Error saving profile:', err);
+                alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+            }
+        }
+
+        async function saveOwnerBankAccount() {
+            const accInput = document.getElementById('owner-bank-account-no');
+            const errEl = document.getElementById('owner-bank-account-no-err');
+            const accVal = accInput ? accInput.value.trim() : '';
+            
+            const accNameInput = document.getElementById('owner-bank-account-name');
+            const accNameVal = accNameInput ? accNameInput.value.trim() : '';
+
+            if (!/^\d{10,12}$/.test(accVal)) {
+                if (errEl) errEl.style.display = 'block';
+                if (accInput) { accInput.style.borderColor = '#ef4444'; accInput.focus(); }
+                return false;
+            }
+
+            if (!accNameVal) {
+                alert('กรุณาระบุชื่อบัญชีธนาคาร');
+                if (accNameInput) { accNameInput.focus(); }
+                return false;
+            }
+
+            if (errEl) errEl.style.display = 'none';
+            if (accInput) accInput.style.borderColor = '';
+            
+            try {
+                const session = await getSession();
+                if (!session) return;
+                
+                let selectedBank = '';
+                const bankRadios = document.getElementsByName('bank_selection');
+                for (let radio of bankRadios) {
+                    if (radio.checked) {
+                        selectedBank = radio.value;
+                        break;
+                    }
+                }
+
+                const { error } = await supabaseClient
+                    .from('profiles')
+                    .update({ 
+                        bank_account_no: accVal,
+                        bank_account_name: accNameVal,
+                        bank_name: selectedBank
+                    })
+                    .eq('id', session.user.id);
+                    
+                if (error) throw error;
+                
+                alert('บันทึกข้อมูลบัญชีธนาคารเรียบร้อยแล้ว');
+                checkAuth();
+                // We don't need to switchView, we are already in the profile view
+                document.getElementById('app-bank-account').scrollIntoView({behavior: 'smooth'});
+            } catch (err) {
+                console.error('Error saving bank account:', err);
+                alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+            }
+        }
+
+        function showAddBankForm() {
+            const addBankSection = document.getElementById('add-bank-account-section');
+            const changeBankBtn = document.getElementById('change-bank-btn');
+            const title = document.getElementById('bank-form-title');
+            if (addBankSection) addBankSection.style.display = 'block';
+            if (changeBankBtn) changeBankBtn.style.display = 'none';
+            if (title) title.textContent = 'แก้ไขบัญชีธนาคาร';
+            addBankSection.scrollIntoView({behavior: 'smooth'});
+        }
+
+        async function upgradeToPro() {
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) {
+                    alert('กรุณาเข้าสู่ระบบก่อน');
+                    return;
+                }
+                
+                const btn = document.getElementById('btn-upgrade-pro');
+                if (btn) {
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังอัปเกรด...';
+                    btn.disabled = true;
+                }
+
+                const { error } = await supabaseClient
+                    .from('profiles')
+                    .update({ package_plan: 'pro' })
+                    .eq('id', user.id);
+
+                if (error) throw error;
+                
+                alert('อัปเกรดเป็นแพ็กเกจ Pro สำเร็จ!');
+                await checkAuth();
+                switchView('profile', document.querySelector('.bottom-nav .nav-item:last-child'));
+            } catch (err) {
+                console.error('Error upgrading package:', err);
+                alert('เกิดข้อผิดพลาดในการอัปเกรดแพ็กเกจ');
+                const btn = document.getElementById('btn-upgrade-pro');
+                if (btn) {
+                    btn.innerHTML = 'อัปเกรดเป็น Pro';
+                    btn.disabled = false;
+                }
+            }
+        }
+
+        async function downgradeToFree() {
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) return;
+                
+                const btn = document.getElementById('btn-free-plan');
+                if (btn) {
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังดำเนินการ...';
+                    btn.disabled = true;
+                }
+
+                const { error } = await supabaseClient
+                    .from('profiles')
+                    .update({ package_plan: 'free' })
+                    .eq('id', user.id);
+
+                if (error) throw error;
+                
+                alert('เปลี่ยนกลับเป็นแพ็กเกจเริ่มต้นสำเร็จ');
+                await checkAuth(); 
+            } catch(err) {
+                console.error(err);
+                alert('เกิดข้อผิดพลาดในการเปลี่ยนแพ็กเกจ');
+                const btn = document.getElementById('btn-free-plan');
+                if (btn) {
+                    btn.innerHTML = 'กลับไปใช้แพ็กเกจเริ่มต้น';
+                    btn.disabled = false;
+                }
+            }
+        }
+    </script>
+    
+    <!-- Supabase Core & Custom Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabase.js"></script>
+    
+    <!-- Auth Guard & Profile Fetching -->
+    <script>
+        async function checkAuth() {
+            try {
+                // 1. Check if user is logged in
+                const session = await getSession();
+                
+                if (!session) {
+                    // Not logged in -> redirect to login page
+                    window.location.replace('../index.html');
+                    return;
+                }
+
+                // 2. Fetch profile data
+                const { data: profile, error } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (error || !profile) {
+                    console.error('Error fetching profile:', error);
+                    return;
+                }
+                window.currentUserProfile = profile;
+
+                // Ensure a 'user' doesn't stay on 'owner' page
+                if (profile.role === 'user') {
+                    window.location.replace('../user/main_user.html');
+                    return;
+                }
+
+                // 3. Update DOM with user data
+                const nameEl = document.getElementById('owner-profile-name');
+                const roleEl = document.getElementById('owner-profile-role');
+                
+                let displayName = profile.display_name || 'ผู้ใช้ที่ไม่ได้ตั้งชื่อ';
+                
+                // Remove hyphens and trim
+                displayName = displayName.replace(/-/g, ' ').trim();
+                // Remove "คุณ" prefix if user doesn't want it
+                if (displayName.startsWith('คุณ')) {
+                    displayName = displayName.substring(3).trim();
+                }
+
+                if (nameEl) {
+                    nameEl.textContent = displayName;
+                }
+                
+                const sidebarNameEl = document.getElementById('sidebar-owner-name');
+                const avatarUrl = profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`;
+
+                if (sidebarNameEl) {
+                    sidebarNameEl.textContent = displayName;
+                }
+
+                const sidebarAvatarImg = document.getElementById('sidebar-owner-avatar-img');
+                if (sidebarAvatarImg) sidebarAvatarImg.src = avatarUrl;
+                
+                const profilePageAvatarImg = document.getElementById('profile-page-avatar-img');
+                if (profilePageAvatarImg) profilePageAvatarImg.src = avatarUrl;
+                
+                const editProfileAvatarImg = document.getElementById('edit-profile-avatar-img');
+                if (editProfileAvatarImg) editProfileAvatarImg.src = avatarUrl;
+                
+                if (roleEl) {
+                    if (profile.role === 'owner' && profile.package_plan === 'pro') {
+                        roleEl.innerHTML = '<i class="fa-solid fa-crown" style="color: #fef08a;"></i> เจ้าของพื้นที่ Pro';
+                        roleEl.style.background = 'linear-gradient(135deg, #d97706, #a46309)';
+                        roleEl.style.color = '#fff';
+                        roleEl.style.boxShadow = '0 2px 10px rgba(217, 119, 6, 0.3)';
+                    } else {
+                        roleEl.innerHTML = '<i class="fa-solid fa-crown" style="color: #a46309;"></i> ' + (profile.role === 'owner' ? 'เจ้าของพื้นที่' : 'ผู้เช่าพื้นที่');
+                        roleEl.style.background = '#f1f5f9';
+                        roleEl.style.color = '#475569';
+                        roleEl.style.boxShadow = 'none';
+                    }
+                }
+
+                const sidebarRoleEl = document.getElementById('sidebar-owner-role');
+                if (sidebarRoleEl) {
+                    sidebarRoleEl.textContent = profile.role === 'owner' ? 'เจ้าของพื้นที่' : 'ผู้เช่าพื้นที่';
+                }
+
+                // Update Edit Profile fields
+                const editNameEl = document.getElementById('owner-edit-name');
+                if (editNameEl) editNameEl.value = profile.display_name || '';
+                
+                const editPhoneEl = document.getElementById('owner-edit-phone');
+                if (editPhoneEl) editPhoneEl.value = profile.phone || '';
+                
+                const editIdCardEl = document.getElementById('owner-edit-idcard');
+                if (editIdCardEl) editIdCardEl.value = profile.id_card_number || '';
+                
+                const editEmailEl = document.getElementById('owner-edit-email');
+                if (editEmailEl) editEmailEl.value = session.user.email || profile.email || '';
+                
+                const editCompanyEl = document.getElementById('owner-edit-company');
+                if (editCompanyEl) editCompanyEl.value = profile.company_name || '';
+
+                // Update Bank Account fields
+                const bankAccNoEl = document.getElementById('owner-bank-account-no');
+                if (bankAccNoEl) bankAccNoEl.value = profile.bank_account_no || '';
+                
+                const bankAccNameEl = document.getElementById('owner-bank-account-name');
+                if (bankAccNameEl) bankAccNameEl.value = profile.bank_account_name || '';
+                
+                if (profile.bank_name) {
+                    const bankRadios = document.getElementsByName('bank_selection');
+                    for (let radio of bankRadios) {
+                        if (radio.value === profile.bank_name) {
+                            radio.checked = true;
+                            break;
+                        }
+                    }
+                }
+                
+                // Update active bank account card
+                const activeBankLogoEl = document.getElementById('active-bank-logo');
+                const activeBankAccEl = document.getElementById('active-bank-acc');
+                const activeBankNameEl = document.getElementById('active-bank-name');
+                const activeBankOwnerEl = document.getElementById('active-bank-owner');
+                
+                const currentBankSection = document.getElementById('current-bank-account-section');
+                const addBankSection = document.getElementById('add-bank-account-section');
+                const changeBankBtn = document.getElementById('change-bank-btn');
+                const bankFormTitle = document.getElementById('bank-form-title');
+                
+                if (activeBankOwnerEl) {
+                    activeBankOwnerEl.textContent = profile.bank_account_name || 'ยังไม่ได้ตั้งค่า';
+                }
+                
+                if (profile.bank_account_no) {
+                    if (currentBankSection) currentBankSection.style.display = 'block';
+                    if (addBankSection) addBankSection.style.display = 'none';
+                    if (changeBankBtn) changeBankBtn.style.display = 'block';
+                    if (activeBankAccEl) {
+                        const acc = profile.bank_account_no;
+                        if (acc.length >= 10) {
+                            activeBankAccEl.textContent = acc.substring(0,3) + '-x-x' + acc.substring(acc.length-4, acc.length-1) + '-' + acc.substring(acc.length-1);
+                        } else {
+                            activeBankAccEl.textContent = acc;
+                        }
+                    }
+                } else {
+                    if (currentBankSection) currentBankSection.style.display = 'none';
+                    if (addBankSection) addBankSection.style.display = 'block';
+                    if (bankFormTitle) bankFormTitle.textContent = 'เพิ่มบัญชีธนาคาร';
+                    if (activeBankAccEl) activeBankAccEl.textContent = 'ยังไม่ได้ตั้งค่า';
+                }
+                if (activeBankNameEl && activeBankLogoEl) {
+                    const bankNames = {
+                        'kbank': { name: 'ธนาคารกสิกรไทย', logo: '../assets/กสิกรไทย.png' },
+                        'scb': { name: 'ธนาคารไทยพาณิชย์', logo: '../assets/ไทยพาณิชย์.jpg' },
+                        'bbl': { name: 'ธนาคารกรุงเทพ', logo: '../assets/กรุงเทพ.jpg' },
+                        'ktb': { name: 'ธนาคารกรุงไทย', logo: '../assets/กรุงไทย.png' },
+                        'bay': { name: 'ธนาคารกรุงศรีอยุธยา', logo: '../assets/กรุงศรี.png' },
+                        'ttb': { name: 'ธนาคารทหารไทยธนชาต', logo: '../assets/ทีทีบี.jpg' }
+                    };
+                    const bankInfo = bankNames[profile.bank_name] || { name: 'ไม่ได้ระบุ', logo: '../assets/กสิกรไทย.png' };
+                    activeBankNameEl.textContent = bankInfo.name;
+                    activeBankLogoEl.src = bankInfo.logo;
+                    activeBankLogoEl.alt = bankInfo.name;
+                }
+                
+                // --- Update Package Section ---
+                const pStatus = document.getElementById('profile-package-status');
+                const pDesc = document.getElementById('profile-package-desc');
+                const curPkg = document.getElementById('current-package-text');
+                const btnPro = document.getElementById('btn-upgrade-pro');
+                const btnFree = document.getElementById('btn-free-plan');
+                const profileImg = document.getElementById('profile-page-avatar-img');
+                
+                if (profile.package_plan === 'pro') {
+                    if (pStatus) pStatus.textContent = 'แพ็กเกจของฉัน (Pro)';
+                    if (pDesc) {
+                        pDesc.textContent = 'ยอดเยี่ยม! คุณใช้แพ็กเกจสูงสุดแล้ว';
+                        pDesc.style.color = '#16a34a'; 
+                    }
+                    if (curPkg) curPkg.textContent = 'แพ็กเกจปัจจุบัน: มือโปร (Pro)';
+                    if (btnPro) {
+                        btnPro.className = 'pkg-btn pkg-btn-disabled';
+                        btnPro.disabled = true;
+                        btnPro.textContent = 'กำลังใช้งาน';
+                    }
+                    if (btnFree) {
+                        btnFree.className = 'pkg-btn'; 
+                        btnFree.style.cssText = "background: #fff; color: #64748b; border: 1px solid #cbd5e1;";
+                        btnFree.disabled = false;
+                        btnFree.textContent = 'กลับไปใช้แพ็กเกจเริ่มต้น';
+                    }
+                    if (profileImg) profileImg.classList.add('pro-avatar-ring');
+                } else {
+                    if (pStatus) pStatus.textContent = 'แพ็กเกจของฉัน (Free)';
+                    if (pDesc) {
+                        pDesc.textContent = 'อัปเกรดเพื่อรับฟีเจอร์เพิ่ม';
+                        pDesc.style.color = '#d97706';
+                    }
+                    if (curPkg) curPkg.textContent = 'แพ็กเกจปัจจุบัน: เริ่มต้น (Free)';
+                    if (btnPro) {
+                        btnPro.className = 'pkg-btn pkg-btn-primary';
+                        btnPro.disabled = false;
+                        btnPro.textContent = 'อัปเกรดเป็น Pro';
+                    }
+                    if (btnFree) {
+                        btnFree.className = 'pkg-btn pkg-btn-disabled';
+                        btnFree.style.cssText = "";
+                        btnFree.disabled = true;
+                        btnFree.textContent = 'กำลังใช้งาน';
+                    }
+                    if (profileImg) profileImg.classList.remove('pro-avatar-ring');
+                }
+                
+                const profileBankSummaryEl = document.getElementById('profile-bank-summary');
+                if (profileBankSummaryEl) {
+                    if (profile.bank_name && profile.bank_account_no) {
+                        const bankNamesShort = {
+                            'kbank': 'กสิกรไทย',
+                            'scb': 'ไทยพาณิชย์',
+                            'bbl': 'กรุงเทพ',
+                            'ktb': 'กรุงไทย',
+                            'bay': 'กรุงศรีฯ',
+                            'ttb': 'ทีทีบี'
+                        };
+                        const bName = bankNamesShort[profile.bank_name] || profile.bank_name;
+                        const acc = profile.bank_account_no;
+                        const accShort = acc.length >= 4 ? '***' + acc.substring(acc.length-4) : acc;
+                        profileBankSummaryEl.textContent = bName + ' - ' + accShort;
+                    } else {
+                        profileBankSummaryEl.textContent = 'ยังไม่ได้ตั้งค่าบัญชี';
+                    }
+                }
+
+                // Update KYC Status badge
+                const kycBadge = document.getElementById('owner-kyc-badge');
+                const kycSubtitle = document.getElementById('owner-kyc-subtitle');
+                if (kycBadge && kycSubtitle) {
+                    const status = profile.kyc_status || (profile.is_verified ? 'approved' : null);
+                    if (status === 'approved') {
+                        kycBadge.style.background = '#10b981';
+                        kycBadge.textContent = 'อนุมัติแล้ว';
+                        kycSubtitle.textContent = 'ยืนยันตัวตนสำเร็จ บัญชีได้รับการรับรองแล้ว';
+                    } else if (status === 'pending') {
+                        kycBadge.style.background = '#eab308';
+                        kycBadge.textContent = 'รอตรวจสอบ';
+                        kycSubtitle.textContent = 'เอกสารอยู่ระหว่างรอเจ้าหน้าที่ Admin ตรวจสอบ';
+                    } else if (status === 'rejected') {
+                        kycBadge.style.background = '#ef4444';
+                        kycBadge.textContent = 'ไม่อนุมัติ';
+                        kycSubtitle.textContent = 'เอกสารไม่ผ่าน กรุณากดเพื่อยื่นข้อมูลใหม่';
+                    } else {
+                        kycBadge.style.background = '#ef4444';
+                        kycBadge.textContent = 'ด่วน';
+                        kycSubtitle.textContent = 'เพื่อสร้างความน่าเชื่อถือให้ตลาด';
+                    }
+                }
+
+                const verifiedBadge = document.getElementById('avatar-verified-badge');
+                if (verifiedBadge) {
+                    const status = profile.kyc_status || (profile.is_verified ? 'approved' : null);
+                    if (status === 'approved') {
+                        verifiedBadge.style.background = '#10b981';
+                        verifiedBadge.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    } else if (status === 'pending') {
+                        verifiedBadge.style.background = '#eab308';
+                        verifiedBadge.innerHTML = '<i class="fa-solid fa-clock"></i>';
+                    } else {
+                        verifiedBadge.style.background = '#ef4444';
+                        verifiedBadge.innerHTML = '<i class="fa-solid fa-exclamation"></i>';
+                    }
+                }
+
+                // 4. Fetch owner's venues
+                fetchOwnerVenues(session.user.id);
+
+            } catch (err) {
+                console.error('Auth check error:', err);
+            }
+        }
+
+        async function fetchOwnerVenues(ownerId) {
+            try {
+                const { data: venues, error } = await supabaseClient
+                    .from('venues')
+                    .select('*')
+                    .eq('owner_id', ownerId)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const marketsList = document.getElementById('markets-list');
+                const eventsList = document.getElementById('events-list');
+                const marketsEmpty = document.getElementById('markets-empty');
+                const eventsEmpty = document.getElementById('events-empty');
+
+                marketsList.innerHTML = '';
+                eventsList.innerHTML = '';
+
+                let marketCount = 0;
+                let eventCount = 0;
+
+                if (venues && venues.length > 0) {
+                    venues.forEach(venue => {
+                        const defaultImage = "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&q=80&w=800";
+                        const imageUrl = venue.cover_image_url || venue.map_image_url || defaultImage;
+                        const imgSrc = imageUrl.startsWith('data:') || imageUrl.startsWith('http') ? imageUrl : defaultImage;
+
+                        const cardHtml = `
+                            <div class="listing-card" data-location="${venue.location || ''}">
+                                <div class="card-image-container">
+                                    <img src="${imgSrc}" alt="${venue.name}" class="card-image">
+                                </div>
+                                <div class="card-body">
+                                    <h3 class="card-title">${venue.name}</h3>
+                                    <div class="card-stats">
+                                        <div class="stat-item">
+                                            <i class="fa-solid fa-location-dot"></i>
+                                            <span>${venue.location || 'ไม่ได้ระบุ'}</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <i class="fa-solid fa-clock"></i>
+                                            <span>เปิดให้บริการ</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <button class="book-btn" style="width: 100%;" onclick="window.location.href='tenant_info_owner.html?id=${venue.id}';">จัดการพื้นที่</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        if (venue.type === 'market') {
+                            marketsList.innerHTML += cardHtml;
+                            marketCount++;
+                        } else if (venue.type === 'event') {
+                            eventsList.innerHTML += cardHtml;
+                            eventCount++;
+                        }
+                    });
+                }
+
+                marketsEmpty.style.display = marketCount === 0 ? 'block' : 'none';
+                eventsEmpty.style.display = eventCount === 0 ? 'block' : 'none';
+                
+            } catch (err) {
+                console.error("Error fetching venues:", err);
+            }
+        }
+
+        // --- Booking Approval Logic ---
+        let currentBookingId = null;
+        let currentSpaceId = null;
+
+        async function fetchPendingBookings() {
+            try {
+                const session = await getSession();
+                if (!session) return;
+
+                // 1. Get all venues owned by this user
+                const { data: venues, error: vErr } = await supabaseClient
+                    .from('venues')
+                    .select('id, name')
+                    .eq('owner_id', session.user.id);
+                
+                if (vErr || !venues || venues.length === 0) {
+                    document.getElementById('notifications-list').innerHTML = '<div style="text-align: center; padding: 2rem; color: #64748b;">ไม่มีคำขอจองใหม่ในขณะนี้</div>';
+                    return;
+                }
+
+                const venueIds = venues.map(v => v.id);
+
+                // 2. Get all spaces in these venues
+                const { data: spaces, error: sErr } = await supabaseClient
+                    .from('spaces')
+                    .select('id, space_number, venue_id')
+                    .in('venue_id', venueIds);
+                
+                if (sErr || !spaces || spaces.length === 0) {
+                    document.getElementById('notifications-list').innerHTML = '<div style="text-align: center; padding: 2rem; color: #64748b;">ไม่มีคำขอจองใหม่ในขณะนี้</div>';
+                    return;
+                }
+
+                const spaceIds = spaces.map(s => s.id);
+                
+                // Helper map for venue names
+                const venueMap = {};
+                venues.forEach(v => venueMap[v.id] = v.name);
+
+                // Helper map for space details
+                const spaceMap = {};
+                spaces.forEach(s => spaceMap[s.id] = { number: s.space_number, venueName: venueMap[s.venue_id] });
+
+                // 3. Get pending bookings for these spaces
+                const { data: bookings, error: bErr } = await supabaseClient
+                    .from('bookings')
+                    .select('*, profiles(first_name, last_name, phone)')
+                    .in('space_id', spaceIds)
+                    .eq('status', 'pending')
+                    .order('created_at', { ascending: false });
+
+                const notifList = document.getElementById('notifications-list');
+                
+                if (bErr || !bookings || bookings.length === 0) {
+                    notifList.innerHTML = '<div style="text-align: center; padding: 2rem; color: #64748b;">ไม่มีคำขอจองใหม่ในขณะนี้</div>';
+                    // Clear badge
+                    document.querySelectorAll('.nav-badge').forEach(b => b.style.display = 'none');
+                    return;
+                }
+
+                // Show badge
+                document.querySelectorAll('.nav-badge').forEach(b => b.style.display = 'block');
+
+                notifList.innerHTML = '';
+                
+                bookings.forEach(booking => {
+                    const spaceInfo = spaceMap[booking.space_id];
+                    const bookerName = booking.profiles ? `${booking.profiles.first_name || ''} ${booking.profiles.last_name || ''}` : 'ผู้ใช้';
+                    const bookerPhone = booking.profiles ? booking.profiles.phone : '';
+                    const timeAgo = new Date(booking.created_at).toLocaleDateString('th-TH', { hour: '2-digit', minute: '2-digit' });
+
+                    // We store data as a JSON string to pass it to the modal
+                    const bookingData = encodeURIComponent(JSON.stringify({
+                        id: booking.id,
+                        space_id: booking.space_id,
+                        bookerName: bookerName,
+                        bookerPhone: bookerPhone,
+                        venueName: spaceInfo.venueName,
+                        spaceNumber: spaceInfo.number,
+                        startDate: booking.start_date,
+                        endDate: booking.end_date,
+                        totalPrice: booking.total_price,
+                        slipUrl: booking.payment_slip_url
+                    }));
+
+                    const notifCard = `
+                        <div class="notif-card unread" onclick="openBookingModal('${bookingData}', this)">
+                            <div class="notif-unread-dot"></div>
+                            <div class="notif-icon-box booking">
+                                <i class="fa-solid fa-file-invoice-dollar"></i>
+                            </div>
+                            <div class="notif-content">
+                                <div class="notif-title-text">รอตรวจสอบการโอนเงิน</div>
+                                <div class="notif-desc">คุณ ${bookerName} จองพื้นที่ <span style="font-weight:600; color:var(--primary-color);">${spaceInfo.number}</span> (${spaceInfo.venueName})</div>
+                                <div class="notif-time">${timeAgo}</div>
+                            </div>
+                        </div>
+                    `;
+                    notifList.innerHTML += notifCard;
+                });
+
+            } catch (err) {
+                console.error("Error fetching pending bookings:", err);
+                document.getElementById('notifications-list').innerHTML = '<div style="text-align: center; padding: 2rem; color: #ef4444;">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
+            }
+        }
+
+        function openBookingModal(encodedData, element) {
+            if (element) {
+                markNotificationAsRead(element);
+            }
+
+            const data = JSON.parse(decodeURIComponent(encodedData));
+            currentBookingId = data.id;
+            currentSpaceId = data.space_id;
+
+            document.getElementById('modal-booker-name').textContent = data.bookerName;
+            document.getElementById('modal-booker-phone').textContent = data.bookerPhone || '-';
+            document.getElementById('modal-venue-name').textContent = data.venueName;
+            document.getElementById('modal-space-name').textContent = data.spaceNumber;
+            document.getElementById('modal-start-date').textContent = data.startDate;
+            document.getElementById('modal-end-date').textContent = data.endDate;
+            document.getElementById('modal-total-price').textContent = '฿' + Number(data.totalPrice).toLocaleString();
+
+            const slipImg = document.getElementById('modal-slip-image');
+            const noSlipMsg = document.getElementById('modal-no-slip');
+
+            if (data.slipUrl) {
+                // Determine if it's base64 or URL
+                const src = data.slipUrl.startsWith('data:') || data.slipUrl.startsWith('http') ? data.slipUrl : `data:image/jpeg;base64,${data.slipUrl}`;
+                slipImg.src = src;
+                slipImg.style.display = 'block';
+                noSlipMsg.style.display = 'none';
+            } else {
+                slipImg.style.display = 'none';
+                noSlipMsg.style.display = 'block';
+            }
+
+            document.getElementById('booking-modal').style.display = 'flex';
+        }
+
+        function closeBookingModal() {
+            document.getElementById('booking-modal').style.display = 'none';
+            currentBookingId = null;
+            currentSpaceId = null;
+        }
+
+        function requireOwnerKYC(e, url) {
+            if (e) e.preventDefault();
+            const status = window.currentUserProfile?.kyc_status || (window.currentUserProfile?.is_verified ? 'approved' : 'unverified');
+            if (status !== 'approved') {
+                alert('กรุณายืนยันตัวตน (KYC) ให้เสร็จสิ้นและรอการอนุมัติก่อนทำรายการนี้');
+                switchView('profile', document.querySelector('.bottom-nav .nav-item:last-child'));
+                return false;
+            }
+            if (url) window.location.href = url;
+            return true;
+        }
+
+        async function approveBooking() {
+            if (!requireOwnerKYC()) return;
+            if (!currentBookingId || !currentSpaceId) return;
+            if(!confirm('คุณแน่ใจหรือไม่ที่จะอนุมัติการจองนี้?')) return;
+
+            try {
+                // 1. Update Booking Status
+                const { error: bErr } = await supabaseClient
+                    .from('bookings')
+                    .update({ status: 'confirmed' })
+                    .eq('id', currentBookingId);
+                
+                if (bErr) throw bErr;
+
+                // 2. Update Space Status
+                const { error: sErr } = await supabaseClient
+                    .from('spaces')
+                    .update({ status: 'booked' })
+                    .eq('id', currentSpaceId);
+
+                if (sErr) throw sErr;
+
+                alert('อนุมัติการจองเรียบร้อยแล้ว!');
+                closeBookingModal();
+                fetchPendingBookings(); // Refresh list
+
+            } catch (err) {
+                console.error("Error approving booking:", err);
+                alert('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+            }
+        }
+
+        async function rejectBooking() {
+            if (!currentBookingId || !currentSpaceId) return;
+            if(!confirm('คุณแน่ใจหรือไม่ที่จะปฏิเสธการจองนี้? (พื้นที่นี้จะกลับมาว่างอีกครั้ง)')) return;
+
+            try {
+                // 1. Update Booking Status to cancelled
+                const { error: bErr } = await supabaseClient
+                    .from('bookings')
+                    .update({ status: 'cancelled' })
+                    .eq('id', currentBookingId);
+                
+                if (bErr) throw bErr;
+
+                // 2. We don't need to update space status because it should already be available or we can force it to available
+                const { error: sErr } = await supabaseClient
+                    .from('spaces')
+                    .update({ status: 'available' })
+                    .eq('id', currentSpaceId);
+                    
+                if (sErr) throw sErr;
+
+                alert('ปฏิเสธการจองเรียบร้อยแล้ว');
+                closeBookingModal();
+                fetchPendingBookings(); // Refresh list
+
+            } catch (err) {
+                console.error("Error rejecting booking:", err);
+                alert('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+            }
+        }
+
+        // Call checkAuth and fetch bookings when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            // Assuming the owner is already authenticated here, wait a bit for auth to resolve
+            setTimeout(() => {
+                fetchPendingBookings();
+                fetchProfileStats();
+            }, 1000);
+        });
+
+        async function fetchProfileStats() {
+            try {
+                const session = await getSession();
+                if (!session) return;
+                
+                // 1. Get total spaces
+                const { data: venues } = await supabaseClient
+                    .from('venues')
+                    .select('id')
+                    .eq('owner_id', session.user.id);
+                
+                let totalSpaces = 0;
+                let totalTenants = 0;
+
+                if (venues && venues.length > 0) {
+                    const venueIds = venues.map(v => v.id);
+                    
+                    const { count: sCount, data: spaces } = await supabaseClient
+                        .from('spaces')
+                        .select('id', { count: 'exact' })
+                        .in('venue_id', venueIds);
+                        
+                    totalSpaces = sCount || 0;
+                    
+                    if (spaces && spaces.length > 0) {
+                        const spaceIds = spaces.map(s => s.id);
+                        
+                        // 2. Get total active tenants (approved bookings)
+                        const { count: bCount } = await supabaseClient
+                            .from('bookings')
+                            .select('*', { count: 'exact', head: true })
+                            .in('space_id', spaceIds)
+                            .eq('status', 'approved');
+                            
+                        totalTenants = bCount || 0;
+                    }
+                }
+                
+                const spaceEl = document.getElementById('owner-profile-total-spaces');
+                const tenantEl = document.getElementById('owner-profile-total-tenants');
+                if (spaceEl) spaceEl.textContent = totalSpaces;
+                if (tenantEl) tenantEl.textContent = totalTenants;
+                
+            } catch (err) {
+                console.error('Error fetching profile stats:', err);
+            }
+        }
+
+        // Handle Logout
+        const logoutBtn = document.getElementById('owner-logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await supabaseClient.auth.signOut();
+                window.location.replace('../index.html');
+            });
+        }
+    </script>
+</body>
+</html>

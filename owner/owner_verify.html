@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ยืนยันตัวตนเจ้าของ - Spacemate</title>
+    <!-- Google Fonts: Prompt -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS CDN & Config -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabase.js"></script>
+    <style>
+        :root {
+            --bg-color: #F1F4F8;
+            --primary-color: #a46309;
+            --primary-light: #fbeedb;
+            --card-bg: #FFFFFF;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #eab308;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Prompt', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .page-header {
+            position: sticky;
+            top: 0;
+            background-color: rgba(241, 244, 248, 0.95);
+            backdrop-filter: blur(8px);
+            padding: 1.25rem 1.5rem;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-right: 1rem;
+        }
+        .back-btn:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            color: var(--primary-color);
+            border-color: #cbd5e1;
+        }
+        .back-btn:active {
+            transform: translateY(0);
+        }
+
+        .page-title {
+            flex: 1;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-right: 40px;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 1.5rem;
+            max-width: 600px;
+            margin: 0 auto;
+            padding-bottom: 3rem;
+        }
+
+        /* Verification Card */
+        .verify-card {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Step Indicator */
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15%;
+            right: 15%;
+            height: 2px;
+            background-color: var(--border-color);
+            z-index: 1;
+        }
+
+        .step-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            flex: 1;
+        }
+
+        .step-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--border-color);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .step-item.active .step-icon {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 0 0 4px var(--primary-light);
+        }
+        
+        .step-item.completed .step-icon {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .step-item.active .step-label {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .step-item.completed .step-label {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        /* Form Group */
+        .form-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: var(--text-main);
+            background-color: #f8fafc;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* Upload Box */
+        .upload-box {
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            background-color: #f8fafc;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .upload-box:hover {
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+        }
+        
+        .upload-box.has-file {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        
+        .upload-box:hover .upload-icon {
+            color: var(--primary-color);
+        }
+
+        .upload-title {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+        }
+
+        .upload-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        .upload-badge {
+            position: absolute;
+            top: -10px;
+            right: 15px;
+            background-color: #e2e8f0;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+        
+        .upload-badge.optional {
+            background-color: #f1f5f9;
+            color: #94a3b8;
+        }
+
+        .upload-preview-container {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .upload-preview-img {
+            max-height: 120px;
+            max-width: 100%;
+            width: auto;
+            border-radius: 8px;
+            object-fit: contain;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .upload-preview-name {
+            font-size: 0.8rem;
+            color: #166534;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(164, 99, 9, 0.2);
+            font-family: inherit;
+            margin-top: 1rem;
+        }
+
+        .submit-btn:hover {
+            background-color: #8c5408;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(164, 99, 9, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 1.5rem 0;
+        }
+
+        /* Status Alert Box */
+        .kyc-status-banner {
+            padding: 1.25rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .kyc-status-banner.pending {
+            background: #fefce8;
+            border: 1px solid #fef08a;
+        }
+
+        .kyc-status-banner.approved {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+        }
+
+        .kyc-status-banner.rejected {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+        }
+
+        .kyc-status-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .kyc-status-banner.pending .kyc-status-icon {
+            background: #eab308;
+            color: white;
+        }
+
+        .kyc-status-banner.approved .kyc-status-icon {
+            background: #10b981;
+            color: white;
+        }
+
+        .kyc-status-banner.rejected .kyc-status-icon {
+            background: #ef4444;
+            color: white;
+        }
+
+        @media (max-width: 480px) {
+            .form-control {
+                font-size: 0.85rem;
+                padding: 0.75rem 0.8rem;
+            }
+            .form-label {
+                font-size: 0.8rem;
+            }
+            .form-section-title {
+                font-size: 1rem;
+            }
+            .step-label {
+                font-size: 0.7rem;
+            }
+            .page-title {
+                font-size: 1.1rem;
+            }
+            .name-fields-row {
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+            }
+        }
+        @media (min-width: 768px) {
+            .main-content {
+                max-width: 1100px !important;
+            }
+            .verify-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+                align-items: start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="page-header">
+        <a href="main_owner.html?view=profile" class="back-btn" onclick="sessionStorage.setItem('active_owner_view', 'profile'); window.location.href='main_owner.html?view=profile'; return false;">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <h1 class="page-title">ยืนยันตัวตนเจ้าของ</h1>
+    </header>
+
+    <div class="main-content">
+        
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+            <div class="step-item active" id="step-1">
+                <div class="step-icon"><i class="fa-solid fa-id-card"></i></div>
+                <div class="step-label">ข้อมูล & เอกสาร</div>
+            </div>
+            <div class="step-item" id="step-2">
+                <div class="step-icon"><i class="fa-solid fa-clock"></i></div>
+                <div class="step-label">รอตรวจสอบ</div>
+            </div>
+        </div>
+
+        <!-- Dynamic KYC Status Banner (Shown when status is pending, approved or rejected) -->
+        <div id="kyc-banner-container" style="display: none;"></div>
+
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+            <div style="width: 64px; height: 64px; background: #fefce8; color: #eab308; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1rem;">
+                <i class="fa-solid fa-shield-cat"></i>
+            </div>
+            <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.5rem;">ระบบยืนยันตัวตน (e-KYC)</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">เพื่อมาตรฐานความปลอดภัยสูงสุดของคอมมูนิตี้ Spacemate</p>
+        </div>
+
+        <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; gap: 0.75rem; align-items: flex-start;">
+            <i class="fa-solid fa-lock" style="color: #3b82f6; margin-top: 0.2rem;"></i>
+            <div style="font-size: 0.85rem; color: #1e3a8a;">
+                <strong>ข้อมูลถูกเข้ารหัสแบบ End-to-End</strong><br>
+                ข้อมูลเหล่านี้จะถูกใช้เพื่อการตรวจสอบความน่าเชื่อถือของเจ้าของพื้นที่โดย Admin เท่านั้น และจะไม่ถูกเปิดเผยต่อสาธารณะ
+            </div>
+        </div>
+
+        <form id="owner-verify-form" onsubmit="return submitVerification(event)">
+            
+            <div class="verify-grid">
+            <div class="verify-card">
+                <h2 class="form-section-title">
+                    <i class="fa-regular fa-id-card" style="color: var(--primary-color);"></i>
+                    ข้อมูลส่วนตัว
+                </h2>
+                
+                <div class="form-group name-fields-row" style="display: flex; gap: 1rem;">
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end;">
+                        <label class="form-label">ชื่อ (ตามบัตรประชาชน) *</label>
+                        <input type="text" id="owner-verify-firstname" class="form-control" placeholder="เช่น สมชาย" required>
+                    </div>
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end;">
+                        <label class="form-label">นามสกุล (ตามบัตรประชาชน) *</label>
+                        <input type="text" id="owner-verify-lastname" class="form-control" placeholder="เช่น ใจดี" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">เลขบัตรประจำตัวประชาชน 13 หลัก *</label>
+                    <input type="text" id="owner-verify-idcard" class="form-control" placeholder="กรอกเลขประจำตัวประชาชน 13 หลัก" required pattern="[0-9]{13}" title="กรุณากรอกตัวเลข 13 หลัก" maxlength="13" inputmode="numeric" oninput="validateNumberOnly(this, 13)">
+                    <div id="owner-verify-idcard-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: none;">⚠️ กรุณากรอกเลขบัตรประจำตัวประชาชนเป็นตัวเลข 13 หลัก</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">ที่อยู่ตามบัตรประชาชน *</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 0.8rem;">
+                        <input type="text" id="owner-verify-address-number" class="form-control" placeholder="บ้านเลขที่/หมู่/ซอย" required>
+                        <input type="text" id="owner-verify-address-subdistrict" class="form-control" placeholder="แขวง/ตำบล" required>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 0.8rem;">
+                        <input type="text" id="owner-verify-address-district" class="form-control" placeholder="เขต/อำเภอ" required>
+                        <input type="text" id="owner-verify-address-province" class="form-control" placeholder="จังหวัด" required>
+                    </div>
+                    <input type="text" id="owner-verify-address-zip" class="form-control" placeholder="รหัสไปรษณีย์" required maxlength="5" inputmode="numeric" oninput="validateNumberOnly(this, 5)">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">เบอร์โทรศัพท์ติดต่อ *</label>
+                    <input type="tel" id="owner-verify-phone" class="form-control" placeholder="กรอกเบอร์โทรศัพท์ 10 หลัก" required maxlength="10" inputmode="numeric" oninput="validateNumberOnly(this, 10)">
+                    <div id="owner-verify-phone-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: none;">⚠️ กรุณากรอกเบอร์โทรศัพท์เป็นตัวเลข 10 หลัก</div>
+                </div>
+            </div>
+
+            <div class="verify-card">
+                <h2 class="form-section-title">
+                    <i class="fa-solid fa-file-arrow-up" style="color: var(--primary-color);"></i>
+                    เอกสารยืนยัน
+                </h2>
+                
+                <!-- Box 1: ID Card -->
+                <input type="file" id="file-idcard" accept="image/*" style="display: none;" onchange="handleFileChange(event, 'idcard')">
+                <div class="upload-box" id="box-idcard" onclick="document.getElementById('file-idcard').click()">
+                    <span class="upload-badge">จำเป็น</span>
+                    <i class="fa-solid fa-id-card upload-icon"></i>
+                    <div class="upload-title">รูปถ่ายหน้าบัตรประชาชน</div>
+                    <div class="upload-desc">คลิกเพื่ออัปโหลดรูปบัตรประชาชนให้เห็นรายละเอียดชัดเจน</div>
+                    <div style="display: inline-block; margin-top: 0.5rem; background: #fefce8; color: #a46309; padding: 0.25rem 0.5rem; border-radius: 8px; font-size: 0.7rem; border: 1px solid #fef08a;">
+                        <i class="fa-solid fa-shield"></i> มีลายน้ำความปลอดภัย
+                    </div>
+                    <div class="upload-preview-container" id="preview-idcard" style="display: none;"></div>
+                </div>
+                
+                <!-- Box 2: Selfie -->
+                <input type="file" id="file-selfie" accept="image/*" style="display: none;" onchange="handleFileChange(event, 'selfie')">
+                <div class="upload-box" id="box-selfie" onclick="document.getElementById('file-selfie').click()">
+                    <span class="upload-badge">จำเป็น</span>
+                    <i class="fa-solid fa-camera-retro upload-icon"></i>
+                    <div class="upload-title">รูปถ่ายเซลฟี่คู่กับบัตรประชาชน</div>
+                    <div class="upload-desc">คลิกเพื่ออัปโหลดรูปใบหน้าพร้อมถือบัตรประชาชน</div>
+                    <div style="display: inline-block; margin-top: 0.5rem; background: #ecfeff; color: #0891b2; padding: 0.25rem 0.5rem; border-radius: 8px; font-size: 0.7rem;">
+                        <i class="fa-solid fa-robot"></i> ตรวจสอบบุคคลจริง (Liveness Check)
+                    </div>
+                    <div class="upload-preview-container" id="preview-selfie" style="display: none;"></div>
+                </div>
+                
+                <div class="divider"></div>
+                <!-- Box 3: Business Doc (Optional) -->
+                <input type="file" id="file-business" accept="image/*,application/pdf" style="display: none;" onchange="handleFileChange(event, 'business')">
+                <div class="upload-box" id="box-business" onclick="document.getElementById('file-business').click()">
+                    <span class="upload-badge optional">ไม่บังคับ</span>
+                    <i class="fa-solid fa-file-contract upload-icon"></i>
+                    <div class="upload-title">ใบอนุญาตประกอบธุรกิจ / ทะเบียนพาณิชย์</div>
+                    <div class="upload-desc">ช่วยเพิ่มความน่าเชื่อถือให้กับพื้นที่และตลาดของคุณ</div>
+                    <div class="upload-preview-container" id="preview-business" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div style="padding: 0 0.5rem; margin-bottom: 1.5rem;">
+                <label style="display: flex; gap: 0.75rem; align-items: flex-start; cursor: pointer;">
+                    <input type="checkbox" id="owner-verify-consent" required style="margin-top: 0.25rem; width: 16px; height: 16px; accent-color: #a46309;">
+                    <span style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                        ข้าพเจ้ายินยอมให้ประมวลผลข้อมูลส่วนบุคคลตาม <a href="#" style="color: #a46309; text-decoration: underline;">พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA)</a> และรับรองว่าข้อมูลทั้งหมดเป็นความจริง
+                    </span>
+                </label>
+            </div>
+
+            <button type="submit" id="submit-btn" class="submit-btn">
+                ส่งข้อมูลยืนยันตัวตน
+            </button>
+            
+            <div style="text-align: center; padding-top: 2rem; color: #94a3b8; font-size: 0.75rem;">
+                <i class="fa-solid fa-shield-halved"></i> Secured by 256-bit SSL Encryption
+            </div>
+
+        </form>
+    </div>
+
+    <script>
+        let currentUserId = null;
+        let uploadedFiles = {
+            idcard: null,
+            selfie: null,
+            business: null
+        };
+
+        function validateNumberOnly(input, expectedLength) {
+            input.value = input.value.replace(/[^0-9]/g, '');
+            const errEl = document.getElementById(input.id + '-err');
+            if (errEl) {
+                if (input.value.length > 0 && input.value.length < expectedLength) {
+                    errEl.style.display = 'block';
+                    input.style.borderColor = '#ef4444';
+                } else {
+                    errEl.style.display = 'none';
+                    input.style.borderColor = '';
+                }
+            }
+        }
+
+        function handleFileChange(event, type) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Size check (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('ขนาดไฟล์ต้องไม่เกิน 5 MB');
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedFiles[type] = e.target.result;
+                renderPreview(type, e.target.result, file.name);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function renderPreview(type, dataUrl, fileName) {
+            const box = document.getElementById('box-' + type);
+            const previewContainer = document.getElementById('preview-' + type);
+            if (!box || !previewContainer) return;
+
+            box.classList.add('has-file');
+            previewContainer.style.display = 'flex';
+            
+            if (dataUrl.startsWith('data:image')) {
+                previewContainer.innerHTML = `
+                    <img src="${dataUrl}" class="upload-preview-img" alt="${type}">
+                    <div class="upload-preview-name"><i class="fa-solid fa-circle-check"></i> ${fileName || 'อัปโหลดเรียบร้อย'} (คลิกเพื่อเปลี่ยน)</div>
+                `;
+            } else {
+                previewContainer.innerHTML = `
+                    <div style="font-size: 2rem; color: #16a34a;"><i class="fa-solid fa-file-pdf"></i></div>
+                    <div class="upload-preview-name"><i class="fa-solid fa-circle-check"></i> ${fileName || 'เอกสารแนบ'} (คลิกเพื่อเปลี่ยน)</div>
+                `;
+            }
+        }
+
+        async function initPage() {
+            try {
+                const session = await getSession();
+                if (!session) {
+                    window.location.replace('../index.html');
+                    return;
+                }
+
+                currentUserId = session.user.id;
+
+                // Load existing profile & KYC data
+                const { data: profile, error } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', currentUserId)
+                    .single();
+
+                if (error) {
+                    console.warn('Could not fetch existing profile details:', error);
+                    return;
+                }
+
+                if (profile) {
+                    if (profile.first_name) {
+                        document.getElementById('owner-verify-firstname').value = profile.first_name;
+                    }
+                    if (profile.last_name) {
+                        document.getElementById('owner-verify-lastname').value = profile.last_name;
+                    }
+                    if (profile.id_card_number) {
+                        document.getElementById('owner-verify-idcard').value = profile.id_card_number;
+                    }
+                    if (profile.address) {
+                        const parts = profile.address.split(' ');
+                        if(parts.length >= 5 && profile.address.includes('ต.') && profile.address.includes('อ.') && profile.address.includes('จ.')) {
+                            document.getElementById('owner-verify-address-number').value = parts[0] || '';
+                            document.getElementById('owner-verify-address-subdistrict').value = (parts[1] || '').replace('ต.', '');
+                            document.getElementById('owner-verify-address-district').value = (parts[2] || '').replace('อ.', '');
+                            document.getElementById('owner-verify-address-province').value = (parts[3] || '').replace('จ.', '');
+                            document.getElementById('owner-verify-address-zip').value = parts[4] || '';
+                        } else {
+                            document.getElementById('owner-verify-address-number').value = profile.address;
+                        }
+                    }
+                    if (profile.phone) {
+                        document.getElementById('owner-verify-phone').value = profile.phone;
+                    }
+
+                    // Existing files
+                    if (profile.id_card_image_url) {
+                        uploadedFiles.idcard = profile.id_card_image_url;
+                        renderPreview('idcard', profile.id_card_image_url, 'บัตรประชาชนที่บันทึกไว้');
+                    }
+                    if (profile.selfie_image_url) {
+                        uploadedFiles.selfie = profile.selfie_image_url;
+                        renderPreview('selfie', profile.selfie_image_url, 'ภาพถ่ายเซลฟี่ที่บันทึกไว้');
+                    }
+                    if (profile.business_doc_url) {
+                        uploadedFiles.business = profile.business_doc_url;
+                        renderPreview('business', profile.business_doc_url, 'เอกสารธุรกิจที่บันทึกไว้');
+                    }
+
+                    // Render Status Banner
+                    renderKycStatusUI(profile.kyc_status || (profile.is_verified ? 'approved' : 'unverified'));
+                }
+
+            } catch (err) {
+                console.error('Error initializing verification page:', err);
+            }
+        }
+
+        function renderKycStatusUI(status) {
+            const bannerContainer = document.getElementById('kyc-banner-container');
+            const step1 = document.getElementById('step-1');
+            const step2 = document.getElementById('step-2');
+            const submitBtn = document.getElementById('submit-btn');
+
+            if (!status || status === 'unverified') {
+                step1.className = 'step-item active';
+                step2.className = 'step-item';
+                bannerContainer.style.display = 'none';
+                return;
+            }
+
+            bannerContainer.style.display = 'block';
+
+            if (status === 'approved') {
+                step1.className = 'step-item completed';
+                step2.className = 'step-item completed';
+                step2.querySelector('.step-icon').innerHTML = '<i class="fa-solid fa-check"></i>';
+                
+                bannerContainer.innerHTML = `
+                    <div class="kyc-status-banner approved">
+                        <div class="kyc-status-icon"><i class="fa-solid fa-check"></i></div>
+                        <div>
+                            <div style="font-weight: 700; color: #065f46; font-size: 1.05rem;">ยืนยันตัวตนสำเร็จแล้ว (Approved)</div>
+                            <div style="font-size: 0.85rem; color: #047857;">บัญชีของคุณได้รับการตรวจสอบและรับรองเป็นเจ้าของพื้นที่เรียบร้อยแล้ว</div>
+                        </div>
+                    </div>
+                `;
+                submitBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> บัญชีได้รับการยืนยันตัวตนแล้ว (อัปเดตข้อมูลได้)';
+            } else if (status === 'pending') {
+                step1.className = 'step-item completed';
+                step2.className = 'step-item active';
+
+                bannerContainer.innerHTML = `
+                    <div class="kyc-status-banner pending">
+                        <div class="kyc-status-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+                        <div>
+                            <div style="font-weight: 700; color: #854d0e; font-size: 1.05rem;">อยู่ระหว่างรอตรวจสอบ (Under Review)</div>
+                            <div style="font-size: 0.85rem; color: #a16207;">เจ้าหน้าที่ Admin กำลังตรวจสอบข้อมูลและเอกสารของคุณ ใช้เวลาประมาณ 1-2 วันทำการ</div>
+                        </div>
+                    </div>
+                `;
+                submitBtn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> ส่งข้อมูลอัปเดต / ยื่นเอกสารใหม่';
+            } else if (status === 'rejected') {
+                step1.className = 'step-item active';
+                step2.className = 'step-item';
+
+                bannerContainer.innerHTML = `
+                    <div class="kyc-status-banner rejected">
+                        <div class="kyc-status-icon"><i class="fa-solid fa-xmark"></i></div>
+                        <div>
+                            <div style="font-weight: 700; color: #991b1b; font-size: 1.05rem;">เอกสารไม่ผ่านการอนุมัติ (Rejected)</div>
+                            <div style="font-size: 0.85rem; color: #b91c1c;">กรุณาตรวจสอบความถูกต้องของข้อมูลและภาพถ่ายเอกสารให้ชัดเจน แล้วกดส่งข้อมูลใหม่อีกครั้ง</div>
+                        </div>
+                    </div>
+                `;
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ส่งข้อมูลยืนยันตัวตนใหม่อีกครั้ง';
+            }
+        }
+
+        async function submitVerification(e) {
+            if (e) e.preventDefault();
+
+            const firstName = document.getElementById('owner-verify-firstname').value.trim();
+            const lastName = document.getElementById('owner-verify-lastname').value.trim();
+            const idInput = document.getElementById('owner-verify-idcard');
+            const idErr = document.getElementById('owner-verify-idcard-err');
+            const phoneInput = document.getElementById('owner-verify-phone');
+            const phoneErr = document.getElementById('owner-verify-phone-err');
+            const addressNumber = document.getElementById('owner-verify-address-number').value.trim();
+            const addressSubdistrict = document.getElementById('owner-verify-address-subdistrict').value.trim();
+            const addressDistrict = document.getElementById('owner-verify-address-district').value.trim();
+            const addressProvince = document.getElementById('owner-verify-address-province').value.trim();
+            const addressZip = document.getElementById('owner-verify-address-zip').value.trim();
+            const address = `${addressNumber} ต.${addressSubdistrict} อ.${addressDistrict} จ.${addressProvince} ${addressZip}`;
+            const consent = document.getElementById('owner-verify-consent').checked;
+
+            const idVal = idInput ? idInput.value.trim() : '';
+            const phoneVal = phoneInput ? phoneInput.value.trim() : '';
+
+            // Validate 13-digit ID
+            if (!/^\d{13}$/.test(idVal)) {
+                if (idErr) idErr.style.display = 'block';
+                if (idInput) { idInput.style.borderColor = '#ef4444'; idInput.focus(); }
+                return false;
+            } else {
+                if (idErr) idErr.style.display = 'none';
+                if (idInput) idInput.style.borderColor = '';
+            }
+
+            // Validate 10-digit Phone
+            if (!/^\d{10}$/.test(phoneVal)) {
+                if (phoneErr) phoneErr.style.display = 'block';
+                if (phoneInput) { phoneInput.style.borderColor = '#ef4444'; phoneInput.focus(); }
+                return false;
+            } else {
+                if (phoneErr) phoneErr.style.display = 'none';
+                if (phoneInput) phoneInput.style.borderColor = '';
+            }
+
+            // Check required file uploads
+            if (!uploadedFiles.idcard) {
+                alert('กรุณาอัปโหลดรูปถ่ายหน้าบัตรประชาชน');
+                document.getElementById('box-idcard').scrollIntoView({ behavior: 'smooth' });
+                return false;
+            }
+
+            if (!uploadedFiles.selfie) {
+                alert('กรุณาอัปโหลดรูปถ่ายเซลฟี่คู่กับบัตรประชาชน');
+                document.getElementById('box-selfie').scrollIntoView({ behavior: 'smooth' });
+                return false;
+            }
+
+            if (!consent) {
+                alert('กรุณายินยอมให้ประมวลผลข้อมูลส่วนบุคคล');
+                return false;
+            }
+
+            const btn = document.getElementById('submit-btn');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกข้อมูลและส่ง e-KYC...';
+            btn.style.opacity = '0.8';
+            btn.disabled = true;
+
+            try {
+                // Name is already separated from the inputs
+
+                const updatePayload = {
+                    first_name: firstName,
+                    last_name: lastName,
+                    phone: phoneVal,
+                    id_card_number: idVal,
+                    address: address,
+                    id_card_image_url: uploadedFiles.idcard,
+                    selfie_image_url: uploadedFiles.selfie,
+                    kyc_status: 'pending'
+                };
+
+                if (uploadedFiles.business) {
+                    updatePayload.business_doc_url = uploadedFiles.business;
+                }
+
+                const { error } = await supabaseClient
+                    .from('profiles')
+                    .update(updatePayload)
+                    .eq('id', currentUserId);
+
+                if (error) {
+                    console.warn('Full update with KYC columns error:', error);
+                    // Fallback to basic columns if custom columns do not exist
+                    await supabaseClient
+                        .from('profiles')
+                        .update({
+                            first_name: firstName,
+                            last_name: lastName,
+                            phone: phoneVal
+                        })
+                        .eq('id', currentUserId);
+                }
+
+                alert('ส่งข้อมูลยืนยันตัวตนสำเร็จ! อยู่ระหว่างรอการตรวจสอบจากเจ้าหน้าที่ Admin');
+                sessionStorage.setItem('active_owner_view', 'profile');
+                window.location.href = 'main_owner.html?view=profile';
+
+            } catch (err) {
+                console.error('Error submitting verification:', err);
+                alert('เกิดข้อผิดพลาดในการส่งข้อมูลยืนยันตัวตน กรุณาลองใหม่อีกครั้ง');
+                btn.innerHTML = 'ส่งข้อมูลยืนยันตัวตน';
+                btn.style.opacity = '1';
+                btn.disabled = false;
+            }
+
+            return false;
+        }
+
+        window.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

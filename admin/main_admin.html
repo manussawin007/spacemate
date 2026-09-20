@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Spacemate - Admin Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #a46309;
+            --primary-light: #fefce8;
+            --primary-hover: #8b5308;
+            --bg-color: #f8fafc;
+            --sidebar-bg: #FFFFFF;
+            --card-bg: #FFFFFF;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --danger: #ef4444;
+            --danger-bg: #fef2f2;
+            --success: #10b981;
+            --success-bg: #ecfdf5;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Prompt', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);    
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Layout */
+        .desktop-app {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: #FFFFFF;
+            border-right: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 4px 0 24px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem 0;
+            z-index: 10;
+        }
+
+        .sidebar-logo {
+            height: 40px;
+            margin: 0 auto 1.5rem auto;
+            display: block;
+            transition: transform 0.3s;
+        }
+        .sidebar-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .menu-list {
+            list-style: none;
+            padding: 0 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 1;
+        }
+
+        .menu-item {
+            width: 100%;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 16px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .menu-link i {
+            font-size: 1.1rem;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: #f8fafc;
+            color: #94a3b8;
+            transition: all 0.3s ease;
+        }
+
+        .menu-link:hover {
+            background-color: #fef3e5;
+            color: var(--primary);
+        }
+
+        .menu-link:hover i {
+            background-color: #fbeedb;
+            color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .menu-link.active {
+            background: linear-gradient(135deg, #a46309 0%, #8f5506 100%);
+            color: #ffffff;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(164, 99, 9, 0.25);
+        }
+
+        .menu-link.active i {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        .badge-sidebar {
+            margin-left: auto;
+            background: var(--danger);
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+        }
+
+        .sidebar-footer {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 16px;
+            border: 1px solid #f1f5f9;
+            transition: all 0.2s;
+        }
+        
+        .admin-profile:hover {
+            background: #f1f5f9;
+        }
+
+        .admin-avatar {
+            width: 42px;
+            height: 42px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .admin-info {
+            flex: 1;
+        }
+
+        .admin-info h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .admin-info span {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.75rem 1rem;
+            border-radius: 16px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            color: #ef4444;
+            background: #fff;
+            border: 1px solid #fee2e2;
+        }
+        .logout-btn i {
+            font-size: 1.1rem;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: #fef2f2;
+            color: #ef4444;
+            transition: all 0.3s ease;
+        }
+        .logout-btn:hover {
+            background-color: #fef2f2;
+            border-color: #fca5a5;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.1);
+        }
+        .logout-btn:hover i {
+            background-color: #fee2e2;
+            transform: scale(1.05);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            background: var(--bg-color);
+        }
+
+        .admin-view {
+            padding: 2rem 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .admin-view.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Admin Page Header */
+        .admin-page-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .admin-greeting {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+        
+        .admin-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Stats Grid Desktop */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            position: relative;
+            z-index: 2;
+            padding-top: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.06);
+        }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-info {
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Page Headers */
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .table-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .table-toolbar {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            width: 300px;
+        }
+        
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            margin-left: 0.5rem;
+            width: 100%;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        .data-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        .data-table th, .data-table td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending { background: #fef08a; color: #854d0e; }
+        .status-approved { background: var(--success-bg); color: var(--success); }
+        
+        .btn-action {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'Prompt', sans-serif;
+            font-size: 0.85rem;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
+        .btn-outline:hover { background: #f1f5f9; }
+
+        .action-cell {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Bottom Nav (Hidden on Desktop) */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: max-content;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 20px;
+            border-radius: 50px;
+            gap: 15px;
+            z-index: 100;
+        }
+        
+        .nav-indicator {
+            position: absolute;
+            background-color: var(--primary-light);
+            border-radius: 50px;
+            height: 44px;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 0;
+            z-index: 0;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            opacity: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+            padding: 12px 24px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item.active .nav-icon {
+            transform: scale(1.2);
+        }
+
+        .nav-icon {
+            font-size: 1.4rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .nav-badge {
+            position: absolute;
+            top: 4px;
+            right: 14px;
+            width: 10px;
+            height: 10px;
+            background-color: var(--danger);
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+        
+        /* Mobile Top Header (Hidden on Desktop) */
+        .mobile-header {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .mobile-header-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* KYC Dashboard Styles */
+        .kyc-tabs {
+            display: inline-flex;
+            gap: 0.25rem;
+            margin-bottom: 1.5rem;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 50px;
+        }
+        .kyc-tab-btn {
+            padding: 0.6rem 1.25rem;
+            background: transparent;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #64748b;
+            cursor: pointer;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        .kyc-tab-btn.active {
+            background: #ffffff;
+            color: var(--primary);
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .kyc-badge {
+            background: #fee2e2;
+            color: #ef4444;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 50px;
+            font-weight: 700;
+        }
+        .kyc-list {
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 0.5rem 1.5rem;
+            border: 1px solid #f8fafc;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+        .kyc-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 0;
+            border-bottom: 1px solid #f1f5f9;
+            background: transparent;
+        }
+        .kyc-card:last-child {
+            border-bottom: none;
+        }
+        .kyc-user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+        .kyc-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .kyc-details h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.15rem;
+        }
+        .kyc-meta {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .status-badge {
+            background: #fefce8;
+            color: #ca8a04;
+            border: 1px solid #fef08a;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .kyc-status-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+        .kyc-actions {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+            justify-content: flex-end;
+        }
+        .kyc-btn {
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .kyc-btn-inspect {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: none;
+        }
+        .kyc-btn-inspect:hover { 
+            background: #f8e1c1;
+        }
+        .kyc-btn-approve {
+            background: #dcfce7;
+            color: #16a34a;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1rem;
+        }
+        .kyc-btn-approve:hover { 
+            background: #bbf7d0;
+        }
+        .kyc-btn-reject {
+            background: #fef2f2;
+            color: #dc2626;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1rem;
+        }
+        .kyc-btn-reject:hover { 
+            background: #fee2e2;
+        }
+
+        /* App Profile Styles */
+        .app-profile-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2.5rem 1.5rem 2rem 1.5rem;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            margin: -2rem -1.5rem 2rem -1.5rem;
+        }
+        @media (min-width: 768px) {
+            .app-profile-header {
+                margin: -2rem -2rem 2rem -2rem;
+                border-radius: 12px 12px 0 0;
+            }
+        }
+        .app-profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 10px rgba(164,99,9,0.1);
+        }
+        .app-profile-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+        }
+        .app-profile-role {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            background: #f1f5f9;
+            padding: 4px 12px;
+            border-radius: 50px;
+        }
+        .app-profile-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+        .profile-menu-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            background: #fafafa;
+        }
+        .profile-menu-item.text-danger {
+            color: var(--danger);
+            border-color: #fecaca;
+            background: #fff5f5;
+        }
+        .profile-menu-item.text-danger:hover {
+            background: #fee2e2;
+        }
+        .profile-menu-item.text-danger .menu-item-icon {
+            background: transparent;
+            color: var(--danger);
+        }
+        .menu-item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #f8fafc;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-right: 1rem;
+        }
+        .menu-item-text {
+            flex: 1;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .menu-item-arrow {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+        }
+
+        /* --- Responsive Queries --- */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none; /* Hide sidebar */
+            }
+            .bottom-nav {
+                display: flex; /* Show bottom nav */
+            }
+            .mobile-header {
+                display: flex; /* Show mobile header */
+            }
+            
+            .desktop-app {
+                flex-direction: column;
+            }
+            
+            .main-content {
+                padding-bottom: 90px; /* Space for bottom nav */
+            }
+            
+            .admin-view {
+                padding: 1.5rem;
+            }
+            
+            .hero-banner {
+                display: none;
+            }
+            
+            .admin-page-header {
+                padding: 1rem 0;
+            }
+            
+            .admin-greeting {
+                font-size: 1.4rem;
+            }
+            
+            .page-title {
+                font-size: 1.25rem;
+            }
+            
+            .table-toolbar {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .stats-grid {
+                padding-top: 0;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+            .stat-card {
+                padding: 1rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            .stat-icon {
+                width: 42px;
+                height: 42px;
+                font-size: 1.2rem;
+                border-radius: 10px;
+            }
+            .stat-value {
+                font-size: 1.4rem;
+            }
+            .stat-label {
+                font-size: 0.75rem;
+                line-height: 1.2;
+            }
+            
+            .kyc-list {
+                padding: 0.5rem 1rem;
+                background: #ffffff;
+            }
+            .kyc-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .kyc-status-container {
+                justify-content: flex-start;
+                margin-left: 64px; /* Align with text */
+                margin-top: -10px;
+            }
+            .kyc-actions {
+                width: 100%;
+                justify-content: flex-end;
+                margin-top: 4px;
+            }
+            .kyc-btn-inspect {
+                flex: 1;
+            }
+        }
+
+        /* --- KYC Inspect Modal --- */
+        .inspect-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .inspect-modal {
+            background: white;
+            max-width: 900px;
+            width: 90%;
+            border-radius: 24px;
+            overflow-y: auto;
+            max-height: 90vh;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .inspect-modal-header {
+            padding: 1.5rem 2rem 1rem;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .inspect-modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .inspect-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 0;
+        }
+
+        .inspect-modal-close:hover {
+            color: var(--danger);
+        }
+
+        .inspect-alert {
+            margin: 1.25rem 2rem 0;
+            padding: 0.6rem 1rem;
+            background: var(--primary-light);
+            border-radius: 50px;
+            color: var(--primary);
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            width: fit-content;
+        }
+
+        .inspect-modal-body {
+            padding: 1.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .inspect-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .inspect-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .inspect-field.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .inspect-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            font-weight: 500;
+            margin-bottom: 0.2rem;
+        }
+
+        .inspect-value {
+            font-size: 1.05rem;
+            color: #1e293b;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .inspect-images-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .inspect-image-box {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .inspect-image-label {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .inspect-image-container {
+            position: relative;
+            width: 100%;
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .inspect-image-container img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .badge-watermark {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: rgba(255, 255, 255, 0.85);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .badge-liveness {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #dcfce7;
+            color: #15803d;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .badge-business {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            white-space: nowrap;
+        }
+
+        .inspect-modal-footer {
+            padding: 1.25rem 2rem;
+            position: sticky;
+            bottom: 0;
+            background: white;
+            display: flex;
+            gap: 15px;
+            z-index: 10;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .inspect-action-btn {
+            flex: 1;
+            padding: 0.85rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            font-family: 'Prompt', sans-serif;
+            border: none;
+        }
+
+        .btn-reject-minimal {
+            background: transparent;
+            color: #ef4444;
+            border: 1.5px solid #fecaca;
+        }
+
+        .btn-reject-minimal:hover { 
+            background: #fef2f2;
+        }
+
+        .btn-approve-solid {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-approve-solid:hover { 
+            background: #15803d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .inspect-modal { width: 95%; border-radius: 20px; }
+            .inspect-grid-2, .inspect-images-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .inspect-modal-header, .inspect-modal-body, .inspect-modal-footer { padding: 1.25rem; }
+            .inspect-alert { margin: 1rem 1.25rem 0; }
+            .inspect-image-container img { height: 200px; }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="desktop-app">
+    <!-- Sidebar Navigation (Desktop Only) -->
+    <aside class="sidebar">
+        <img src="../assets/imagelogo.png" class="sidebar-logo" alt="Spacemate Logo">
+        <ul class="menu-list">
+            <li class="menu-item">
+                <a class="menu-link active" onclick="switchAdminView('dashboard', this)" data-view="dashboard">
+                    <i class="fa-solid fa-chart-pie"></i> ภาพรวม (Dashboard)
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="admin-profile">
+                <div class="admin-avatar">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <div class="admin-info">
+                    <h4>Admin Account</h4>
+                    <span>ผู้ดูแลระบบสูงสุด</span>
+                </div>
+            </div>
+            <a href="../index.html" class="logout-btn">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> ออกจากระบบ
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Mobile Top Header -->
+        <div class="mobile-header" style="justify-content: center;">
+            <img src="../assets/imagelogo.png" style="height: 35px;" alt="Spacemate">
+        </div>
+        
+        <!-- View: Dashboard -->
+        <div id="dashboard" class="admin-view active">
+            <div class="admin-page-header">
+                <h1 class="admin-greeting">ภาพรวมระบบ (Dashboard)</h1>
+                <p class="admin-subtitle">จัดการข้อมูลผู้ใช้งาน ร้านค้า และการอนุมัติต่างๆ ในระบบ Spacemate</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="stat-users">0</div>
+                        <div class="stat-label">ผู้ใช้งานทั่วไป</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-user-tie"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="stat-owners">0</div>
+                        <div class="stat-label">เจ้าของพื้นที่</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-store"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="stat-spaces">0</div>
+                        <div class="stat-label">แผงค้า/ร้านในระบบ</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="stat-pending">0</div>
+                        <div class="stat-label">คำขอรออนุมัติ</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-header" style="margin-top: 2rem;">
+                <h2 class="page-title">รายการรอตรวจสอบ (Pending Verification)</h2>
+            </div>
+            
+            <div class="kyc-tabs">
+                <button class="kyc-tab-btn active" onclick="switchKycTab('owners', this)">เจ้าของพื้นที่ <span class="kyc-badge" id="badge-owners-count">0</span></button>
+                <button class="kyc-tab-btn" onclick="switchKycTab('merchants', this)">พ่อค้าแม่ค้า <span class="kyc-badge" id="badge-merchants-count">0</span></button>
+            </div>
+            
+            <div id="list-owners" class="kyc-list">
+                <div style="text-align: center; padding: 2rem; color: #64748b;">กำลังโหลดข้อมูล...</div>
+            </div>
+
+            <div id="list-merchants" class="kyc-list" style="display: none;">
+                <div style="text-align: center; padding: 2rem; color: #64748b;">กำลังโหลดข้อมูล...</div>
+            </div>
+        </div>
+        <!-- View: Profile -->
+        <div id="profile" class="admin-view">
+            <div class="app-profile-header" style="margin-bottom: 2.5rem; text-align: center; padding-top: 2rem;">
+                <div class="app-profile-avatar" style="width: 80px; height: 80px; background: var(--primary-light); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 1rem;">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <h2 class="app-profile-name" style="font-size: 1.5rem; font-weight: 700;">Admin Account</h2>
+                <p class="app-profile-role" style="color: var(--text-muted);">ผู้ดูแลระบบสูงสุด</p>
+            </div>
+            
+            <a href="javascript:void(0)" class="logout-btn admin-logout-trigger" style="padding: 1rem; font-size: 1.1rem; border-radius: 12px; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); max-width: 400px; margin: 0 auto;">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> ออกจากระบบ
+            </a>
+        </div>
+
+    </main>
+    
+    <!-- Bottom Navigation (Mobile Only) -->
+    <nav class="bottom-nav" id="bottom-nav">
+        <div class="nav-indicator" id="nav-indicator"></div>
+        <a class="nav-item active" onclick="switchAdminView('dashboard', this)" data-view="dashboard">
+            <i class="fa-solid fa-chart-pie nav-icon"></i>
+        </a>
+        <a class="nav-item" onclick="switchAdminView('profile', this)" data-view="profile">
+            <i class="fa-solid fa-user nav-icon"></i>
+        </a>
+    </nav>
+</div>
+
+<!-- KYC Inspection Modal -->
+<div class="inspect-modal-overlay" id="kyc-inspect-modal">
+    <div class="inspect-modal">
+        <div class="inspect-modal-header">
+            <div class="inspect-modal-title">ตรวจสอบข้อมูล (e-KYC)</div>
+            <button class="inspect-modal-close" onclick="closeInspectModal()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <div class="inspect-alert">
+            <i class="fa-solid fa-shield-halved"></i> ข้อมูลเชื่อมต่อกับ Supabase Database
+        </div>
+        
+        <div class="inspect-modal-body">
+            <div class="inspect-grid-2">
+                <div class="inspect-field">
+                    <label class="inspect-label">ชื่อ-นามสกุล (ตามบัตรประชาชน)</label>
+                    <div class="inspect-value" id="modal-kyc-name"><i class="fa-solid fa-user" style="color:var(--primary); font-size: 0.9rem;"></i> -</div>
+                </div>
+                <div class="inspect-field">
+                    <label class="inspect-label">เลขประจำตัวประชาชน (13 หลัก)</label>
+                    <div class="inspect-value" id="modal-kyc-idcard"><i class="fa-solid fa-id-card" style="color:var(--primary); font-size: 0.9rem;"></i> -</div>
+                </div>
+                <div class="inspect-field full-width">
+                    <label class="inspect-label">ที่อยู่ตามบัตรประชาชน</label>
+                    <div class="inspect-value" id="modal-kyc-address"><i class="fa-solid fa-house" style="color:var(--primary); font-size: 0.9rem;"></i> -</div>
+                </div>
+                <div class="inspect-field">
+                    <label class="inspect-label">เบอร์โทรศัพท์ติดต่อ</label>
+                    <div class="inspect-value" id="modal-kyc-phone"><i class="fa-solid fa-phone" style="color:var(--primary); font-size: 0.9rem;"></i> -</div>
+                </div>
+            </div>
+            
+            <div class="inspect-images-grid" id="kyc-img-grid">
+                <div class="inspect-image-box">
+                    <div class="inspect-image-label">อัปโหลดรูปถ่ายหน้าบัตรประชาชน</div>
+                    <div class="inspect-image-container">
+                        <img id="modal-img-idcard" src="https://images.unsplash.com/photo-1621570183183-b7886a117b20?auto=format&fit=crop&w=800&q=80" alt="ID Card">
+                        <div class="badge-watermark">มีลายน้ำ</div>
+                    </div>
+                </div>
+                <div class="inspect-image-box">
+                    <div class="inspect-image-label">อัปโหลดรูปถ่ายเซลฟี่คู่กับบัตร</div>
+                    <div class="inspect-image-container">
+                        <img id="modal-img-selfie" src="https://images.unsplash.com/photo-1556928045-16f7f50be0f3?auto=format&fit=crop&w=800&q=80" alt="Selfie">
+                        <div class="badge-liveness"><i class="fa-solid fa-check-circle"></i> Liveness Passed</div>
+                    </div>
+                </div>
+                <div class="inspect-image-box" id="kyc-business-doc">
+                    <div class="inspect-image-label">รูปใบอนุญาตประกอบธุรกิจ / ทะเบียนพาณิชย์</div>
+                    <div class="inspect-image-container">
+                        <img id="modal-img-business" src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=800&q=80" alt="Business License">
+                        <div class="badge-business"><i class="fa-solid fa-file-signature"></i> เอกสารนิติบุคคล</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="inspect-modal-footer">
+            <button class="inspect-action-btn btn-reject-minimal" id="modal-btn-reject" onclick="handleKycDecision('rejected')">ไม่อนุมัติ</button>
+            <button class="inspect-action-btn btn-approve-solid" id="modal-btn-approve" onclick="handleKycDecision('approved')">อนุมัติ</button>
+        </div>
+    </div>
+</div>
+
+<!-- Supabase Client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/supabase.js"></script>
+
+<script>
+    let currentSelectedUserId = null;
+    let cachedUsers = [];
+
+    // 1. Auth Guard for Admin
+    async function checkAdminAuth() {
+        try {
+            const session = await getSession();
+            if (!session) {
+                window.location.replace('../index.html');
+                return;
+            }
+
+            const { data: profile, error } = await supabaseClient
+                .from('profiles')
+                .select('display_name, first_name, last_name, role')
+                .eq('id', session.user.id)
+                .single();
+
+            if (error || !profile || profile.role !== 'admin') {
+                alert('หน้านี้สงวนสิทธิ์เฉพาะผู้ดูแลระบบ (Admin) เท่านั้น');
+                window.location.replace('../index.html');
+                return;
+            }
+
+            // Update Admin Name Display
+            const adminName = profile.display_name ? `คุณ${profile.display_name}` : 'Admin';
+            document.querySelectorAll('.admin-info h4, .app-profile-name').forEach(el => el.innerText = adminName);
+
+            // Fetch Real Stats & KYC List
+            await loadAdminStats();
+            await loadKycUsers();
+
+        } catch (err) {
+            console.error('Admin Auth Check Error:', err);
+        }
+    }
+
+    // 2. Load Stats from Supabase
+    async function loadAdminStats() {
+        try {
+            // Count users
+            const { count: usersCount } = await supabaseClient
+                .from('profiles')
+                .select('*', { count: 'exact', head: true })
+                .eq('role', 'user');
+
+            // Count owners
+            const { count: ownersCount } = await supabaseClient
+                .from('profiles')
+                .select('*', { count: 'exact', head: true })
+                .eq('role', 'owner');
+
+            // Count spaces
+            const { count: spacesCount } = await supabaseClient
+                .from('spaces')
+                .select('*', { count: 'exact', head: true });
+
+            // Count pending bookings
+            const { count: pendingCount } = await supabaseClient
+                .from('bookings')
+                .select('*', { count: 'exact', head: true })
+                .eq('status', 'pending');
+
+            document.getElementById('stat-users').innerText = (usersCount || 0).toLocaleString();
+            document.getElementById('stat-owners').innerText = (ownersCount || 0).toLocaleString();
+            document.getElementById('stat-spaces').innerText = (spacesCount || 0).toLocaleString();
+            document.getElementById('stat-pending').innerText = (pendingCount || 0).toLocaleString();
+
+        } catch (err) {
+            console.error('Error loading stats:', err);
+        }
+    }
+
+    // 3. Load KYC / User list from Supabase
+    async function loadKycUsers() {
+        try {
+            const { data: users, error } = await supabaseClient
+                .from('profiles')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            cachedUsers = users || [];
+
+            const owners = cachedUsers.filter(u => u.role === 'owner' && u.kyc_status === 'pending');
+            const merchants = cachedUsers.filter(u => u.role === 'user' && u.kyc_status === 'pending');
+
+            document.getElementById('badge-owners-count').innerText = owners.length;
+            document.getElementById('badge-merchants-count').innerText = merchants.length;
+
+            renderUserList('list-owners', owners, 'owner');
+            renderUserList('list-merchants', merchants, 'user');
+
+        } catch (err) {
+            console.error('Error loading KYC users:', err);
+        }
+    }
+
+    function renderUserList(containerId, users, roleType) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        if (!users || users.length === 0) {
+            container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #64748b;">ไม่มีรายการในขณะนี้</div>';
+            return;
+        }
+
+        container.innerHTML = '';
+        users.forEach(u => {
+            const displayName = u.display_name || 'ผู้ใช้งาน';
+            const defaultAvatar = u.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`;
+            const kycStatus = u.kyc_status || 'รอตรวจสอบ';
+            const statusClass = kycStatus === 'approved' ? 'status-approved' : 'status-pending';
+            const statusText = kycStatus === 'approved' ? 'อนุมัติแล้ว' : (kycStatus === 'rejected' ? 'ไม่อนุมัติ' : 'รอตรวจสอบ');
+            const timeAgo = u.created_at ? new Date(u.created_at).toLocaleDateString('th-TH') : 'ไม่ระบุ';
+
+            const card = document.createElement('div');
+            card.className = 'kyc-card';
+            card.innerHTML = `
+                <div class="kyc-user-info">
+                    <img src="${defaultAvatar}" alt="${displayName}" class="kyc-avatar">
+                    <div class="kyc-details">
+                        <h4>${displayName}</h4>
+                        <div class="kyc-meta"><i class="fa-regular fa-clock"></i> ลงทะเบียน: ${timeAgo} | เบอร์: ${u.phone || '-'}</div>
+                    </div>
+                </div>
+                <div class="kyc-status-container">
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                </div>
+                <div class="kyc-actions">
+                    <button class="kyc-btn kyc-btn-inspect" onclick="openInspectUser('${u.id}', '${roleType}')">ตรวจสอบ</button>
+                    <button class="kyc-btn kyc-btn-approve" onclick="quickDecideKyc('${u.id}', 'approved')" title="อนุมัติ"><i class="fa-solid fa-check"></i></button>
+                    <button class="kyc-btn kyc-btn-reject" onclick="quickDecideKyc('${u.id}', 'rejected')" title="ไม่อนุมัติ"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function openInspectUser(userId, roleType) {
+        currentSelectedUserId = userId;
+        const user = cachedUsers.find(u => u.id === userId);
+        if (!user) return;
+
+        const fullName = ((user.first_name || '') + ' ' + (user.last_name || '')).trim();
+        document.getElementById('modal-kyc-name').innerHTML = `<i class="fa-solid fa-user" style="color:var(--primary); font-size: 0.9rem;"></i> ${fullName || 'ยังไม่ได้ระบุ'}`;
+        document.getElementById('modal-kyc-idcard').innerHTML = `<i class="fa-solid fa-id-card" style="color:var(--primary); font-size: 0.9rem;"></i> ${user.id_card_number || 'ยังไม่ได้ระบุ'}`;
+        document.getElementById('modal-kyc-address').innerHTML = `<i class="fa-solid fa-house" style="color:var(--primary); font-size: 0.9rem;"></i> ${user.address || 'ที่อยู่ตามระบบ'}`;
+        document.getElementById('modal-kyc-phone').innerHTML = `<i class="fa-solid fa-phone" style="color:var(--primary); font-size: 0.9rem;"></i> ${user.phone || 'ยังไม่ได้ระบุ'}`;
+
+        // Reset default images
+        const noImageUrl = 'https://placehold.co/600x400/f8fafc/94a3b8?text=No+Image+Uploaded';
+        document.getElementById('modal-img-idcard').src = noImageUrl;
+        document.getElementById('modal-img-selfie').src = noImageUrl;
+        document.getElementById('modal-img-business').src = noImageUrl;
+
+        if (user.id_card_image_url) {
+            document.getElementById('modal-img-idcard').src = user.id_card_image_url;
+        }
+        if (user.selfie_image_url) {
+            document.getElementById('modal-img-selfie').src = user.selfie_image_url;
+        }
+        if (user.business_doc_url) {
+            document.getElementById('modal-img-business').src = user.business_doc_url;
+        }
+
+        const businessDoc = document.getElementById('kyc-business-doc');
+        const imgGrid = document.getElementById('kyc-img-grid');
+
+        if (roleType === 'user') {
+            businessDoc.style.display = 'none';
+            if (window.innerWidth > 768) imgGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+        } else {
+            businessDoc.style.display = 'flex';
+            if (window.innerWidth > 768) imgGrid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+        }
+
+        document.getElementById('kyc-inspect-modal').style.display = 'flex';
+    }
+
+    function closeInspectModal() {
+        document.getElementById('kyc-inspect-modal').style.display = 'none';
+        currentSelectedUserId = null;
+    }
+
+    async function handleKycDecision(status) {
+        if (!currentSelectedUserId) return;
+        await updateKycInDb(currentSelectedUserId, status);
+        closeInspectModal();
+    }
+
+    async function quickDecideKyc(userId, status) {
+        const actionText = status === 'approved' ? 'อนุมัติ' : 'ไม่อนุมัติ';
+        if (!confirm(`คุณต้องการ ${actionText} ผู้ใช้งานนี้ใช่หรือไม่?`)) return;
+        await updateKycInDb(userId, status);
+    }
+
+    async function updateKycInDb(userId, status) {
+        try {
+            const isApproved = status === 'approved';
+            let { data, error } = await supabaseClient
+                .from('profiles')
+                .update({ kyc_status: status, is_verified: isApproved })
+                .eq('id', userId)
+                .select();
+
+            if (error) {
+                console.error("Update error:", error);
+                throw new Error("Update failed, possibly missing columns.");
+            }
+
+            if (!data || data.length === 0) {
+                console.warn("No rows updated. RLS might be blocking the admin.");
+                alert('ไม่สามารถอัปเดตข้อมูลได้ เนื่องจากติดสิทธิ์ RLS (Row Level Security) โปรดตรวจสอบ Policy ของ Supabase');
+                return;
+            }
+
+            alert(`บันทึกสถานะเรียบร้อยแล้ว (${status === 'approved' ? 'อนุมัติ' : 'ไม่อนุมัติ'})`);
+            await loadKycUsers();
+        } catch (err) {
+            console.error('Error updating KYC:', err);
+            alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+        }
+    }
+
+    // 4. Navigation & Layout Helpers
+    function switchAdminView(viewId, element) {
+        document.querySelectorAll('.admin-view').forEach(view => view.classList.remove('active'));
+        document.querySelectorAll('.menu-link').forEach(link => link.classList.remove('active'));
+        document.querySelectorAll('.bottom-nav .nav-item').forEach(link => link.classList.remove('active'));
+        
+        const targetView = document.getElementById(viewId);
+        if (targetView) targetView.classList.add('active');
+        
+        if (viewId) {
+            const desktopLink = document.querySelector(`.menu-link[data-view='${viewId}']`);
+            if (desktopLink) desktopLink.classList.add('active');
+            
+            const mobileLink = document.querySelector(`.bottom-nav .nav-item[data-view='${viewId}']`);
+            if (mobileLink) {
+                mobileLink.classList.add('active');
+                updateIndicator(mobileLink);
+            }
+        }
+    }
+
+    function switchKycTab(tabId, element) {
+        document.querySelectorAll('.kyc-tab-btn').forEach(btn => btn.classList.remove('active'));
+        element.classList.add('active');
+        
+        document.getElementById('list-owners').style.display = (tabId === 'owners') ? 'flex' : 'none';
+        document.getElementById('list-merchants').style.display = (tabId === 'merchants') ? 'flex' : 'none';
+    }
+
+    function updateIndicator(activeItem) {
+        if (!activeItem) return;
+        const indicator = document.getElementById('nav-indicator');
+        if (indicator) {
+            indicator.style.width = `${activeItem.offsetWidth}px`;
+            indicator.style.left = `${activeItem.offsetLeft}px`;
+            indicator.style.opacity = '1';
+        }
+    }
+
+    // Logout handling
+    document.querySelectorAll('.logout-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabaseClient.auth.signOut();
+            window.location.replace('../index.html');
+        });
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+        checkAdminAuth();
+        updateIndicator(document.querySelector('.bottom-nav .nav-item.active'));
+    });
+
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+            checkAdminAuth();
+        }
+    });
+</script>
+</body>
+</html>

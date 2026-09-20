@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spacemate - Login</title>
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <meta name="description" content="Login to Spacemate to continue your journey.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #F1F4F8;
+            --card-bg: #FFFFFF;
+            --primary-btn: #a46309;
+            --primary-btn-hover: #8c5407;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --input-border: #d1d5db;
+            --input-focus: #a46309;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Hide Edge native password reveal button */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-main);
+        }
+
+        .login-container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 420px;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo {
+            max-width: 150px;
+            height: auto;
+            margin-bottom: 1rem;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: var(--input-focus);
+            box-shadow: 0 0 0 3px rgba(164, 99, 9, 0.15);
+        }
+
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-wrapper input {
+            padding-right: 3rem;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 0.75rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.2rem;
+            transition: opacity 0.2s;
+        }
+        
+        .toggle-password:hover {
+            opacity: 0.7;
+        }
+
+        .login-btn-wrapper {
+            margin-top: 2rem;
+        }
+
+        .login-btn {
+            display: block;
+            width: 100%;
+            background-color: var(--primary-btn);
+            color: white;
+            text-align: center;
+            padding: 0.875rem;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 1.05rem;
+            text-decoration: none;
+            transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(164, 99, 9, 0.2), 0 2px 4px -1px rgba(164, 99, 9, 0.1);
+        }
+
+        .login-btn:hover {
+            background-color: var(--primary-btn-hover);
+            box-shadow: 0 6px 10px -1px rgba(164, 99, 9, 0.3), 0 2px 4px -1px rgba(164, 99, 9, 0.15);
+        }
+
+        .login-btn:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 4px -1px rgba(164, 99, 9, 0.2);
+        }
+        
+        .footer-text {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .footer-text a {
+            color: var(--primary-btn);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .footer-text a:hover {
+            color: var(--primary-btn-hover);
+            text-decoration: underline;
+        }
+
+        .forgot-password-link {
+            display: block;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--primary-btn);
+            text-decoration: none;
+            margin-top: 12px;
+            padding: 8px 0;
+            transition: opacity 0.2s ease, text-decoration 0.2s ease;
+        }
+
+        .forgot-password-link:hover {
+            text-decoration: underline;
+            opacity: 0.85;
+        }
+    </style>
+</head>
+<body>
+
+    <main class="login-container">
+        <header class="login-header">
+            <img src="assets/imagelogo.png" alt="โลโก้ Spacemate" class="logo">
+            <h1>ยินดีต้อนรับ</h1>
+            <p>โปรดกรอกข้อมูลของคุณเพื่อเข้าสู่ระบบ</p>
+        </header>
+
+        <form action="#" method="POST" onsubmit="event.preventDefault(); handleLogin();">
+            <div class="input-group">
+                <label for="login-email">อีเมล</label>
+                <input type="email" id="login-email" name="email" placeholder="กรอกอีเมลของคุณ" required>
+            </div>
+
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="password">รหัสผ่าน</label>
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                    <button type="button" class="toggle-password" onclick="togglePassword('password', this)" title="แสดงรหัสผ่าน">👁️</button>
+                </div>
+                <a href="auth/forgot_password.html" class="forgot-password-link">ลืมรหัสผ่าน?</a>
+            </div>
+
+            <div class="login-btn-wrapper">
+                <button type="button" class="login-btn" id="login-button" onclick="handleLogin()" style="width: 100%; border: none; font-family: inherit; cursor: pointer; font-size: 1rem;">เข้าสู่ระบบ</button>
+            </div>
+        </form>
+
+        <div class="footer-text">
+            คุณยังไม่มีบัญชีผู้ใช้? <a href="register.html">ลงทะเบียน</a>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase.js"></script>
+    <script>
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = '🙈';
+                btn.title = 'ซ่อนรหัสผ่าน';
+            } else {
+                input.type = 'password';
+                btn.textContent = '👁️';
+                btn.title = 'แสดงรหัสผ่าน';
+            }
+        }
+
+        async function handleLogin() {
+            const emailInput = document.getElementById('login-email').value.trim().toLowerCase();
+            const passwordInput = document.getElementById('password').value;
+            const loginBtn = document.getElementById('login-button');
+            
+            // Basic validation
+            if (!emailInput || !passwordInput) {
+                alert('กรุณากรอกอีเมลและรหัสผ่าน');
+                return;
+            }
+
+            // Disable button to prevent double-click
+            loginBtn.disabled = true;
+            const originalText = loginBtn.textContent;
+            loginBtn.textContent = 'กำลังเข้าสู่ระบบ...';
+
+            try {
+                // 1. Supabase Auth Sign In
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: emailInput,
+                    password: passwordInput,
+                });
+
+                if (error) {
+                    throw error;
+                }
+
+                // 2. Fetch user role from profiles table
+                const { data: profileData, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', data.user.id)
+                    .single();
+
+                if (profileError) {
+                    throw new Error('ไม่พบข้อมูลโปรไฟล์ กรุณาติดต่อผู้ดูแลระบบ');
+                }
+
+                // Clear previous view state on login so user/owner start at 'home' (หน้าแรก)
+                sessionStorage.removeItem('active_owner_view');
+                sessionStorage.removeItem('active_user_view');
+
+                // 3. Role-based routing
+                if (profileData.role === 'admin') {
+                    window.location.href = 'admin/main_admin.html';
+                } else if (profileData.role === 'owner') {
+                    window.location.href = 'owner/main_owner.html?view=home';
+                } else {
+                    // Default to normal user
+                    window.location.href = 'user/main_user.html?view=home';
+                }
+            } catch (err) {
+                console.error('Login error:', err);
+                alert('เข้าสู่ระบบไม่สำเร็จ: ' + (err.message || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง'));
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = originalText;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>จองพื้นที่ - Spacemate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #a46309;
+            --primary-light: #fbeedb;
+            --bg-color: #F1F4F8;
+            --card-bg: #FFFFFF;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Prompt', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding-bottom: 120px;
+        }
+
+        /* Responsive Base */
+        .desktop-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            padding: 1rem 5%;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr; /* Mobile: 1 column */
+            gap: 1.5rem;
+        }
+        .content-col { display: flex; flex-direction: column; gap: 1.5rem; }
+
+        /* The Bottom/Right Action Panel */
+        .action-panel {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: white;
+            padding: 1.25rem 1.5rem;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+            border-radius: 24px 24px 0 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .action-panel-flex {
+            display: flex; justify-content: space-between; align-items: center; width: 100%;
+        }
+        .btn-primary {
+            background: #a46309; color: white; border: none; padding: 0.9rem 2rem; border-radius: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 1rem;
+        }
+        .btn-primary:hover {
+            background: #8c5407;
+        }
+
+        /* Desktop Web Overrides */
+        @media (min-width: 768px) {
+            body { padding-bottom: 0; }
+            .page-container { padding: 2.5rem 5%; }
+            .split-layout {
+                grid-template-columns: 2fr 1fr; /* Desktop: 2 columns */
+                align-items: start;
+                gap: 2.5rem;
+            }
+            .action-panel {
+                position: sticky;
+                top: 100px; /* Sticks to the right side on scroll */
+                border-radius: 20px;
+                box-shadow: 0 4px 25px rgba(0,0,0,0.04);
+                border: 1px solid #f1f5f9;
+                padding: 2rem;
+            }
+            .action-panel-flex {
+                flex-direction: column; /* Stack total and button on desktop */
+                align-items: flex-start;
+                gap: 1.5rem;
+            }
+            .btn-primary { width: 100%; text-align: center; }
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-right: 1rem;
+        }
+        .back-btn:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            color: var(--primary-color);
+            border-color: #cbd5e1;
+        }
+        .back-btn:active {
+            transform: translateY(0);
+        }
+
+        .header-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            border: 1px solid #f8fafc;
+        }
+        
+        .listing-summary {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .listing-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+        
+        .listing-details h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .listing-details p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        /* Radio Toggle Styles */
+        .type-toggle-container {
+            display: flex;
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 4px;
+            margin-bottom: 1.5rem;
+        }
+
+        .type-toggle-label {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .type-toggle-label input[type="radio"] {
+            display: none;
+        }
+
+        .type-toggle-btn {
+            display: block;
+            padding: 0.75rem;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .type-toggle-label input[type="radio"]:checked + .type-toggle-btn {
+            background: var(--card-bg);
+            color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            font-weight: 600;
+        }
+
+        /* Form Inputs */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            background-color: #f8fafc;
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.2s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            background-color: var(--card-bg);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .price-summary {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .days-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="desktop-header">
+        <button class="back-btn" onclick="window.location.href='main_user.html'">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h1 class="header-title">จองพื้นที่ตลาด</h1>
+        <div style="width: 24px;"></div>
+    </header>
+
+    <div class="page-container">
+        <div class="split-layout">
+            <div class="content-col">
+                <div class="card">
+                    <div class="listing-summary">
+                        <img id="venue-cover-img" src="https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&q=80&w=200" alt="ตลาด" class="listing-img">
+                        <div class="listing-details">
+                            <h3 id="venue-name-title">กำลังโหลดสถานที่...</h3>
+                            <p id="venue-location-text"><i class="fa-solid fa-location-dot"></i> กำลังโหลดที่อยู่...</p>
+                            <p id="space-info-text" style="color: var(--primary-color); font-weight: 600; margin-top: 4px;"></p>
+                        </div>
+                    </div>
+
+                    <h2 class="section-title">เลือกรูปแบบการจอง</h2>
+                    <div class="type-toggle-container">
+                        <label class="type-toggle-label">
+                            <input type="radio" name="booking_type" id="type-single" value="single" checked>
+                            <span class="type-toggle-btn">จองวันเดียว</span>
+                        </label>
+                        <label class="type-toggle-label">
+                            <input type="radio" name="booking_type" id="type-multi" value="multi">
+                            <span class="type-toggle-btn">จองหลายวัน</span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="start-date">วันที่ต้องการจอง</label>
+                        <input type="date" id="start-date" class="form-control">
+                    </div>
+
+                    <div class="form-group" id="end-date-wrapper" style="display: none;">
+                        <label class="form-label" for="end-date">ถึงวันที่</label>
+                        <input type="date" id="end-date" class="form-control">
+                    </div>
+                    
+                    <input type="hidden" id="base-price-val" value="350">
+                </div>
+            </div>
+
+            <!-- Action Panel -->
+            <div class="action-panel">
+                <div class="action-panel-flex">
+                    <div class="price-summary">
+                        <span class="days-text">รวม <span id="days-count">1</span> วัน</span>
+                        <span id="total-price" style="font-size: 1.4rem; font-weight: 700; color: var(--primary-color);">฿350</span>
+                    </div>
+                    <button class="btn-primary" onclick="proceedToPayment()">ยืนยันการจอง</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabase.js"></script>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const venueId = urlParams.get('venue_id');
+        const spaceId = urlParams.get('space_id');
+
+        let basePrice = 350;
+        const startInput = document.getElementById('start-date');
+        const endInput = document.getElementById('end-date');
+        const endWrapper = document.getElementById('end-date-wrapper');
+        const daysCount = document.getElementById('days-count');
+        const totalPrice = document.getElementById('total-price');
+        const radioSingle = document.getElementById('type-single');
+        const radioMulti = document.getElementById('type-multi');
+
+        // Set Min Date to Today
+        const today = new Date().toISOString().split('T')[0];
+        startInput.min = today;
+        endInput.min = today;
+        startInput.value = today;
+
+        async function initPage() {
+            let foundData = false;
+            try {
+                if (spaceId) {
+                    const { data: space, error: sErr } = await supabaseClient
+                        .from('spaces')
+                        .select('*, venues(*)')
+                        .eq('id', spaceId)
+                        .single();
+
+                    if (!sErr && space) {
+                        foundData = true;
+                        basePrice = space.price || 350;
+                        document.getElementById('base-price-val').value = basePrice;
+                        document.getElementById('space-info-text').innerText = `ล็อค ${space.space_number} (โซน ${space.zone || '-'}) • ฿${basePrice.toLocaleString()} / วัน`;
+
+                        if (space.venues) {
+                            document.getElementById('venue-name-title').innerText = space.venues.name;
+                            document.getElementById('venue-location-text').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${space.venues.location || 'ไม่ได้ระบุที่อยู่'}`;
+                            if (space.venues.cover_image_url) {
+                                document.getElementById('venue-cover-img').src = space.venues.cover_image_url;
+                            }
+                        }
+                    }
+                } else if (venueId) {
+                    const { data: venue, error: vErr } = await supabaseClient
+                        .from('venues')
+                        .select('*')
+                        .eq('id', venueId)
+                        .single();
+
+                    if (!vErr && venue) {
+                        foundData = true;
+                        document.getElementById('venue-name-title').innerText = venue.name;
+                        document.getElementById('venue-location-text').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${venue.location || 'ไม่ได้ระบุที่อยู่'}`;
+                        if (venue.cover_image_url) {
+                            document.getElementById('venue-cover-img').src = venue.cover_image_url;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Error loading booking info:', err);
+            }
+
+            if (!foundData) {
+                document.getElementById('venue-name-title').innerText = 'ไม่พบข้อมูลตลาดหรือล็อคที่เลือก';
+                document.getElementById('venue-location-text').innerHTML = '<span style="color: #ef4444;">กรุณาเลือกล็อคจากหน้าผังตลาด</span>';
+                const actionBtn = document.querySelector('.action-panel .btn-primary');
+                if (actionBtn) {
+                    actionBtn.disabled = true;
+                    actionBtn.innerText = 'ไม่สามารถดำเนินการได้';
+                }
+            }
+
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            let days = 1;
+            if (radioMulti.checked) {
+                if (startInput.value && endInput.value) {
+                    const start = new Date(startInput.value);
+                    const end = new Date(endInput.value);
+                    const diffTime = end - start;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                    
+                    if (diffDays < 1) {
+                        alert('วันสิ้นสุดต้องไม่ก่อนวันเริ่มต้น');
+                        endInput.value = startInput.value;
+                        days = 1;
+                    } else {
+                        days = diffDays;
+                    }
+                }
+            }
+            daysCount.innerText = days;
+            totalPrice.innerText = '฿' + (days * basePrice).toLocaleString();
+            return days * basePrice;
+        }
+
+        function toggleDateType() {
+            if (radioMulti.checked) {
+                endWrapper.style.display = 'block';
+                if (!endInput.value) {
+                    endInput.value = startInput.value;
+                }
+            } else {
+                endWrapper.style.display = 'none';
+            }
+            calculateTotal();
+        }
+
+        function proceedToPayment() {
+            const startVal = startInput.value;
+            const endVal = radioMulti.checked ? endInput.value : startVal;
+            const totalVal = calculateTotal();
+
+            const targetUrl = `payment.html?venue_id=${venueId || ''}&space_id=${spaceId || ''}&start_date=${startVal}&end_date=${endVal}&total_price=${totalVal}`;
+            window.location.href = targetUrl;
+        }
+
+        radioSingle.addEventListener('change', toggleDateType);
+        radioMulti.addEventListener('change', toggleDateType);
+        startInput.addEventListener('change', () => {
+            if (radioMulti.checked && new Date(endInput.value) < new Date(startInput.value)) {
+                endInput.value = startInput.value;
+            }
+            calculateTotal();
+        });
+        endInput.addEventListener('change', calculateTotal);
+
+        window.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

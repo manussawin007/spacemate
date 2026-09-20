@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Map Booth - Spacemate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #a46309;
+            --primary-light: #fef3c7;
+            --bg-color: #F1F4F8;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-light: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden !important;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Responsive Base */
+        .desktop-header {
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            padding: 1rem 5%;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .page-container {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        .split-layout {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            gap: 1rem;
+        }
+        .content-col { 
+            flex: 1;
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden;
+            gap: 1rem; 
+        }
+
+        /* The Bottom/Right Action Panel */
+        .action-panel {
+            background: white;
+            padding: 1.25rem 1.5rem;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+            border-radius: 24px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .action-panel-flex {
+            display: flex; justify-content: space-between; align-items: center; width: 100%;
+        }
+        .btn-primary {
+            background: #a46309; color: white; border: none; padding: 0.9rem 2rem; border-radius: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 1rem;
+        }
+        .btn-primary:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            box-shadow: none !important;
+        }
+
+        /* Desktop Web Overrides */
+        @media (min-width: 768px) {
+            .page-container { padding: 1.5rem 5%; }
+            .split-layout {
+                flex-direction: row; /* Desktop: 2 columns side by side */
+                align-items: stretch;
+            }
+            .action-panel {
+                width: 300px; /* fixed width on right */
+                border-radius: 20px;
+                border: 1px solid #f1f5f9;
+                padding: 2rem;
+            }
+            .action-panel-flex {
+                flex-direction: column; /* Stack total and button on desktop */
+                align-items: flex-start;
+                gap: 1.5rem;
+            }
+            .btn-primary { width: 100%; text-align: center; }
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-right: 1rem;
+        }
+        .back-btn:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            color: var(--primary-color);
+            border-color: #cbd5e1;
+        }
+        .back-btn:active {
+            transform: translateY(0);
+        }
+
+        .header-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* Map Legend */
+        .legend-card {
+            background: var(--card-bg);
+            padding: 1rem;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .legend-box {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .legend-box.available {
+            background: #ffffff;
+            border: 2px solid #cbd5e1;
+        }
+
+        .legend-box.selected {
+            background: var(--primary-color);
+        }
+
+        .legend-box.booked {
+            background: #e2e8f0;
+        }
+
+        /* Scrollable Map Container */
+        .map-scroll-container {
+            width: 100%;
+            flex: 1;
+            min-height: 0;
+
+            background-color: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            overflow-x: auto !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+            box-sizing: border-box;
+            position: relative;
+            cursor: grab;
+        }
+        .map-scroll-container:active { cursor: grabbing; }
+
+        /* The Realistic Canvas inside the scroller */
+        .realistic-map-canvas {
+            min-width: 800px; /* Force minimum width to trigger horizontal scroll */
+            min-height: 600px; /* Force minimum height to trigger vertical scroll */
+            padding: 2rem;
+            box-sizing: border-box;
+            position: relative;
+            background-image: 
+                linear-gradient(#f1f5f9 1px, transparent 1px),
+                linear-gradient(90deg, #f1f5f9 1px, transparent 1px);
+            background-size: 20px 20px; /* Grid background pattern */
+            transform-origin: top left;
+            transition: transform 0.2s;
+        }
+
+        /* Zoom Controls */
+        .zoom-controls {
+            position: absolute;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+        .zoom-controls button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text-main);
+            transition: 0.2s;
+        }
+        .zoom-controls button:hover {
+            background: #f1f5f9;
+        }
+
+        /* Map Elements */
+        .map-entrance {
+            background: #e2e8f0; color: #64748b; font-weight: 700;
+            text-align: center; padding: 0.5rem; border-radius: 8px; margin-bottom: 2rem; letter-spacing: 2px;
+        }
+        .map-stage {
+            background: linear-gradient(135deg, #1e293b, #0f172a); color: white;
+            text-align: center; padding: 2rem; border-radius: 16px; margin-bottom: 3rem; font-size: 1.5rem; font-weight: 700;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        .map-walkway-text {
+            text-align: center; color: #cbd5e1; font-weight: 600; letter-spacing: 5px; transform: rotate(-90deg);
+        }
+
+        /* Realistic Slot Blocks */
+        .slot-block { display: flex; flex-wrap: wrap; gap: 8px; background: white; padding: 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .slot-box {
+            width: 45px; height: 45px; border-radius: 8px; border: 2px solid #cbd5e1;
+            display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: 0.2s; background: white; color: #64748b; flex-shrink: 0;
+        }
+        .slot-box:hover:not(.booked) { border-color: var(--primary-color); color: var(--primary-color); }
+        .slot-box.booked { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; border-color: #e2e8f0; opacity: 0.7; }
+        .slot-box.selected { background: var(--primary-color); color: white; border-color: var(--primary-color); box-shadow: 0 4px 10px rgba(164, 99, 9, 0.3); transform: scale(1.05); }
+
+        .selection-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .selection-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="desktop-header">
+        <button class="back-btn" onclick="window.location.href='main_user.html'">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h1 class="header-title">เลือกบูธ</h1>
+        <div style="width: 24px;"></div> <!-- Spacer -->
+    </header>
+
+    <div class="page-container">
+        <div class="split-layout">
+            <div class="content-col">
+                <!-- Legend -->
+                <div class="legend-card">
+                    <div class="legend-item">
+                        <div class="legend-box available"></div>
+                        <span>ว่าง</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box selected"></div>
+                        <span>ที่เลือก</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box booked"></div>
+                        <span>ไม่ว่าง</span>
+                    </div>
+                </div>
+
+                <!-- Map -->
+                <div style="flex: 1; min-height: 0; position: relative; width: 100%; display: flex; flex-direction: column;">
+                    <div class="map-scroll-container">
+                        <div class="map-scale-wrapper" style="width: 800px; height: 600px; transition: width 0.2s, height 0.2s;">
+                            <div class="realistic-map-canvas" id="realistic-canvas" style="width: 800px; height: 600px;">
+                                <div class="map-stage" id="event-stage-title">เวทีกิจกรรมหลัก</div>
+                                
+                                <div id="booths-area" style="display: flex; justify-content: center; align-items: center; min-height: 250px; margin-top: 2rem;">
+                                    <div id="booths-loading" style="text-align: center; color: var(--text-muted);">
+                                        <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary-color); margin-bottom: 0.5rem;"></i>
+                                        <div>กำลังโหลดข้อมูลผังอีเวนต์...</div>
+                                    </div>
+                                </div>
+
+                                <div class="map-entrance" id="entrance-banner" style="margin-top: 4rem; margin-bottom: 0;">จุดลงทะเบียน / ทางเข้า</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Floating Zoom Controls -->
+                    <div class="zoom-controls">
+                        <button onclick="changeZoom(0.2)" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
+                        <button onclick="changeZoom(-0.2)" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Panel -->
+            <div class="action-panel">
+                <div class="action-panel-flex">
+                    <div class="selection-info">
+                        <span class="selection-label">บูธที่เลือก</span>
+                        <span id="selected-slot" style="font-size: 1.25rem; font-weight: 700; color: var(--primary-color);">ยังไม่ได้เลือก</span>
+                    </div>
+                    <button id="next-btn" class="btn-primary" disabled onclick="handleNextClick()">ดำเนินการต่อ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Supabase Client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/supabase.js"></script>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    let venueId = urlParams.get('venue_id');
+    let selectedSpaceId = null;
+
+    const selectedSlotText = document.getElementById('selected-slot');
+    const nextBtn = document.getElementById('next-btn');
+
+    async function loadVenueBooths() {
+        const boothsArea = document.getElementById('booths-area');
+
+        try {
+            if (!venueId) {
+                const { data: firstEvent } = await supabaseClient
+                    .from('venues')
+                    .select('id')
+                    .eq('type', 'event')
+                    .eq('is_active', true)
+                    .limit(1)
+                    .single();
+                if (firstEvent) venueId = firstEvent.id;
+            }
+
+            if (!venueId) {
+                document.querySelector('.header-title').innerText = 'ไม่พบอีเวนต์';
+                boothsArea.innerHTML = `
+                    <div style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                        <i class="fa-regular fa-calendar-xmark" style="font-size: 2.8rem; color: #cbd5e1; margin-bottom: 0.75rem;"></i>
+                        <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.25rem;">ยังไม่มีข้อมูลงานอีเวนต์ในระบบ</h3>
+                        <p style="font-size: 0.9rem;">กรุณารอเจ้าของสถานที่ลงทะเบียนงานอีเวนต์</p>
+                        <a href="main_user.html" style="display: inline-block; margin-top: 1rem; color: var(--primary-color); font-weight: 600; text-decoration: none;">
+                            <i class="fa-solid fa-arrow-left"></i> กลับหน้าหลัก
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            const { data: venue, error: vErr } = await supabaseClient
+                .from('venues')
+                .select('*')
+                .eq('id', venueId)
+                .single();
+
+            if (vErr || !venue) {
+                document.querySelector('.header-title').innerText = 'ไม่พบอีเวนต์';
+                boothsArea.innerHTML = `
+                    <div style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                        <i class="fa-solid fa-triangle-exclamation" style="font-size: 2.8rem; color: #f59e0b; margin-bottom: 0.75rem;"></i>
+                        <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.25rem;">ไม่พบข้อมูลงอีเวนต์ที่เลือก</h3>
+                        <p style="font-size: 0.9rem;">อีเวนต์นี้อาจถูกลบหรือปิดการใช้งานแล้ว</p>
+                        <a href="main_user.html" style="display: inline-block; margin-top: 1rem; color: var(--primary-color); font-weight: 600; text-decoration: none;">
+                            <i class="fa-solid fa-arrow-left"></i> กลับหน้าหลัก
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            document.querySelector('.header-title').innerText = venue.name || 'เลือกบูธอีเวนต์';
+            document.getElementById('event-stage-title').innerText = `เวทีหลัก / ผังของ ${venue.name}`;
+            if (venue.map_image_url) {
+                const canvas = document.getElementById('realistic-canvas');
+                canvas.style.backgroundImage = `url('${venue.map_image_url}')`;
+                canvas.style.backgroundRepeat = 'no-repeat';
+                canvas.style.backgroundPosition = 'center';
+                canvas.style.backgroundSize = 'contain';
+            }
+
+            // Fetch real spaces for this venue from database
+            const { data: spaces, error: sErr } = await supabaseClient
+                .from('spaces')
+                .select('*')
+                .eq('venue_id', venueId)
+                .order('space_number', { ascending: true });
+
+            if (sErr || !spaces || spaces.length === 0) {
+                boothsArea.innerHTML = `
+                    <div style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                        <i class="fa-regular fa-folder-open" style="font-size: 2.8rem; color: #cbd5e1; margin-bottom: 0.75rem;"></i>
+                        <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.25rem;">ยังไม่มีข้อมูลบูธในระบบ</h3>
+                        <p style="font-size: 0.9rem;">ผู้จัดงานยังไม่ได้สร้างบูธสำหรับอีเวนต์นี้</p>
+                        <a href="main_user.html" style="display: inline-block; margin-top: 1rem; color: var(--primary-color); font-weight: 600; text-decoration: none;">
+                            <i class="fa-solid fa-arrow-left"></i> กลับหน้าหลัก
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            renderDynamicBooths(spaces);
+
+        } catch (err) {
+            console.error('Error loading venue booths:', err);
+            boothsArea.innerHTML = `
+                <div style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                    <i class="fa-solid fa-circle-exclamation" style="font-size: 2.5rem; color: #ef4444; margin-bottom: 0.5rem;"></i>
+                    <div>เกิดข้อผิดพลาดในการโหลดข้อมูล</div>
+                </div>
+            `;
+        }
+    }
+
+    function renderDynamicBooths(spaces) {
+        const boothsArea = document.getElementById('booths-area');
+        boothsArea.innerHTML = '';
+        boothsArea.style.display = 'flex';
+        boothsArea.style.flexWrap = 'wrap';
+        boothsArea.style.gap = '12px';
+        boothsArea.style.justifyContent = 'center';
+        boothsArea.style.padding = '1rem';
+
+        const block = document.createElement('div');
+        block.className = 'slot-block';
+        block.style.maxWidth = '600px';
+        block.style.justifyContent = 'center';
+
+        spaces.forEach(space => {
+            const isAvailable = space.status === 'available';
+            const slotEl = document.createElement('div');
+            slotEl.className = `slot-box ${isAvailable ? '' : 'booked'}`;
+            slotEl.dataset.id = space.id;
+            slotEl.dataset.name = space.space_number;
+            slotEl.innerText = space.space_number;
+            slotEl.title = `โซน: ${space.zone || '-'} | ราคา: ฿${space.price} | สถานะ: ${isAvailable ? 'ว่าง' : 'ไม่ว่าง'}`;
+
+            if (isAvailable) {
+                slotEl.addEventListener('click', () => {
+                    document.querySelectorAll('.slot-box').forEach(s => s.classList.remove('selected'));
+                    slotEl.classList.add('selected');
+                    selectedSpaceId = space.id;
+                    selectedSlotText.innerText = `บูธ ${space.space_number} (฿${space.price})`;
+                    nextBtn.disabled = false;
+                    nextBtn.style.boxShadow = '0 4px 15px rgba(164, 99, 9, 0.25)';
+                });
+            }
+            block.appendChild(slotEl);
+        });
+
+        boothsArea.appendChild(block);
+    }
+
+    function attachSlotEvents() {
+        const slots = document.querySelectorAll('.slot-box:not(.booked)');
+        slots.forEach(slot => {
+            slot.addEventListener('click', () => {
+                document.querySelectorAll('.slot-box').forEach(s => s.classList.remove('selected'));
+                slot.classList.add('selected');
+                const slotName = slot.innerText;
+                selectedSlotText.innerText = slotName;
+                selectedSpaceId = slot.dataset.id || null;
+                nextBtn.disabled = false;
+                nextBtn.style.boxShadow = '0 4px 15px rgba(164, 99, 9, 0.25)';
+            });
+        });
+    }
+
+    function handleNextClick() {
+        const targetUrl = `book_booth.html?venue_id=${venueId || ''}&space_id=${selectedSpaceId || ''}`;
+        window.location.href = targetUrl;
+    }
+
+    // Drag-to-scroll functionality for desktop mice
+    const slider = document.querySelector('.map-scroll-container');
+    let isDown = false;
+    let startX, scrollLeft, startY, scrollTop;
+
+    slider.addEventListener('mousedown', (e) => {
+        isDown = true;
+        slider.style.cursor = 'grabbing';
+        startX = e.pageX - slider.offsetLeft;
+        startY = e.pageY - slider.offsetTop;
+        scrollLeft = slider.scrollLeft;
+        scrollTop = slider.scrollTop;
+    });
+    slider.addEventListener('mouseleave', () => {
+        isDown = false;
+        slider.style.cursor = 'grab';
+    });
+    slider.addEventListener('mouseup', () => {
+        isDown = false;
+        slider.style.cursor = 'grab';
+    });
+    slider.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - slider.offsetLeft;
+        const y = e.pageY - slider.offsetTop;
+        slider.scrollLeft = scrollLeft - (x - startX) * 2;
+        slider.scrollTop = scrollTop - (y - startY) * 2;
+    });
+
+    let currentZoom = 1;
+    function changeZoom(delta) {
+        currentZoom += delta;
+        if (currentZoom < 0.5) currentZoom = 0.5;
+        if (currentZoom > 2) currentZoom = 2;
+        
+        const scaleWrapper = document.querySelector('.map-scale-wrapper');
+        const canvas = document.querySelector('.realistic-map-canvas');
+        
+        const baseW = 800;
+        const baseH = 600;
+        
+        scaleWrapper.style.width = (baseW * currentZoom) + 'px';
+        scaleWrapper.style.height = (baseH * currentZoom) + 'px';
+        canvas.style.transform = `scale(${currentZoom})`;
+    }
+
+    window.addEventListener('DOMContentLoaded', loadVenueBooths);
+</script>
+
+</body>
+</html>

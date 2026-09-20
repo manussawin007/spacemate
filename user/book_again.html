@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จองล็อคเดิมอีกครั้ง - Spacemate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS CDN & Config -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabase.js"></script>
+    <style>
+        :root {
+            --bg-color: #F1F4F8;
+            --primary-color: #a46309;
+            --primary-hover: #8c5407;
+            --card-bg: #FFFFFF;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --success: #10b981;
+            --warning-bg: #fffbeb;
+            --warning-border: #fde68a;
+            --warning-text: #b45309;
+            --border-color: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        html, body { overflow-x: hidden; width: 100%; }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 110px;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            background: var(--card-bg);
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-right: 1rem;
+        }
+        .back-btn:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            color: var(--primary-color);
+            border-color: #cbd5e1;
+        }
+        .back-btn:active {
+            transform: translateY(0);
+        }
+
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+            flex: 1;
+            text-align: center;
+            margin-right: 2.5rem;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 1.25rem;
+            padding: 1.25rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Summary styles */
+        .venue-preview-header {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .venue-thumb {
+            width: 70px;
+            height: 70px;
+            border-radius: 14px;
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .summary-label { color: var(--text-muted); font-size: 0.95rem; }
+        .summary-value { font-weight: 500; font-size: 0.95rem; }
+        .summary-value.highlight { color: var(--primary-color); font-weight: 700; font-size: 1.1rem; }
+
+        /* Alert Box */
+        .alert-box {
+            padding: 1rem 1.25rem;
+            border-radius: 1rem;
+            display: flex;
+            gap: 0.85rem;
+            align-items: flex-start;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .alert-box.success {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+        }
+
+        .alert-box.warning {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #b45309;
+        }
+
+        .alert-icon { font-size: 1.3rem; margin-top: 0.15rem; flex-shrink: 0; }
+
+        /* Date toggle buttons */
+        .date-mode-toggle {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-btn {
+            border: none;
+            padding: 0.6rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .toggle-btn.active {
+            background: white;
+            color: var(--primary-color);
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* Form Inputs */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+            color: var(--text-main);
+            font-size: 0.9rem;
+        }
+        .date-input {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.75rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            background: #f8fafc;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .date-input:focus {
+            border-color: var(--primary-color);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(164, 99, 9, 0.15);
+        }
+
+        .other-spaces-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .other-spaces-btn:hover {
+            background: #f1f5f9;
+        }
+
+        /* Sticky Footer */
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--card-bg);
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.06);
+            padding: 1rem 1.25rem;
+            z-index: 100;
+        }
+        .footer-content {
+            max-width: 500px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.25rem;
+        }
+        .price-col { display: flex; flex-direction: column; }
+        .price-label { font-size: 0.85rem; color: var(--text-muted); }
+        .price-total { font-size: 1.35rem; font-weight: 700; color: var(--primary-color); }
+        
+        .btn-confirm {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.9rem 1.75rem;
+            border-radius: 2rem;
+            font-family: inherit;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(164, 99, 9, 0.25);
+            transition: all 0.2s;
+            flex: 1;
+            text-align: center;
+        }
+        .btn-confirm:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        .btn-confirm:active { transform: translateY(0) scale(0.97); }
+        .btn-confirm:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            background: #94a3b8;
+            box-shadow: none;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <button class="back-btn" onclick="window.location.href='main_user.html'">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h2 class="header-title">จองอีกครั้ง</h2>
+    </header>
+
+    <div class="container">
+        
+        <!-- Availability Alert Box -->
+        <div id="availability-alert" class="alert-box success">
+            <i id="availability-icon" class="fa-solid fa-circle-check alert-icon" style="color: var(--success);"></i>
+            <div>
+                <strong id="availability-title">ล็อคนี้ยังว่างอยู่!</strong><br>
+                <span id="availability-desc">เลือกรอบวันที่ต้องการจองใหม่ได้ทันที</span>
+                <a id="other-spaces-link" href="#" class="other-spaces-btn" style="display: none;">
+                    <i class="fa-solid fa-map-location-dot"></i> ดูผังเลือกล็อคอื่นในตลาดนี้
+                </a>
+            </div>
+        </div>
+
+        <!-- Venue & Stall Details -->
+        <div class="card">
+            <div class="venue-preview-header">
+                <img id="venue-img" src="https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&q=80&w=200" alt="ตลาด" class="venue-thumb">
+                <div style="flex: 1;">
+                    <h3 id="venue-name" style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.2rem;">กำลังโหลดข้อมูล...</h3>
+                    <p id="venue-location" style="font-size: 0.85rem; color: var(--text-muted);"><i class="fa-solid fa-location-dot" style="color: var(--primary-color);"></i> -</p>
+                </div>
+            </div>
+
+            <h3 class="card-title"><i class="fa-solid fa-store"></i> ข้อมูลล็อคเดิม</h3>
+            <div class="summary-item">
+                <span class="summary-label">โซน / ล็อค</span>
+                <span class="summary-value highlight" id="space-zone-number">-</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">ขนาดพื้นที่</span>
+                <span class="summary-value" id="space-size">-</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">อัตราค่าเช่า</span>
+                <span class="summary-value" id="space-rate">-</span>
+            </div>
+        </div>
+
+        <!-- New Date Selection -->
+        <div class="card">
+            <h3 class="card-title"><i class="fa-regular fa-calendar-check"></i> เลือกรอบวันที่ใหม่</h3>
+            
+            <div class="date-mode-toggle">
+                <button type="button" class="toggle-btn active" id="btn-single-mode" onclick="setDateMode('single')">จองวันเดียว</button>
+                <button type="button" class="toggle-btn" id="btn-multi-mode" onclick="setDateMode('multi')">จองหลายวัน</button>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="start-date" id="start-date-label">วันที่ต้องการจอง</label>
+                <input type="date" id="start-date" class="date-input" onchange="handleDateChange()">
+            </div>
+            
+            <div class="form-group" id="end-date-group" style="display: none;">
+                <label class="form-label" for="end-date">ถึงวันที่</label>
+                <input type="date" id="end-date" class="date-input" onchange="handleDateChange()">
+            </div>
+
+            <div class="summary-item" style="border-top: 1px dashed #e2e8f0; padding-top: 0.75rem; margin-top: 0.75rem;">
+                <span class="summary-label">จำนวนวันที่จอง</span>
+                <span class="summary-value" id="days-count-display">1 วัน</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">ค่าเช่าพื้นที่รวม</span>
+                <span class="summary-value" id="subtotal-display">฿0</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Sticky Footer -->
+    <div class="sticky-footer">
+        <div class="footer-content">
+            <div class="price-col">
+                <span class="price-label">ยอดรวมทั้งหมด</span>
+                <span class="price-total" id="total-price-display">฿0</span>
+            </div>
+            <button id="btn-submit-booking" class="btn-confirm" onclick="proceedToPayment()">ยืนยันการจอง</button>
+        </div>
+    </div>
+
+    <script>
+        let currentBooking = null;
+        let currentSpace = null;
+        let currentVenue = null;
+        let dailyPrice = 0;
+        let dateMode = 'single'; // 'single' | 'multi'
+
+        function setDateMode(mode) {
+            dateMode = mode;
+            const singleBtn = document.getElementById('btn-single-mode');
+            const multiBtn = document.getElementById('btn-multi-mode');
+            const endDateGroup = document.getElementById('end-date-group');
+            const startDateLabel = document.getElementById('start-date-label');
+
+            if (mode === 'single') {
+                singleBtn.classList.add('active');
+                multiBtn.classList.remove('active');
+                endDateGroup.style.display = 'none';
+                startDateLabel.textContent = 'วันที่ต้องการจอง';
+            } else {
+                singleBtn.classList.remove('active');
+                multiBtn.classList.add('active');
+                endDateGroup.style.display = 'block';
+                startDateLabel.textContent = 'ตั้งแต่วันที่';
+                
+                const startVal = document.getElementById('start-date').value;
+                const endInput = document.getElementById('end-date');
+                if (!endInput.value || endInput.value < startVal) {
+                    endInput.value = startVal;
+                }
+            }
+            calculateTotal();
+        }
+
+        function handleDateChange() {
+            const startInput = document.getElementById('start-date');
+            const endInput = document.getElementById('end-date');
+
+            if (dateMode === 'multi') {
+                if (endInput.value < startInput.value) {
+                    endInput.value = startInput.value;
+                }
+            }
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            const startVal = document.getElementById('start-date').value;
+            const endVal = document.getElementById('end-date').value;
+            let days = 1;
+
+            if (dateMode === 'multi' && startVal && endVal) {
+                const dStart = new Date(startVal);
+                const dEnd = new Date(endVal);
+                const diffTime = Math.abs(dEnd - dStart);
+                days = Math.max(1, Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1);
+            }
+
+            const total = dailyPrice * days;
+            document.getElementById('days-count-display').textContent = `${days} วัน`;
+            document.getElementById('subtotal-display').textContent = `฿${total.toLocaleString()}`;
+            document.getElementById('total-price-display').textContent = `฿${total.toLocaleString()}`;
+
+            return { days, total, startVal, endVal: (dateMode === 'multi' ? endVal : startVal) };
+        }
+
+        async function initPage() {
+            try {
+                // 1. Check Auth
+                const session = await getSession();
+                if (!session) {
+                    window.location.replace('../index.html');
+                    return;
+                }
+
+                // 2. Set min date to today
+                const today = new Date().toISOString().split('T')[0];
+                const startInput = document.getElementById('start-date');
+                const endInput = document.getElementById('end-date');
+                startInput.min = today;
+                startInput.value = today;
+                endInput.min = today;
+                endInput.value = today;
+
+                // 3. Extract query params
+                const urlParams = new URLSearchParams(window.location.search);
+                const bookingId = urlParams.get('booking_id');
+                const spaceIdParam = urlParams.get('space_id');
+
+                if (bookingId) {
+                    // Fetch existing booking details
+                    const { data: bData, error } = await supabaseClient
+                        .from('bookings')
+                        .select(`
+                            *,
+                            spaces (
+                                id,
+                                space_number,
+                                zone,
+                                price,
+                                status,
+                                size_details,
+                                venues (
+                                    id,
+                                    name,
+                                    location,
+                                    type,
+                                    cover_image_url
+                                )
+                            )
+                        `)
+                        .eq('id', bookingId)
+                        .single();
+
+                    if (!error && bData) {
+                        currentBooking = bData;
+                        currentSpace = bData.spaces;
+                        currentVenue = bData.spaces?.venues;
+                    }
+                } else if (spaceIdParam) {
+                    const { data: sData, error } = await supabaseClient
+                        .from('spaces')
+                        .select(`
+                            *,
+                            venues (
+                                id,
+                                name,
+                                location,
+                                type,
+                                cover_image_url
+                            )
+                        `)
+                        .eq('id', spaceIdParam)
+                        .single();
+
+                    if (!error && sData) {
+                        currentSpace = sData;
+                        currentVenue = sData.venues;
+                    }
+                }
+
+                // Render Data into DOM
+                if (currentSpace) {
+                    dailyPrice = Number(currentSpace.price || 300);
+                    
+                    if (currentVenue) {
+                        document.getElementById('venue-name').textContent = currentVenue.name || 'ตลาด';
+                        document.getElementById('venue-location').innerHTML = `<i class="fa-solid fa-location-dot" style="color: var(--primary-color);"></i> ${currentVenue.location || '-'}`;
+                        if (currentVenue.cover_image_url) {
+                            document.getElementById('venue-img').src = currentVenue.cover_image_url;
+                        }
+                    }
+
+                    const zoneText = currentSpace.zone ? `โซน ${currentSpace.zone} - ` : '';
+                    document.getElementById('space-zone-number').textContent = `${zoneText}ล็อค ${currentSpace.space_number || '-'}`;
+                    document.getElementById('space-size').textContent = currentSpace.size_details || '2 x 2 เมตร';
+                    document.getElementById('space-rate').textContent = `฿${dailyPrice.toLocaleString()} / วัน`;
+
+                    // Check space availability
+                    const isAvailable = currentSpace.status === 'available';
+                    const alertEl = document.getElementById('availability-alert');
+                    const alertIcon = document.getElementById('availability-icon');
+                    const alertTitle = document.getElementById('availability-title');
+                    const alertDesc = document.getElementById('availability-desc');
+                    const otherSpacesBtn = document.getElementById('other-spaces-link');
+                    const submitBtn = document.getElementById('btn-submit-booking');
+
+                    if (isAvailable) {
+                        alertEl.className = 'alert-box success';
+                        alertIcon.className = 'fa-solid fa-circle-check alert-icon';
+                        alertIcon.style.color = 'var(--success)';
+                        alertTitle.textContent = 'ล็อคนี้ยังว่างอยู่!';
+                        alertDesc.textContent = 'เลือกรอบวันที่ต้องการจองใหม่ได้เลย';
+                        otherSpacesBtn.style.display = 'none';
+                        submitBtn.disabled = false;
+                    } else {
+                        alertEl.className = 'alert-box warning';
+                        alertIcon.className = 'fa-solid fa-triangle-exclamation alert-icon';
+                        alertIcon.style.color = '#b45309';
+                        alertTitle.textContent = 'ขณะนี้ล็อคนี้มีผู้เช่าแล้ว';
+                        alertDesc.textContent = 'คุณสามารถดูผังและเลือกล็อคอื่นที่ยังว่างในตลาดนี้ได้';
+                        
+                        const targetVenueId = currentVenue?.id || '';
+                        const mapPage = currentVenue?.type === 'event' ? 'map_booth.html' : 'map_space.html';
+                        otherSpacesBtn.href = `${mapPage}?venue_id=${targetVenueId}`;
+                        otherSpacesBtn.style.display = 'inline-flex';
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = 'ล็อคนี้ไม่ว่างในขณะนี้';
+                    }
+
+                } else {
+                    // Fallback preview
+                    document.getElementById('venue-name').textContent = 'Food & Craft Festival';
+                    document.getElementById('venue-location').innerHTML = '<i class="fa-solid fa-location-dot" style="color: var(--primary-color);"></i> สวนลุมพินี กรุงเทพฯ';
+                    document.getElementById('space-zone-number').textContent = 'โซน C - ล็อค C11';
+                    document.getElementById('space-size').textContent = '2 x 2 เมตร';
+                    document.getElementById('space-rate').textContent = '฿300 / วัน';
+                    dailyPrice = 300;
+                }
+
+                calculateTotal();
+
+            } catch (err) {
+                console.error('Error initializing book_again page:', err);
+            }
+        }
+
+        function proceedToPayment() {
+            const { total, startVal, endVal } = calculateTotal();
+            const venueId = currentVenue?.id || '';
+            const spaceId = currentSpace?.id || '';
+
+            if (!spaceId) {
+                alert('ไม่พบข้อมูลล็อค กรุณาเลือกล็อคจากหน้ารายการตลาด');
+                window.location.href = 'main_user.html';
+                return;
+            }
+
+            const targetUrl = `payment.html?venue_id=${venueId}&space_id=${spaceId}&start_date=${startVal}&end_date=${endVal}&total_price=${total}`;
+            window.location.href = targetUrl;
+        }
+
+        window.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spacemate - E-Ticket</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #F1F4F8;
+            --primary-color: #a46309;
+            --card-bg: #FFFFFF;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --success: #10b981;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        html, body { overflow-x: hidden; width: 100%; }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            background: var(--bg-color);
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-right: 1rem;
+        }
+        .back-btn:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            color: var(--primary-color);
+            border-color: #cbd5e1;
+        }
+        .back-btn:active {
+            transform: translateY(0);
+        }
+
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+            flex: 1;
+            text-align: center;
+            margin-right: 2rem; /* visually center */
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 0 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Ticket Styles */
+        .ticket {
+            background: var(--card-bg);
+            border-radius: 1.25rem;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            margin-top: 0.5rem;
+        }
+
+        .ticket-top {
+            padding: 2rem 1.5rem 1.5rem;
+            text-align: center;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #d1fae5;
+            color: var(--success);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+        }
+
+        .market-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .date-time {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .ticket-divider {
+            position: relative;
+            height: 2px;
+            background-image: linear-gradient(to right, #cbd5e1 50%, transparent 50%);
+            background-size: 12px 2px;
+            background-repeat: repeat-x;
+            margin: 0;
+            z-index: 0;
+        }
+
+        .ticket-divider::before, .ticket-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 32px;
+            height: 32px;
+            background-color: var(--bg-color);
+            border-radius: 50%;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        .ticket-divider::before { left: -16px; }
+        .ticket-divider::after { right: -16px; }
+
+        .ticket-middle {
+            padding: 2rem 1.5rem;
+            text-align: center;
+        }
+
+        .qr-wrapper {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 1rem;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .qr-image {
+            width: 180px;
+            height: 180px;
+            object-fit: contain;
+        }
+
+        .ref-number {
+            font-family: monospace;
+            font-size: 1.15rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--primary-color);
+        }
+
+        .ticket-bottom {
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 0 0 1.25rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .detail-value {
+            font-weight: 500;
+            font-size: 1rem;
+            color: var(--text-main);
+        }
+
+        .detail-value.highlight {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .save-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 2rem;
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 4px 10px rgba(164, 99, 9, 0.2);
+            transition: transform 0.2s, background 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .save-btn:active {
+            transform: scale(0.98);
+        }
+        .save-btn:hover {
+            background: #8c5407;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <button class="back-btn" onclick="window.location.href='main_user.html'">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h2 class="header-title">E-Ticket / ใบเสร็จ</h2>
+    </header>
+
+    <div class="container">
+        
+        <div class="ticket">
+            <div class="ticket-top">
+                <div class="status-badge" id="ticket-status-badge">
+                    <i class="fa-solid fa-clock"></i> รอตรวจสอบการชำระเงิน
+                </div>
+                <h3 class="market-name" id="ticket-market-name">กำลังโหลดข้อมูล...</h3>
+                <div class="date-time" id="ticket-date-time">-</div>
+            </div>
+
+            <!-- Upper Divider -->
+            <div class="ticket-divider"></div>
+
+            <div class="ticket-middle">
+                <div class="qr-wrapper">
+                    <img id="ticket-qr-img" src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" alt="Ticket QR Code" class="qr-image">
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.2rem;">รหัสการจอง (Booking Ref)</div>
+                <div class="ref-number" id="ticket-ref">BK-XXXX</div>
+            </div>
+
+            <!-- Lower Divider -->
+            <div class="ticket-divider"></div>
+
+            <div class="ticket-bottom">
+                <div class="detail-row">
+                    <span class="detail-label">ชื่อผู้จอง</span>
+                    <span class="detail-value" id="ticket-booker-name">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">โซน / ล็อค</span>
+                    <span class="detail-value" id="ticket-space-info">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">ยอดชำระสุทธิ</span>
+                    <span class="detail-value highlight" id="ticket-total-price">฿0</span>
+                </div>
+            </div>
+        </div>
+
+        <button class="save-btn" onclick="saveTicket()">
+            <i class="fa-solid fa-download"></i> บันทึกลงเครื่อง
+        </button>
+
+    </div>
+
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabase.js"></script>
+
+    <script>
+        async function loadTicket() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookingId = urlParams.get('booking_id');
+
+            if (!bookingId) {
+                // Check if user has latest booking
+                const session = await getSession();
+                if (session) {
+                    const { data: latestBooking } = await supabaseClient
+                        .from('bookings')
+                        .select('id')
+                        .eq('user_id', session.user.id)
+                        .order('created_at', { ascending: false })
+                        .limit(1)
+                        .single();
+                    if (latestBooking) {
+                        window.location.replace(`e_ticket.html?booking_id=${latestBooking.id}`);
+                        return;
+                    }
+                }
+                document.getElementById('ticket-market-name').innerText = 'ไม่พบรหัสการจอง';
+                return;
+            }
+
+            try {
+                const { data: booking, error } = await supabaseClient
+                    .from('bookings')
+                    .select(`
+                        id,
+                        start_date,
+                        end_date,
+                        total_price,
+                        status,
+                        created_at,
+                        spaces (
+                            id,
+                            space_number,
+                            zone,
+                            venues (
+                                id,
+                                name,
+                                location
+                            )
+                        ),
+                        profiles (
+                            first_name,
+                            last_name,
+                            phone
+                        )
+                    `)
+                    .eq('id', bookingId)
+                    .single();
+
+                if (error || !booking) {
+                    throw error || new Error('ไม่พบข้อมูลการจอง');
+                }
+
+                // Render Ref
+                const refCode = 'BK-' + booking.id.substring(0, 8).toUpperCase();
+                document.getElementById('ticket-ref').innerText = refCode;
+
+                // Render QR code
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent('SPACEMATE-BOOKING:' + booking.id)}`;
+                document.getElementById('ticket-qr-img').src = qrUrl;
+
+                // Render Status
+                const badgeEl = document.getElementById('ticket-status-badge');
+                if (booking.status === 'confirmed') {
+                    badgeEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> ชำระเงินสำเร็จ / อนุมัติแล้ว';
+                    badgeEl.style.background = '#d1fae5';
+                    badgeEl.style.color = '#10b981';
+                } else if (booking.status === 'cancelled') {
+                    badgeEl.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> การจองถูกยกเลิก';
+                    badgeEl.style.background = '#fee2e2';
+                    badgeEl.style.color = '#ef4444';
+                } else {
+                    badgeEl.innerHTML = '<i class="fa-solid fa-clock"></i> รอเจ้าของตรวจสอบสลิป';
+                    badgeEl.style.background = '#fef3c7';
+                    badgeEl.style.color = '#d97706';
+                }
+
+                // Render Details
+                const venueName = booking.spaces?.venues?.name || 'พื้นที่จัดแสดง / ตลาด';
+                document.getElementById('ticket-market-name').innerText = venueName;
+
+                const dateDisplay = booking.start_date === booking.end_date 
+                    ? booking.start_date 
+                    : `${booking.start_date} ถึง ${booking.end_date}`;
+                document.getElementById('ticket-date-time').innerText = dateDisplay;
+
+                const bookerName = booking.profiles 
+                    ? `คุณ${booking.profiles.first_name || ''} ${booking.profiles.last_name || ''}` 
+                    : 'ผู้ใช้บริการ';
+                document.getElementById('ticket-booker-name').innerText = bookerName;
+
+                const spaceInfo = `โซน ${booking.spaces?.zone || '-'} - ล็อค ${booking.spaces?.space_number || '-'}`;
+                document.getElementById('ticket-space-info').innerText = spaceInfo;
+
+                document.getElementById('ticket-total-price').innerText = '฿' + Number(booking.total_price).toLocaleString();
+
+            } catch (err) {
+                console.error('Error loading ticket:', err);
+                document.getElementById('ticket-market-name').innerText = 'เกิดข้อผิดพลาดในการโหลดตั๋ว';
+            }
+        }
+
+        function saveTicket() {
+            const btn = document.querySelector('.save-btn');
+            const originalHtml = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> กำลังบันทึก...';
+            btn.style.opacity = '0.8';
+            
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> บันทึกสำเร็จ';
+                btn.style.background = '#10b981';
+                btn.style.opacity = '1';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.style.background = '';
+                }, 2500);
+            }, 1200);
+        }
+
+        window.addEventListener('DOMContentLoaded', loadTicket);
+    </script>
+</body>
+</html>
