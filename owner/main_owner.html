@@ -1407,9 +1407,8 @@
                     </div>
                 </div>
             </div>
-            <div style="padding: 20px; border-top: 1px solid #e2e8f0; display: flex; gap: 10px;">
-                <button onclick="approveBooking()" style="flex: 1; background: #16a34a; color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; font-family: inherit;">อนุมัติการจอง</button>
-                <button onclick="rejectBooking()" style="flex: 1; background: #ef4444; color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; font-family: inherit;">ปฏิเสธ</button>
+            <div style="padding: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #f59e0b; font-weight: 500; background: #fef3c7; border-radius: 0 0 20px 20px;">
+                <i class="fa-solid fa-clock"></i> รอส่วนกลาง (Admin) ตรวจสอบสลิปและอนุมัติ
             </div>
         </div>
     </div>
@@ -3184,8 +3183,11 @@
                     .select('id, name')
                     .eq('owner_id', session.user.id);
                 
+                let hasPendingBookings = false;
+                
                 if (vErr || !venues || venues.length === 0) {
-                    document.getElementById('notifications-list').innerHTML = '<div style="text-align: center; padding: 2rem; color: #64748b;">ไม่มีคำขอจองใหม่ในขณะนี้</div>';
+                    document.getElementById('notifications-list').innerHTML = '';
+                    await fetchHistoryNotifications();
                     return;
                 }
 
@@ -3198,7 +3200,8 @@
                     .in('venue_id', venueIds);
                 
                 if (sErr || !spaces || spaces.length === 0) {
-                    document.getElementById('notifications-list').innerHTML = '<div style="text-align: center; padding: 2rem; color: #64748b;">ไม่มีคำขอจองใหม่ในขณะนี้</div>';
+                    document.getElementById('notifications-list').innerHTML = '';
+                    await fetchHistoryNotifications();
                     return;
                 }
 
@@ -3224,56 +3227,106 @@
                 const notifList = document.getElementById('notifications-list');
                 
                 if (bErr || !bookings || bookings.length === 0) {
-                    notifList.innerHTML = '<div style="text-align: center; padding: 2rem; color: #64748b;">ไม่มีคำขอจองใหม่ในขณะนี้</div>';
+                    notifList.innerHTML = '';
                     // Clear badge
                     document.querySelectorAll('.nav-badge').forEach(b => b.style.display = 'none');
-                    return;
+                } else {
+                    // Show badge
+                    document.querySelectorAll('.nav-badge').forEach(b => b.style.display = 'block');
+                    hasPendingBookings = true;
+                    notifList.innerHTML = '';
                 }
 
-                // Show badge
-                document.querySelectorAll('.nav-badge').forEach(b => b.style.display = 'block');
-
-                notifList.innerHTML = '';
+                if (hasPendingBookings) {
+                    notifList.innerHTML += '<div style="padding: 10px 15px; font-weight: 600; color: #64748b; font-size: 0.9rem;">รอตรวจสอบ</div>';
+                }
                 
-                bookings.forEach(booking => {
-                    const spaceInfo = spaceMap[booking.space_id];
-                    const bookerName = booking.profiles ? `${booking.profiles.first_name || ''} ${booking.profiles.last_name || ''}` : 'ผู้ใช้';
-                    const bookerPhone = booking.profiles ? booking.profiles.phone : '';
-                    const timeAgo = new Date(booking.created_at).toLocaleDateString('th-TH', { hour: '2-digit', minute: '2-digit' });
-
-                    // We store data as a JSON string to pass it to the modal
-                    const bookingData = encodeURIComponent(JSON.stringify({
-                        id: booking.id,
-                        space_id: booking.space_id,
-                        bookerName: bookerName,
-                        bookerPhone: bookerPhone,
-                        venueName: spaceInfo.venueName,
-                        spaceNumber: spaceInfo.number,
-                        startDate: booking.start_date,
-                        endDate: booking.end_date,
-                        totalPrice: booking.total_price,
-                        slipUrl: booking.payment_slip_url
-                    }));
-
-                    const notifCard = `
-                        <div class="notif-card unread" onclick="openBookingModal('${bookingData}', this)">
-                            <div class="notif-unread-dot"></div>
-                            <div class="notif-icon-box booking">
-                                <i class="fa-solid fa-file-invoice-dollar"></i>
+                if (hasPendingBookings) {
+                    bookings.forEach(booking => {
+                        const spaceInfo = spaceMap[booking.space_id];
+                        const bookerName = booking.profiles ? `${booking.profiles.first_name || ''} ${booking.profiles.last_name || ''}` : 'ผู้ใช้';
+                        const bookerPhone = booking.profiles ? booking.profiles.phone : '';
+                        const timeAgo = new Date(booking.created_at).toLocaleDateString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    
+                        // We store data as a JSON string to pass it to the modal
+                        const bookingData = encodeURIComponent(JSON.stringify({
+                            id: booking.id,
+                            space_id: booking.space_id,
+                            bookerName: bookerName,
+                            bookerPhone: bookerPhone,
+                            venueName: spaceInfo.venueName,
+                            spaceNumber: spaceInfo.number,
+                            startDate: booking.start_date,
+                            endDate: booking.end_date,
+                            totalPrice: booking.total_price,
+                            slipUrl: booking.payment_slip_url
+                        }));
+    
+                        const notifCard = `
+                            <div class="notif-card unread" onclick="openBookingModal('${bookingData}', this)">
+                                <div class="notif-unread-dot"></div>
+                                <div class="notif-icon-box booking">
+                                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                                </div>
+                                <div class="notif-content">
+                                    <div class="notif-title-text">รอตรวจสอบการโอนเงิน</div>
+                                    <div class="notif-desc">คุณ ${bookerName} จองพื้นที่ <span style="font-weight:600; color:var(--primary-color);">${spaceInfo.number}</span> (${spaceInfo.venueName})</div>
+                                    <div class="notif-time">${timeAgo}</div>
+                                </div>
                             </div>
-                            <div class="notif-content">
-                                <div class="notif-title-text">รอตรวจสอบการโอนเงิน</div>
-                                <div class="notif-desc">คุณ ${bookerName} จองพื้นที่ <span style="font-weight:600; color:var(--primary-color);">${spaceInfo.number}</span> (${spaceInfo.venueName})</div>
-                                <div class="notif-time">${timeAgo}</div>
-                            </div>
-                        </div>
-                    `;
-                    notifList.innerHTML += notifCard;
-                });
+                        `;
+                        notifList.innerHTML += notifCard;
+                    });
+                }
+                
+                await fetchHistoryNotifications(hasPendingBookings);
 
             } catch (err) {
                 console.error("Error fetching pending bookings:", err);
                 document.getElementById('notifications-list').innerHTML = '<div style="text-align: center; padding: 2rem; color: #ef4444;">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
+            }
+        }
+
+        async function fetchHistoryNotifications(hasPendingBookings) {
+            try {
+                const session = await getSession();
+                if (!session) return;
+                
+                const { data: notifs, error } = await supabaseClient
+                    .from('notifications')
+                    .select('*')
+                    .eq('user_id', session.user.id)
+                    .order('created_at', { ascending: false });
+
+                const notifList = document.getElementById('notifications-list');
+
+                if (!error && notifs && notifs.length > 0) {
+                    notifList.innerHTML += '<div style="padding: 10px 15px; font-weight: 600; color: #64748b; font-size: 0.9rem; margin-top: 10px;">ประวัติการแจ้งเตือน</div>';
+                    notifs.forEach(n => {
+                        const iconClass = n.type === 'success' ? 'fa-check' : (n.type === 'warning' ? 'fa-exclamation' : 'fa-info');
+                        const iconColor = n.type === 'success' ? '#10b981' : (n.type === 'warning' ? '#ef4444' : '#3b82f6');
+                        const bgClass = n.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : (n.type === 'warning' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(59, 130, 246, 0.1)');
+                        const timeStr = new Date(n.created_at).toLocaleDateString('th-TH', { hour: '2-digit', minute: '2-digit' });
+        
+                        const notifCard = `
+                            <div class="notif-card" style="cursor: default;">
+                                <div class="notif-icon-wrapper" style="background: ${bgClass}; color: ${iconColor}; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fa-solid ${iconClass}"></i>
+                                </div>
+                                <div class="notif-content" style="margin-left: 15px;">
+                                    <div class="notif-title-text" style="font-weight: 600; color: #1e293b;">${n.title || 'การแจ้งเตือน'}</div>
+                                    <div class="notif-desc" style="font-size: 0.85rem; color: #64748b; margin-top: 4px;">${n.message || ''}</div>
+                                    <div class="notif-time" style="font-size: 0.75rem; color: #94a3b8; margin-top: 6px;">${timeStr}</div>
+                                </div>
+                            </div>
+                        `;
+                        notifList.innerHTML += notifCard;
+                    });
+                } else if (!hasPendingBookings) {
+                    notifList.innerHTML = '<div style="text-align: center; padding: 2rem; color: #64748b;">ไม่มีการแจ้งเตือนหรือประวัติใหม่ในขณะนี้</div>';
+                }
+            } catch (err) {
+                console.error("Error fetching history notifications:", err);
             }
         }
 

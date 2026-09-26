@@ -193,13 +193,6 @@
             min-height: 0;
 
             background-color: #f8fafc;
-            background-image: 
-                linear-gradient(#f1f5f9 1px, transparent 1px),
-                linear-gradient(90deg, #f1f5f9 1px, transparent 1px);
-            background-size: 20px 20px;
-            background-attachment: local;
-            border: 2px solid #e2e8f0;
-            border-radius: 16px;
             overflow-x: auto !important;
             overflow-y: auto !important;
             -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
@@ -223,6 +216,10 @@
             position: relative;
             transform-origin: top left;
             transition: transform 0.2s;
+            background-image: 
+                linear-gradient(#e5e7eb 1px, transparent 1px),
+                linear-gradient(90deg, #e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
         }
 
         /* Zoom Controls */
@@ -273,6 +270,7 @@
         .slot-box {
             width: 45px; height: 45px; border-radius: 8px; border: 2px solid #cbd5e1;
             display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: 0.2s; background: white; color: #64748b; flex-shrink: 0;
+            box-sizing: border-box;
         }
         .slot-box:hover:not(.booked) { border-color: var(--primary-color); color: var(--primary-color); }
         .slot-box.booked { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; border-color: #e2e8f0; opacity: 0.7; }
@@ -544,7 +542,9 @@
             }
 
             if (isAvailable) {
-                slotEl.addEventListener('click', () => {
+                slotEl.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     if (slotEl.classList.contains('selected')) {
                         // Deselect
                         slotEl.classList.remove('selected');
@@ -575,14 +575,25 @@
     function attachSlotEvents() {
         const slots = document.querySelectorAll('.slot-box:not(.booked)');
         slots.forEach(slot => {
-            slot.addEventListener('click', () => {
-                document.querySelectorAll('.slot-box').forEach(s => s.classList.remove('selected'));
-                slot.classList.add('selected');
-                const slotName = slot.innerText;
-                selectedSlotText.innerText = slotName;
-                selectedSpaceId = slot.dataset.id || null;
-                nextBtn.disabled = false;
-                nextBtn.style.boxShadow = '0 4px 15px rgba(164, 99, 9, 0.25)';
+            slot.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (slot.classList.contains('selected')) {
+                    // Deselect
+                    slot.classList.remove('selected');
+                    selectedSlotText.innerText = 'ยังไม่ได้เลือกล็อค';
+                    selectedSpaceId = null;
+                    nextBtn.disabled = true;
+                    nextBtn.style.boxShadow = 'none';
+                } else {
+                    document.querySelectorAll('.slot-box').forEach(s => s.classList.remove('selected'));
+                    slot.classList.add('selected');
+                    const slotName = slot.innerText;
+                    selectedSlotText.innerText = slotName;
+                    selectedSpaceId = slot.dataset.id || null;
+                    nextBtn.disabled = false;
+                    nextBtn.style.boxShadow = '0 4px 15px rgba(164, 99, 9, 0.25)';
+                }
             });
         });
     }

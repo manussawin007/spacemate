@@ -1227,6 +1227,7 @@
             <div class="kyc-tabs">
                 <button class="kyc-tab-btn active" onclick="switchKycTab('owners', this)">เจ้าของพื้นที่ <span class="kyc-badge" id="badge-owners-count">0</span></button>
                 <button class="kyc-tab-btn" onclick="switchKycTab('merchants', this)">พ่อค้าแม่ค้า <span class="kyc-badge" id="badge-merchants-count">0</span></button>
+                <button class="kyc-tab-btn" onclick="switchKycTab('payments', this)">การชำระเงิน <span class="kyc-badge" id="badge-payments-count" style="background:#fef3c7; color:#d97706;">0</span></button>
             </div>
             
             <div id="list-owners" class="kyc-list">
@@ -1234,6 +1235,10 @@
             </div>
 
             <div id="list-merchants" class="kyc-list" style="display: none;">
+                <div style="text-align: center; padding: 2rem; color: #64748b;">กำลังโหลดข้อมูล...</div>
+            </div>
+
+            <div id="list-payments" class="kyc-list" style="display: none;">
                 <div style="text-align: center; padding: 2rem; color: #64748b;">กำลังโหลดข้อมูล...</div>
             </div>
         </div>
@@ -1329,6 +1334,39 @@
         <div class="inspect-modal-footer">
             <button class="inspect-action-btn btn-reject-minimal" id="modal-btn-reject" onclick="handleKycDecision('rejected')">ไม่อนุมัติ</button>
             <button class="inspect-action-btn btn-approve-solid" id="modal-btn-approve" onclick="handleKycDecision('approved')">อนุมัติ</button>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Inspect Modal -->
+<div class="inspect-modal-overlay" id="payment-inspect-modal">
+    <div class="inspect-modal" style="max-width: 600px;">
+        <div class="inspect-modal-header">
+            <div class="inspect-modal-title">ตรวจสอบสลิปโอนเงิน</div>
+            <button class="inspect-modal-close" onclick="closePaymentInspectModal()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <div class="inspect-modal-body">
+            <div class="inspect-grid-2">
+                <div class="inspect-field">
+                    <label class="inspect-label">ผู้จอง</label>
+                    <div class="inspect-value" id="modal-payment-user"><i class="fa-solid fa-user" style="color:var(--primary); font-size: 0.9rem;"></i> -</div>
+                </div>
+                <div class="inspect-field">
+                    <label class="inspect-label">พื้นที่จอง / ยอดเงิน</label>
+                    <div class="inspect-value" id="modal-payment-amount"><i class="fa-solid fa-money-bill" style="color:var(--primary); font-size: 0.9rem;"></i> -</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: #f8fafc; padding: 1.5rem; border-radius: 12px;">
+                <label class="inspect-label">หลักฐานการโอนเงิน</label>
+                <img id="modal-payment-slip" src="https://placehold.co/400x600/f8fafc/94a3b8?text=No+Slip" alt="Payment Slip" style="max-height: 400px; max-width: 100%; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            </div>
+        </div>
+        
+        <div class="inspect-modal-footer">
+            <button class="inspect-action-btn btn-reject-minimal" onclick="handlePaymentDecision('cancelled')">ไม่อนุมัติ (ยกเลิกจอง)</button>
+            <button class="inspect-action-btn btn-approve-solid" onclick="handlePaymentDecision('confirmed')">ยืนยันการชำระเงิน</button>
         </div>
     </div>
 </div>
@@ -1431,6 +1469,8 @@
 
             renderUserList('list-owners', owners, 'owner');
             renderUserList('list-merchants', merchants, 'user');
+            
+            await loadPendingPayments();
 
         } catch (err) {
             console.error('Error loading KYC users:', err);
@@ -1564,6 +1604,167 @@
         }
     }
 
+    let cachedPayments = [];
+    let currentSelectedPaymentId = null;
+
+    async function loadPendingPayments() {
+        try {
+            const { data: bookings, error } = await supabaseClient
+                .from('bookings')
+                .select(`
+                    id, 
+                    status, 
+                    total_price, 
+                    payment_slip_url, 
+                    created_at,
+                    profiles:user_id (id, display_name, avatar_url, first_name, last_name, phone)
+                `)
+                .eq('status', 'pending')
+                .not('payment_slip_url', 'is', null)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            cachedPayments = bookings || [];
+
+            document.getElementById('badge-payments-count').innerText = cachedPayments.length;
+            renderPaymentList('list-payments', cachedPayments);
+
+        } catch (err) {
+            console.error('Error loading pending payments:', err);
+        }
+    }
+
+    function renderPaymentList(containerId, payments) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        if (!payments || payments.length === 0) {
+            container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #64748b;">ไม่มีรายการรอตรวจสอบชำระเงิน</div>';
+            return;
+        }
+
+        container.innerHTML = '';
+        payments.forEach(p => {
+            const profile = p.profiles || {};
+            const displayName = profile.display_name || ((profile.first_name || '') + ' ' + (profile.last_name || '')).trim() || 'ผู้จอง';
+            const defaultAvatar = profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`;
+            const timeAgo = p.created_at ? new Date(p.created_at).toLocaleDateString('th-TH') : 'ไม่ระบุ';
+            
+            const card = document.createElement('div');
+            card.className = 'kyc-card';
+            card.innerHTML = `
+                <div class="kyc-user-info">
+                    <img src="${defaultAvatar}" alt="${displayName}" class="kyc-avatar">
+                    <div class="kyc-details">
+                        <h4>${displayName}</h4>
+                        <div class="kyc-meta"><i class="fa-solid fa-money-bill"></i> ยอดโอน: ฿${p.total_price} | <i class="fa-regular fa-clock"></i> ${timeAgo}</div>
+                    </div>
+                </div>
+                <div class="kyc-status-container">
+                    <span class="status-badge status-pending" style="background:#fef3c7; color:#d97706;">รอตรวจสอบสลิป</span>
+                </div>
+                <div class="kyc-actions">
+                    <button class="kyc-btn kyc-btn-inspect" onclick="openInspectPayment('${p.id}')">ตรวจสอบ</button>
+                    <button class="kyc-btn kyc-btn-approve" onclick="quickDecidePayment('${p.id}', 'confirmed')" title="อนุมัติ"><i class="fa-solid fa-check"></i></button>
+                    <button class="kyc-btn kyc-btn-reject" onclick="quickDecidePayment('${p.id}', 'cancelled')" title="ไม่อนุมัติ"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function openInspectPayment(bookingId) {
+        currentSelectedPaymentId = bookingId;
+        const payment = cachedPayments.find(p => p.id === bookingId);
+        if (!payment) return;
+
+        const profile = payment.profiles || {};
+        const fullName = ((profile.first_name || '') + ' ' + (profile.last_name || '')).trim() || profile.display_name || 'ผู้ใช้งาน';
+        
+        document.getElementById('modal-payment-user').innerHTML = `<i class="fa-solid fa-user" style="color:var(--primary); font-size: 0.9rem;"></i> ${fullName} (โทร: ${profile.phone || '-'})`;
+        document.getElementById('modal-payment-amount').innerHTML = `<i class="fa-solid fa-money-bill" style="color:var(--primary); font-size: 0.9rem;"></i> ฿${payment.total_price}`;
+        
+        const noSlipUrl = 'https://placehold.co/400x600/f8fafc/94a3b8?text=No+Slip';
+        document.getElementById('modal-payment-slip').src = payment.payment_slip_url || noSlipUrl;
+
+        document.getElementById('payment-inspect-modal').style.display = 'flex';
+    }
+
+    function closePaymentInspectModal() {
+        document.getElementById('payment-inspect-modal').style.display = 'none';
+        currentSelectedPaymentId = null;
+    }
+
+    async function handlePaymentDecision(status) {
+        if (!currentSelectedPaymentId) return;
+        await updatePaymentInDb(currentSelectedPaymentId, status);
+        closePaymentInspectModal();
+    }
+
+    async function quickDecidePayment(bookingId, status) {
+        const actionText = status === 'confirmed' ? 'ยืนยันการชำระเงิน' : 'ไม่อนุมัติ (ยกเลิกจอง)';
+        if (!confirm(`คุณต้องการ ${actionText} ใช่หรือไม่?`)) return;
+        await updatePaymentInDb(bookingId, status);
+    }
+
+    async function updatePaymentInDb(bookingId, status) {
+        try {
+            // First, get the booking details to know who to notify
+            const { data: bookingData, error: fetchErr } = await supabaseClient
+                .from('bookings')
+                .select('user_id, space_id, spaces(venues(owner_id))')
+                .eq('id', bookingId)
+                .single();
+                
+            const { error } = await supabaseClient
+                .from('bookings')
+                .update({ status: status })
+                .eq('id', bookingId);
+
+            if (error) throw error;
+            
+            // Insert notifications if we successfully updated and fetched data
+            if (!fetchErr && bookingData) {
+                const notifications = [];
+                const isConfirmed = status === 'confirmed';
+                const statusText = isConfirmed ? 'ได้รับการยืนยัน' : 'ถูกยกเลิกเนื่องจากสลิปไม่ถูกต้อง';
+                
+                // Notify User
+                if (bookingData.user_id) {
+                    notifications.push({
+                        user_id: bookingData.user_id,
+                        title: 'ผลการตรวจสอบการชำระเงิน',
+                        message: \`การชำระเงินสำหรับการจอง #\${bookingId} \${statusText}\`,
+                        type: isConfirmed ? 'success' : 'warning',
+                        is_read: false
+                    });
+                }
+                
+                // Notify Owner
+                const ownerId = bookingData.spaces?.venues?.owner_id;
+                if (ownerId) {
+                    notifications.push({
+                        user_id: ownerId,
+                        title: 'อัปเดตสถานะการชำระเงิน',
+                        message: \`แอดมินได้ตรวจสอบการชำระเงินของการจอง #\${bookingId} และมีผลคือ: \${statusText}\`,
+                        type: isConfirmed ? 'success' : 'warning',
+                        is_read: false
+                    });
+                }
+                
+                if (notifications.length > 0) {
+                    await supabaseClient.from('notifications').insert(notifications);
+                }
+            }
+            
+            alert(\`บันทึกสถานะเรียบร้อยแล้ว (\${status === 'confirmed' ? 'ยืนยัน' : 'ยกเลิก'})\`);
+            await loadPendingPayments();
+        } catch (err) {
+            console.error('Error updating payment:', err);
+            alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+        }
+    }
+
     // 4. Navigation & Layout Helpers
     function switchAdminView(viewId, element) {
         document.querySelectorAll('.admin-view').forEach(view => view.classList.remove('active'));
@@ -1591,6 +1792,7 @@
         
         document.getElementById('list-owners').style.display = (tabId === 'owners') ? 'flex' : 'none';
         document.getElementById('list-merchants').style.display = (tabId === 'merchants') ? 'flex' : 'none';
+        document.getElementById('list-payments').style.display = (tabId === 'payments') ? 'flex' : 'none';
     }
 
     function updateIndicator(activeItem) {

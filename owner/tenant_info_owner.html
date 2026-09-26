@@ -454,9 +454,6 @@
             <button class="filter-chip" onclick="setFilter(this, 'rented')">เช่าแล้ว (<span id="count-rented">0</span>)</button>
             <button class="filter-chip" onclick="setFilter(this, 'vacant')">ว่าง (<span id="count-vacant">0</span>)</button>
         </div>
-        <button class="add-space-btn" onclick="openAddSpaceModal()">
-            <i class="fa-solid fa-plus"></i> เพิ่มล็อค
-        </button>
     </div>
 
     <!-- Stall Grid -->
@@ -499,6 +496,48 @@
             <button class="contact-btn" id="modal-action-btn">
                 <i class="fa-solid fa-shop"></i> จัดการล็อค
             </button>
+        </div>
+    </div>
+
+    <!-- Edit Space Modal -->
+    <div class="modal-overlay" id="editSpaceModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 class="modal-title">จัดการล็อค/พื้นที่เช่า</h2>
+                <button class="close-btn" onclick="closeEditSpaceModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form id="editSpaceForm" onsubmit="submitEditSpace(event)">
+                <input type="hidden" id="editSpaceId">
+                <div class="form-group">
+                    <label>ชื่อล็อค / หมายเลข (เช่น A1)</label>
+                    <input type="text" id="editSpaceNumber" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>โซน (ตัวเลือกเสริม)</label>
+                    <input type="text" id="editSpaceZone">
+                </div>
+
+                <div class="form-group">
+                    <label>ราคาเช่า/ล็อค (บาท) <span style="color:red">*</span></label>
+                    <input type="number" id="editSpacePrice" required min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label>ขนาด (ตัวเลือกเสริม)</label>
+                    <input type="text" id="editSpaceSize" placeholder="Ex. 2x2 เมตร">
+                </div>
+                
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="button" id="deleteSpaceBtn" onclick="deleteSpace()" style="flex: 1; background: #fee2e2; color: #ef4444; border: 1px solid #f87171; font-weight: 600; cursor: pointer; border-radius: 10px; transition: all 0.2s; padding: 0.85rem; font-size: 1rem; font-family: inherit;">
+                        <i class="fa-solid fa-trash"></i> ลบข้อมูล
+                    </button>
+                    <button type="submit" class="contact-btn" id="saveEditSpaceBtn" style="flex: 1; margin-top: 0;">
+                        <i class="fa-solid fa-save"></i> บันทึกข้อมูล
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -675,11 +714,13 @@
             const grid = document.getElementById('spaces-grid');
             grid.innerHTML = '';
 
-            let countAll = globalSpaces.length;
+            let countAll = 0;
             let countVacant = 0;
             let countRented = 0;
 
             globalSpaces.forEach(space => {
+                if (space.status === 'label' || (space.map_data && space.map_data.isLabel) || (space.space_number && space.space_number.startsWith('LABEL_'))) return;
+                countAll++;
                 if (space.status === 'available') countVacant++;
                 if (space.status === 'booked' || space.status === 'rented') countRented++; // Handle both booked and rented
             });
@@ -690,6 +731,7 @@
 
             // Filter logic
             const filtered = globalSpaces.filter(space => {
+                if (space.status === 'label' || (space.map_data && space.map_data.isLabel) || (space.space_number && space.space_number.startsWith('LABEL_'))) return false;
                 if (filterType === 'all') return true;
                 if (filterType === 'vacant') return space.status === 'available';
                 if (filterType === 'rented') return space.status === 'booked' || space.status === 'rented';
@@ -840,15 +882,125 @@
             if(!space) return;
 
             document.getElementById('modal-stall-id').innerText = space.space_number;
-            document.getElementById('modal-tenant-name').innerText = space.status === 'available' ? 'ยังไม่มีผู้เช่า' : 'ข้อมูลผู้เช่า (รอการพัฒนา)';
+            document.getElementById('modal-tenant-name').innerText = space.status === 'available' ? 'ยังไม่มีผู้เช่า' : 'เช่าแล้ว (รอการพัฒนาข้อมูลผู้เช่า)';
             document.getElementById('modal-tenant-phone').innerText = space.price + ' บาท';
             document.getElementById('modal-tenant-expiry').innerText = space.size_details || 'ไม่ระบุขนาด';
+            
+            document.getElementById('modal-action-btn').onclick = () => openEditSpaceModal(space.id);
             
             document.getElementById('tenantModal').classList.add('active');
         }
 
         function closeModal() {
             document.getElementById('tenantModal').classList.remove('active');
+        }
+        
+        // Edit Space Logic
+        function openEditSpaceModal(spaceId) {
+            const space = globalSpaces.find(s => s.id === spaceId);
+            if(!space) return;
+            
+            closeModal(); // Close detail modal
+            
+            document.getElementById('editSpaceId').value = space.id;
+            document.getElementById('editSpaceNumber').value = space.space_number || '';
+            document.getElementById('editSpaceZone').value = space.zone || '';
+            document.getElementById('editSpacePrice').value = space.price || 0;
+            document.getElementById('editSpaceSize').value = space.size_details || '';
+            
+            const deleteBtn = document.getElementById('deleteSpaceBtn');
+            if (space.status !== 'available') {
+                deleteBtn.disabled = true;
+                deleteBtn.style.opacity = '0.5';
+                deleteBtn.title = 'ไม่สามารถลบล็อคที่มีการจองหรือเช่าอยู่ได้';
+            } else {
+                deleteBtn.disabled = false;
+                deleteBtn.style.opacity = '1';
+                deleteBtn.title = '';
+            }
+            
+            document.getElementById('editSpaceModal').classList.add('active');
+        }
+        
+        function closeEditSpaceModal() {
+            document.getElementById('editSpaceModal').classList.remove('active');
+            document.getElementById('editSpaceForm').reset();
+        }
+        
+        async function submitEditSpace(e) {
+            e.preventDefault();
+            const btn = document.getElementById('saveEditSpaceBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
+            
+            const spaceId = document.getElementById('editSpaceId').value;
+            const updateData = {
+                space_number: document.getElementById('editSpaceNumber').value,
+                zone: document.getElementById('editSpaceZone').value || null,
+                price: parseFloat(document.getElementById('editSpacePrice').value),
+                size_details: document.getElementById('editSpaceSize').value || null
+            };
+            
+            try {
+                const { error } = await supabaseClient.from('spaces').update(updateData).eq('id', spaceId);
+                if (error) throw error;
+                
+                // Add notification
+                const session = await getSession();
+                if (session) {
+                    await supabaseClient.from('notifications').insert([{
+                        user_id: session.user.id,
+                        title: 'แก้ไขข้อมูลล็อคสำเร็จ',
+                        message: \`ข้อมูลของล็อค \${updateData.space_number} ถูกอัปเดตเรียบร้อยแล้ว\`,
+                        type: 'success',
+                        is_read: false
+                    }]);
+                }
+                
+                closeEditSpaceModal();
+                await loadSpaces();
+                alert('แก้ไขข้อมูลสำเร็จ');
+            } catch (err) {
+                console.error(err);
+                alert('เกิดข้อผิดพลาดในการแก้ไขข้อมูล');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-save"></i> บันทึกข้อมูล';
+            }
+        }
+        
+        async function deleteSpace() {
+            const spaceId = document.getElementById('editSpaceId').value;
+            if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบล็อคนี้? (การลบจะไม่สามารถกู้คืนได้)')) return;
+            
+            try {
+                // Get space number before deleting for the notification
+                let spaceNumber = '';
+                const { data: spaceData } = await supabaseClient.from('spaces').select('space_number').eq('id', spaceId).single();
+                if (spaceData) spaceNumber = spaceData.space_number;
+
+                const { error } = await supabaseClient.from('spaces').delete().eq('id', spaceId);
+                if (error) throw error;
+                
+                // Add notification
+                const session = await getSession();
+                if (session && spaceNumber) {
+                    await supabaseClient.from('notifications').insert([{
+                        user_id: session.user.id,
+                        title: 'ลบล็อคสำเร็จ',
+                        message: \`ล็อค \${spaceNumber} ถูกลบออกจากระบบแล้ว\`,
+                        type: 'info',
+                        is_read: false
+                    }]);
+                }
+
+                closeEditSpaceModal();
+                await loadSpaces();
+                alert('ลบล็อคสำเร็จ');
+            } catch (err) {
+                console.error(err);
+                alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+            }
         }
 
         // Close modal when clicking outside the card
@@ -862,6 +1014,11 @@
                 closeAddSpaceModal();
             }
         });
+        document.getElementById('editSpaceModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditSpaceModal();
+            }
+        });
 
         // Graph Modal Logic
         function openGraphModal() {
@@ -869,12 +1026,15 @@
             
             let countVacant = 0;
             let countRented = 0;
+            let totalSpaces = 0;
             globalSpaces.forEach(s => {
+                if (s.status === 'label' || (s.map_data && s.map_data.isLabel)) return;
+                totalSpaces++;
                 if (s.status === 'available') countVacant++;
                 else countRented++;
             });
 
-            document.getElementById('total-graph-count').innerText = globalSpaces.length;
+            document.getElementById('total-graph-count').innerText = totalSpaces;
 
             if (statusChartInstance) {
                 statusChartInstance.data.datasets[0].data = [countRented, countVacant];
