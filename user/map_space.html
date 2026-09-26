@@ -269,7 +269,8 @@
         .slot-box:hover:not(.booked) { border-color: var(--primary-color); color: var(--primary-color); }
         .slot-box.booked { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; border-color: #e2e8f0; opacity: 0.7; }
         .slot-box.selected { background: var(--primary-color); color: white; border-color: var(--primary-color); box-shadow: 0 4px 10px rgba(164, 99, 9, 0.3); transform: scale(1.05); }
-
+        .absolute-slot { min-width: 44px; min-height: 44px; }
+        
         .selection-info {
             display: flex;
             flex-direction: column;
@@ -430,10 +431,14 @@
                     canvas.style.width = mapBaseW + 'px';
                     canvas.style.height = mapBaseH + 'px';
                     
-                    // We DO NOT set backgroundImage, so it only shows 2D boxes
-                    canvas.style.backgroundColor = '#ffffff';
-                    canvas.style.border = '1px solid #e2e8f0';
-                    canvas.style.borderRadius = '8px';
+                    // Set backgroundImage to show the actual map
+                    canvas.style.backgroundImage = `url('${venue.map_image_url}')`;
+                    canvas.style.backgroundSize = 'contain';
+                    canvas.style.backgroundPosition = 'center';
+                    canvas.style.backgroundRepeat = 'no-repeat';
+                    canvas.style.backgroundColor = 'transparent';
+                    canvas.style.border = 'none';
+                    canvas.style.borderRadius = '0';
                     
                     // Trigger zoom to update wrapper dimensions
                     changeZoom(0);
