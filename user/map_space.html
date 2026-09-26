@@ -320,7 +320,6 @@
                     <div class="map-scroll-container">
                         <div class="map-scale-wrapper" style="width: 800px; height: 600px; transition: width 0.2s, height 0.2s;">
                             <div class="realistic-map-canvas" id="realistic-canvas" style="width: 800px; height: 600px;">
-                                <div class="map-entrance" id="map-entrance-banner">ทางเข้า / ทางเดินหลัก</div>
                                 
                                 <div id="slots-area" style="display: flex; justify-content: center; align-items: center; min-height: 250px; margin-top: 2rem;">
                                     <div id="slots-loading" style="text-align: center; color: var(--text-muted);">
@@ -418,7 +417,7 @@
             }
 
             document.querySelector('.header-title').innerText = venue.name || 'เลือกพื้นที่ตลาด';
-            document.getElementById('map-entrance-banner').innerText = `ทางเข้า / ผังของ ${venue.name}`;
+            
             if (venue.map_image_url) {
                 const canvas = document.getElementById('realistic-canvas');
                 // Create an image element to get its natural dimensions
