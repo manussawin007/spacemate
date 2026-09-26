@@ -49,6 +49,8 @@
         /* Sidebar */
         .sidebar {
             width: 260px;
+            min-width: 260px;
+            flex-shrink: 0;
             background-color: #FFFFFF;
             border-right: 1px solid rgba(226, 232, 240, 0.8);
             box-shadow: 4px 0 24px rgba(0,0,0,0.02);
@@ -1145,14 +1147,15 @@
     <!-- Sidebar Navigation (Desktop Only) -->
     <aside class="sidebar">
         <img src="../assets/imagelogo.png" class="sidebar-logo" alt="Spacemate Logo">
+        <ul class="menu-list">
             <li class="menu-item">
                 <a class="menu-link active" onclick="switchAdminView('dashboard', this)" data-view="dashboard">
-                    <i class="fa-solid fa-chart-pie"></i> ภาพรวม (Dashboard)
+                    <i class="fa-solid fa-chart-pie"></i> ภาพรวม
                 </a>
             </li>
             <li class="menu-item">
                 <a class="menu-link" href="map_builder.html">
-                    <i class="fa-solid fa-map-location-dot"></i> จัดการแผนผัง (2D Map)
+                    <i class="fa-solid fa-map-location-dot"></i> จัดการแผนผัง 2D
                 </a>
             </li>
         </ul>
@@ -1256,6 +1259,9 @@
         <div class="nav-indicator" id="nav-indicator"></div>
         <a class="nav-item active" onclick="switchAdminView('dashboard', this)" data-view="dashboard">
             <i class="fa-solid fa-chart-pie nav-icon"></i>
+        </a>
+        <a class="nav-item" href="map_builder.html">
+            <i class="fa-solid fa-map-location-dot nav-icon"></i>
         </a>
         <a class="nav-item" onclick="switchAdminView('profile', this)" data-view="profile">
             <i class="fa-solid fa-user nav-icon"></i>
@@ -1393,7 +1399,8 @@
             const { count: pendingCount } = await supabaseClient
                 .from('bookings')
                 .select('*', { count: 'exact', head: true })
-                .eq('status', 'pending');
+                .eq('status', 'pending')
+                .not('payment_slip_url', 'is', null);
 
             document.getElementById('stat-users').innerText = (usersCount || 0).toLocaleString();
             document.getElementById('stat-owners').innerText = (ownersCount || 0).toLocaleString();

@@ -3218,6 +3218,7 @@
                     .select('*, profiles(first_name, last_name, phone)')
                     .in('space_id', spaceIds)
                     .eq('status', 'pending')
+                    .not('payment_slip_url', 'is', null)
                     .order('created_at', { ascending: false });
 
                 const notifList = document.getElementById('notifications-list');

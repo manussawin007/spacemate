@@ -3670,6 +3670,7 @@
                         end_date,
                         total_price,
                         status,
+                        payment_slip_url,
                         created_at,
                         spaces (
                             id,
@@ -3716,7 +3717,7 @@
                         </button>
                     `;
 
-                    if (b.status === 'unpaid') {
+                    if (b.status === 'pending' && (!b.payment_slip_url || b.payment_slip_url.trim() === '')) {
                         statusTab = 'ค้างชำระ';
                         badgeClass = 'badge-pending';
                         badgeText = 'รอชำระเงิน';
