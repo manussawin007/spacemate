@@ -546,12 +546,22 @@
 
             if (isAvailable) {
                 slotEl.addEventListener('click', () => {
-                    document.querySelectorAll('.slot-box').forEach(s => s.classList.remove('selected'));
-                    slotEl.classList.add('selected');
-                    selectedSpaceId = space.id;
-                    selectedSlotText.innerText = `ล็อค ${space.space_number} (฿${space.price})`;
-                    nextBtn.disabled = false;
-                    nextBtn.style.boxShadow = '0 4px 15px rgba(164, 99, 9, 0.25)';
+                    if (slotEl.classList.contains('selected')) {
+                        // Deselect
+                        slotEl.classList.remove('selected');
+                        selectedSpaceId = null;
+                        selectedSlotText.innerText = 'ยังไม่ได้เลือกล็อค';
+                        nextBtn.disabled = true;
+                        nextBtn.style.boxShadow = 'none';
+                    } else {
+                        // Select
+                        document.querySelectorAll('.slot-box').forEach(s => s.classList.remove('selected'));
+                        slotEl.classList.add('selected');
+                        selectedSpaceId = space.id;
+                        selectedSlotText.innerText = `ล็อค ${space.space_number} (฿${space.price})`;
+                        nextBtn.disabled = false;
+                        nextBtn.style.boxShadow = '0 4px 15px rgba(164, 99, 9, 0.25)';
+                    }
                 });
             }
         });
@@ -567,13 +577,23 @@
         const slots = document.querySelectorAll('.slot-box:not(.booked)');
         slots.forEach(slot => {
             slot.addEventListener('click', () => {
-                document.querySelectorAll('.slot-box').forEach(s => s.classList.remove('selected'));
-                slot.classList.add('selected');
-                const slotName = slot.innerText;
-                selectedSlotText.innerText = slotName;
-                selectedSpaceId = slot.dataset.id || null;
-                nextBtn.disabled = false;
-                nextBtn.style.boxShadow = '0 4px 15px rgba(164, 99, 9, 0.25)';
+                if (slot.classList.contains('selected')) {
+                    // Deselect
+                    slot.classList.remove('selected');
+                    selectedSlotText.innerText = 'ยังไม่ได้เลือกล็อค';
+                    selectedSpaceId = null;
+                    nextBtn.disabled = true;
+                    nextBtn.style.boxShadow = 'none';
+                } else {
+                    // Select
+                    document.querySelectorAll('.slot-box').forEach(s => s.classList.remove('selected'));
+                    slot.classList.add('selected');
+                    const slotName = slot.innerText;
+                    selectedSlotText.innerText = slotName;
+                    selectedSpaceId = slot.dataset.id || null;
+                    nextBtn.disabled = false;
+                    nextBtn.style.boxShadow = '0 4px 15px rgba(164, 99, 9, 0.25)';
+                }
             });
         });
     }
