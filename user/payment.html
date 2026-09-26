@@ -480,7 +480,7 @@
 <body>
 
     <div class="header">
-        <button class="back-btn" onclick="window.location.href='book_space.html'">
+        <button class="back-btn" onclick="window.history.back()">
             <i class="fa-solid fa-arrow-left"></i>
         </button>
         <h2 class="header-title">ชำระเงิน</h2>
@@ -593,10 +593,11 @@
     <script>
         // Parse Query Params
         const urlParams = new URLSearchParams(window.location.search);
+        const bookingId = urlParams.get('booking_id');
         const venueId = urlParams.get('venue_id');
-        const spaceId = urlParams.get('space_id');
-        const startDate = urlParams.get('start_date') || new Date().toISOString().split('T')[0];
-        const endDate = urlParams.get('end_date') || startDate;
+        let spaceId = urlParams.get('space_id');
+        let startDate = urlParams.get('start_date') || new Date().toISOString().split('T')[0];
+        let endDate = urlParams.get('end_date') || startDate;
         let totalPrice = parseFloat(urlParams.get('total_price')) || 0;
 
         let currentUser = null;
@@ -613,8 +614,25 @@
                 }
                 currentUser = session.user;
 
-                // Load Venue & Space info from Supabase
-                if (spaceId) {
+                // Load Booking info if provided
+                if (bookingId) {
+                    const { data: bData, error: bErr } = await supabaseClient
+                        .from('bookings')
+                        .select('*, spaces(*, venues(*))')
+                        .eq('id', bookingId)
+                        .single();
+                        
+                    if (bData && !bErr) {
+                        spaceId = bData.space_id;
+                        startDate = bData.start_date;
+                        endDate = bData.end_date;
+                        totalPrice = parseFloat(bData.total_price);
+                        
+                        const venueName = bData.spaces?.venues?.name || 'ตลาดที่เลือก';
+                        document.getElementById('receipt-venue-name').innerText = venueName;
+                        document.getElementById('receipt-space-info').innerText = `โซน ${bData.spaces?.zone || '-'} / ล็อค ${bData.spaces?.space_number}`;
+                    }
+                } else if (spaceId) {
                     const { data: spaceData, error: sErr } = await supabaseClient
                         .from('spaces')
                         .select('*, venues(*)')
@@ -743,27 +761,42 @@
                     throw new Error('ไม่พบข้อมูลล็อคพื้นที่ กรุณาย้อนกลับไปเลือกล็อคก่อนทำการจอง');
                 }
 
-                // Insert into Supabase bookings table
-                const { data: newBooking, error: bErr } = await supabaseClient
-                    .from('bookings')
-                    .insert([
-                        {
-                            space_id: targetSpaceId,
-                            user_id: currentUser.id,
-                            start_date: startDate,
-                            end_date: endDate,
-                            total_price: totalPrice,
+                let newBookingId = bookingId;
+
+                if (bookingId) {
+                    // Update existing unpaid booking
+                    const { error: bErr } = await supabaseClient
+                        .from('bookings')
+                        .update({
                             payment_slip_url: uploadedSlipBase64,
                             status: 'pending' // Pending owner review
-                        }
-                    ])
-                    .select()
-                    .single();
+                        })
+                        .eq('id', bookingId);
+                    if (bErr) throw bErr;
+                } else {
+                    // Fallback for old links: Insert new
+                    const { data: newBooking, error: bErr } = await supabaseClient
+                        .from('bookings')
+                        .insert([
+                            {
+                                space_id: targetSpaceId,
+                                user_id: currentUser.id,
+                                start_date: startDate,
+                                end_date: endDate,
+                                total_price: totalPrice,
+                                payment_slip_url: uploadedSlipBase64,
+                                status: 'pending'
+                            }
+                        ])
+                        .select()
+                        .single();
 
-                if (bErr) throw bErr;
+                    if (bErr) throw bErr;
+                    newBookingId = newBooking.id;
+                }
 
                 alert('แจ้งชำระเงินเรียบร้อยแล้ว! ระบบกำลังนำคุณไปยังหน้า E-Ticket');
-                window.location.href = `e_ticket.html?booking_id=${newBooking.id}`;
+                window.location.href = `e_ticket.html?booking_id=${newBookingId}`;
 
             } catch (err) {
                 console.error('Payment submit error:', err);

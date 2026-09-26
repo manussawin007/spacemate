@@ -3716,7 +3716,16 @@
                         </button>
                     `;
 
-                    if (b.status === 'confirmed') {
+                    if (b.status === 'unpaid') {
+                        statusTab = 'ค้างชำระ';
+                        badgeClass = 'badge-pending';
+                        badgeText = 'รอชำระเงิน';
+                        actionBtn = `
+                            <button class="booking-action-btn btn-primary-action" style="background: var(--primary-color); color: white;" onclick="window.location.href='payment.html?booking_id=${b.id}'">
+                                <i class="fa-solid fa-credit-card"></i> ชำระเงิน
+                            </button>
+                        `;
+                    } else if (b.status === 'confirmed') {
                         statusTab = 'เสร็จสิ้น';
                         badgeClass = 'badge-completed';
                         badgeText = 'อนุมัติแล้ว / สำเร็จ';

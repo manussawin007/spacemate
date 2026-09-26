@@ -259,7 +259,7 @@
 
     <!-- Header -->
     <header class="desktop-header">
-        <button class="back-btn" onclick="window.location.href='main_user.html'">
+        <button class="back-btn" onclick="window.history.back()">
             <i class="fa-solid fa-arrow-left"></i>
         </button>
         <h1 class="header-title">จองพื้นที่ตลาด</h1>
@@ -434,12 +434,39 @@
             calculateTotal();
         }
 
-        function proceedToPayment() {
+        async function proceedToPayment() {
             const startVal = startInput.value;
             const endVal = radioMulti.checked ? endInput.value : startVal;
             const totalVal = calculateTotal();
 
-            const targetUrl = `payment.html?venue_id=${venueId || ''}&space_id=${spaceId || ''}&start_date=${startVal}&end_date=${endVal}&total_price=${totalVal}`;
+            const session = await getSession();
+            if (!session || !session.user) {
+                alert('กรุณาเข้าสู่ระบบก่อนทำการจอง');
+                window.location.href = '../auth/login.html';
+                return;
+            }
+
+            // Create unpaid booking first
+            const { data: newBooking, error: bErr } = await supabaseClient
+                .from('bookings')
+                .insert([{
+                    space_id: spaceId,
+                    user_id: session.user.id,
+                    start_date: startVal,
+                    end_date: endVal,
+                    total_price: totalVal,
+                    status: 'unpaid'
+                }])
+                .select()
+                .single();
+
+            if (bErr || !newBooking) {
+                console.error(bErr);
+                alert('ไม่สามารถสร้างการจองได้ กรุณาลองใหม่');
+                return;
+            }
+
+            const targetUrl = `payment.html?booking_id=${newBooking.id}`;
             window.location.href = targetUrl;
         }
 
