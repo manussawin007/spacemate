@@ -193,6 +193,11 @@
             min-height: 0;
 
             background-color: #f8fafc;
+            background-image: 
+                linear-gradient(#f1f5f9 1px, transparent 1px),
+                linear-gradient(90deg, #f1f5f9 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-attachment: local;
             border: 2px solid #e2e8f0;
             border-radius: 16px;
             overflow-x: auto !important;
@@ -204,17 +209,18 @@
         }
         .map-scroll-container:active { cursor: grabbing; }
 
+        .map-scale-wrapper {
+            position: relative;
+            min-width: max-content;
+            min-height: max-content;
+            transform-origin: top left;
+        }
+
         /* The Realistic Canvas inside the scroller */
         .realistic-map-canvas {
-            min-width: 800px; /* Force minimum width to trigger horizontal scroll */
-            min-height: 600px; /* Force minimum height to trigger vertical scroll */
-            padding: 2rem;
+            margin: auto;
             box-sizing: border-box;
             position: relative;
-            background-image: 
-                linear-gradient(#f1f5f9 1px, transparent 1px),
-                linear-gradient(90deg, #f1f5f9 1px, transparent 1px);
-            background-size: 20px 20px; /* Grid background pattern */
             transform-origin: top left;
             transition: transform 0.2s;
         }
@@ -320,16 +326,12 @@
                     <div class="map-scroll-container">
                         <div class="map-scale-wrapper" style="width: 800px; height: 600px; transition: width 0.2s, height 0.2s;">
                             <div class="realistic-map-canvas" id="realistic-canvas" style="width: 800px; height: 600px;">
-                                <div class="map-stage" id="event-stage-title">เวทีกิจกรรมหลัก</div>
-                                
                                 <div id="booths-area" style="display: flex; justify-content: center; align-items: center; min-height: 250px; margin-top: 2rem;">
                                     <div id="booths-loading" style="text-align: center; color: var(--text-muted);">
                                         <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary-color); margin-bottom: 0.5rem;"></i>
                                         <div>กำลังโหลดข้อมูลผังอีเวนต์...</div>
                                     </div>
                                 </div>
-
-                                <div class="map-entrance" id="entrance-banner" style="margin-top: 4rem; margin-bottom: 0;">จุดลงทะเบียน / ทางเข้า</div>
                             </div>
                         </div>
                     </div>
@@ -419,15 +421,25 @@
             }
 
             document.querySelector('.header-title').innerText = venue.name || 'เลือกบูธอีเวนต์';
-            document.getElementById('event-stage-title').innerText = `เวทีหลัก / ผังของ ${venue.name}`;
             if (venue.map_image_url) {
                 const canvas = document.getElementById('realistic-canvas');
                 const img = new Image();
                 img.onload = function() {
-                    canvas.style.backgroundImage = `url('${venue.map_image_url}')`;
-                    canvas.style.backgroundRepeat = 'no-repeat';
-                    canvas.style.backgroundPosition = 'center';
-                    canvas.style.backgroundSize = 'contain';
+                    const BASE_WIDTH = 1000;
+                    const aspect = img.naturalHeight / img.naturalWidth;
+                    mapBaseW = BASE_WIDTH;
+                    mapBaseH = BASE_WIDTH * aspect;
+                    
+                    canvas.style.width = mapBaseW + 'px';
+                    canvas.style.height = mapBaseH + 'px';
+                    
+                    // We DO NOT set backgroundColor or border to keep transparent grid
+                    canvas.style.backgroundColor = 'transparent';
+                    canvas.style.border = 'none';
+                    canvas.style.borderRadius = '0';
+                    
+                    // Trigger zoom to update wrapper dimensions
+                    changeZoom(0);
                 };
                 img.src = venue.map_image_url;
             }
@@ -482,6 +494,32 @@
         block.style.justifyContent = 'center';
 
         spaces.forEach(space => {
+            const isLabel = space.status === 'label' || (space.map_data && space.map_data.isLabel);
+            
+            if (isLabel && space.map_data) {
+                const labelEl = document.createElement('div');
+                labelEl.style.position = 'absolute';
+                labelEl.style.left = space.map_data.left + '%';
+                labelEl.style.top = space.map_data.top + '%';
+                labelEl.style.width = space.map_data.width + '%';
+                labelEl.style.height = space.map_data.height + '%';
+                labelEl.style.display = 'flex';
+                labelEl.style.alignItems = 'center';
+                labelEl.style.justifyContent = 'center';
+                labelEl.style.backgroundColor = space.map_data.bgColor || 'transparent';
+                labelEl.style.color = space.map_data.textColor || '#1e293b';
+                labelEl.style.fontSize = '1.2rem';
+                labelEl.style.fontWeight = 'bold';
+                labelEl.style.pointerEvents = 'none'; // Don't block clicks
+                labelEl.style.border = '2px dashed #94a3b8'; // Optional, to make it visible like builder if background is transparent
+                if (space.map_data.bgColor && space.map_data.bgColor !== '#ffffff' && space.map_data.bgColor !== 'transparent') {
+                    labelEl.style.border = 'none'; // Remove dashed border if they picked a solid color
+                }
+                labelEl.innerText = space.map_data.text ? space.map_data.text : space.space_number;
+                canvas.appendChild(labelEl);
+                return; // Skip normal booth rendering
+            }
+            
             const isAvailable = space.status === 'available';
             const slotEl = document.createElement('div');
             
@@ -507,12 +545,22 @@
 
             if (isAvailable) {
                 slotEl.addEventListener('click', () => {
-                    document.querySelectorAll('.slot-box').forEach(s => s.classList.remove('selected'));
-                    slotEl.classList.add('selected');
-                    selectedSpaceId = space.id;
-                    selectedSlotText.innerText = `บูธ ${space.space_number} (฿${space.price})`;
-                    nextBtn.disabled = false;
-                    nextBtn.style.boxShadow = '0 4px 15px rgba(164, 99, 9, 0.25)';
+                    if (slotEl.classList.contains('selected')) {
+                        // Deselect
+                        slotEl.classList.remove('selected');
+                        selectedSpaceId = null;
+                        selectedSlotText.innerText = 'ยังไม่ได้เลือกล็อค';
+                        nextBtn.disabled = true;
+                        nextBtn.style.boxShadow = 'none';
+                    } else {
+                        // Select
+                        document.querySelectorAll('.slot-box').forEach(s => s.classList.remove('selected'));
+                        slotEl.classList.add('selected');
+                        selectedSpaceId = space.id;
+                        selectedSlotText.innerText = `บูธ ${space.space_number} (฿${space.price})`;
+                        nextBtn.disabled = false;
+                        nextBtn.style.boxShadow = '0 4px 15px rgba(164, 99, 9, 0.25)';
+                    }
                 });
             }
         });
@@ -575,6 +623,9 @@
     });
 
     let currentZoom = 1;
+    let mapBaseW = 800;
+    let mapBaseH = 600;
+    
     function changeZoom(delta) {
         currentZoom += delta;
         if (currentZoom < 0.5) currentZoom = 0.5;
@@ -583,11 +634,8 @@
         const scaleWrapper = document.querySelector('.map-scale-wrapper');
         const canvas = document.querySelector('.realistic-map-canvas');
         
-        const baseW = 800;
-        const baseH = 600;
-        
-        scaleWrapper.style.width = (baseW * currentZoom) + 'px';
-        scaleWrapper.style.height = (baseH * currentZoom) + 'px';
+        scaleWrapper.style.width = (mapBaseW * currentZoom) + 'px';
+        scaleWrapper.style.height = (mapBaseH * currentZoom) + 'px';
         canvas.style.transform = `scale(${currentZoom})`;
     }
 
