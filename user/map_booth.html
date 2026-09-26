@@ -422,10 +422,14 @@
             document.getElementById('event-stage-title').innerText = `เวทีหลัก / ผังของ ${venue.name}`;
             if (venue.map_image_url) {
                 const canvas = document.getElementById('realistic-canvas');
-                canvas.style.backgroundImage = `url('${venue.map_image_url}')`;
-                canvas.style.backgroundRepeat = 'no-repeat';
-                canvas.style.backgroundPosition = 'center';
-                canvas.style.backgroundSize = 'contain';
+                const img = new Image();
+                img.onload = function() {
+                    canvas.style.backgroundImage = `url('${venue.map_image_url}')`;
+                    canvas.style.backgroundRepeat = 'no-repeat';
+                    canvas.style.backgroundPosition = 'center';
+                    canvas.style.backgroundSize = 'contain';
+                };
+                img.src = venue.map_image_url;
             }
 
             // Fetch real spaces for this venue from database
@@ -464,6 +468,7 @@
 
     function renderDynamicBooths(spaces) {
         const boothsArea = document.getElementById('booths-area');
+        const canvas = document.getElementById('realistic-canvas');
         boothsArea.innerHTML = '';
         boothsArea.style.display = 'flex';
         boothsArea.style.flexWrap = 'wrap';
@@ -479,11 +484,26 @@
         spaces.forEach(space => {
             const isAvailable = space.status === 'available';
             const slotEl = document.createElement('div');
-            slotEl.className = `slot-box ${isAvailable ? '' : 'booked'}`;
+            
             slotEl.dataset.id = space.id;
             slotEl.dataset.name = space.space_number;
-            slotEl.innerText = space.space_number;
             slotEl.title = `โซน: ${space.zone || '-'} | ราคา: ฿${space.price} | สถานะ: ${isAvailable ? 'ว่าง' : 'ไม่ว่าง'}`;
+
+            if (space.map_data) {
+                slotEl.className = `slot-box absolute-slot ${isAvailable ? '' : 'booked'}`;
+                slotEl.style.position = 'absolute';
+                slotEl.style.left = space.map_data.left + '%';
+                slotEl.style.top = space.map_data.top + '%';
+                slotEl.style.width = space.map_data.width + '%';
+                slotEl.style.height = space.map_data.height + '%';
+                slotEl.style.margin = '0';
+                slotEl.innerHTML = `<span style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); pointer-events:none;">${space.space_number}</span>`;
+                canvas.appendChild(slotEl);
+            } else {
+                slotEl.className = `slot-box ${isAvailable ? '' : 'booked'}`;
+                slotEl.innerText = space.space_number;
+                block.appendChild(slotEl);
+            }
 
             if (isAvailable) {
                 slotEl.addEventListener('click', () => {
@@ -495,10 +515,13 @@
                     nextBtn.style.boxShadow = '0 4px 15px rgba(164, 99, 9, 0.25)';
                 });
             }
-            block.appendChild(slotEl);
         });
 
-        boothsArea.appendChild(block);
+        if (block.children.length > 0) {
+            boothsArea.appendChild(block);
+        } else {
+            boothsArea.style.display = 'none';
+        }
     }
 
     function attachSlotEvents() {

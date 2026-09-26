@@ -206,9 +206,7 @@
 
         /* The Realistic Canvas inside the scroller */
         .realistic-map-canvas {
-            min-width: 800px; /* Force minimum width to trigger horizontal scroll */
-            min-height: 600px; /* Force minimum height to trigger vertical scroll */
-            padding: 2rem;
+            margin: auto;
             box-sizing: border-box;
             position: relative;
             background-image: 
@@ -421,10 +419,26 @@
             document.getElementById('map-entrance-banner').innerText = `ทางเข้า / ผังของ ${venue.name}`;
             if (venue.map_image_url) {
                 const canvas = document.getElementById('realistic-canvas');
-                canvas.style.backgroundImage = `url('${venue.map_image_url}')`;
-                canvas.style.backgroundRepeat = 'no-repeat';
-                canvas.style.backgroundPosition = 'center';
-                canvas.style.backgroundSize = 'contain';
+                // Create an image element to get its natural dimensions
+                const img = new Image();
+                img.onload = function() {
+                    const BASE_WIDTH = 1000;
+                    const aspect = img.naturalHeight / img.naturalWidth;
+                    mapBaseW = BASE_WIDTH;
+                    mapBaseH = BASE_WIDTH * aspect;
+                    
+                    canvas.style.width = mapBaseW + 'px';
+                    canvas.style.height = mapBaseH + 'px';
+                    
+                    // We DO NOT set backgroundImage, so it only shows 2D boxes
+                    canvas.style.backgroundColor = '#ffffff';
+                    canvas.style.border = '1px solid #e2e8f0';
+                    canvas.style.borderRadius = '8px';
+                    
+                    // Trigger zoom to update wrapper dimensions
+                    changeZoom(0);
+                };
+                img.src = venue.map_image_url;
             }
 
             // Fetch real spaces for this venue from database
@@ -463,6 +477,7 @@
 
     function renderDynamicSpaces(spaces) {
         const slotsArea = document.getElementById('slots-area');
+        const canvas = document.getElementById('realistic-canvas');
         slotsArea.innerHTML = '';
         slotsArea.style.display = 'flex';
         slotsArea.style.flexWrap = 'wrap';
@@ -476,13 +491,55 @@
         block.style.justifyContent = 'center';
 
         spaces.forEach(space => {
+            const isLabel = space.status === 'label' || (space.map_data && space.map_data.isLabel);
+            
+            if (isLabel && space.map_data) {
+                const labelEl = document.createElement('div');
+                labelEl.style.position = 'absolute';
+                labelEl.style.left = space.map_data.left + '%';
+                labelEl.style.top = space.map_data.top + '%';
+                labelEl.style.width = space.map_data.width + '%';
+                labelEl.style.height = space.map_data.height + '%';
+                labelEl.style.display = 'flex';
+                labelEl.style.alignItems = 'center';
+                labelEl.style.justifyContent = 'center';
+                labelEl.style.backgroundColor = space.map_data.bgColor || 'transparent';
+                labelEl.style.color = space.map_data.textColor || '#1e293b';
+                labelEl.style.fontSize = '1.2rem';
+                labelEl.style.fontWeight = 'bold';
+                labelEl.style.pointerEvents = 'none'; // Don't block clicks
+                labelEl.style.border = '2px dashed #94a3b8'; // Optional, to make it visible like builder if background is transparent
+                if (space.map_data.bgColor && space.map_data.bgColor !== '#ffffff' && space.map_data.bgColor !== 'transparent') {
+                    labelEl.style.border = 'none'; // Remove dashed border if they picked a solid color
+                }
+                labelEl.innerText = space.map_data.text ? space.map_data.text : space.space_number;
+                canvas.appendChild(labelEl);
+                return; // Skip normal space rendering
+            }
+            
             const isAvailable = space.status === 'available';
             const slotEl = document.createElement('div');
-            slotEl.className = `slot-box ${isAvailable ? '' : 'booked'}`;
+            
             slotEl.dataset.id = space.id;
             slotEl.dataset.name = space.space_number;
-            slotEl.innerText = space.space_number;
             slotEl.title = `โซน: ${space.zone || '-'} | ราคา: ฿${space.price} | สถานะ: ${isAvailable ? 'ว่าง' : 'ไม่ว่าง'}`;
+            
+            // Check if map_data exists (coordinates)
+            if (space.map_data) {
+                slotEl.className = `slot-box absolute-slot ${isAvailable ? '' : 'booked'}`;
+                slotEl.style.position = 'absolute';
+                slotEl.style.left = space.map_data.left + '%';
+                slotEl.style.top = space.map_data.top + '%';
+                slotEl.style.width = space.map_data.width + '%';
+                slotEl.style.height = space.map_data.height + '%';
+                slotEl.style.margin = '0';
+                slotEl.innerHTML = `<span style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); pointer-events:none;">${space.space_number}</span>`;
+                canvas.appendChild(slotEl);
+            } else {
+                slotEl.className = `slot-box ${isAvailable ? '' : 'booked'}`;
+                slotEl.innerText = space.space_number;
+                block.appendChild(slotEl);
+            }
 
             if (isAvailable) {
                 slotEl.addEventListener('click', () => {
@@ -494,10 +551,13 @@
                     nextBtn.style.boxShadow = '0 4px 15px rgba(164, 99, 9, 0.25)';
                 });
             }
-            block.appendChild(slotEl);
         });
 
-        slotsArea.appendChild(block);
+        if (block.children.length > 0) {
+            slotsArea.appendChild(block);
+        } else {
+            slotsArea.style.display = 'none'; // Hide grid if all are absolutely positioned
+        }
     }
 
     function attachSlotEvents() {
@@ -551,6 +611,9 @@
     });
 
     let currentZoom = 1;
+    let mapBaseW = 800;
+    let mapBaseH = 600;
+    
     function changeZoom(delta) {
         currentZoom += delta;
         if (currentZoom < 0.5) currentZoom = 0.5;
@@ -559,11 +622,8 @@
         const scaleWrapper = document.querySelector('.map-scale-wrapper');
         const canvas = document.querySelector('.realistic-map-canvas');
         
-        const baseW = 800;
-        const baseH = 600;
-        
-        scaleWrapper.style.width = (baseW * currentZoom) + 'px';
-        scaleWrapper.style.height = (baseH * currentZoom) + 'px';
+        scaleWrapper.style.width = (mapBaseW * currentZoom) + 'px';
+        scaleWrapper.style.height = (mapBaseH * currentZoom) + 'px';
         canvas.style.transform = `scale(${currentZoom})`;
     }
 
