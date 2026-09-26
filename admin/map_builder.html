@@ -408,13 +408,28 @@
                 if (error) throw error;
                 
                 const select = document.getElementById('venue-select');
+                
+                const optGroupMarket = document.createElement('optgroup');
+                optGroupMarket.label = 'ตลาด (Market)';
+                
+                const optGroupEvent = document.createElement('optgroup');
+                optGroupEvent.label = 'อีเวนต์ (Event)';
+
                 venues.forEach(v => {
                     const opt = document.createElement('option');
                     opt.value = v.id;
-                    opt.textContent = `[${v.type === 'market' ? 'ตลาด' : 'อีเวนต์'}] ${v.name}`;
+                    opt.textContent = v.name;
                     opt.dataset.mapurl = v.map_image_url;
-                    select.appendChild(opt);
+                    
+                    if (v.type === 'market') {
+                        optGroupMarket.appendChild(opt);
+                    } else {
+                        optGroupEvent.appendChild(opt);
+                    }
                 });
+                
+                if (optGroupMarket.children.length > 0) select.appendChild(optGroupMarket);
+                if (optGroupEvent.children.length > 0) select.appendChild(optGroupEvent);
             } catch (err) {
                 console.error(err);
                 alert('โหลดข้อมูลสถานที่ล้มเหลว');
