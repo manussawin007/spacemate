@@ -193,11 +193,16 @@
             min-height: 0;
 
             background-color: #f8fafc;
+            background-image: 
+                linear-gradient(#e5e7eb 1px, transparent 1px),
+                linear-gradient(90deg, #e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-attachment: local; /* Grid scrolls with content */
             border: 2px solid #e2e8f0;
             border-radius: 16px;
             overflow-x: auto !important;
             overflow-y: auto !important;
-            -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+            -webkit-overflow-scrolling: touch;
             box-sizing: border-box;
             position: relative;
             cursor: grab;
@@ -209,10 +214,7 @@
             margin: auto;
             box-sizing: border-box;
             position: relative;
-            background-image: 
-                linear-gradient(#f1f5f9 1px, transparent 1px),
-                linear-gradient(90deg, #f1f5f9 1px, transparent 1px);
-            background-size: 20px 20px; /* Grid background pattern */
+            background-color: transparent;
             transform-origin: top left;
             transition: transform 0.2s;
         }
@@ -269,8 +271,7 @@
         .slot-box:hover:not(.booked) { border-color: var(--primary-color); color: var(--primary-color); }
         .slot-box.booked { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; border-color: #e2e8f0; opacity: 0.7; }
         .slot-box.selected { background: var(--primary-color); color: white; border-color: var(--primary-color); box-shadow: 0 4px 10px rgba(164, 99, 9, 0.3); transform: scale(1.05); }
-        .absolute-slot { min-width: 44px; min-height: 44px; }
-        
+
         .selection-info {
             display: flex;
             flex-direction: column;
@@ -431,12 +432,9 @@
                     canvas.style.width = mapBaseW + 'px';
                     canvas.style.height = mapBaseH + 'px';
                     
-                    // Set backgroundImage to show the actual map
-                    canvas.style.backgroundImage = `url('${venue.map_image_url}')`;
-                    canvas.style.backgroundSize = 'contain';
-                    canvas.style.backgroundPosition = 'center';
-                    canvas.style.backgroundRepeat = 'no-repeat';
+                    // Remove map image logic as requested by user
                     canvas.style.backgroundColor = 'transparent';
+                    canvas.style.backgroundImage = 'none';
                     canvas.style.border = 'none';
                     canvas.style.borderRadius = '0';
                     
