@@ -3379,14 +3379,32 @@
                 const spaceMap = {};
                 spaces.forEach(s => spaceMap[s.id] = { number: s.space_number, venueName: venueMap[s.venue_id] });
 
-                // 3. Get pending bookings for these spaces
-                const { data: bookings, error: bErr } = await supabaseClient
-                    .from('bookings')
-                    .select('*, profiles(first_name, last_name, phone)')
-                    .in('space_id', spaceIds)
-                    .eq('status', 'pending')
-                    .not('payment_slip_url', 'is', null)
-                    .order('created_at', { ascending: false });
+                let bookings = [];
+                let bErr = null;
+                const chunkSize = 50;
+                
+                // 3. Get pending bookings in chunks
+                for (let i = 0; i < spaceIds.length; i += chunkSize) {
+                    const chunk = spaceIds.slice(i, i + chunkSize);
+                    const { data: bData, error: chunkErr } = await supabaseClient
+                        .from('bookings')
+                        .select('*, profiles(first_name, last_name, phone)')
+                        .in('space_id', chunk)
+                        .eq('status', 'pending')
+                        .not('payment_slip_url', 'is', null)
+                        .order('created_at', { ascending: false });
+                        
+                    if (chunkErr) {
+                        bErr = chunkErr;
+                        break;
+                    }
+                    if (bData) {
+                        bookings = bookings.concat(bData);
+                    }
+                }
+                
+                // Sort all combined bookings
+                bookings.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
                 const notifList = document.getElementById('notifications-list');
                 
@@ -3691,13 +3709,19 @@
                         const spaceIds = spaces.map(s => s.id);
                         
                         // 2. Get total active tenants (approved bookings)
-                        const { count: bCount } = await supabaseClient
-                            .from('bookings')
-                            .select('id', { count: 'exact' })
-                            .in('space_id', spaceIds)
-                            .eq('status', 'approved');
+                        let bCountTotal = 0;
+                        const chunkSize = 50;
+                        for (let i = 0; i < spaceIds.length; i += chunkSize) {
+                            const chunk = spaceIds.slice(i, i + chunkSize);
+                            const { count: bCount } = await supabaseClient
+                                .from('bookings')
+                                .select('id', { count: 'exact' })
+                                .in('space_id', chunk)
+                                .eq('status', 'approved');
+                            bCountTotal += bCount || 0;
+                        }
                             
-                        totalTenants = bCount || 0;
+                        totalTenants = bCountTotal;
                     }
                 }
                 
