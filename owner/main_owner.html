@@ -3693,7 +3693,7 @@
                         // 2. Get total active tenants (approved bookings)
                         const { count: bCount } = await supabaseClient
                             .from('bookings')
-                            .select('*', { count: 'exact', head: true })
+                            .select('id', { count: 'exact' })
                             .in('space_id', spaceIds)
                             .eq('status', 'approved');
                             
