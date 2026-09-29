@@ -3381,7 +3381,7 @@
 
                 let bookings = [];
                 let bErr = null;
-                const chunkSize = 50;
+                const chunkSize = 20;
                 
                 // 3. Get pending bookings in chunks
                 for (let i = 0; i < spaceIds.length; i += chunkSize) {
@@ -3710,7 +3710,7 @@
                         
                         // 2. Get total active tenants (approved bookings)
                         let bCountTotal = 0;
-                        const chunkSize = 50;
+                        const chunkSize = 20;
                         for (let i = 0; i < spaceIds.length; i += chunkSize) {
                             const chunk = spaceIds.slice(i, i + chunkSize);
                             const { count: bCount } = await supabaseClient
