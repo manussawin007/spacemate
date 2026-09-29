@@ -1376,9 +1376,13 @@
             <div style="padding: 24px;">
                 <h2 id="modal-venue-title" style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin: 0 0 12px 0;">-</h2>
                 
-                <div style="display: flex; align-items: center; gap: 8px; color: #64748b; font-size: 0.95rem; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 8px; color: #64748b; font-size: 0.95rem; margin-bottom: 12px;">
                     <i class="fa-solid fa-location-dot" style="color: #a46309;"></i>
                     <span id="modal-venue-location">-</span>
+                </div>
+
+                <div id="modal-venue-tags" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;">
+                    <!-- Tags will be dynamically injected here -->
                 </div>
 
                 <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
@@ -3359,7 +3363,29 @@
             
             document.getElementById('modal-venue-title').textContent = venue.name || '-';
             document.getElementById('modal-venue-location').textContent = venue.location || 'ไม่ได้ระบุ';
-            document.getElementById('modal-venue-desc').textContent = venue.description || 'ไม่มีรายละเอียดเพิ่มเติม';
+            
+            const rawDesc = venue.description || '';
+            let actualDesc = [];
+            let tagsHtml = '';
+
+            const lines = rawDesc.split('\n');
+            for(const line of lines) {
+                const text = line.trim();
+                if (!text) continue;
+
+                if (text.startsWith('วันที่เปิดให้บริการ:')) {
+                    tagsHtml += `<span style="background: #fefce8; color: #a46309; border: 1px solid #fef08a; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;"><i class="fa-regular fa-calendar" style="margin-right: 4px;"></i>${text.replace('วันที่เปิดให้บริการ:', '').trim()}</span>`;
+                } else if (text.startsWith('เวลาให้บริการ:')) {
+                    tagsHtml += `<span style="background: #f0f9ff; color: #0284c7; border: 1px solid #e0f2fe; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;"><i class="fa-regular fa-clock" style="margin-right: 4px;"></i>${text.replace('เวลาให้บริการ:', '').trim()}</span>`;
+                } else if (text.startsWith('ราคาเริ่มต้น:')) {
+                    tagsHtml += `<span style="background: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;"><i class="fa-solid fa-tag" style="margin-right: 4px;"></i>${text.replace('ราคาเริ่มต้น:', '').trim()}</span>`;
+                } else {
+                    actualDesc.push(text);
+                }
+            }
+
+            document.getElementById('modal-venue-tags').innerHTML = tagsHtml;
+            document.getElementById('modal-venue-desc').textContent = actualDesc.join('\n\n') || 'ไม่มีรายละเอียดเพิ่มเติม';
             
             const defaultImage = "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&q=80&w=800";
             const imageUrl = venue.cover_image_url || venue.map_image_url || defaultImage;
