@@ -3717,7 +3717,7 @@
                                 .from('bookings')
                                 .select('id', { count: 'exact' })
                                 .in('space_id', chunk)
-                                .eq('status', 'approved');
+                                .eq('status', 'confirmed');
                             bCountTotal += bCount || 0;
                         }
                             
