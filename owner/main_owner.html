@@ -3171,8 +3171,9 @@
                                             <span>เปิดให้บริการ</span>
                                         </div>
                                     </div>
-                                    <div class="card-footer">
-                                        <button class="book-btn" style="width: 100%;" onclick="event.stopPropagation(); window.location.href='tenant_info_owner.html?id=${venue.id}';">จัดการพื้นที่</button>
+                                    <div class="card-footer" style="display: flex; gap: 8px;">
+                                        <button class="book-btn" style="flex: 1;" onclick="event.stopPropagation(); window.location.href='tenant_info_owner.html?id=${venue.id}';">จัดการพื้นที่</button>
+                                        <button title="แก้ไขรายละเอียด" style="background: #f1f5f9; color: #64748b; padding: 0.85rem; border-radius: 14px; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='#e2e8f0'; this.style.color='#334155';" onmouseout="this.style.background='#f1f5f9'; this.style.color='#64748b';" onclick="event.stopPropagation(); window.location.href='edit_space_owner.html?id=${venue.id}';"><i class="fa-solid fa-pen-to-square"></i></button>
                                     </div>
                                 </div>
                             </div>
