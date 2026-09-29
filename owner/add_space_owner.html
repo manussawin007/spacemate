@@ -343,6 +343,12 @@
                 <textarea id="venue-location" class="form-input" placeholder="กรอกข้อมูลที่ตั้งตลาด หรืออีเวนต์ของคุณ..." rows="3" style="resize: vertical; font-family: inherit;"></textarea>
             </div>
 
+            <!-- Map URL Input -->
+            <div class="form-group">
+                <label class="form-label">ลิงก์ Google Maps (ถ้ามี)</label>
+                <input type="url" id="venue-map-url" class="form-input" placeholder="ตัวอย่าง: https://maps.app.goo.gl/...">
+            </div>
+
             <!-- Additional Details -->
             <div class="form-group">
                 <label class="form-label">รายละเอียดเพิ่มเติม</label>
@@ -564,6 +570,7 @@
             const timeStart = document.getElementById('venue-time-start').value;
             const timeEnd = document.getElementById('venue-time-end').value;
             const price = document.getElementById('venue-price').value;
+            const mapUrl = document.getElementById('venue-map-url').value.trim();
 
             if (!name || !location) {
                 alert('กรุณากรอกชื่อและที่ตั้งให้ครบถ้วนครับ');
@@ -593,6 +600,7 @@
                             address_details: location, // Duplicate for now
                             map_image_url: mapImgUrl || null,
                             cover_image_url: coverImgUrl || null, // Note: You need to add this column in Supabase!
+                            map_url: mapUrl || null,
                             is_active: true
                         }
                     ]);

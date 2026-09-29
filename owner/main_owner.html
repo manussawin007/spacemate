@@ -1397,9 +1397,12 @@
             <div style="padding: 24px;">
                 <h2 id="modal-venue-title" style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin: 0 0 12px 0;">-</h2>
                 
-                <div style="display: flex; align-items: center; gap: 8px; color: #64748b; font-size: 0.95rem; margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 8px; color: #64748b; font-size: 0.95rem; margin-bottom: 12px; flex-wrap: wrap;">
                     <i class="fa-solid fa-location-dot" style="color: #a46309;"></i>
                     <span id="modal-venue-location">-</span>
+                    <a id="modal-venue-map-link" href="#" target="_blank" style="display: none; color: #2563eb; text-decoration: none; font-size: 0.85rem; font-weight: 500; background: #eff6ff; padding: 2px 8px; border-radius: 6px;">
+                        <i class="fa-solid fa-map-location-dot"></i> ดูแผนที่
+                    </a>
                 </div>
 
                 <div id="modal-venue-tags" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;">
@@ -3225,6 +3228,7 @@
             document.getElementById('edit-venue-type').value = venue.type || 'market';
             document.getElementById('edit-venue-name').value = venue.name || '';
             document.getElementById('edit-venue-location').value = venue.location || '';
+            document.getElementById('edit-venue-map-url').value = venue.map_url || '';
             
             const rawDesc = venue.description || '';
             let actualDesc = [];
@@ -3289,6 +3293,7 @@
             const timeStart = document.getElementById('edit-venue-time-start').value;
             const timeEnd = document.getElementById('edit-venue-time-end').value;
             const price = document.getElementById('edit-venue-price').value;
+            const mapUrl = document.getElementById('edit-venue-map-url').value.trim();
 
             if (!name || !location) {
                 alert('กรุณากรอกชื่อและที่ตั้งให้ครบถ้วน');
@@ -3314,7 +3319,8 @@
                         name: name,
                         location: location,
                         address_details: location,
-                        description: extraDetails
+                        description: extraDetails,
+                        map_url: mapUrl || null
                     })
                     .eq('id', venueId);
 
@@ -3517,6 +3523,16 @@
             
             document.getElementById('modal-venue-title').textContent = venue.name || '-';
             document.getElementById('modal-venue-location').textContent = venue.location || 'ไม่ได้ระบุ';
+            
+            const mapLink = document.getElementById('modal-venue-map-link');
+            if (venue.map_url) {
+                mapLink.href = venue.map_url;
+                mapLink.style.display = 'inline-flex';
+                mapLink.style.alignItems = 'center';
+                mapLink.style.gap = '4px';
+            } else {
+                mapLink.style.display = 'none';
+            }
             
             const rawDesc = venue.description || '';
             let actualDesc = [];
@@ -3767,6 +3783,11 @@
                 <div class="form-group" style="margin-bottom: 15px;">
                     <label class="form-label" style="font-size: 0.95rem; font-weight: 600; color: #1e293b; margin-bottom: 6px; display: block;">ที่ตั้ง</label>
                     <textarea id="edit-venue-location" rows="2" style="width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: inherit; font-size: 1rem; background: #f8fafc; resize: vertical;"></textarea>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label class="form-label" style="font-size: 0.95rem; font-weight: 600; color: #1e293b; margin-bottom: 6px; display: block;">ลิงก์ Google Maps (ถ้ามี)</label>
+                    <input type="url" id="edit-venue-map-url" style="width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: inherit; font-size: 1rem; background: #f8fafc;" placeholder="ตัวอย่าง: https://maps.app.goo.gl/...">
                 </div>
 
                 <div class="form-group" style="margin-bottom: 15px;">
