@@ -951,7 +951,7 @@
                     await supabaseClient.from('notifications').insert([{
                         user_id: session.user.id,
                         title: 'แก้ไขข้อมูลล็อคสำเร็จ',
-                        message: \`ข้อมูลของล็อค \${updateData.space_number} ถูกอัปเดตเรียบร้อยแล้ว\`,
+                        message: `ข้อมูลของล็อค ${updateData.space_number} ถูกอัปเดตเรียบร้อยแล้ว`,
                         type: 'success',
                         is_read: false
                     }]);
@@ -988,7 +988,7 @@
                     await supabaseClient.from('notifications').insert([{
                         user_id: session.user.id,
                         title: 'ลบล็อคสำเร็จ',
-                        message: \`ล็อค \${spaceNumber} ถูกลบออกจากระบบแล้ว\`,
+                        message: `ล็อค ${spaceNumber} ถูกลบออกจากระบบแล้ว`,
                         type: 'info',
                         is_read: false
                     }]);

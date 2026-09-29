@@ -603,7 +603,7 @@
                 await supabaseClient.from('notifications').insert([{
                     user_id: currentOwnerId,
                     title: 'ลงทะเบียนพื้นที่ใหม่สำเร็จ',
-                    message: \`คุณได้ลงทะเบียนพื้นที่ "\${name}" เรียบร้อยแล้ว\`,
+                    message: `คุณได้ลงทะเบียนพื้นที่ "${name}" เรียบร้อยแล้ว`,
                     type: 'success',
                     is_read: false
                 }]);

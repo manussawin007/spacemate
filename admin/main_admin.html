@@ -1205,13 +1205,6 @@
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon"><i class="fa-solid fa-store"></i></div>
-                    <div class="stat-info">
-                        <div class="stat-value" id="stat-spaces">0</div>
-                        <div class="stat-label">แผงค้า/ร้านในระบบ</div>
-                    </div>
-                </div>
-                <div class="stat-card">
                     <div class="stat-icon"><i class="fa-solid fa-clipboard-check"></i></div>
                     <div class="stat-info">
                         <div class="stat-value" id="stat-pending">0</div>
@@ -1428,11 +1421,6 @@
                 .select('*', { count: 'exact', head: true })
                 .eq('role', 'owner');
 
-            // Count spaces
-            const { count: spacesCount } = await supabaseClient
-                .from('spaces')
-                .select('*', { count: 'exact', head: true });
-
             // Count pending bookings
             const { count: pendingCount } = await supabaseClient
                 .from('bookings')
@@ -1442,7 +1430,6 @@
 
             document.getElementById('stat-users').innerText = (usersCount || 0).toLocaleString();
             document.getElementById('stat-owners').innerText = (ownersCount || 0).toLocaleString();
-            document.getElementById('stat-spaces').innerText = (spacesCount || 0).toLocaleString();
             document.getElementById('stat-pending').innerText = (pendingCount || 0).toLocaleString();
 
         } catch (err) {
@@ -1734,7 +1721,7 @@
                     notifications.push({
                         user_id: bookingData.user_id,
                         title: 'ผลการตรวจสอบการชำระเงิน',
-                        message: \`การชำระเงินสำหรับการจอง #\${bookingId} \${statusText}\`,
+                        message: `การชำระเงินสำหรับการจอง #${bookingId} ${statusText}`,
                         type: isConfirmed ? 'success' : 'warning',
                         is_read: false
                     });
@@ -1746,7 +1733,7 @@
                     notifications.push({
                         user_id: ownerId,
                         title: 'อัปเดตสถานะการชำระเงิน',
-                        message: \`แอดมินได้ตรวจสอบการชำระเงินของการจอง #\${bookingId} และมีผลคือ: \${statusText}\`,
+                        message: `แอดมินได้ตรวจสอบการชำระเงินของการจอง #${bookingId} และมีผลคือ: ${statusText}`,
                         type: isConfirmed ? 'success' : 'warning',
                         is_read: false
                     });
@@ -1757,7 +1744,7 @@
                 }
             }
             
-            alert(\`บันทึกสถานะเรียบร้อยแล้ว (\${status === 'confirmed' ? 'ยืนยัน' : 'ยกเลิก'})\`);
+            alert(`บันทึกสถานะเรียบร้อยแล้ว (${status === 'confirmed' ? 'ยืนยัน' : 'ยกเลิก'})`);
             await loadPendingPayments();
         } catch (err) {
             console.error('Error updating payment:', err);
