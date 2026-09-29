@@ -3322,7 +3322,7 @@
                 
                 alert('อัปเดตข้อมูลสำเร็จ!');
                 closeEditVenueModal();
-                fetchOwnerData(); // Reload UI
+                fetchOwnerVenues(window.currentUserProfile.id); // Reload UI
             } catch(err) {
                 console.error(err);
                 alert('เกิดข้อผิดพลาด: ' + err.message);
