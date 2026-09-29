@@ -1880,7 +1880,7 @@
     </header>
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content" style="padding-bottom: 6rem;">
         
         <!-- Tab Toggles -->
         <div class="tabs-container">
@@ -1909,7 +1909,7 @@
     </main>
 
     <!-- User Bookings View -->
-    <div id="user-booking" class="user-page" style="display: none;">
+    <div id="user-booking" class="user-page" style="display: none; padding-bottom: 6rem;">
         <div class="booking-header">
             <h2>รายการการจองของฉัน</h2>
         </div>
@@ -1930,7 +1930,7 @@
     </div>
 
     <!-- User Notifications View -->
-    <div id="user-notifications" class="user-page" style="display: none;">
+    <div id="user-notifications" class="user-page" style="display: none; padding-bottom: 6rem;">
         <div class="notif-header">
             <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700;">การแจ้งเตือน</h2>
             <button class="notif-mark-read" onclick="markAllNotificationsAsRead()">อ่านทั้งหมด</button>
@@ -2857,7 +2857,8 @@
             let marketsCount = 0;
             marketCards.forEach(card => {
                 const title = card.querySelector('.card-title').textContent.toLowerCase();
-                const locationMatch = (selectedLocation === 'ทั้งหมด' || card.dataset.location === selectedLocation);
+                const cardProvince = card.dataset.province || '';
+                const locationMatch = (selectedLocation === 'ทั้งหมด' || cardProvince === selectedLocation || card.dataset.location.includes(selectedLocation));
                 const textMatch = (searchText === '' || title.includes(searchText) || card.dataset.location.toLowerCase().includes(searchText));
                 
                 const cardPrice = getCardPrice(card);
@@ -2890,7 +2891,8 @@
             let eventsCount = 0;
             eventCards.forEach(card => {
                 const title = card.querySelector('.card-title').textContent.toLowerCase();
-                const locationMatch = (selectedLocation === 'ทั้งหมด' || card.dataset.location === selectedLocation);
+                const cardProvince = card.dataset.province || '';
+                const locationMatch = (selectedLocation === 'ทั้งหมด' || cardProvince === selectedLocation || card.dataset.location.includes(selectedLocation));
                 const textMatch = (searchText === '' || title.includes(searchText) || card.dataset.location.toLowerCase().includes(searchText));
 
                 const cardPrice = getCardPrice(card);
@@ -3612,7 +3614,7 @@
                     const priceText = minPrice > 0 ? `฿${minPrice.toLocaleString()} <span>/ วัน</span>` : 'เปิดให้จอง';
 
                     const cardHtml = `
-                        <div class="listing-card" data-location="${venue.location || 'ทั่วไป'}" data-price="${minPrice}">
+                        <div class="listing-card" data-location="${venue.location || 'ทั่วไป'}" data-province="${venue.province || ''}" data-price="${minPrice}">
                             <div class="card-image-container">
                                 <img src="${coverImg}" alt="${venue.name}" class="card-image">
                                 <span class="location-badge">📍 ${venue.location || 'ทั่วไป'}</span>
@@ -3712,9 +3714,9 @@
                     let badgeClass = 'badge-pending';
                     let badgeText = 'รอตรวจสอบ/อนุมัติ';
                     let actionBtn = `
-                        <button class="booking-action-btn btn-primary-action" onclick="window.location.href='e_ticket.html?booking_id=${b.id}'">
-                            <i class="fa-solid fa-ticket"></i> ดูตั๋ว E-Ticket
-                        </button>
+                        <div style="color: #f59e0b; font-size: 0.85rem; display: flex; align-items: center; gap: 0.25rem;">
+                            <i class="fa-solid fa-clock"></i> กำลังตรวจสอบ
+                        </div>
                     `;
 
                     if (b.status === 'pending' && (!b.payment_slip_url || b.payment_slip_url.trim() === '')) {
@@ -3722,9 +3724,14 @@
                         badgeClass = 'badge-pending';
                         badgeText = 'รอชำระเงิน';
                         actionBtn = `
-                            <button class="booking-action-btn btn-primary-action" style="background: var(--primary-color); color: white;" onclick="window.location.href='payment.html?booking_id=${b.id}'">
-                                <i class="fa-solid fa-credit-card"></i> ชำระเงิน
-                            </button>
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
+                                <button class="booking-action-btn btn-outline-action" style="color: #ef4444; border-color: #ef4444; background: transparent;" onclick="cancelBooking('${b.id}')">
+                                    <i class="fa-solid fa-xmark"></i> ยกเลิก
+                                </button>
+                                <button class="booking-action-btn btn-primary-action" style="background: var(--primary-color); color: white;" onclick="window.location.href='payment.html?booking_id=${b.id}'">
+                                    <i class="fa-solid fa-credit-card"></i> ชำระเงิน
+                                </button>
+                            </div>
                         `;
                     } else if (b.status === 'confirmed') {
                         statusTab = 'เสร็จสิ้น';
@@ -3797,6 +3804,31 @@
                         <p style="font-size: 0.9rem;">เมื่อคุณทำการจองพื้นที่ รายการจะปรากฏที่นี่</p>
                     </div>
                 `;
+            }
+        }
+
+        async function cancelBooking(bookingId) {
+            if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการจองนี้?')) return;
+            try {
+                const { error } = await supabaseClient
+                    .from('bookings')
+                    .update({ status: 'cancelled' })
+                    .eq('id', bookingId);
+                
+                if (error) {
+                    console.error('Supabase error:', error);
+                    throw error;
+                }
+                
+                alert('ยกเลิกการจองสำเร็จ');
+
+                // Refresh list
+                if (currentUserId) {
+                    fetchUserBookings(currentUserId);
+                }
+            } catch (err) {
+                console.error('Error cancelling booking:', err);
+                alert('เกิดข้อผิดพลาดในการยกเลิกการจอง');
             }
         }
 

@@ -830,8 +830,8 @@
 
                 await supabaseClient.from('notifications').insert(notifications);
 
-                alert('แจ้งชำระเงินเรียบร้อยแล้ว! ระบบกำลังนำคุณไปยังหน้า E-Ticket');
-                window.location.href = `e_ticket.html?booking_id=${newBookingId}`;
+                alert('แจ้งชำระเงินเรียบร้อยแล้ว! กรุณารอเจ้าของพื้นที่ตรวจสอบสลิป');
+                window.location.href = `main_user.html`;
 
             } catch (err) {
                 console.error('Payment submit error:', err);

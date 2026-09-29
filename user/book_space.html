@@ -466,7 +466,7 @@
                 return;
             }
 
-            const targetUrl = `payment.html?booking_id=${newBooking.id}`;
+            const targetUrl = `payment.html?booking_id=${newBooking.id}&venue_id=${venueId}&space_id=${spaceId}&start_date=${startVal}&end_date=${endVal}&total_price=${totalVal}`;
             window.location.href = targetUrl;
         }
 

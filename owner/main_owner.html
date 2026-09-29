@@ -1333,7 +1333,7 @@
     </header>
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content" style="padding-bottom: 6rem;">
         
         <!-- Tab Toggles -->
         <div class="tabs-container">
@@ -1379,7 +1379,7 @@
         <header class="notif-header">
             <h1 class="notif-title">คำขอจอง / การแจ้งเตือน</h1>
         </header>
-        <div class="notif-list" id="notifications-list">
+        <div class="notif-list" id="notifications-list" style="padding-bottom: 6rem;">
             <div style="text-align: center; padding: 2rem; color: #64748b;">
                 <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2rem; margin-bottom: 1rem; color: #a46309;"></i>
                 <p>กำลังโหลดคำขอจอง...</p>
@@ -2872,8 +2872,16 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../assets/js/supabase.js"></script>
     
+    <!-- Flatpickr for 24h Time Picker -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
     <!-- Auth Guard & Profile Fetching -->
     <script>
+        // Initialize 24h time pickers for edit modal
+        flatpickr("#edit-venue-time-start", { enableTime: true, noCalendar: true, dateFormat: "H:i", time_24hr: true });
+        flatpickr("#edit-venue-time-end", { enableTime: true, noCalendar: true, dateFormat: "H:i", time_24hr: true });
+
         async function checkAuth() {
             try {
                 // 1. Check if user is logged in
@@ -3229,7 +3237,7 @@
             document.getElementById('edit-venue-id').value = venue.id;
             document.getElementById('edit-venue-type').value = venue.type || 'market';
             document.getElementById('edit-venue-name').value = venue.name || '';
-            document.getElementById('edit-venue-location').value = venue.location || '';
+            document.getElementById('edit-venue-address').value = venue.address_details || venue.location || '';
             document.getElementById('edit-venue-map-url').value = venue.map_url || '';
             
             const rawDesc = venue.description || '';
@@ -3288,8 +3296,20 @@
             const venueId = document.getElementById('edit-venue-id').value;
             const type = document.getElementById('edit-venue-type').value;
             const name = document.getElementById('edit-venue-name').value.trim();
-            const location = document.getElementById('edit-venue-location').value.trim();
+            const address = document.getElementById('edit-venue-address').value.trim();
             const descRaw = document.getElementById('edit-venue-desc').value.trim();
+            
+            // Auto extract province
+            const provinces = ["กระบี่", "กรุงเทพมหานคร", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร", "ขอนแก่น", "จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ", "ชุมพร", "เชียงราย", "เชียงใหม่", "ตรัง", "ตราด", "ตาก", "นครนายก", "นครปฐม", "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์", "นนทบุรี", "นราธิวาส", "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์", "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา", "พะเยา", "พังงา", "พัทลุง", "พิจิตร", "พิษณุโลก", "เพชรบุรี", "เพชรบูรณ์", "แพร่", "ภูเก็ต", "มหาสารคาม", "มุกดาหาร", "แม่ฮ่องสอน", "ยโสธร", "ยะลา", "ร้อยเอ็ด", "ระนอง", "ระยอง", "ราชบุรี", "ลพบุรี", "ลำปาง", "ลำพูน", "เลย", "ศรีสะเกษ", "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ", "สมุทรสงคราม", "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี", "สุโขทัย", "สุพรรณบุรี", "สุราษฎร์ธานี", "สุรินทร์", "หนองคาย", "หนองบัวลำภู", "อ่างทอง", "อำนาจเจริญ", "อุดรธานี", "อุตรดิตถ์", "อุทัยธานี", "อุบลราชธานี"];
+            let province = '';
+            for (let p of provinces) {
+                if (address.includes(p)) {
+                    province = p;
+                    break;
+                }
+            }
+            
+            const location = address;
             
             const activeDays = Array.from(document.querySelectorAll('#edit-venue-days .day-btn.active')).map(btn => btn.innerText).join(', ');
             const timeStart = document.getElementById('edit-venue-time-start').value;
@@ -3297,8 +3317,8 @@
             const price = document.getElementById('edit-venue-price').value;
             const mapUrl = document.getElementById('edit-venue-map-url').value.trim();
 
-            if (!name || !location) {
-                alert('กรุณากรอกชื่อและที่ตั้งให้ครบถ้วน');
+            if (!name || !address || !province) {
+                alert('กรุณากรอกชื่อ ที่อยู่ และจังหวัดให้ครบถ้วน');
                 return;
             }
 
@@ -3320,7 +3340,8 @@
                     .update({
                         name: name,
                         location: location,
-                        address_details: location,
+                        address_details: address,
+                        province: province,
                         description: extraDetails,
                         map_url: mapUrl || null
                     })
@@ -3783,8 +3804,8 @@
                 </div>
 
                 <div class="form-group" style="margin-bottom: 15px;">
-                    <label class="form-label" style="font-size: 0.95rem; font-weight: 600; color: #1e293b; margin-bottom: 6px; display: block;">ที่ตั้ง</label>
-                    <textarea id="edit-venue-location" rows="2" style="width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: inherit; font-size: 1rem; background: #f8fafc; resize: vertical;"></textarea>
+                    <label class="form-label" style="font-size: 0.95rem; font-weight: 600; color: #1e293b; margin-bottom: 6px; display: block;">ที่อยู่ (พิมพ์ที่อยู่เต็ม ระบบจะดึงจังหวัดให้อัตโนมัติ)</label>
+                    <input type="text" id="edit-venue-address" style="width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: inherit; font-size: 1rem; background: #f8fafc;" placeholder="เช่น 123 ถนนสุขุมวิท เขตวัฒนา กรุงเทพมหานคร 10110">
                 </div>
 
                 <div class="form-group" style="margin-bottom: 15px;">
@@ -3813,9 +3834,9 @@
                 <div class="form-group" style="margin-bottom: 15px;">
                     <label class="form-label" style="font-size: 0.95rem; font-weight: 600; color: #1e293b; margin-bottom: 6px; display: block;">เวลาเปิด-ปิด</label>
                     <div style="display: flex; gap: 10px; align-items: center;">
-                        <input type="time" id="edit-venue-time-start" style="flex: 1; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-family: inherit;">
+                        <input type="text" id="edit-venue-time-start" style="flex: 1; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-family: inherit;" placeholder="เวลาเปิด">
                         <span style="color: #64748b; font-weight: 500;">ถึง</span>
-                        <input type="time" id="edit-venue-time-end" style="flex: 1; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-family: inherit;">
+                        <input type="text" id="edit-venue-time-end" style="flex: 1; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-family: inherit;" placeholder="เวลาปิด">
                     </div>
                 </div>
 
