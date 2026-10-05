@@ -2931,6 +2931,14 @@
         }
 
         function switchUserView(viewId, navElement) {
+            if (!currentUserId && viewId !== 'home') {
+                const wantLogin = confirm('ฟังก์ชันนี้สงวนไว้สำหรับสมาชิก กรุณาเข้าสู่ระบบก่อนใช้งาน\nคุณต้องการไปที่หน้าเข้าสู่ระบบหรือไม่?');
+                if (wantLogin) {
+                    window.location.href = '../index.html';
+                }
+                return;
+            }
+
             if (viewId) {
                 sessionStorage.setItem('active_user_view', viewId);
             }
@@ -3424,8 +3432,24 @@
                 const session = await getSession();
                 
                 if (!session) {
-                    // Not logged in -> redirect to login page
-                    window.location.replace('../index.html');
+                    // Not logged in -> Guest Mode
+                    currentUserId = null;
+                    window.currentUserProfile = null;
+                    
+                    const sidebarNameEl = document.getElementById('sidebar-user-name');
+                    if (sidebarNameEl) sidebarNameEl.textContent = 'ผู้เยี่ยมชม';
+                    const sidebarRoleEl = document.getElementById('sidebar-user-role');
+                    if (sidebarRoleEl) sidebarRoleEl.textContent = 'Guest';
+                    
+                    const logoutBtn = document.querySelector('.sidebar-bottom a');
+                    if (logoutBtn) {
+                        logoutBtn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> เข้าสู่ระบบ / สมัครสมาชิก';
+                        logoutBtn.classList.remove('danger');
+                        logoutBtn.style.color = '#a46309';
+                        logoutBtn.style.background = '#fefce8';
+                    }
+                    
+                    await fetchRealVenues();
                     return;
                 }
                 currentUserId = session.user.id;
@@ -3739,6 +3763,9 @@
                         badgeText = 'อนุมัติแล้ว / สำเร็จ';
                         actionBtn = `
                             <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
+                                ${b.payment_slip_url ? `<button class="booking-action-btn btn-outline-action" onclick="window.open('${b.payment_slip_url}', '_blank')">
+                                    <i class="fa-solid fa-receipt"></i> ดูสลิป
+                                </button>` : ''}
                                 <button class="booking-action-btn btn-outline-action" onclick="window.location.href='e_ticket.html?booking_id=${b.id}'">
                                     <i class="fa-solid fa-ticket"></i> E-Ticket
                                 </button>

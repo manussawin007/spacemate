@@ -429,9 +429,12 @@
                     canvas.style.width = mapBaseW + 'px';
                     canvas.style.height = mapBaseH + 'px';
                     
-                    // Remove map image logic as requested by user
+                    // We set the background image here initially. 
+                    // It will be hidden later in renderDynamicBooths if the map is interactive.
+                    canvas.style.backgroundImage = `url('${venue.map_image_url}')`;
+                    canvas.style.backgroundSize = '100% 100%';
+                    canvas.style.backgroundRepeat = 'no-repeat';
                     canvas.style.backgroundColor = 'transparent';
-                    canvas.style.backgroundImage = 'none';
                     canvas.style.border = 'none';
                     canvas.style.borderRadius = '0';
                     
@@ -478,6 +481,13 @@
     function renderDynamicSpaces(spaces) {
         const slotsArea = document.getElementById('slots-area');
         const canvas = document.getElementById('realistic-canvas');
+        
+        // Check if this venue has an interactive map (at least one space has map_data)
+        const hasInteractiveMap = spaces.some(space => space.map_data != null);
+        if (hasInteractiveMap) {
+            canvas.style.backgroundImage = 'none';
+        }
+        
         slotsArea.innerHTML = '';
         slotsArea.style.display = 'flex';
         slotsArea.style.flexWrap = 'wrap';
@@ -491,6 +501,8 @@
         block.style.justifyContent = 'center';
 
         spaces.forEach(space => {
+            if (hasInteractiveMap && !space.map_data) return; // Skip unmapped spaces on visual maps
+
             const isLabel = space.status === 'label' || (space.map_data && space.map_data.isLabel);
             
             if (isLabel && space.map_data) {
@@ -505,14 +517,12 @@
                 labelEl.style.justifyContent = 'center';
                 labelEl.style.backgroundColor = space.map_data.bgColor || 'transparent';
                 labelEl.style.color = space.map_data.textColor || '#1e293b';
-                labelEl.style.fontSize = '1.2rem';
-                labelEl.style.fontWeight = 'bold';
                 labelEl.style.pointerEvents = 'none'; // Don't block clicks
-                labelEl.style.border = '2px dashed #94a3b8'; // Optional, to make it visible like builder if background is transparent
-                if (space.map_data.bgColor && space.map_data.bgColor !== '#ffffff' && space.map_data.bgColor !== 'transparent') {
-                    labelEl.style.border = 'none'; // Remove dashed border if they picked a solid color
-                }
-                labelEl.innerText = space.map_data.text ? space.map_data.text : space.space_number;
+                labelEl.style.border = 'none'; // No border for labels on user side
+                
+                const labelText = space.map_data.text ? space.map_data.text : space.space_number;
+                labelEl.innerHTML = `<svg width="100%" height="100%" viewBox="0 0 10000 1000" preserveAspectRatio="xMidYMid meet" style="pointer-events: none;"><text x="5000" y="500" dominant-baseline="central" text-anchor="middle" font-size="800" font-weight="bold" fill="currentColor" font-family="sans-serif">${labelText}</text></svg>`;
+                
                 canvas.appendChild(labelEl);
                 return; // Skip normal space rendering
             }

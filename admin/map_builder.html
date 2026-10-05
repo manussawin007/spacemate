@@ -105,8 +105,10 @@
             border: 2px dashed #94a3b8 !important;
             color: #1e293b;
             text-shadow: none !important;
-            font-size: 1.2rem;
             border-radius: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .draw-label.selected { border-color: #ef4444 !important; z-index: 10; }
         
@@ -248,11 +250,17 @@
                 <div style="display:flex; gap:10px;">
                     <div class="form-group" style="flex:1;">
                         <label>สีพื้นหลัง</label>
-                        <input type="color" id="labelBgColor" class="form-control" value="#ffffff" style="height: 40px; padding: 2px;">
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <input type="text" id="labelBgColor" class="form-control" value="#ffffff" placeholder="รหัสสี (เช่น #FFFFFF)" oninput="document.getElementById('labelBgColorPicker').value = this.value">
+                            <input type="color" id="labelBgColorPicker" value="#ffffff" style="width: 40px; height: 40px; padding: 2px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; flex-shrink: 0;" oninput="document.getElementById('labelBgColor').value = this.value">
+                        </div>
                     </div>
                     <div class="form-group" style="flex:1;">
                         <label>สีข้อความ</label>
-                        <input type="color" id="labelTextColor" class="form-control" value="#000000" style="height: 40px; padding: 2px;">
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <input type="text" id="labelTextColor" class="form-control" value="#000000" placeholder="รหัสสี (เช่น #000000)" oninput="document.getElementById('labelTextColorPicker').value = this.value">
+                            <input type="color" id="labelTextColorPicker" value="#000000" style="width: 40px; height: 40px; padding: 2px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; flex-shrink: 0;" oninput="document.getElementById('labelTextColor').value = this.value">
+                        </div>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary" id="saveLabelBtn" style="margin-top:1rem; width: 100%;">
@@ -288,11 +296,17 @@
                     <div style="display:flex; gap:10px;">
                         <div style="flex:1;">
                             <label>สีพื้นหลัง</label>
-                            <input type="color" id="editLabelBgColor" class="form-control" style="height:40px; padding:2px;">
+                            <div style="display: flex; gap: 5px; align-items: center;">
+                                <input type="text" id="editLabelBgColor" class="form-control" placeholder="รหัสสี (เช่น #FFFFFF)" oninput="document.getElementById('editLabelBgColorPicker').value = this.value">
+                                <input type="color" id="editLabelBgColorPicker" style="width: 40px; height: 40px; padding: 2px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; flex-shrink: 0;" oninput="document.getElementById('editLabelBgColor').value = this.value">
+                            </div>
                         </div>
                         <div style="flex:1;">
                             <label>สีข้อความ</label>
-                            <input type="color" id="editLabelTextColor" class="form-control" style="height:40px; padding:2px;">
+                            <div style="display: flex; gap: 5px; align-items: center;">
+                                <input type="text" id="editLabelTextColor" class="form-control" placeholder="รหัสสี (เช่น #000000)" oninput="document.getElementById('editLabelTextColorPicker').value = this.value">
+                                <input type="color" id="editLabelTextColorPicker" style="width: 40px; height: 40px; padding: 2px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; flex-shrink: 0;" oninput="document.getElementById('editLabelTextColor').value = this.value">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -546,7 +560,11 @@
                 }
             } catch (err) {
                 console.error(err);
-                alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+                if (err.code === '23505') {
+                    alert('เกิดข้อผิดพลาด: ชื่อล็อค/บูธ นี้มีอยู่ในระบบแล้ว กรุณาใช้ชื่ออื่น');
+                } else {
+                    alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + err.message);
+                }
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-save"></i> บันทึก';
@@ -602,7 +620,11 @@
 
             } catch (err) {
                 console.error(err);
-                alert('เกิดข้อผิดพลาดในการสร้างล็อค: ' + err.message);
+                if (err.code === '23505') {
+                    alert('เกิดข้อผิดพลาด: มีบางล็อค/บูธ ที่มีชื่อซ้ำกับในระบบแล้ว กรุณาตรวจสอบชื่อล็อคอีกครั้ง');
+                } else {
+                    alert('เกิดข้อผิดพลาดในการสร้างล็อค: ' + err.message);
+                }
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-bolt"></i> สร้างหลายล็อคพร้อมกัน';
@@ -674,7 +696,11 @@
             }
 
             sidebarSpaces.innerHTML = '';
-            spaces.forEach(sp => {
+            
+            const regularSpaces = spaces.filter(sp => !(sp.status === 'label' || (sp.map_data && sp.map_data.isLabel)));
+            const labelSpaces = spaces.filter(sp => (sp.status === 'label' || (sp.map_data && sp.map_data.isLabel)));
+            
+            function createItem(sp) {
                 const item = document.createElement('div');
                 item.className = 'space-item' + (sp.map_data ? ' mapped' : '');
                 item.id = `space-item-${sp.id}`;
@@ -682,7 +708,7 @@
                 item.innerHTML = `
                     <div style="flex:1;">
                         <div style="font-weight:600;">${displayText}</div>
-                        <div style="font-size:0.8rem; color:#64748b;">${sp.zone || 'ไม่มีโซน'} | ฿${sp.price}</div>
+                        <div style="font-size:0.8rem; color:#64748b;">${sp.zone || 'ไม่มีโซน'} | ฿${sp.price || 0}</div>
                     </div>
                     <div style="display:flex; gap: 8px; align-items:center;">
                         <i class="fa-solid ${sp.map_data ? 'fa-check-circle' : 'fa-pen'}" style="${sp.map_data ? 'color: #10b981;' : ''}" title="${sp.map_data ? 'วางบนแผนผังแล้ว' : 'ยังไม่วาง'}"></i>
@@ -703,9 +729,22 @@
                     e.stopPropagation();
                     deleteSpace(sp.id, e);
                 };
+                return item;
+            }
 
-                sidebarSpaces.appendChild(item);
-            });
+            if (regularSpaces.length > 0) {
+                const spacesHeader = document.createElement('div');
+                spacesHeader.innerHTML = '<div style="font-size: 0.85rem; font-weight: 700; color: #64748b; margin: 15px 10px 5px 10px; text-transform: uppercase;">ล็อค / พื้นที่เช่า</div>';
+                sidebarSpaces.appendChild(spacesHeader);
+                regularSpaces.forEach(sp => sidebarSpaces.appendChild(createItem(sp)));
+            }
+
+            if (labelSpaces.length > 0) {
+                const labelsHeader = document.createElement('div');
+                labelsHeader.innerHTML = '<div style="font-size: 0.85rem; font-weight: 700; color: #64748b; margin: 20px 10px 5px 10px; text-transform: uppercase;">ป้ายข้อความ</div>';
+                sidebarSpaces.appendChild(labelsHeader);
+                labelSpaces.forEach(sp => sidebarSpaces.appendChild(createItem(sp)));
+            }
         }
 
         function selectSpace(id) {
@@ -868,6 +907,9 @@
                 box.classList.add('draw-label');
                 box.style.backgroundColor = mapData.bgColor || 'transparent';
                 box.style.color = mapData.textColor || '#1e293b';
+                box.innerHTML = `<svg width="100%" height="100%" viewBox="0 0 10000 1000" preserveAspectRatio="xMidYMid meet" style="pointer-events: none;"><text x="5000" y="500" dominant-baseline="central" text-anchor="middle" font-size="800" font-weight="bold" fill="currentColor" font-family="sans-serif">${displayText}</text></svg>`;
+            } else {
+                box.innerHTML = `<span style="pointer-events: none;">${displayText}</span>`;
             }
             
             // Map data is in percentages
@@ -876,7 +918,6 @@
             box.style.width = (mapData.width / 100 * rect.width) + 'px';
             box.style.height = (mapData.height / 100 * rect.height) + 'px';
             
-            box.innerHTML = `<span style="pointer-events: none;">${displayText}</span>`;
             addResizeHandles(box);
             mapContainer.appendChild(box);
             return box;
@@ -940,7 +981,13 @@
                 alert('บันทึกแผนผังสำเร็จ!');
             } catch (err) {
                 console.error(err);
-                alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+                if (err.code === '23505') {
+                    alert('เกิดข้อผิดพลาด (409): พบชื่อล็อค/บูธซ้ำในระบบ โปรดตรวจสอบว่าไม่มีชื่อล็อคซ้ำกัน');
+                } else if (err.code === '409' || err.status === 409 || (err.message && err.message.includes('409'))) {
+                     alert('บันทึกสำเร็จบางส่วน: ข้อมูลบางส่วนอาจมีการอัปเดตซ้อนทับกัน กรุณารีเฟรชหน้าเพื่อดูข้อมูลล่าสุด (409 Conflict)');
+                } else {
+                    alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + err.message);
+                }
             } finally {
                 saveMapBtn.disabled = false;
                 saveMapBtn.innerHTML = '<i class="fa-solid fa-save"></i> บันทึกแผนผัง';
@@ -950,7 +997,9 @@
             if (!currentVenueId) return;
             document.getElementById('labelText').value = '';
             document.getElementById('labelBgColor').value = '#ffffff';
+            document.getElementById('labelBgColorPicker').value = '#ffffff';
             document.getElementById('labelTextColor').value = '#000000';
+            document.getElementById('labelTextColorPicker').value = '#000000';
             document.getElementById('addLabelModal').classList.add('active');
         }
 
@@ -968,7 +1017,7 @@
             try {
                 const newLabel = {
                     venue_id: currentVenueId,
-                    space_number: `LABEL_${Date.now()}`,
+                    space_number: `LABEL_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
                     zone: 'LABEL_TEXT',
                     price: 0,
                     status: 'available',
@@ -993,7 +1042,11 @@
                 document.getElementById('addLabelModal').classList.remove('active');
             } catch (err) {
                 console.error(err);
-                alert('เกิดข้อผิดพลาดในการเพิ่มป้ายชื่อ');
+                if (err.code === '23505') {
+                    alert('เกิดข้อผิดพลาด: ป้ายข้อความนี้อาจจะมีชื่อซ้ำในระบบ');
+                } else {
+                    alert('เกิดข้อผิดพลาดในการเพิ่มป้ายชื่อ: ' + err.message);
+                }
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-plus"></i> สร้างป้ายข้อความ';
@@ -1011,7 +1064,9 @@
                 document.getElementById('editSpacePrice').parentElement.style.display = 'none';
                 document.getElementById('editLabelColors').style.display = 'block';
                 document.getElementById('editLabelBgColor').value = sp.map_data.bgColor || '#ffffff';
+                document.getElementById('editLabelBgColorPicker').value = sp.map_data.bgColor || '#ffffff';
                 document.getElementById('editLabelTextColor').value = sp.map_data.textColor || '#000000';
+                document.getElementById('editLabelTextColorPicker').value = sp.map_data.textColor || '#000000';
             } else {
                 document.getElementById('editSpaceNumber').value = sp.space_number;
                 document.getElementById('editSpaceZone').value = sp.zone || '';
@@ -1032,7 +1087,7 @@
             
             const num = document.getElementById('editSpaceNumber').value.trim();
             const zone = document.getElementById('editSpaceZone').value.trim();
-            const price = parseFloat(document.getElementById('editSpacePrice').value);
+            const price = parseFloat(document.getElementById('editSpacePrice').value) || 0;
             
             const btn = document.getElementById('saveEditBtn');
             btn.disabled = true;

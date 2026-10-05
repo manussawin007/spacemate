@@ -442,7 +442,7 @@
             const session = await getSession();
             if (!session || !session.user) {
                 alert('กรุณาเข้าสู่ระบบก่อนทำการจอง');
-                window.location.href = '../auth/login.html';
+                window.location.href = '../index.html';
                 return;
             }
 
@@ -460,13 +460,37 @@
                 .select()
                 .single();
 
-            if (bErr || !newBooking) {
-                console.error(bErr);
-                alert('ไม่สามารถสร้างการจองได้ กรุณาลองใหม่');
-                return;
+            let finalBookingId = null;
+
+            if (bErr) {
+                if (bErr.code === '23505') {
+                    // Check if it's the user's own pending booking
+                    const { data: existingBooking } = await supabaseClient
+                        .from('bookings')
+                        .select('id, user_id, status')
+                        .eq('space_id', spaceId)
+                        .eq('start_date', startVal)
+                        .eq('end_date', endVal)
+                        .single();
+                        
+                    if (existingBooking && existingBooking.user_id === session.user.id && existingBooking.status === 'pending') {
+                        finalBookingId = existingBooking.id;
+                    } else {
+                        alert('ล็อคนี้ถูกจองหรือรอตรวจสอบไปแล้วในช่วงเวลาดังกล่าว กรุณาเลือกวันหรือล็อคอื่น');
+                        return;
+                    }
+                } else {
+                    console.error(bErr);
+                    alert('ไม่สามารถสร้างการจองได้ กรุณาลองใหม่');
+                    return;
+                }
+            } else if (newBooking) {
+                finalBookingId = newBooking.id;
             }
 
-            const targetUrl = `payment.html?booking_id=${newBooking.id}&venue_id=${venueId}&space_id=${spaceId}&start_date=${startVal}&end_date=${endVal}&total_price=${totalVal}`;
+            if (!finalBookingId) return;
+
+            const targetUrl = `payment.html?booking_id=${finalBookingId}&venue_id=${venueId}&space_id=${spaceId}&start_date=${startVal}&end_date=${endVal}&total_price=${totalVal}`;
             window.location.href = targetUrl;
         }
 

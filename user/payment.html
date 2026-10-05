@@ -535,7 +535,7 @@
                 <div class="qr-section">
                     <div class="qr-box">
                         <img id="qr-image"
-                            src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg"
+                            src="../assets/images/qr.jpg"
                             alt="QR Code" class="qr-image">
                     </div>
                     <button class="save-qr-btn" onclick="alert('บันทึกรูป QR Code สำเร็จ')">
@@ -791,7 +791,17 @@
                         .select()
                         .single();
 
-                    if (bErr) throw bErr;
+                    if (bErr) {
+                        if (bErr.code === '23505') {
+                            alert('มีการส่งหลักฐานสำหรับล็อคและวันดังกล่าวไปแล้ว กรุณารอเจ้าของตรวจสอบ หรือตรวจสอบสถานะในหน้าแรก');
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalText;
+                            window.location.href = 'main_user.html';
+                            return;
+                        } else {
+                            throw bErr;
+                        }
+                    }
                     newBookingId = newBooking.id;
                 }
 

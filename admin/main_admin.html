@@ -1186,7 +1186,7 @@
         <div id="dashboard" class="admin-view active">
             <div class="admin-page-header">
                 <h1 class="admin-greeting">ภาพรวมระบบ (Dashboard)</h1>
-                <p class="admin-subtitle">จัดการข้อมูลผู้ใช้งาน ร้านค้า และการอนุมัติต่างๆ ในระบบ Spacemate</p>
+                <p class="admin-subtitle">จัดการข้อมูลผู้ใช้งาน พื้นที่เช่า และการอนุมัติต่างๆ ในระบบ Spacemate</p>
             </div>
 
             <div class="stats-grid">
@@ -1219,7 +1219,7 @@
             
             <div class="kyc-tabs">
                 <button class="kyc-tab-btn active" onclick="switchKycTab('owners', this)">เจ้าของพื้นที่ <span class="kyc-badge" id="badge-owners-count">0</span></button>
-                <button class="kyc-tab-btn" onclick="switchKycTab('merchants', this)">พ่อค้าแม่ค้า <span class="kyc-badge" id="badge-merchants-count">0</span></button>
+                <button class="kyc-tab-btn" onclick="switchKycTab('merchants', this)">ผู้ใช้งานทั่วไป <span class="kyc-badge" id="badge-merchants-count">0</span></button>
                 <button class="kyc-tab-btn" onclick="switchKycTab('payments', this)">การชำระเงิน <span class="kyc-badge" id="badge-payments-count" style="background:#fef3c7; color:#d97706;">0</span></button>
             </div>
             
@@ -1585,6 +1585,7 @@
 
             alert(`บันทึกสถานะเรียบร้อยแล้ว (${status === 'approved' ? 'อนุมัติ' : 'ไม่อนุมัติ'})`);
             await loadKycUsers();
+            await loadAdminStats();
         } catch (err) {
             console.error('Error updating KYC:', err);
             alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
@@ -1747,6 +1748,7 @@
             
             alert(`บันทึกสถานะเรียบร้อยแล้ว (${status === 'confirmed' ? 'ยืนยัน' : 'ยกเลิก'})`);
             await loadPendingPayments();
+            await loadAdminStats();
         } catch (err) {
             console.error('Error updating payment:', err);
             alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
