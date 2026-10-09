@@ -3208,6 +3208,7 @@
                                     <div class="card-footer" style="display: flex; gap: 8px;">
                                         <button class="book-btn" style="flex: 1;" onclick="event.stopPropagation(); window.location.href='tenant_info_owner.html?id=${venue.id}';">จัดการพื้นที่</button>
                                         <button title="แก้ไขรายละเอียด" style="background: #f1f5f9; color: #64748b; padding: 0.85rem; border-radius: 14px; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='#e2e8f0'; this.style.color='#334155';" onmouseout="this.style.background='#f1f5f9'; this.style.color='#64748b';" onclick="event.stopPropagation(); openEditVenueModal('${venueDataStr}');"><i class="fa-solid fa-pen-to-square"></i></button>
+                                        <button title="ลบตลาด" style="background: #fee2e2; color: #ef4444; padding: 0.85rem; border-radius: 14px; border: 1px solid #fecaca; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='#fecaca'; this.style.color='#b91c1c';" onmouseout="this.style.background='#fee2e2'; this.style.color='#ef4444';" onclick="event.stopPropagation(); deleteVenue('${venue.id}');"><i class="fa-solid fa-trash"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -3358,6 +3359,58 @@
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
+            }
+        }
+
+        async function deleteVenue(venueId) {
+            if (!confirm('คุณแน่ใจหรือไม่ที่จะลบตลาด/พื้นที่นี้? การกระทำนี้ไม่สามารถกู้คืนได้ (ข้อมูลล็อคและการจองทั้งหมดจะถูกลบด้วย)')) {
+                return;
+            }
+
+            try {
+                // 1. Fetch all spaces for this venue
+                const { data: spaces, error: spaceFetchErr } = await supabaseClient
+                    .from('spaces')
+                    .select('id')
+                    .eq('venue_id', venueId);
+                    
+                if (spaceFetchErr) throw spaceFetchErr;
+
+                if (spaces && spaces.length > 0) {
+                    const spaceIds = spaces.map(s => s.id);
+                    
+                    // 2. Delete all bookings for these spaces
+                    // Delete in chunks if there are many spaces to avoid URL length limits in REST
+                    for (let i = 0; i < spaceIds.length; i += 50) {
+                        const chunk = spaceIds.slice(i, i + 50);
+                        const { error: bookingDelErr } = await supabaseClient
+                            .from('bookings')
+                            .delete()
+                            .in('space_id', chunk);
+                        if (bookingDelErr) throw bookingDelErr;
+                    }
+
+                    // 3. Delete all spaces for this venue
+                    const { error: spaceDelErr } = await supabaseClient
+                        .from('spaces')
+                        .delete()
+                        .eq('venue_id', venueId);
+                    if (spaceDelErr) throw spaceDelErr;
+                }
+
+                // 4. Delete the venue
+                const { error: venueDelErr } = await supabaseClient
+                    .from('venues')
+                    .delete()
+                    .eq('id', venueId);
+
+                if (venueDelErr) throw venueDelErr;
+                
+                alert('ลบตลาด/พื้นที่สำเร็จ!');
+                fetchOwnerVenues(window.currentUserProfile.id); // Reload UI
+            } catch(err) {
+                console.error('Error deleting venue:', err);
+                alert('เกิดข้อผิดพลาดในการลบตลาด: ' + (err.message || 'ไม่ทราบสาเหตุ กรุณาลองใหม่อีกครั้ง'));
             }
         }
 

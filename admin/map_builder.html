@@ -74,13 +74,16 @@
         .space-item.mapped { opacity: 0.6; border-style: dashed; }
         
         /* Main Workspace */
-        .workspace { flex: 1; background: #e2e8f0; position: relative; overflow: auto; display: flex; padding: 2rem; }
+        .workspace { flex: 1; background: #e2e8f0; position: relative; overflow: auto !important; -ms-overflow-style: none; scrollbar-width: none; padding: 2rem; cursor: grab; }
+        .workspace::-webkit-scrollbar { display: none; }
+        .workspace:active { cursor: grabbing; }
         
         .map-container {
             position: relative;
             background-color: white;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            margin: auto;
+            margin: 0 auto;
+            display: table; /* Helps respect margins when wider than parent */
         }
         
         .map-image {
@@ -156,12 +159,6 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* Zoom Controls */
-        .zoom-controls { position: fixed; bottom: 30px; right: 30px; background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; z-index: 50; border: 1px solid #e2e8f0; }
-        .zoom-controls button { background: none; border: none; padding: 12px; cursor: pointer; font-size: 1.1rem; color: #475569; transition: 0.2s; border-bottom: 1px solid #e2e8f0; }
-        .zoom-controls button:last-child { border-bottom: none; }
-        .zoom-controls button:hover { background: #f1f5f9; color: var(--primary); }
-        .zoom-controls .zoom-level { font-size: 0.8rem; text-align: center; padding: 5px 0; font-weight: bold; background: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #64748b; }
     </style>
 </head>
 <body>
@@ -357,12 +354,7 @@
         </div>
 
         <div class="workspace" id="workspace">
-            <div class="zoom-controls" id="zoom-controls" style="display:none;">
-                <button onclick="zoomIn()" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
-                <div class="zoom-level" id="zoom-level-text">100%</div>
-                <button onclick="zoomOut()" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
-                <button onclick="zoomReset()" title="Reset Zoom"><i class="fa-solid fa-rotate-right"></i></button>
-            </div>
+        <!-- Zoom Controls removed as per user request -->
             <div class="map-container" id="map-container" style="display:none;">
                 <img src="" alt="Map Blueprint" class="map-image" id="map-image" onload="onImageLoad()">
                 <!-- Draw boxes will be appended here -->
@@ -631,17 +623,17 @@
             }
         }
 
-        /* Zoom Logic */
+        /* Zoom & Pan Logic */
         let zoomLevel = 1;
         const BASE_WIDTH = 1000;
 
-        function zoomIn() { setZoom(zoomLevel + 0.2); }
-        function zoomOut() { setZoom(zoomLevel - 0.2); }
-        function zoomReset() { setZoom(1); }
-
-        function setZoom(level) {
+        function setZoom(level, focusX = null, focusY = null, oldZoom = null) {
             if (!currentVenueId || mapContainer.style.display === 'none') return;
-            zoomLevel = Math.max(0.2, Math.min(level, 3));
+            const newZoomLevel = Math.max(0.2, Math.min(level, 3));
+            if (newZoomLevel === zoomLevel) return;
+
+            const prevZoom = oldZoom || zoomLevel;
+            zoomLevel = newZoomLevel;
             const newWidth = BASE_WIDTH * zoomLevel;
             mapImage.style.width = newWidth + 'px';
             
@@ -660,14 +652,18 @@
                         box.style.height = (sp.map_data.height / 100 * mapImage.clientHeight) + 'px';
                     }
                 });
-                document.getElementById('zoom-level-text').textContent = Math.round(zoomLevel * 100) + '%';
+
+                if (focusX !== null && focusY !== null) {
+                    const scaleChange = zoomLevel / prevZoom;
+                    workspace.scrollLeft = (workspace.scrollLeft + focusX) * scaleChange - focusX;
+                    workspace.scrollTop = (workspace.scrollTop + focusY) * scaleChange - focusY;
+                }
             }, 10);
         }
 
         function onImageLoad() {
             zoomLevel = 1; // Reset zoom on load
-            document.getElementById('zoom-controls').style.display = 'flex';
-            document.getElementById('zoom-level-text').textContent = '100%';
+
             mapImage.style.width = BASE_WIDTH + 'px';
             
             mapContainer.style.display = 'inline-block';
@@ -779,6 +775,35 @@
         }
 
         // --- DRAWING & DRAGGING LOGIC ---
+        const workspace = document.getElementById('workspace');
+        let isPanning = false;
+        let panStartX = 0, panStartY = 0, panScrollLeft = 0, panScrollTop = 0;
+
+        workspace.addEventListener('wheel', (e) => {
+            if (!isImageLoaded || mapContainer.style.display === 'none') return;
+            e.preventDefault();
+            
+            const delta = e.deltaY < 0 ? 0.1 : -0.1;
+            const newZoom = zoomLevel + delta;
+            
+            const rect = workspace.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            setZoom(newZoom, mouseX, mouseY, zoomLevel);
+        }, { passive: false });
+
+        workspace.addEventListener('mousedown', (e) => {
+            if (e.target === workspace || e.target === mapContainer || e.target.tagName === 'IMG') {
+                isPanning = true;
+                workspace.style.cursor = 'grabbing';
+                panStartX = e.clientX;
+                panStartY = e.clientY;
+                panScrollLeft = workspace.scrollLeft;
+                panScrollTop = workspace.scrollTop;
+            }
+        });
+
         mapContainer.addEventListener('mousedown', (e) => {
             if (e.target.classList.contains('resize-handle')) {
                 resizingBox = e.target.parentElement;
@@ -808,6 +833,15 @@
         });
 
         document.addEventListener('mousemove', (e) => {
+            if (isPanning) {
+                const walkX = e.clientX - panStartX;
+                const walkY = e.clientY - panStartY;
+                workspace.scrollLeft = panScrollLeft - walkX;
+                workspace.scrollTop = panScrollTop - walkY;
+                e.preventDefault();
+                return;
+            }
+
             const rect = mapContainer.getBoundingClientRect();
             let currentX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
             let currentY = Math.max(0, Math.min(e.clientY - rect.top, rect.height));
@@ -841,6 +875,10 @@
         });
 
         document.addEventListener('mouseup', () => {
+            if (isPanning) {
+                isPanning = false;
+                workspace.style.cursor = 'grab';
+            }
             if (draggedBox) {
                 updateSpaceMapData(draggedBox.dataset.id, draggedBox);
             } else if (resizingBox) {
@@ -877,19 +915,17 @@
             if (isNaN(leftPerc) || isNaN(topPerc)) return;
             
             const sp = spaces[spaceIndex];
-            const isLabel = sp.status === 'label' || (sp.map_data && sp.map_data.isLabel);
-            const textContent = (sp.map_data && sp.map_data.text) ? sp.map_data.text : null;
+            const existingData = sp.map_data || {};
+            const isLabel = sp.status === 'label' || existingData.isLabel;
             
             sp.map_data = {
+                ...existingData, // รักษาสีพื้นหลังและข้อความเดิมไว้ ไม่ให้ถูกลบตอนขยับกล่อง
                 left: leftPerc,
                 top: topPerc,
                 width: widthPerc,
                 height: heightPerc,
                 isLabel: isLabel
             };
-            if (textContent) {
-                sp.map_data.text = textContent;
-            }
         }
 
         function createBoxFromData(id, name, mapData) {
@@ -907,9 +943,11 @@
                 box.classList.add('draw-label');
                 box.style.backgroundColor = mapData.bgColor || 'transparent';
                 box.style.color = mapData.textColor || '#1e293b';
-                box.innerHTML = `<svg width="100%" height="100%" viewBox="0 0 10000 1000" preserveAspectRatio="xMidYMid meet" style="pointer-events: none;"><text x="5000" y="500" dominant-baseline="central" text-anchor="middle" font-size="800" font-weight="bold" fill="currentColor" font-family="sans-serif">${displayText}</text></svg>`;
+                box.innerHTML = `<div style="container-type: size; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 2px; box-sizing: border-box; overflow: hidden; pointer-events: none;">
+                                    <span style="font-size: min(15cqw, 35cqh); font-weight: bold; line-height: 1.2; overflow-wrap: break-word; text-wrap: balance;">${displayText}</span>
+                                 </div>`;
             } else {
-                box.innerHTML = `<span style="pointer-events: none;">${displayText}</span>`;
+                box.innerHTML = `<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" style="pointer-events: none;"><text x="50" y="50" dominant-baseline="central" text-anchor="middle" font-size="40" font-weight="bold" fill="currentColor" font-family="sans-serif">${displayText}</text></svg>`;
             }
             
             // Map data is in percentages

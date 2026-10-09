@@ -174,7 +174,7 @@
         }
 
         .legend-box.available {
-            background: #ffffff;
+            background: #f1f5f9;
             border: 2px solid #cbd5e1;
         }
 
@@ -183,7 +183,8 @@
         }
 
         .legend-box.booked {
-            background: #e2e8f0;
+            background: #fee2e2;
+            border: 2px solid #fca5a5;
         }
 
         /* Scrollable Map Container */
@@ -193,9 +194,13 @@
             min-height: 0;
 
             background-color: #f8fafc;
-            overflow-x: auto !important;
-            overflow-y: auto !important;
-            -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+            overflow: auto !important;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        .map-scroll-container::-webkit-scrollbar {
+            display: none; /* Smooth scroll on iOS */
             box-sizing: border-box;
             position: relative;
             cursor: grab;
@@ -222,34 +227,7 @@
             background-size: 20px 20px;
         }
 
-        /* Zoom Controls */
-        .zoom-controls {
-            position: absolute;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            z-index: 10;
-        }
-        .zoom-controls button {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: white;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.2rem;
-            color: var(--text-main);
-            transition: 0.2s;
-        }
-        .zoom-controls button:hover {
-            background: #f1f5f9;
-        }
+        /* Zoom Controls removed as per user request */
 
         /* Map Elements */
         .map-entrance {
@@ -269,12 +247,40 @@
         .slot-block { display: flex; flex-wrap: wrap; gap: 8px; background: white; padding: 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
         .slot-box {
             width: 45px; height: 45px; border-radius: 8px; border: 2px solid #cbd5e1;
-            display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: 0.2s; background: white; color: #64748b; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: 0.2s; background: #f1f5f9; color: #475569; flex-shrink: 0;
             box-sizing: border-box;
         }
-        .slot-box:hover:not(.booked) { border-color: var(--primary-color); color: var(--primary-color); }
-        .slot-box.booked { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; border-color: #e2e8f0; opacity: 0.7; }
+        .slot-box:hover:not(.booked) { border-color: var(--primary-color); color: var(--primary-color); background: white; }
+        .slot-box.booked { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; opacity: 0.9; }
         .slot-box.selected { background: var(--primary-color); color: white; border-color: var(--primary-color); box-shadow: 0 4px 10px rgba(164, 99, 9, 0.3); transform: scale(1.05); }
+
+        .absolute-slot { 
+            border: 2px solid #cbd5e1 !important; 
+            background: #f1f5f9 !important; 
+            color: #475569 !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 4px;
+        }
+        .absolute-slot.booked { 
+            background: #fee2e2 !important; 
+            border: 2px solid #fca5a5 !important; 
+            color: #b91c1c !important; 
+            opacity: 0.95;
+        }
+        .absolute-slot.selected { 
+            background: var(--primary-color) !important; 
+            border: 2px solid var(--primary-color) !important;
+            color: white !important;
+        }
+        .absolute-slot:hover:not(.booked) { 
+            border-color: var(--primary-color) !important;
+            background: white !important;
+        }
+        .absolute-slot svg {
+            position: relative;
+            z-index: 2;
+            pointer-events: none;
+        }
 
         .selection-info {
             display: flex;
@@ -332,12 +338,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Floating Zoom Controls -->
-                    <div class="zoom-controls">
-                        <button onclick="changeZoom(0.2)" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
-                        <button onclick="changeZoom(-0.2)" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
                     </div>
                 </div>
             </div>
@@ -439,7 +439,12 @@
                     canvas.style.borderRadius = '0';
                     
                     // Trigger zoom to update wrapper dimensions
-                    changeZoom(0);
+                    const scaleWrapper = document.querySelector('.map-scale-wrapper');
+                    if (scaleWrapper) {
+                        scaleWrapper.style.width = mapBaseW + 'px';
+                        scaleWrapper.style.height = mapBaseH + 'px';
+                        canvas.style.transform = 'scale(1)';
+                    }
                 };
                 img.src = venue.map_image_url;
             }
@@ -520,7 +525,9 @@
                 labelEl.style.border = 'none'; // No border for labels on user side
                 
                 const labelText = space.map_data.text ? space.map_data.text : space.space_number;
-                labelEl.innerHTML = `<svg width="100%" height="100%" viewBox="0 0 10000 1000" preserveAspectRatio="xMidYMid meet" style="pointer-events: none;"><text x="5000" y="500" dominant-baseline="central" text-anchor="middle" font-size="800" font-weight="bold" fill="currentColor" font-family="sans-serif">${labelText}</text></svg>`;
+                labelEl.innerHTML = `<div style="container-type: size; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 2px; box-sizing: border-box; overflow: hidden; pointer-events: none;">
+                                        <span style="font-size: min(15cqw, 35cqh); font-weight: bold; line-height: 1.2; overflow-wrap: break-word; text-wrap: balance;">${labelText}</span>
+                                     </div>`;
                 
                 canvas.appendChild(labelEl);
                 return; // Skip normal booth rendering
@@ -541,7 +548,7 @@
                 slotEl.style.width = space.map_data.width + '%';
                 slotEl.style.height = space.map_data.height + '%';
                 slotEl.style.margin = '0';
-                slotEl.innerHTML = `<span style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); pointer-events:none;">${space.space_number}</span>`;
+                slotEl.innerHTML = `<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" style="pointer-events: none;"><text x="50" y="50" dominant-baseline="central" text-anchor="middle" font-size="40" font-weight="bold" fill="currentColor" font-family="sans-serif">${space.space_number}</text></svg>`;
                 canvas.appendChild(slotEl);
             } else {
                 slotEl.className = `slot-box ${isAvailable ? '' : 'booked'}`;
@@ -569,6 +576,26 @@
                         nextBtn.disabled = false;
                         nextBtn.style.boxShadow = '0 4px 15px rgba(164, 99, 9, 0.25)';
                     }
+                });
+            } else {
+                slotEl.style.cursor = 'pointer';
+                slotEl.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    Swal.fire({
+                        title: 'บูธนี้ถูกจองแล้ว',
+                        html: `
+                            <div style="text-align: left; margin-top: 15px; font-size: 1.1rem; line-height: 1.8;">
+                                <p><strong><i class="fa-solid fa-hashtag" style="color: #64748b; width: 25px;"></i> รหัสบูธ:</strong> ${space.space_number}</p>
+                                <p><strong><i class="fa-solid fa-layer-group" style="color: #64748b; width: 25px;"></i> โซน:</strong> ${space.zone || '-'}</p>
+                                <p><strong><i class="fa-solid fa-tag" style="color: #64748b; width: 25px;"></i> ราคา:</strong> ฿${space.price}</p>
+                                <p><strong><i class="fa-solid fa-circle-info" style="color: #64748b; width: 25px;"></i> สถานะ:</strong> <span style="color: #ef4444; font-weight: 600;">ไม่ว่าง (ติดจอง)</span></p>
+                            </div>
+                        `,
+                        icon: 'info',
+                        confirmButtonText: 'ปิดหน้าต่าง',
+                        confirmButtonColor: '#64748b'
+                    });
                 });
             }
         });
@@ -645,18 +672,42 @@
     let mapBaseW = 800;
     let mapBaseH = 600;
     
-    function changeZoom(delta) {
-        currentZoom += delta;
+    // Mouse wheel zoom
+    slider.addEventListener('wheel', (e) => {
+        if (!document.getElementById('realistic-canvas')) return;
+        e.preventDefault();
+        
+        const oldZoom = currentZoom;
+        if (e.deltaY < 0) {
+            currentZoom += 0.1;
+        } else {
+            currentZoom -= 0.1;
+        }
+        
         if (currentZoom < 0.5) currentZoom = 0.5;
-        if (currentZoom > 2) currentZoom = 2;
+        if (currentZoom > 3) currentZoom = 3;
         
         const scaleWrapper = document.querySelector('.map-scale-wrapper');
         const canvas = document.querySelector('.realistic-map-canvas');
         
+        if (!scaleWrapper || !canvas) return;
+
+        // Zoom relative to mouse position
+        const rect = slider.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        
+        const scaleChange = currentZoom / oldZoom;
+        const newScrollLeft = (slider.scrollLeft + mouseX) * scaleChange - mouseX;
+        const newScrollTop = (slider.scrollTop + mouseY) * scaleChange - mouseY;
+
         scaleWrapper.style.width = (mapBaseW * currentZoom) + 'px';
         scaleWrapper.style.height = (mapBaseH * currentZoom) + 'px';
         canvas.style.transform = `scale(${currentZoom})`;
-    }
+        
+        slider.scrollLeft = newScrollLeft;
+        slider.scrollTop = newScrollTop;
+    }, { passive: false });
 
     window.addEventListener('DOMContentLoaded', loadVenueBooths);
 </script>
