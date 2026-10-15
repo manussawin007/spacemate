@@ -151,22 +151,8 @@
         .ticket-divider::after { right: -16px; }
 
         .ticket-middle {
-            padding: 2rem 1.5rem;
+            padding: 1.25rem 1.5rem;
             text-align: center;
-        }
-
-        .qr-wrapper {
-            background: #f8fafc;
-            padding: 1rem;
-            border-radius: 1rem;
-            display: inline-block;
-            margin-bottom: 1rem;
-        }
-
-        .qr-image {
-            width: 180px;
-            height: 180px;
-            object-fit: contain;
         }
 
         .ref-number {
@@ -239,7 +225,7 @@
 <body>
 
     <header class="header">
-        <button class="back-btn" onclick="window.location.href='main_user.html'">
+        <button class="back-btn" onclick="goBack()">
             <i class="fa-solid fa-arrow-left"></i>
         </button>
         <h2 class="header-title">E-Ticket / ใบเสร็จ</h2>
@@ -260,10 +246,7 @@
             <div class="ticket-divider"></div>
 
             <div class="ticket-middle">
-                <div class="qr-wrapper">
-                    <img id="ticket-qr-img" src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" alt="Ticket QR Code" class="qr-image">
-                </div>
-                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.2rem;">รหัสการจอง (Booking Ref)</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.35rem;">รหัสการจอง (Booking Ref)</div>
                 <div class="ref-number" id="ticket-ref">BK-XXXX</div>
             </div>
 
@@ -358,10 +341,6 @@
                 const refCode = 'BK-' + booking.id.substring(0, 8).toUpperCase();
                 document.getElementById('ticket-ref').innerText = refCode;
 
-                // Render QR code
-                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent('SPACEMATE-BOOKING:' + booking.id)}`;
-                document.getElementById('ticket-qr-img').src = qrUrl;
-
                 // Render Status
                 const badgeEl = document.getElementById('ticket-status-badge');
                 if (booking.status === 'confirmed') {
@@ -420,6 +399,14 @@
                     btn.style.background = '';
                 }, 2500);
             }, 1200);
+        }
+
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = 'main_user.html?view=bookings';
+            }
         }
 
         window.addEventListener('DOMContentLoaded', loadTicket);

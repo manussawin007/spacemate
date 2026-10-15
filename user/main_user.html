@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --bg-color: #ffffff;
@@ -1752,6 +1753,323 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Help Center Modern Styles */
+        .help-hero-banner {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #334155 100%);
+            border-radius: 24px;
+            padding: 1.75rem 1.5rem;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15);
+        }
+        .help-hero-banner::after {
+            content: '';
+            position: absolute;
+            top: -30%;
+            right: -10%;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(234, 88, 12, 0.25) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .help-hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(8px);
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: #fed7aa;
+            margin-bottom: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .help-hero-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 0.4rem;
+        }
+        .help-hero-sub {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        .help-search-wrap {
+            position: relative;
+            margin-bottom: 1.25rem;
+        }
+        .help-search-input {
+            width: 100%;
+            padding: 0.95rem 2.8rem 0.95rem 3rem;
+            border-radius: 16px;
+            border: 1.5px solid #e2e8f0;
+            background: #ffffff;
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        .help-search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(164, 99, 9, 0.1);
+        }
+        .help-search-icon {
+            position: absolute;
+            left: 1.15rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1.05rem;
+            pointer-events: none;
+        }
+        .help-search-clear {
+            position: absolute;
+            right: 1.15rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1rem;
+            cursor: pointer;
+            display: none;
+            padding: 4px;
+        }
+        .help-search-clear:hover {
+            color: #475569;
+        }
+
+        .help-category-pills {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            scrollbar-width: none;
+        }
+        .help-category-pills::-webkit-scrollbar {
+            display: none;
+        }
+        .help-category-pill {
+            padding: 7px 14px;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            white-space: nowrap;
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .help-category-pill:hover {
+            background: #e2e8f0;
+            color: #334155;
+        }
+        .help-category-pill.active {
+            background: #0f172a;
+            color: #ffffff;
+            border-color: #0f172a;
+            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.2);
+        }
+
+        .help-faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 2rem;
+        }
+        .help-faq-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            transition: all 0.25s ease;
+        }
+        .help-faq-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+        }
+        .help-faq-card.active {
+            border-color: #cbd5e1;
+            background: #ffffff;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+        }
+        .help-faq-header {
+            padding: 1.15rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .help-faq-title-wrap {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            flex: 1;
+        }
+        .help-faq-icon {
+            color: var(--primary-color);
+            font-size: 1rem;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        .help-faq-question {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1e293b;
+            line-height: 1.45;
+        }
+        .help-faq-category-tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+        .help-faq-chevron {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            transition: transform 0.25s ease;
+            flex-shrink: 0;
+        }
+        .help-faq-card.active .help-faq-chevron {
+            transform: rotate(180deg);
+            color: var(--primary-color);
+        }
+        .help-faq-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #f8fafc;
+            border-top: 1px solid transparent;
+        }
+        .help-faq-card.active .help-faq-body {
+            max-height: 500px;
+            border-top-color: #f1f5f9;
+        }
+        .help-faq-content {
+            padding: 1.15rem 1.25rem 1.25rem;
+            font-size: 0.88rem;
+            color: #475569;
+            line-height: 1.65;
+        }
+        .help-faq-content ul, .help-faq-content ol {
+            padding-left: 1.25rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .help-faq-content li {
+            margin-bottom: 0.35rem;
+        }
+        .help-faq-tip {
+            margin-top: 0.75rem;
+            background: #eff6ff;
+            border-left: 3px solid #3b82f6;
+            padding: 8px 12px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.82rem;
+            color: #1e40af;
+        }
+
+        .help-contact-wrap {
+            margin-top: 2rem;
+        }
+        .help-section-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .help-line-card {
+            background: linear-gradient(135deg, #06c755 0%, #05a546 100%);
+            border-radius: 20px;
+            padding: 1.25rem 1.35rem;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            box-shadow: 0 6px 18px rgba(6, 199, 85, 0.25);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .help-line-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(6, 199, 85, 0.35);
+        }
+        .help-line-card-icon {
+            width: 52px;
+            height: 52px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+            backdrop-filter: blur(6px);
+        }
+        .help-contact-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        @media (max-width: 480px) {
+            .help-contact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .help-contact-subcard {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 1.15rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
+        }
+        .help-contact-subcard:hover {
+            border-color: #cbd5e1;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+        }
+        .help-contact-subicon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 <body>
@@ -2422,74 +2740,425 @@
     </div>
 
     <!-- User Help Center View -->
-    <div id="user-help" class="user-page" style="display: none; background: #fff; min-height: 100dvh;">
-        <div style="padding: 1.5rem 1.5rem 0.5rem; display: flex; align-items: center; position: sticky; top: 0; background: rgba(255, 255, 255, 0.95); z-index: 10;">
-            <button class="edit-profile-back" onclick="switchUserView('profile')">
+    <div id="user-help" class="user-page" style="display: none; background: #f8fafc; min-height: 100dvh;">
+        <!-- Top Sticky Header -->
+        <div style="padding: 1rem 1.25rem; display: flex; align-items: center; position: sticky; top: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); z-index: 20; border-bottom: 1px solid #f1f5f9;">
+            <button class="edit-profile-back" onclick="switchUserView('profile')" style="width: 40px; height: 40px; border-radius: 12px; background: #f1f5f9; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #475569; transition: 0.2s;">
                 <i class="fa-solid fa-arrow-left"></i>
             </button>
-            <h2 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin: 0; text-align: center; flex: 1; padding-right: 2rem;">ศูนย์ช่วยเหลือ</h2>
+            <h2 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin: 0; text-align: center; flex: 1; padding-right: 40px;">ศูนย์ช่วยเหลือ</h2>
         </div>
 
-        <div style="padding: 1.5rem;">
+        <div style="padding: 1.25rem 1.25rem 7rem; max-width: 680px; margin: 0 auto;">
+            <!-- Hero Banner -->
+            <div class="help-hero-banner">
+                <div class="help-hero-badge">
+                    <i class="fa-solid fa-circle-question"></i> Help Center & FAQs
+                </div>
+                <div class="help-hero-title">ยินดีต้อนรับสู่ศูนย์ช่วยเหลือ</div>
+                <div class="help-hero-sub">ค้นหาคำตอบสำหรับข้อสงสัยเกี่ยวกับการจองพื้นที่ การชำระเงิน หรือติดต่อทีมงาน SpaceMate ได้ทันที</div>
+            </div>
+
             <!-- Search Bar -->
-            <div style="position: relative; margin-bottom: 2rem;">
-                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 1.1rem;"></i>
-                <input type="text" placeholder="ค้นหาคำถามที่พบบ่อย..." style="width: 100%; padding: 1rem 1rem 1rem 3.25rem; border-radius: 20px; border: 1px solid #f1f5f9; background: #fafafa; font-family: inherit; font-size: 0.95rem; outline: none; transition: all 0.2s;" onfocus="this.style.borderColor='#cbd5e1'; this.style.background='#fff';">
+            <div class="help-search-wrap">
+                <i class="fa-solid fa-magnifying-glass help-search-icon"></i>
+                <input type="text" id="help-search-input" class="help-search-input" placeholder="ค้นหาคำถาม เช่น ขั้นตอนการจอง, สลิป, E-Ticket..." oninput="searchHelpFaq(this.value)">
+                <i id="help-search-clear" class="fa-solid fa-xmark help-search-clear" onclick="clearHelpSearch()"></i>
             </div>
 
-            <!-- FAQ List (Minimal) -->
-            <div style="font-size: 0.9rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem;">คำถามที่พบบ่อย</div>
-            
-            <div style="background: #fff; border-radius: 20px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); margin-bottom: 2rem;">
-                <a href="javascript:void(0)" style="display: flex; align-items: center; padding: 1.25rem; text-decoration: none; border-bottom: 1px solid #f1f5f9;">
-                    <div style="width: 40px; height: 40px; background: #fefce8; color: #eab308; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-right: 1rem;">
-                        <i class="fa-solid fa-calendar-check"></i>
-                    </div>
-                    <div style="flex: 1; font-weight: 600; color: #1e293b; font-size: 0.95rem;">วิธีการจองพื้นที่</div>
-                    <i class="fa-solid fa-chevron-right" style="color: #cbd5e1; font-size: 1rem;"></i>
-                </a>
-                <a href="javascript:void(0)" style="display: flex; align-items: center; padding: 1.25rem; text-decoration: none; border-bottom: 1px solid #f1f5f9;">
-                    <div style="width: 40px; height: 40px; background: #eff6ff; color: #3b82f6; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-right: 1rem;">
-                        <i class="fa-solid fa-credit-card"></i>
-                    </div>
-                    <div style="flex: 1; font-weight: 600; color: #1e293b; font-size: 0.95rem;">ปัญหาการชำระเงิน</div>
-                    <i class="fa-solid fa-chevron-right" style="color: #cbd5e1; font-size: 1rem;"></i>
-                </a>
-                <a href="javascript:void(0)" style="display: flex; align-items: center; padding: 1.25rem; text-decoration: none;">
-                    <div style="width: 40px; height: 40px; background: #fef2f2; color: #ef4444; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-right: 1rem;">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                    </div>
-                    <div style="flex: 1; font-weight: 600; color: #1e293b; font-size: 0.95rem;">การยกเลิกและขอคืนเงิน</div>
-                    <i class="fa-solid fa-chevron-right" style="color: #cbd5e1; font-size: 1rem;"></i>
-                </a>
+            <!-- Category Pills Filter -->
+            <div class="help-category-pills">
+                <button type="button" class="help-category-pill active" onclick="filterHelpCategory('all', this)">
+                    <i class="fa-solid fa-layer-group"></i> ทั้งหมด
+                </button>
+                <button type="button" class="help-category-pill" onclick="filterHelpCategory('booking', this)">
+                    <i class="fa-solid fa-store"></i> การจองพื้นที่
+                </button>
+                <button type="button" class="help-category-pill" onclick="filterHelpCategory('payment', this)">
+                    <i class="fa-solid fa-credit-card"></i> การชำระเงิน
+                </button>
+                <button type="button" class="help-category-pill" onclick="filterHelpCategory('eticket', this)">
+                    <i class="fa-solid fa-ticket"></i> E-Ticket
+                </button>
+                <button type="button" class="help-category-pill" onclick="filterHelpCategory('refund', this)">
+                    <i class="fa-solid fa-rotate-left"></i> ยกเลิก/คืนเงิน
+                </button>
+                <button type="button" class="help-category-pill" onclick="filterHelpCategory('account', this)">
+                    <i class="fa-solid fa-id-card"></i> บัญชีและ KYC
+                </button>
             </div>
 
-            <!-- Contact -->
-            <div style="font-size: 0.9rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem;">ติดต่อเจ้าหน้าที่</div>
-            
-            <a href="javascript:void(0)" style="display: flex; align-items: center; background: #fff; border-radius: 20px; padding: 1.25rem; text-decoration: none; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); margin-bottom: 1rem;">
-                <div style="width: 48px; height: 48px; background: #ecfccb; color: #65a30d; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-right: 1rem;">
-                    <i class="fa-brands fa-line"></i>
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-weight: 700; color: #1e293b; font-size: 1rem;">LINE Official</div>
-                    <div style="font-size: 0.85rem; color: #64748b;">@spacemate (09:00 - 20:00)</div>
-                </div>
-                <i class="fa-solid fa-chevron-right" style="color: #cbd5e1; font-size: 1.2rem;"></i>
-            </a>
+            <!-- FAQ Accordion List -->
+            <div style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 0.85rem; display: flex; align-items: center; justify-content: space-between;">
+                <span><i class="fa-solid fa-circle-info" style="color: var(--primary-color); margin-right: 6px;"></i> คำถามที่พบบ่อย (FAQs)</span>
+                <span id="help-faq-count" style="font-size: 0.8rem; font-weight: 500; color: #64748b;">12 คำถาม</span>
+            </div>
 
-            <a href="tel:1234" style="display: flex; align-items: center; background: #fff; border-radius: 20px; padding: 1.25rem; text-decoration: none; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);">
-                <div style="width: 48px; height: 48px; background: #eff6ff; color: #3b82f6; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-right: 1rem;">
-                    <i class="fa-solid fa-phone"></i>
+            <div class="help-faq-list" id="help-faq-container">
+                <!-- Q1: ขั้นตอนการจองพื้นที่ -->
+                <div class="help-faq-card" data-category="booking" data-keywords="จอง จองล็อค แผนผัง ตลาด ขั้นตอน เลือกล็อค วิธีการจอง">
+                    <div class="help-faq-header" onclick="toggleHelpFaq(this.parentElement)">
+                        <div class="help-faq-title-wrap">
+                            <i class="fa-solid fa-store help-faq-icon"></i>
+                            <div>
+                                <span class="help-faq-category-tag">การจองพื้นที่</span>
+                                <div class="help-faq-question">ขั้นตอนการจองล็อคหรือพื้นที่ขายของทำอย่างไร?</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down help-faq-chevron"></i>
+                    </div>
+                    <div class="help-faq-body">
+                        <div class="help-faq-content">
+                            การจองพื้นที่ใน SpaceMate สามารถทำได้ง่ายๆ ใน 5 ขั้นตอน:
+                            <ol>
+                                <li><strong>เลือกตลาดหรืออีเวนต์:</strong> ค้นหาตลาดที่ต้องการจากหน้าแรก แล้วกดดูรายละเอียด</li>
+                                <li><strong>เข้าดูแผนผัง:</strong> กดปุ่ม <em>"แผนผังพื้นที่ (Map)"</em> เพื่อเข้าสู่ผังจำลองของตลาด</li>
+                                <li><strong>เลือกล็อคว่าง:</strong> คลิกล็อคที่ยังว่าง (แสดงเป็น <strong>สีเทา</strong>)</li>
+                                <li><strong>เลือกช่วงวัน:</strong> ระบุวันเริ่มต้นและวันสิ้นสุดที่ต้องการขาย</li>
+                                <li><strong>ตรวจสอบและยืนยัน:</strong> ตรวจสอบสรุปยอดเงิน แล้วกด <em>"ยืนยันการจอง"</em> เพื่อไปหน้าชำระเงิน</li>
+                            </ol>
+                            <div class="help-faq-tip">
+                                <i class="fa-solid fa-lightbulb"></i> แนะนำให้เลือกล็อคและจองล่วงหน้าเพื่อความมั่นใจว่าจะได้ทำเลที่ดีที่สุดครับ
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div style="flex: 1;">
-                    <div style="font-weight: 700; color: #1e293b; font-size: 1rem;">โทรหาเรา (Call Center)</div>
-                    <div style="font-size: 0.85rem; color: #64748b;">02-XXX-XXXX</div>
+
+                <!-- Q2: สีสถานะล็อคในแผนผัง -->
+                <div class="help-faq-card" data-category="booking" data-keywords="สีล็อค สีเทา สีแดง ติดจอง สถานะล็อค ล็อคว่าง วันที่จอง">
+                    <div class="help-faq-header" onclick="toggleHelpFaq(this.parentElement)">
+                        <div class="help-faq-title-wrap">
+                            <i class="fa-solid fa-map-location-dot help-faq-icon"></i>
+                            <div>
+                                <span class="help-faq-category-tag">การจองพื้นที่</span>
+                                <div class="help-faq-question">จะรู้ได้อย่างไรว่าล็อคไหนว่าง หรือติดจองไปแล้ว?</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down help-faq-chevron"></i>
+                    </div>
+                    <div class="help-faq-body">
+                        <div class="help-faq-content">
+                            คุณสามารถดูสถานะของล็อคได้จากสีบนแผนผัง:
+                            <ul>
+                                <li><strong>🔘 สีเทา (ว่าง):</strong> ล็อคพร้อมให้คุณกดเลือกจองได้ทันที</li>
+                                <li><strong>🔴 สีแดงอ่อน (ติดจองแล้ว / ไม่ว่าง):</strong> มีผู้ค้าจองล็อคนี้แล้ว หรือเจ้าของพื้นที่ตั้งสถานะติดจอง</li>
+                            </ul>
+                            เมื่อคุณคลิกที่ล็อคสีแดงอ่อน ระบบจะมีหน้าต่างป๊อปอัปแจ้ง <strong>ช่วงวันที่มีคนจองแล้ว</strong> และสถานะให้คุณทราบทันที
+                            <div class="help-faq-tip">
+                                <i class="fa-solid fa-info-circle"></i> หากล็อคที่คุณต้องการติดจองในช่วงวันนั้น คุณสามารถเลือกล็อคข้างเคียงที่ยังว่าง (สีเทา) ได้ครับ
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <i class="fa-solid fa-chevron-right" style="color: #cbd5e1; font-size: 1.2rem;"></i>
-            </a>
-        </div>
-        </div>
+
+                <!-- Q3: การจองล่วงหน้าและหลายวัน -->
+                <div class="help-faq-card" data-category="booking" data-keywords="หลายวัน จองล่วงหน้า ระยะเวลา วันที่ รายวัน">
+                    <div class="help-faq-header" onclick="toggleHelpFaq(this.parentElement)">
+                        <div class="help-faq-title-wrap">
+                            <i class="fa-solid fa-calendar-days help-faq-icon"></i>
+                            <div>
+                                <span class="help-faq-category-tag">การจองพื้นที่</span>
+                                <div class="help-faq-question">สามารถจองล็อคล่วงหน้าหลายวันติดต่อกันได้ไหม?</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down help-faq-chevron"></i>
+                    </div>
+                    <div class="help-faq-body">
+                        <div class="help-faq-content">
+                            สามารถจองหลายวันได้ครับ! ในหน้าเลือกล็อคและวันที่:
+                            <ul>
+                                <li>คุณสามารถระบุ <strong>"วันเริ่มต้น"</strong> และ <strong>"วันสิ้นสุด"</strong> ตามช่วงที่ตลาดเปิดให้บริการ</li>
+                                <li>ระบบจะคำนวณจำนวนวันและราคารวมให้อัตโนมัติในครั้งเดียว โดยไม่ต้องทำรายการจองทีละวัน</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q4: ฟังก์ชันจองอีกครั้ง -->
+                <div class="help-faq-card" data-category="booking" data-keywords="จองอีกครั้ง จองซ้ำ ประวัติการจอง ล็อคเดิม">
+                    <div class="help-faq-header" onclick="toggleHelpFaq(this.parentElement)">
+                        <div class="help-faq-title-wrap">
+                            <i class="fa-solid fa-repeat help-faq-icon"></i>
+                            <div>
+                                <span class="help-faq-category-tag">การจองพื้นที่</span>
+                                <div class="help-faq-question">ปุ่ม "จองอีกครั้ง" ทำงานอย่างไร?</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down help-faq-chevron"></i>
+                    </div>
+                    <div class="help-faq-body">
+                        <div class="help-faq-content">
+                            สำหรับล็อคที่คุณเคยจองและติดใจในทำเลเดิม:
+                            <ul>
+                                <li>ไปที่แท็บ <strong>"การจองของฉัน"</strong></li>
+                                <li>กดปุ่ม <strong>"จองอีกครั้ง"</strong> ที่การ์ดการจองเดิม</li>
+                                <li>ระบบจะนำคุณไปยังหน้าเลือกรอบวันที่ใหม่ของล็อคนั้นทันที ทำให้ไม่ต้องค้นหาตลาดใหม่อีกรอบครับ</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q5: ช่องทางการชำระเงิน -->
+                <div class="help-faq-card" data-category="payment" data-keywords="ชำระเงิน จ่ายเงิน พร้อมเพย์ promptpay qr code โอนเงิน บัญชี">
+                    <div class="help-faq-header" onclick="toggleHelpFaq(this.parentElement)">
+                        <div class="help-faq-title-wrap">
+                            <i class="fa-solid fa-qrcode help-faq-icon"></i>
+                            <div>
+                                <span class="help-faq-category-tag">การชำระเงิน</span>
+                                <div class="help-faq-question">มีช่องทางการชำระเงินใดบ้าง?</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down help-faq-chevron"></i>
+                    </div>
+                    <div class="help-faq-body">
+                        <div class="help-faq-content">
+                            ปัจจุบัน SpaceMate รองรับการชำระเงินผ่าน <strong>QR Code พร้อมเพย์ (PromptPay)</strong>:
+                            <ul>
+                                <li>เมื่อกดยืนยันการจอง ระบบจะแสดง QR Code พร้อมยอดเงินที่ตรงกับค่าเช่าจริง</li>
+                                <li>คุณสามารถเปิดแอปธนาคารใดก็ได้ สแกนและชำระเงิน</li>
+                                <li>จากนั้นอัปโหลดรูปภาพสลิปหลักฐานการโอนลงในระบบเพื่อส่งให้เจ้าของพื้นที่ตรวจสอบ</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q6: เวลาตรวจสอบสลิป -->
+                <div class="help-faq-card" data-category="payment" data-keywords="ตรวจสอบสลิป อนุมัติ นานไหม เวลา ยืนยันสลิป อนุมัติแล้ว">
+                    <div class="help-faq-header" onclick="toggleHelpFaq(this.parentElement)">
+                        <div class="help-faq-title-wrap">
+                            <i class="fa-solid fa-clock help-faq-icon"></i>
+                            <div>
+                                <span class="help-faq-category-tag">การชำระเงิน</span>
+                                <div class="help-faq-question">หลังแนบสลิปแล้ว ต้องรอนานแค่ไหนสถานะถึงจะอนุมัติ?</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down help-faq-chevron"></i>
+                    </div>
+                    <div class="help-faq-body">
+                        <div class="help-faq-content">
+                            โดยปกติเจ้าของพื้นที่จะทำการตรวจสอบสลิปภายใน <strong>15 - 30 นาที</strong> (ในเวลาทำการ 08:30 - 20:00 น.):
+                            <ul>
+                                <li>เมื่อได้รับการอนุมัติ สถานะในหน้ารายการการจองจะเปลี่ยนเป็น <strong>"อนุมัติแล้ว / สำเร็จ"</strong></li>
+                                <li>ปุ่ม <strong>"E-Ticket"</strong> จะเปิดให้คุณคลิกดูบัตรเข้าพื้นที่ได้ทันที</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q7: สลิปผิดหรือมีปัญหา -->
+                <div class="help-faq-card" data-category="payment" data-keywords="สลิปผิด แก้ไขสลิป แนบผิด สลิปไม่ชัด โอนเงินผิด">
+                    <div class="help-faq-header" onclick="toggleHelpFaq(this.parentElement)">
+                        <div class="help-faq-title-wrap">
+                            <i class="fa-solid fa-triangle-exclamation help-faq-icon"></i>
+                            <div>
+                                <span class="help-faq-category-tag">การชำระเงิน</span>
+                                <div class="help-faq-question">หากอัปโหลดสลิปผิด หรือสลิปไม่ชัดเจน ต้องทำอย่างไร?</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down help-faq-chevron"></i>
+                    </div>
+                    <div class="help-faq-body">
+                        <div class="help-faq-content">
+                            ไม่ต้องกังวลครับ คุณสามารถดำเนินการได้ดังนี้:
+                            <ul>
+                                <li>ติดต่อเจ้าหน้าที่ผ่าน <strong>LINE Official (@spacemate)</strong> พร้อมแจ้ง <em>รหัสการจอง (Booking Ref)</em> และส่งรูปสลิปที่ถูกต้องเข้ามา</li>
+                                <li>ทีมงานจะประสานงานกับเจ้าของพื้นที่เพื่ออัปเดตและยืนยันการชำระเงินให้คุณอย่างรวดเร็วครับ</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q8: ดู E-Ticket -->
+                <div class="help-faq-card" data-category="eticket" data-keywords="e ticket eticket ตั๋ว บัตรเข้างาน ดูตั๋ว การจองของฉัน">
+                    <div class="help-faq-header" onclick="toggleHelpFaq(this.parentElement)">
+                        <div class="help-faq-title-wrap">
+                            <i class="fa-solid fa-ticket help-faq-icon"></i>
+                            <div>
+                                <span class="help-faq-category-tag">E-Ticket</span>
+                                <div class="help-faq-question">จะดู E-Ticket ได้จากที่ไหน?</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down help-faq-chevron"></i>
+                    </div>
+                    <div class="help-faq-body">
+                        <div class="help-faq-content">
+                            คุณสามารถเปิดดู E-Ticket ได้ตลอดเวลา:
+                            <ol>
+                                <li>ไปที่เมนู <strong>"การจองของฉัน"</strong> (แท็บที่ 2 แถบล่าง)</li>
+                                <li>เลือกแท็บ <strong>"สำเร็จ / อนุมัติแล้ว"</strong></li>
+                                <li>กดปุ่ม <strong>"E-Ticket"</strong> ที่รายการจองที่คุณต้องการ</li>
+                            </ol>
+                            ภายในบัตรจะแสดงรหัสการจอง (Booking Ref), ชื่อผู้จอง, โซน, เลขล็อค และช่วงวันที่เช่าอย่างชัดเจนครับ
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q9: วันเข้าใช้งานพื้นที่ -->
+                <div class="help-faq-card" data-category="eticket" data-keywords="เข้างาน วันจริง ขายของ แสดงบัตร เช็คอิน หลักฐาน">
+                    <div class="help-faq-header" onclick="toggleHelpFaq(this.parentElement)">
+                        <div class="help-faq-title-wrap">
+                            <i class="fa-solid fa-clipboard-check help-faq-icon"></i>
+                            <div>
+                                <span class="help-faq-category-tag">E-Ticket</span>
+                                <div class="help-faq-question">ในวันเริ่มงาน ต้องแสดงหลักฐานอะไรกับผู้ดูแลตลาด?</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down help-faq-chevron"></i>
+                    </div>
+                    <div class="help-faq-body">
+                        <div class="help-faq-content">
+                            ในวันจัดงาน เพียงเปิดหน้า <strong>E-Ticket</strong> บนมือถือ หรือแสดงภาพหน้าจอ E-Ticket ที่มี:
+                            <ul>
+                                <li><strong>รหัสการจอง (Booking Ref):</strong> เช่น <code>BK-XXXXXXX</code></li>
+                                <li><strong>ชื่อ-นามสกุลของผู้จอง</strong></li>
+                            </ul>
+                            ให้แก่เจ้าหน้าที่หรือผู้ดูแลตลาด ก็สามารถเข้าตั้งร้านค้าในล็อคที่จองได้ทันทีโดยไม่ต้องใช้เอกสารกระดาษครับ
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q10: การยกเลิกการจอง -->
+                <div class="help-faq-card" data-category="refund" data-keywords="ยกเลิก ขอเงินคืน คืนเงิน ไม่ว่าง ยกเลิกจอง เลื่อนวัน">
+                    <div class="help-faq-header" onclick="toggleHelpFaq(this.parentElement)">
+                        <div class="help-faq-title-wrap">
+                            <i class="fa-solid fa-ban help-faq-icon"></i>
+                            <div>
+                                <span class="help-faq-category-tag">ยกเลิก/คืนเงิน</span>
+                                <div class="help-faq-question">สามารถขอยกเลิกการจอง หรือขอคืนเงินได้หรือไม่?</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down help-faq-chevron"></i>
+                    </div>
+                    <div class="help-faq-body">
+                        <div class="help-faq-content">
+                            นโยบายการยกเลิกขึ้นอยู่กับข้อกำหนดของแต่ละตลาด:
+                            <ul>
+                                <li><strong>แจ้งล่วงหน้าอย่างน้อย 3-5 วัน:</strong> สามารถติดต่อประสานงานเพื่อขอเลื่อนรอบวัน หรือขอคืนเงินตามเงื่อนไขของตลาดนั้นๆ</li>
+                                <li><strong>กรณีตลาดเลื่อนหรืองดจัดงาน:</strong> (เช่น ฝนตกหนัก เหตุสุดวิสัย) ทางตลาดจะประสานงานโอนเงินคืนเต็มจำนวนเข้าบัญชีธนาคารเดิมของคุณภายใน 1-3 วันทำการ</li>
+                            </ul>
+                            กรุณาติดต่อผ่าน LINE Official เพื่อส่งเรื่องขอประสานงานกับผู้ดูแลตลาดครับ
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q11: การยืนยันตัวตน KYC -->
+                <div class="help-faq-card" data-category="account" data-keywords="kyc ยืนยันตัวตน บัตรประชาชน ปลอดภัย ข้อมูลส่วนตัว บัญชี">
+                    <div class="help-faq-header" onclick="toggleHelpFaq(this.parentElement)">
+                        <div class="help-faq-title-wrap">
+                            <i class="fa-solid fa-shield-halved help-faq-icon"></i>
+                            <div>
+                                <span class="help-faq-category-tag">บัญชีและ KYC</span>
+                                <div class="help-faq-question">ทำไมต้องยืนยันตัวตน (KYC)?</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down help-faq-chevron"></i>
+                    </div>
+                    <div class="help-faq-body">
+                        <div class="help-faq-content">
+                            การยืนยันตัวตน (KYC) เป็นมาตรการเพื่อความปลอดภัยของผู้ใช้งานทุกคน:
+                            <ul>
+                                <li>ป้องกันการแอบอ้างชื่อหรือสวมสิทธิ์การจองล็อค</li>
+                                <li>สร้างความน่าเชื่อถือระหว่างผู้เช่าและเจ้าของตลาด</li>
+                                <li>ช่วยให้ระบบสามารถยืนยันตัวตนได้ทันทีหากมีข้อพิพาทหรือการขอคืนเงิน</li>
+                            </ul>
+                            คุณสามารถไปที่เมนู <strong>"โปรไฟล์"</strong> แล้วกรอกข้อมูลเพื่อส่งยืนยันตัวตนได้ตลอดเวลาครับ
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q12: แก้ไขข้อมูลส่วนตัว -->
+                <div class="help-faq-card" data-category="account" data-keywords="แก้ไขโปรไฟล์ เปลี่ยนเบอร์ เปลี่ยนชื่อ ที่อยู่ รหัสผ่าน">
+                    <div class="help-faq-header" onclick="toggleHelpFaq(this.parentElement)">
+                        <div class="help-faq-title-wrap">
+                            <i class="fa-solid fa-user-pen help-faq-icon"></i>
+                            <div>
+                                <span class="help-faq-category-tag">บัญชีและ KYC</span>
+                                <div class="help-faq-question">แก้ไขข้อมูลโปรไฟล์ เบอร์โทรศัพท์ หรือที่อยู่อย่างไร?</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down help-faq-chevron"></i>
+                    </div>
+                    <div class="help-faq-body">
+                        <div class="help-faq-content">
+                            สามารถแก้ไขข้อมูลส่วนตัวได้ง่ายๆ:
+                            <ol>
+                                <li>ไปที่แท็บ <strong>"โปรไฟล์"</strong></li>
+                                <li>กดเมนู <strong>"แก้ไขข้อมูลส่วนตัว"</strong></li>
+                                <li>อัปเดตชื่อที่แสดง, เบอร์โทรศัพท์, ที่อยู่ หรือรูปโปรไฟล์</li>
+                                <li>กดปุ่ม <strong>"บันทึกข้อมูล"</strong> ข้อมูลจะถูกอัปเดตทันที</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty Search State -->
+            <div id="help-empty-search" style="display: none; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 20px; padding: 2.5rem 1.5rem; text-align: center; margin-bottom: 2rem;">
+                <div style="width: 56px; height: 56px; background: #fef2f2; color: #ef4444; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1rem;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <div style="font-weight: 700; color: #1e293b; font-size: 1.05rem; margin-bottom: 0.35rem;">ไม่พบคำถามที่ตรงกับการค้นหา</div>
+                <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 1.25rem;">ลองค้นหาด้วยคำอื่น หรือติดต่อสอบถามเจ้าหน้าที่ได้โดยตรงครับ</div>
+                <button type="button" onclick="clearHelpSearch()" style="background: #f1f5f9; color: #334155; border: none; padding: 0.6rem 1.25rem; border-radius: 12px; font-family: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+                    ล้างการค้นหา
+                </button>
+            </div>
+
+            <!-- Contact Support Section -->
+            <div class="help-contact-wrap">
+                <div class="help-section-title">
+                    <i class="fa-solid fa-headset" style="color: var(--primary-color);"></i> ช่องทางการติดต่อเจ้าหน้าที่
+                </div>
+
+                <!-- LINE Official Card (Ready for API Connection) -->
+                <div class="help-line-card" onclick="openLineSupport()" id="line-support-card">
+                    <div class="help-line-card-icon">
+                        <i class="fa-brands fa-line"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
+                            <span style="font-weight: 700; font-size: 1.05rem; letter-spacing: 0.2px;">LINE Official</span>
+                            <span style="background: rgba(255,255,255,0.22); padding: 2px 8px; border-radius: 50px; font-size: 0.72rem; font-weight: 500;">
+                                <i class="fa-solid fa-robot"></i> Chatbot
+                            </span>
+                        </div>
+                        <div style="font-size: 0.85rem; opacity: 0.95; line-height: 1.4;">
+                            @spacemate (แชทคุยกับบอทและเจ้าหน้าที่ 09:00 - 20:00 น.)
+                        </div>
+                        <div style="font-size: 0.74rem; opacity: 0.8; margin-top: 4px;">
+                            <i class="fa-solid fa-bolt"></i> พร้อมเชื่อมต่อ LINE Messaging API
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="font-size: 1.15rem; opacity: 0.85;"></i>
+                </div>
+
+                <!-- Grid for Phone & Email -->
+                <div class="help-contact-grid">
+                    <!-- Phone -->
+                    <a href="tel:021234567" class="help-contact-subcard">
+                        <div class="help-contact-subicon" style="background: #eff6ff; color: #3b82f6;">
+                            <i class="fa-solid fa-phone"></i>
+                        </div>
+                        <div style="flex: 1; overflow: hidden;">
+                            <div style="font-weight: 700; color: #1e293b; font-size: 0.92rem;">Call Center</div>
+                            <div style="font-size: 0.82rem; color: #64748b; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">02-123-4567</div>
+                            <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">ทุกวัน 08:30 - 20:00 น.</div>
+                        </div>
+                    </a>
+
+                    <!-- Email -->
+                    <a href="mailto:support@spacemate.dev" class="help-contact-subcard">
+                        <div class="help-contact-subicon" style="background: #fefce8; color: #ca8a04;">
+                            <i class="fa-solid fa-envelope"></i>
+                        </div>
+                        <div style="flex: 1; overflow: hidden;">
+                            <div style="font-weight: 700; color: #1e293b; font-size: 0.92rem;">อีเมลสนับสนุน</div>
+                            <div style="font-size: 0.82rem; color: #64748b; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">support@spacemate.dev</div>
+                            <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">ตอบกลับภายใน 24 ชม.</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -2930,7 +3599,17 @@
             }
         }
 
-        function switchUserView(viewId, navElement) {
+        async function switchUserView(viewId, navElement) {
+            // Wait for auth check to finish if still resolving
+            if (!currentUserId && !window.authResolved) {
+                if (window.checkAuthPromise) {
+                    await window.checkAuthPromise;
+                } else if (typeof checkAuth === 'function') {
+                    window.checkAuthPromise = checkAuth();
+                    await window.checkAuthPromise;
+                }
+            }
+
             if (!currentUserId && viewId !== 'home') {
                 const wantLogin = confirm('ฟังก์ชันนี้สงวนไว้สำหรับสมาชิก กรุณาเข้าสู่ระบบก่อนใช้งาน\nคุณต้องการไปที่หน้าเข้าสู่ระบบหรือไม่?');
                 if (wantLogin) {
@@ -3374,6 +4053,156 @@
             }
         }
 
+        // ==========================================
+        // Help Center & FAQ Interaction Logic
+        // ==========================================
+        function toggleHelpFaq(card) {
+            if (!card) return;
+            const isCurrentlyActive = card.classList.contains('active');
+            
+            // Close other active cards smoothly
+            document.querySelectorAll('.help-faq-card.active').forEach(c => {
+                if (c !== card) c.classList.remove('active');
+            });
+            
+            card.classList.toggle('active', !isCurrentlyActive);
+        }
+
+        function filterHelpCategory(category, button) {
+            // Update active category pill
+            document.querySelectorAll('.help-category-pill').forEach(btn => btn.classList.remove('active'));
+            if (button) button.classList.add('active');
+
+            // Reset search input
+            const searchInput = document.getElementById('help-search-input');
+            if (searchInput) searchInput.value = '';
+            const clearBtn = document.getElementById('help-search-clear');
+            if (clearBtn) clearBtn.style.display = 'none';
+
+            const cards = document.querySelectorAll('.help-faq-card');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const cardCat = card.dataset.category;
+                if (category === 'all' || cardCat === category) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                    card.classList.remove('active');
+                }
+            });
+
+            // Update counter and empty state
+            const counterEl = document.getElementById('help-faq-count');
+            if (counterEl) counterEl.textContent = `${visibleCount} คำถาม`;
+
+            const emptyEl = document.getElementById('help-empty-search');
+            if (emptyEl) emptyEl.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+
+        function searchHelpFaq(query) {
+            const q = (query || '').toLowerCase().trim();
+            const clearBtn = document.getElementById('help-search-clear');
+            if (clearBtn) {
+                clearBtn.style.display = q ? 'block' : 'none';
+            }
+
+            // Set category pill to "All" when user searches
+            if (q) {
+                document.querySelectorAll('.help-category-pill').forEach((btn, idx) => {
+                    btn.classList.toggle('active', idx === 0);
+                });
+            }
+
+            const cards = document.querySelectorAll('.help-faq-card');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const text = (card.innerText || '').toLowerCase();
+                const keywords = (card.dataset.keywords || '').toLowerCase();
+                if (!q || text.includes(q) || keywords.includes(q)) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                    card.classList.remove('active');
+                }
+            });
+
+            const counterEl = document.getElementById('help-faq-count');
+            if (counterEl) counterEl.textContent = `${visibleCount} คำถาม`;
+
+            const emptyEl = document.getElementById('help-empty-search');
+            if (emptyEl) emptyEl.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+
+        function clearHelpSearch() {
+            const input = document.getElementById('help-search-input');
+            if (input) {
+                input.value = '';
+                searchHelpFaq('');
+                input.focus();
+            }
+        }
+
+        // ==========================================
+        // LINE Integration Configuration
+        // (เตรียมพร้อมสำหรับเชื่อมต่อ LINE Messaging API / LIFF URL)
+        // ==========================================
+        window.spacemateLineConfig = {
+            lineId: '@spacemate',
+            lineAddFriendUrl: 'https://line.me/R/ti/p/@spacemate',
+            // ใส่ Webhook / API Endpoint ของคุณที่นี่เมื่อต้องการเชื่อมต่อระบบ:
+            apiEndpoint: null,
+            channelAccessToken: null
+        };
+
+        function openLineSupport() {
+            if (window.spacemateLineConfig.apiEndpoint) {
+                // เมื่อระบุ API Endpoint ในอนาคต จะนำทางไปที่ API หรือห้องแชทอัตโนมัติ
+                window.location.href = window.spacemateLineConfig.apiEndpoint;
+                return;
+            }
+
+            // โหมดพร้อมเชื่อมต่อ (แสดงข้อมูลติดต่อ พร้อมรอรับ API)
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: '<div style="color: #06c755; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700;"><i class="fa-brands fa-line" style="font-size: 2.2rem;"></i> LINE Official</div>',
+                    html: `
+                        <div style="text-align: left; font-size: 0.95rem; line-height: 1.6; color: #334155;">
+                            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 14px; margin-bottom: 14px;">
+                                <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #166534; font-size: 1.05rem; margin-bottom: 4px;">
+                                    <i class="fa-solid fa-headset"></i> SpaceMate Support Bot
+                                </div>
+                                <div style="font-size: 0.9rem; color: #15803d;">
+                                    LINE ID: <strong>@spacemate</strong><br>
+                                    เวลาทำการ: <strong>09:00 - 20:00 น.</strong> (ทุกวัน)
+                                </div>
+                            </div>
+                            <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 12px; font-size: 0.82rem; color: #64748b;">
+                                <i class="fa-solid fa-code" style="color: #06c755;"></i> <strong>เตรียมพร้อมสำหรับ LINE Messaging API:</strong><br>
+                                คุณสามารถใส่ API Endpoint / Webhook ลงในตัวแปร <code>window.spacemateLineConfig.apiEndpoint</code> ได้ทันทีเมื่อพร้อมเชื่อมต่อครับ
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fa-brands fa-line"></i> แอดไลน์ @spacemate',
+                    confirmButtonColor: '#06c755',
+                    cancelButtonText: 'ปิดหน้าต่าง',
+                    cancelButtonColor: '#94a3b8',
+                    width: '420px',
+                    padding: '1.5rem'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.open(window.spacemateLineConfig.lineAddFriendUrl, '_blank');
+                    }
+                });
+            } else {
+                alert('LINE Official: @spacemate\nเวลาทำการ 09:00 - 20:00 น.\n(ระบบพร้อมเชื่อมต่อ LINE Messaging API เร็วๆ นี้)');
+            }
+        }
+
         function initUserView() {
             const urlParams = new URLSearchParams(window.location.search);
             let viewParam = urlParams.get('view') || window.location.hash.replace('#', '');
@@ -3393,10 +4222,13 @@
         }
 
         // Initialize filters on load
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             handleCustomLocation('ทั้งหมด');
+            if (typeof checkAuth === 'function') {
+                window.checkAuthPromise = checkAuth();
+                await window.checkAuthPromise;
+            }
             initUserView();
-            checkAuth(); // Call Auth Guard
             
             const activeItem = document.querySelector('.nav-item.active');
             if (activeItem) {
@@ -3409,12 +4241,14 @@
             });
         });
 
-        window.addEventListener('pageshow', (event) => {
-            initUserView();
-            // Re-check auth if loaded from bfcache (e.g. back button)
+        window.addEventListener('pageshow', async (event) => {
             if (event.persisted) {
-                checkAuth();
+                if (typeof checkAuth === 'function') {
+                    window.checkAuthPromise = checkAuth();
+                    await window.checkAuthPromise;
+                }
             }
+            initUserView();
         });
     </script>
     
@@ -3425,6 +4259,8 @@
     <!-- Auth Guard & Supabase Data Fetching -->
     <script>
         let currentUserId = null;
+        window.authResolved = false;
+        window.checkAuthPromise = null;
 
         async function checkAuth() {
             try {
@@ -3435,6 +4271,7 @@
                     // Not logged in -> Guest Mode
                     currentUserId = null;
                     window.currentUserProfile = null;
+                    window.authResolved = true;
                     
                     const sidebarNameEl = document.getElementById('sidebar-user-name');
                     if (sidebarNameEl) sidebarNameEl.textContent = 'ผู้เยี่ยมชม';
@@ -3453,6 +4290,7 @@
                     return;
                 }
                 currentUserId = session.user.id;
+                window.authResolved = true;
 
                 // 2. Fetch profile data
                 const { data: profile, error } = await supabaseClient
@@ -3763,9 +4601,6 @@
                         badgeText = 'อนุมัติแล้ว / สำเร็จ';
                         actionBtn = `
                             <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
-                                ${b.payment_slip_url ? `<button class="booking-action-btn btn-outline-action" onclick="window.open('${b.payment_slip_url}', '_blank')">
-                                    <i class="fa-solid fa-receipt"></i> ดูสลิป
-                                </button>` : ''}
                                 <button class="booking-action-btn btn-outline-action" onclick="window.location.href='e_ticket.html?booking_id=${b.id}'">
                                     <i class="fa-solid fa-ticket"></i> E-Ticket
                                 </button>
@@ -4093,9 +4928,6 @@
             });
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            checkAuth();
-        });
     </script>
 </body>
 </html>

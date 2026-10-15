@@ -1711,6 +1711,14 @@
                 .eq('id', bookingId);
 
             if (error) throw error;
+
+            // Also update spaces status
+            if (bookingData && bookingData.space_id) {
+                await supabaseClient
+                    .from('spaces')
+                    .update({ status: status === 'confirmed' ? 'booked' : 'available' })
+                    .eq('id', bookingData.space_id);
+            }
             
             // Insert notifications if we successfully updated and fetched data
             if (!fetchErr && bookingData) {
