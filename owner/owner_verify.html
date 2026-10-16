@@ -715,15 +715,63 @@
         }
 
         function renderKycStatusUI(status) {
+            window.currentOwnerKycStatus = status;
             const bannerContainer = document.getElementById('kyc-banner-container');
             const step1 = document.getElementById('step-1');
             const step2 = document.getElementById('step-2');
             const submitBtn = document.getElementById('submit-btn');
 
+            const ownerInputIds = [
+                'owner-verify-firstname',
+                'owner-verify-lastname',
+                'owner-verify-idcard',
+                'owner-verify-phone',
+                'owner-verify-address-number',
+                'owner-verify-address-subdistrict',
+                'owner-verify-address-district',
+                'owner-verify-address-province',
+                'owner-verify-address-zip'
+            ];
+            const consent = document.getElementById('owner-verify-consent');
+            const boxIds = ['box-idcard', 'box-selfie', 'box-business'];
+            const fileIds = ['file-idcard', 'file-selfie', 'file-business'];
+
             if (!status || status === 'unverified') {
                 step1.className = 'step-item active';
                 step2.className = 'step-item';
                 bannerContainer.style.display = 'none';
+
+                // Unlock inputs
+                ownerInputIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.disabled = false;
+                        el.readOnly = false;
+                        el.style.backgroundColor = '';
+                        el.style.color = '';
+                        el.style.cursor = '';
+                    }
+                });
+                if (consent) consent.disabled = false;
+                boxIds.forEach(id => {
+                    const box = document.getElementById(id);
+                    if (box) {
+                        box.style.pointerEvents = 'auto';
+                        box.style.opacity = '1';
+                        box.style.cursor = 'pointer';
+                    }
+                });
+                fileIds.forEach(id => {
+                    const file = document.getElementById(id);
+                    if (file) file.disabled = false;
+                });
+                if (submitBtn) {
+                    submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ยืนยันและส่งเอกสาร e-KYC';
+                    submitBtn.disabled = false;
+                    submitBtn.style.backgroundColor = '';
+                    submitBtn.style.cursor = 'pointer';
+                    submitBtn.style.opacity = '1';
+                }
                 return;
             }
 
@@ -738,12 +786,48 @@
                     <div class="kyc-status-banner approved">
                         <div class="kyc-status-icon"><i class="fa-solid fa-check"></i></div>
                         <div>
-                            <div style="font-weight: 700; color: #065f46; font-size: 1.05rem;">ยืนยันตัวตนสำเร็จแล้ว (Approved)</div>
-                            <div style="font-size: 0.85rem; color: #047857;">บัญชีของคุณได้รับการตรวจสอบและรับรองเป็นเจ้าของพื้นที่เรียบร้อยแล้ว</div>
+                            <div style="font-weight: 700; color: #065f46; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+                                ยืนยันตัวตนสำเร็จแล้ว (Approved)
+                                <span style="font-size: 0.72rem; background: #059669; color: white; padding: 2px 8px; border-radius: 10px;"><i class="fa-solid fa-lock"></i> ข้อมูลถูกล็อค</span>
+                            </div>
+                            <div style="font-size: 0.85rem; color: #047857; margin-top: 2px;">บัญชีของคุณได้รับการตรวจสอบและรับรองเป็นเจ้าของพื้นที่เรียบร้อยแล้ว ข้อมูลถูกล็อคเพื่อความปลอดภัยและไม่สามารถแก้ไขได้</div>
                         </div>
                     </div>
                 `;
-                submitBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> บัญชีได้รับการยืนยันตัวตนแล้ว (อัปเดตข้อมูลได้)';
+
+                // Lock inputs
+                ownerInputIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.disabled = true;
+                        el.readOnly = true;
+                        el.style.backgroundColor = '#f1f5f9';
+                        el.style.color = '#475569';
+                        el.style.cursor = 'not-allowed';
+                    }
+                });
+                if (consent) {
+                    consent.checked = true;
+                    consent.disabled = true;
+                }
+                boxIds.forEach(id => {
+                    const box = document.getElementById(id);
+                    if (box) {
+                        box.style.pointerEvents = 'none';
+                        box.style.opacity = '0.9';
+                        box.style.cursor = 'not-allowed';
+                    }
+                });
+                fileIds.forEach(id => {
+                    const file = document.getElementById(id);
+                    if (file) file.disabled = true;
+                });
+
+                submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> บัญชีได้รับการยืนยันตัวตนแล้ว (ข้อมูลถูกล็อค)';
+                submitBtn.disabled = true;
+                submitBtn.style.backgroundColor = '#059669';
+                submitBtn.style.cursor = 'not-allowed';
+                submitBtn.style.opacity = '0.85';
             } else if (status === 'pending') {
                 step1.className = 'step-item completed';
                 step2.className = 'step-item active';
@@ -752,12 +836,48 @@
                     <div class="kyc-status-banner pending">
                         <div class="kyc-status-icon"><i class="fa-solid fa-hourglass-half"></i></div>
                         <div>
-                            <div style="font-weight: 700; color: #854d0e; font-size: 1.05rem;">อยู่ระหว่างรอตรวจสอบ (Under Review)</div>
-                            <div style="font-size: 0.85rem; color: #a16207;">เจ้าหน้าที่ Admin กำลังตรวจสอบข้อมูลและเอกสารของคุณ ใช้เวลาประมาณ 1-2 วันทำการ</div>
+                            <div style="font-weight: 700; color: #854d0e; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+                                อยู่ระหว่างรอตรวจสอบ (Under Review)
+                                <span style="font-size: 0.72rem; background: #d97706; color: white; padding: 2px 8px; border-radius: 10px;"><i class="fa-solid fa-lock"></i> อยู่ระหว่างตรวจสอบ</span>
+                            </div>
+                            <div style="font-size: 0.85rem; color: #a16207; margin-top: 2px;">เจ้าหน้าที่ Admin กำลังตรวจสอบข้อมูลและเอกสารของคุณ ใช้เวลาประมาณ 1-2 วันทำการ ข้อมูลถูกล็อคในระหว่างนี้</div>
                         </div>
                     </div>
                 `;
-                submitBtn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> ส่งข้อมูลอัปเดต / ยื่นเอกสารใหม่';
+
+                // Lock inputs while pending
+                ownerInputIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.disabled = true;
+                        el.readOnly = true;
+                        el.style.backgroundColor = '#f8fafc';
+                        el.style.color = '#64748b';
+                        el.style.cursor = 'not-allowed';
+                    }
+                });
+                if (consent) {
+                    consent.checked = true;
+                    consent.disabled = true;
+                }
+                boxIds.forEach(id => {
+                    const box = document.getElementById(id);
+                    if (box) {
+                        box.style.pointerEvents = 'none';
+                        box.style.opacity = '0.9';
+                        box.style.cursor = 'not-allowed';
+                    }
+                });
+                fileIds.forEach(id => {
+                    const file = document.getElementById(id);
+                    if (file) file.disabled = true;
+                });
+
+                submitBtn.innerHTML = '<i class="fa-solid fa-hourglass-half"></i> อยู่ระหว่างรอการตรวจสอบ (ข้อมูลถูกล็อค)';
+                submitBtn.disabled = true;
+                submitBtn.style.backgroundColor = '#d97706';
+                submitBtn.style.cursor = 'not-allowed';
+                submitBtn.style.opacity = '0.85';
             } else if (status === 'rejected') {
                 step1.className = 'step-item active';
                 step2.className = 'step-item';
@@ -767,16 +887,55 @@
                         <div class="kyc-status-icon"><i class="fa-solid fa-xmark"></i></div>
                         <div>
                             <div style="font-weight: 700; color: #991b1b; font-size: 1.05rem;">เอกสารไม่ผ่านการอนุมัติ (Rejected)</div>
-                            <div style="font-size: 0.85rem; color: #b91c1c;">กรุณาตรวจสอบความถูกต้องของข้อมูลและภาพถ่ายเอกสารให้ชัดเจน แล้วกดส่งข้อมูลใหม่อีกครั้ง</div>
+                            <div style="font-size: 0.85rem; color: #b91c1c; margin-top: 2px;">กรุณาตรวจสอบความถูกต้องของข้อมูลและภาพถ่ายเอกสารให้ชัดเจน แล้วกดส่งข้อมูลใหม่อีกครั้ง</div>
                         </div>
                     </div>
                 `;
+
+                // Re-enable inputs for correction
+                ownerInputIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.disabled = false;
+                        el.readOnly = false;
+                        el.style.backgroundColor = '';
+                        el.style.color = '';
+                        el.style.cursor = '';
+                    }
+                });
+                if (consent) consent.disabled = false;
+                boxIds.forEach(id => {
+                    const box = document.getElementById(id);
+                    if (box) {
+                        box.style.pointerEvents = 'auto';
+                        box.style.opacity = '1';
+                        box.style.cursor = 'pointer';
+                    }
+                });
+                fileIds.forEach(id => {
+                    const file = document.getElementById(id);
+                    if (file) file.disabled = false;
+                });
+
                 submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ส่งข้อมูลยืนยันตัวตนใหม่อีกครั้ง';
+                submitBtn.disabled = false;
+                submitBtn.style.backgroundColor = '';
+                submitBtn.style.cursor = 'pointer';
+                submitBtn.style.opacity = '1';
             }
         }
 
         async function submitVerification(e) {
             if (e) e.preventDefault();
+
+            if (window.currentOwnerKycStatus === 'approved') {
+                alert('บัญชีของคุณได้รับการยืนยันตัวตน (e-KYC) เรียบร้อยแล้ว ข้อมูลถูกล็อคและไม่สามารถแก้ไขได้');
+                return false;
+            }
+            if (window.currentOwnerKycStatus === 'pending') {
+                alert('ข้อมูลของคุณอยู่ระหว่างรอเจ้าหน้าที่ Admin ตรวจสอบ ไม่สามารถแก้ไขได้ในขณะนี้');
+                return false;
+            }
 
             const firstName = document.getElementById('owner-verify-firstname').value.trim();
             const lastName = document.getElementById('owner-verify-lastname').value.trim();

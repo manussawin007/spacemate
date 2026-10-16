@@ -482,12 +482,16 @@
             // Fetch active bookings for these spaces to accurately reflect booked status
             const spaceIds = spaces.map(s => s.id);
             const bookingMap = {};
+            const todayStr = getLocalDateString(new Date());
+
             try {
+                // Only fetch active bookings that have not expired yet (end_date >= todayStr)
                 const { data: activeBookings } = await supabaseClient
                     .from('bookings')
                     .select('id, space_id, status, start_date, end_date')
                     .in('space_id', spaceIds)
                     .in('status', ['confirmed', 'pending'])
+                    .gte('end_date', todayStr)
                     .order('start_date', { ascending: true });
 
                 if (activeBookings) {
@@ -513,6 +517,13 @@
                 </div>
             `;
         }
+    }
+
+    function getLocalDateString(d = new Date()) {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
 
     function formatThaiDate(dateStr) {
@@ -576,11 +587,11 @@
 
         if (typeof Swal !== 'undefined') {
             Swal.fire({
-                title: `<div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1.25rem; font-weight: 700; color: #0f172a;">
+                title: `<div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1.2rem; font-weight: 700; color: #0f172a;">
                             <span style="background: #fee2e2; color: #ef4444; width: 34px; height: 34px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.95rem;">
-                                <i class="fa-solid fa-ban"></i>
+                                <i class="fa-solid fa-lock"></i>
                             </span>
-                            <span>ล็อค ${space.space_number} (ไม่ว่าง)</span>
+                            <span>ล็อค ${space.space_number} (ติดจองวันนี้)</span>
                         </div>`,
                 html: `
                     <div style="text-align: left; margin-top: 12px;">
@@ -595,27 +606,33 @@
                             </div>
                             <div style="text-align: center;">
                                 <div style="font-size: 0.72rem; color: #64748b;">สถานะ</div>
-                                <div style="font-size: 0.9rem; font-weight: 700; color: #ef4444;">ติดจองแล้ว</div>
+                                <div style="font-size: 0.9rem; font-weight: 700; color: #ef4444;">ติดจองวันนี้</div>
                             </div>
                         </div>
 
                         <div style="margin-bottom: 8px; font-weight: 600; color: #334155; font-size: 0.88rem; display: flex; align-items: center; gap: 6px;">
-                            <i class="fa-solid fa-list-check" style="color: #64748b;"></i> รายการวันที่มีคนจองแล้ว:
+                            <i class="fa-solid fa-list-check" style="color: #64748b;"></i> วันที่มีคนจองแล้ว:
                         </div>
-                        <div style="max-height: 200px; overflow-y: auto; padding-right: 2px;">
+                        <div style="max-height: 180px; overflow-y: auto; padding-right: 2px;">
                             ${bookingListHtml}
                         </div>
 
-                        <div style="margin-top: 14px; background: #eff6ff; border: 1px solid #dbeafe; border-radius: 8px; padding: 9px 12px; font-size: 0.8rem; color: #1e40af; line-height: 1.5;">
-                            <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i> มีผู้จองล็อคนี้ในช่วงวันดังกล่าวแล้ว ท่านสามารถเลือกล็อคอื่นที่ยังว่าง (สีเทา) ได้ครับ
+                        <div style="margin-top: 12px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 9px 12px; font-size: 0.8rem; color: #166534; line-height: 1.5;">
+                            <i class="fa-solid fa-lightbulb" style="color: #16a34a; margin-right: 4px;"></i> หากต้องการจองล็อคนี้ใน<strong>วันที่อื่นๆ ที่ยังว่าง</strong> สามารถกดปุ่มด้านล่างเพื่อเปิดปฏิทินเลือกวันได้เลยครับ
                         </div>
                     </div>
                 `,
-                showConfirmButton: true,
-                confirmButtonText: 'ปิดหน้าต่าง',
-                confirmButtonColor: '#0f172a',
+                showCancelButton: true,
+                cancelButtonText: 'ปิดหน้าต่าง',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: '<i class="fa-regular fa-calendar-plus"></i> ดูปฏิทินเพื่อจองวันอื่น',
+                confirmButtonColor: '#a46309',
                 width: '400px',
                 padding: '1.25rem'
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    window.location.href = `book_space.html?space_id=${space.id}&venue_id=${venueId}`;
+                }
             });
         } else {
             alert(`ล็อค ${space.space_number} (ไม่ว่าง)\n\nรายการวันที่ติดจอง:\n` + spaceBookings.map(b => `${formatThaiDate(b.start_date)} ถึง ${formatThaiDate(b.end_date)}`).join('\n'));
@@ -674,8 +691,28 @@
             }
             
             const spaceBookings = bookingMap[space.id] || [];
-            const isBooked = space.status === 'booked' || space.status === 'rented' || spaceBookings.length > 0;
-            const isAvailable = space.status === 'available' && !isBooked;
+            const todayStr = getLocalDateString(new Date());
+
+            // A space is booked TODAY if an active booking covers today
+            const isBookedToday = spaceBookings.some(b => {
+                const s = b.start_date;
+                const e = b.end_date || b.start_date;
+                return s <= todayStr && e >= todayStr;
+            });
+
+            // Check if space was manually closed by market owner
+            const isManuallyClosed = space.status === 'closed' || space.status === 'maintenance';
+            const isBooked = isBookedToday || isManuallyClosed;
+            const isAvailable = !isBooked;
+
+            // Self-healing: If space was marked 'booked' in DB but has no active booking today or future, restore to 'available'
+            if (!isManuallyClosed && (space.status === 'booked' || space.status === 'rented')) {
+                if (!isBookedToday && spaceBookings.length === 0) {
+                    supabaseClient.from('spaces').update({ status: 'available' }).eq('id', space.id).then();
+                    space.status = 'available';
+                }
+            }
+
             const slotEl = document.createElement('div');
             
             slotEl.dataset.id = space.id;
@@ -689,9 +726,10 @@
             }).join(', ');
             
             if (isAvailable) {
-                slotEl.title = `ล็อค ${space.space_number} (ว่าง) | โซน: ${space.zone || '-'} | ราคา: ฿${space.price}`;
+                const futureNote = spaceBookings.length > 0 ? ` (มีจองล่วงหน้า: ${datesSummary})` : '';
+                slotEl.title = `ล็อค ${space.space_number} (ว่างวันนี้) | โซน: ${space.zone || '-'} | ราคา: ฿${space.price}${futureNote}`;
             } else {
-                slotEl.title = `ล็อค ${space.space_number} (ไม่ว่าง - จองแล้ว)\nวันที่จอง: ${datesSummary || 'ติดจอง'}\n(คลิกเพื่อดูรายละเอียด)`;
+                slotEl.title = `ล็อค ${space.space_number} (ไม่ว่าง - จองวันนี้)\nวันที่จอง: ${datesSummary || 'ติดจอง'}\n(คลิกเพื่อดูรายละเอียด / จองวันอื่น)`;
             }
             
             // Check if map_data exists (coordinates)

@@ -248,10 +248,385 @@
             flex-direction: column;
         }
 
-        .days-text {
-            font-size: 0.85rem;
+        /* Custom Interactive Market Calendar Styles */
+        .market-calendar-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .calendar-nav-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: var(--text-main);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .calendar-nav-btn:hover {
+            background: var(--primary-light);
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .calendar-month-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .calendar-today-btn {
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #f1f5f9;
+            color: #475569;
+            border: none;
+            border-radius: 6px;
+            padding: 2px 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calendar-today-btn:hover {
+            background: var(--primary-light);
+            color: var(--primary-color);
+        }
+
+        .calendar-weekdays-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            margin-bottom: 0.4rem;
+        }
+
+        .calendar-weekday-cell {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #64748b;
+            padding: 4px 0;
+            border-radius: 6px;
+        }
+
+        .calendar-weekday-cell.is-market-col {
+            color: #047857;
+            font-weight: 700;
+            background: #ecfdf5;
+        }
+
+        .calendar-days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .cal-day-cell {
+            position: relative;
+            min-height: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            border: 1.5px solid transparent;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+
+        .cal-day-cell.is-empty {
+            cursor: default;
+        }
+
+        /* Past date */
+        .cal-day-cell.is-past {
+            color: #cbd5e1;
+            background: transparent;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        /* Closed day (Market does not open) */
+        .cal-day-cell.is-closed {
+            color: #94a3b8;
+            background: #f8fafc;
+            cursor: not-allowed;
+            opacity: 0.55;
+            position: relative;
+        }
+
+        .cal-day-cell.is-closed .closed-indicator {
+            font-size: 0.65rem;
+            color: #ef4444;
+            position: absolute;
+            bottom: 2px;
+            line-height: 1;
+        }
+
+        /* Booked day (already reserved by someone) */
+        .cal-day-cell.is-booked-already {
+            color: #b91c1c;
+            background: #fef2f2;
+            border-color: #fecaca;
+            cursor: not-allowed;
+            position: relative;
+        }
+
+        .cal-day-cell.is-booked-already:hover {
+            background: #fee2e2;
+        }
+
+        .cal-day-cell.is-booked-already .booked-indicator {
+            font-size: 0.65rem;
+            color: #ef4444;
+            position: absolute;
+            bottom: 2px;
+            line-height: 1;
+        }
+
+        /* Open day (Market is open!) */
+        .cal-day-cell.is-open {
+            color: #065f46;
+            background: #ecfdf5;
+            border-color: #a7f3d0;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .cal-day-cell.is-open:hover {
+            background: #d1fae5;
+            border-color: #34d399;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(16, 185, 129, 0.18);
+        }
+
+        .cal-day-cell.is-open .open-indicator {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #10b981;
+            position: absolute;
+            bottom: 3px;
+        }
+
+        /* Today indicator */
+        .cal-day-cell.is-today-marker {
+            border-color: #f59e0b;
+        }
+
+        /* Selected Date */
+        .cal-day-cell.is-selected {
+            background: var(--primary-color) !important;
+            color: #ffffff !important;
+            border-color: var(--primary-color) !important;
+            font-weight: 700 !important;
+            box-shadow: 0 4px 10px rgba(164, 99, 9, 0.3) !important;
+            transform: scale(1.05);
+            z-index: 2;
+        }
+
+        .cal-day-cell.is-selected .open-indicator {
+            background: #ffffff;
+        }
+
+        /* Range included */
+        .cal-day-cell.is-in-range {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #fde68a;
+            border-radius: 6px;
+        }
+
+        .cal-day-cell.is-in-range.is-closed {
+            background: #f1f5f9;
+            color: #94a3b8;
+            opacity: 0.45;
+        }
+
+        /* Calendar Legend */
+        .calendar-legend {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 0.75rem;
+            padding-top: 0.65rem;
+            border-top: 1px solid #f1f5f9;
+            font-size: 0.75rem;
             color: var(--text-muted);
-            margin-bottom: 0.2rem;
+            flex-wrap: wrap;
+        }
+
+        .calendar-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        /* Calculation Breakdown Detail Box */
+        .calc-detail-box {
+            background: #f8fafc;
+            border: 1.5px dashed #cbd5e1;
+            border-radius: 14px;
+            padding: 0.85rem 1rem;
+            margin-top: 1rem;
+        }
+
+        .calc-detail-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .calc-detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-size: 0.82rem;
+            margin-bottom: 6px;
+            gap: 12px;
+        }
+
+        .calc-detail-label {
+            color: var(--text-muted);
+            white-space: nowrap;
+            flex-shrink: 0;
+            font-size: 0.82rem;
+            min-width: 80px;
+        }
+
+        .calc-detail-val {
+            font-weight: 600;
+            color: var(--text-main);
+            text-align: right;
+            word-break: break-word;
+            line-height: 1.35;
+            font-size: 0.82rem;
+        }
+
+        .calc-detail-row.divider {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 8px;
+            margin-top: 8px;
+            margin-bottom: 0;
+            align-items: center;
+        }
+
+        .calc-detail-formula {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        .calc-val-sub {
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: #64748b;
+            display: block;
+            margin-top: 1px;
+        }
+
+        .calc-val-highlight-sub {
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: #059669;
+            display: block;
+            margin-top: 1px;
+        }
+
+        /* Mobile / App View Responsive Optimization (< 640px) */
+        @media (max-width: 640px) {
+            .page-container {
+                padding: 1rem 0.85rem;
+            }
+            .card {
+                padding: 1rem;
+                border-radius: 16px;
+            }
+            .market-calendar-card {
+                padding: 0.75rem 0.65rem;
+                border-radius: 14px;
+            }
+            .calendar-month-title {
+                font-size: 0.88rem;
+            }
+            .calendar-weekday-cell {
+                font-size: 0.75rem;
+                padding: 3px 0;
+            }
+            .cal-day-cell {
+                min-height: 36px;
+                font-size: 0.82rem;
+                border-radius: 8px;
+            }
+            .calendar-legend {
+                gap: 8px;
+                font-size: 0.72rem;
+                padding-top: 0.5rem;
+            }
+            .calc-detail-box {
+                padding: 0.85rem 0.95rem;
+                border-radius: 12px;
+                margin-top: 0.85rem;
+            }
+            .calc-detail-title {
+                font-size: 0.88rem;
+                margin-bottom: 7px;
+            }
+            .calc-detail-row {
+                font-size: 0.85rem;
+                margin-bottom: 6px;
+                gap: 8px;
+            }
+            .calc-detail-label {
+                font-size: 0.85rem;
+                min-width: 82px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            .calc-detail-val {
+                font-size: 0.85rem;
+                line-height: 1.4;
+            }
+            .calc-detail-formula {
+                font-size: 0.95rem;
+            }
+            .calc-val-sub {
+                font-size: 0.76rem;
+            }
+            .calc-val-highlight-sub {
+                font-size: 0.76rem;
+            }
         }
     </style>
 </head>
@@ -279,26 +654,172 @@
                         </div>
                     </div>
 
+                    <!-- Market/Event Operating Schedule Banner -->
+                    <div id="market-schedule-banner" style="background: #fefce8; border: 1px solid #fef08a; border-radius: 14px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 38px; height: 38px; border-radius: 10px; background: #fef08a; color: #a46309; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+                                <i class="fa-regular fa-calendar-check"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.75rem; color: #854d0e; font-weight: 500;">ตารางเปิดทำการ</div>
+                                <div id="market-open-days-text" style="font-size: 0.95rem; font-weight: 700; color: #713f12;">กำลังโหลดข้อมูล...</div>
+                            </div>
+                        </div>
+                        <span id="market-days-badge" style="background: #a46309; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; white-space: nowrap;">
+                            - วัน/สัปดาห์
+                        </span>
+                    </div>
+
                     <h2 class="section-title">เลือกรูปแบบการจอง</h2>
-                    <div class="type-toggle-container">
+                    <div class="type-toggle-container" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px;">
                         <label class="type-toggle-label">
-                            <input type="radio" name="booking_type" id="type-single" value="single" checked>
-                            <span class="type-toggle-btn">จองวันเดียว</span>
+                            <input type="radio" name="booking_type" id="type-daily" value="daily" checked>
+                            <span class="type-toggle-btn">รายวัน</span>
                         </label>
                         <label class="type-toggle-label">
-                            <input type="radio" name="booking_type" id="type-multi" value="multi">
-                            <span class="type-toggle-btn">จองหลายวัน</span>
+                            <input type="radio" name="booking_type" id="type-weekly" value="weekly">
+                            <span class="type-toggle-btn">รายอาทิตย์</span>
+                        </label>
+                        <label class="type-toggle-label">
+                            <input type="radio" name="booking_type" id="type-monthly" value="monthly">
+                            <span class="type-toggle-btn">รายเดือน</span>
                         </label>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="start-date">วันที่ต้องการจอง</label>
-                        <input type="date" id="start-date" class="form-control">
+                    <!-- Mode Controls Options -->
+                    <div id="daily-controls">
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.88rem; color: var(--text-muted); cursor: pointer;">
+                                <input type="checkbox" id="daily-range-toggle" style="accent-color: var(--primary-color); width: 16px; height: 16px;">
+                                <span>จองช่วงวันที่ต่อเนื่อง (กดเลือกวันเริ่มต้นและวันสิ้นสุดในปฏิทิน)</span>
+                            </label>
+                        </div>
                     </div>
 
-                    <div class="form-group" id="end-date-wrapper" style="display: none;">
-                        <label class="form-label" for="end-date">ถึงวันที่</label>
-                        <input type="date" id="end-date" class="form-control">
+                    <div id="weekly-controls" style="display: none; margin-bottom: 0.75rem;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.6rem 0.9rem;">
+                            <span style="font-size: 0.88rem; font-weight: 600; color: var(--text-main);">จำนวนสัปดาห์ที่ต้องการจอง:</span>
+                            <select id="weekly-count" class="form-control" style="width: auto; padding: 0.4rem 0.85rem; font-size: 0.88rem; cursor: pointer;">
+                                <option value="1" selected>1 สัปดาห์</option>
+                                <option value="2">2 สัปดาห์</option>
+                                <option value="3">3 สัปดาห์</option>
+                                <option value="4">4 สัปดาห์</option>
+                                <option value="6">6 สัปดาห์</option>
+                                <option value="8">8 สัปดาห์</option>
+                            </select>
+                        </div>
+                        <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; padding-left: 4px;">
+                            * กดเลือกวันเริ่มต้นในปฏิทินด้านล่าง (เลือกได้เฉพาะวันที่ตลาดเปิด)
+                        </div>
+                    </div>
+
+                    <div id="monthly-controls" style="display: none; margin-bottom: 0.75rem;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.6rem 0.9rem;">
+                            <span style="font-size: 0.88rem; font-weight: 600; color: var(--text-main);">จำนวนเดือนที่ต้องการจอง:</span>
+                            <select id="monthly-count" class="form-control" style="width: auto; padding: 0.4rem 0.85rem; font-size: 0.88rem; cursor: pointer;">
+                                <option value="1" selected>1 เดือน (4 สัปดาห์)</option>
+                                <option value="2">2 เดือน (8 สัปดาห์)</option>
+                                <option value="3">3 เดือน (12 สัปดาห์)</option>
+                                <option value="6">6 เดือน (24 สัปดาห์)</option>
+                            </select>
+                        </div>
+                        <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; padding-left: 4px;">
+                            * กดเลือกวันเริ่มต้นในปฏิทินด้านล่าง (เลือกได้เฉพาะวันที่ตลาดเปิด)
+                        </div>
+                    </div>
+
+                    <!-- Custom Market Calendar -->
+                    <div class="market-calendar-card">
+                        <div class="calendar-header">
+                            <button type="button" class="calendar-nav-btn" onclick="changeCalendarMonth(-1)" title="เดือนก่อนหน้า">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </button>
+                            <div class="calendar-month-title">
+                                <span id="calendar-month-year-label">ตุลาคม 2569</span>
+                                <button type="button" class="calendar-today-btn" onclick="jumpToTodayCalendar()">เดือนนี้</button>
+                            </div>
+                            <button type="button" class="calendar-nav-btn" onclick="changeCalendarMonth(1)" title="เดือนถัดไป">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+
+                        <!-- Weekdays Row -->
+                        <div class="calendar-weekdays-grid">
+                            <div class="calendar-weekday-cell" id="cal-weekday-0">อา.</div>
+                            <div class="calendar-weekday-cell" id="cal-weekday-1">จ.</div>
+                            <div class="calendar-weekday-cell" id="cal-weekday-2">อ.</div>
+                            <div class="calendar-weekday-cell" id="cal-weekday-3">พ.</div>
+                            <div class="calendar-weekday-cell" id="cal-weekday-4">พฤ.</div>
+                            <div class="calendar-weekday-cell" id="cal-weekday-5">ศ.</div>
+                            <div class="calendar-weekday-cell" id="cal-weekday-6">ส.</div>
+                        </div>
+
+                        <!-- Days Grid -->
+                        <div id="calendar-days-grid" class="calendar-days-grid">
+                            <!-- Injected by JavaScript -->
+                        </div>
+
+                        <!-- Calendar Legend -->
+                        <div class="calendar-legend">
+                            <div class="calendar-legend-item">
+                                <span class="legend-dot" style="background: #10b981;"></span>
+                                <span>เปิดทำการ (กดได้)</span>
+                            </div>
+                            <div class="calendar-legend-item">
+                                <span class="legend-dot" style="background: #cbd5e1;"></span>
+                                <span>ปิดทำการ (กดไม่ได้)</span>
+                            </div>
+                            <div class="calendar-legend-item">
+                                <span class="legend-dot" style="background: #ef4444;"></span>
+                                <span>ติดจองแล้ว (กดไม่ได้)</span>
+                            </div>
+                            <div class="calendar-legend-item">
+                                <span class="legend-dot" style="background: var(--primary-color);"></span>
+                                <span>วันที่เลือก</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Selected Date Feedback Card -->
+                    <div id="calendar-selected-summary" style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 0.65rem 0.9rem; margin-top: 0.5rem; font-size: 0.85rem; display: flex; align-items: center; justify-content: space-between;">
+                        <span id="calendar-selected-text" style="color: #166534; font-weight: 600;">
+                            <i class="fa-solid fa-calendar-check"></i> กำลังโหลดวันที่...
+                        </span>
+                        <span id="calendar-range-step-badge" style="font-size: 0.75rem; color: #15803d; font-weight: 500;"></span>
+                    </div>
+
+                    <!-- Closed date alert message -->
+                    <div id="calendar-click-notice" style="display: none; font-size: 0.82rem; color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 7px 12px; margin-top: 6px; text-align: center;">
+                    </div>
+
+                    <!-- Hidden inputs for compatibility -->
+                    <input type="hidden" id="start-date">
+                    <input type="hidden" id="end-date">
+                    <input type="hidden" id="weekly-start-date">
+                    <input type="hidden" id="monthly-start-date">
+                    <div id="day-of-week-notice" style="display: none;"></div>
+
+                    <!-- Detailed Calculation Breakdown Box -->
+                    <div id="calculation-detail-box" class="calc-detail-box">
+                        <div class="calc-detail-title">
+                            <i class="fa-solid fa-calculator" style="color: var(--primary-color);"></i> รายละเอียดการคำนวณราคา
+                        </div>
+                        <div class="calc-detail-row">
+                            <span class="calc-detail-label">รูปแบบ:</span>
+                            <span id="detail-plan-type" class="calc-detail-val">รายวัน</span>
+                        </div>
+                        <div class="calc-detail-row">
+                            <span class="calc-detail-label">ช่วงวันที่:</span>
+                            <span id="detail-date-range" class="calc-detail-val">-</span>
+                        </div>
+                        <div class="calc-detail-row">
+                            <span class="calc-detail-label">วันทำการที่เปิด:</span>
+                            <span id="detail-charged-days" class="calc-detail-val" style="color: #047857; font-weight: 700;">-</span>
+                        </div>
+                        <div class="calc-detail-row divider">
+                            <span class="calc-detail-label">สูตรคำนวณ:</span>
+                            <span id="detail-formula" class="calc-detail-val calc-detail-formula">-</span>
+                        </div>
                     </div>
                     
                     <input type="hidden" id="base-price-val" value="800">
@@ -309,10 +830,10 @@
             <div class="action-panel">
                 <div class="action-panel-flex">
                     <div class="price-summary">
-                        <span class="days-text">รวม <span id="days-count">1</span> วัน</span>
+                        <span class="days-text">คิดค่าเช่า <span id="days-count" style="font-weight: 700; color: var(--text-main);">1</span> วันทำการ</span>
                         <span id="total-price" style="font-size: 1.4rem; font-weight: 700; color: var(--primary-color);">฿800</span>
                     </div>
-                    <button class="btn-primary" onclick="proceedToPayment()">ยืนยันการจอง</button>
+                    <button class="btn-primary" id="btn-submit" onclick="proceedToPayment()">ยืนยันการจอง</button>
                 </div>
             </div>
         </div>
@@ -328,19 +849,470 @@
         const spaceId = urlParams.get('space_id');
 
         let basePrice = 800;
+        let marketSchedule = {
+            openDayIndices: [0, 1, 2, 3, 4, 5, 6],
+            rawText: 'เปิดทุกวัน (จันทร์ - อาทิตย์)',
+            countPerWeek: 7,
+            daysListText: 'ทุกวัน'
+        };
+
+        const THAI_DAY_FULL = ['วันอาทิตย์', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสบดี', 'วันศุกร์', 'วันเสาร์'];
+        const THAI_DAY_SHORT = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
+        const THAI_MONTHS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+
+        function getLocalDateString(d = new Date()) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function formatThaiDateShort(dateStr) {
+            if (!dateStr) return '-';
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                const y = parseInt(parts[0], 10);
+                const m = parts[1].padStart(2, '0');
+                const d = parts[2].padStart(2, '0');
+                const beYearShort = String(y + 543).slice(-2);
+                return `${d}/${m}/${beYearShort}`;
+            }
+            const d = new Date(dateStr + 'T00:00:00');
+            if (isNaN(d.getTime())) return dateStr;
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const beYearShort = String(d.getFullYear() + 543).slice(-2);
+            return `${day}/${month}/${beYearShort}`;
+        }
+
+        function formatThaiDate(dateStr) {
+            if (!dateStr) return '-';
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                const y = parseInt(parts[0], 10);
+                const m = parseInt(parts[1], 10) - 1;
+                const d = parseInt(parts[2], 10);
+                const beYear = y + 543;
+                const beYearShort = String(beYear).slice(-2);
+                const dayStr = String(d).padStart(2, '0');
+                const monthStr = String(m + 1).padStart(2, '0');
+                return `${dayStr}/${monthStr}/${beYearShort} (${d} ${THAI_MONTHS[m]} ${beYear})`;
+            }
+            const d = new Date(dateStr + 'T00:00:00');
+            if (isNaN(d.getTime())) return dateStr;
+            const beYear = d.getFullYear() + 543;
+            const beYearShort = String(beYear).slice(-2);
+            const dayStr = String(d.getDate()).padStart(2, '0');
+            const monthStr = String(d.getMonth() + 1).padStart(2, '0');
+            return `${dayStr}/${monthStr}/${beYearShort} (${d.getDate()} ${THAI_MONTHS[d.getMonth()]} ${beYear})`;
+        }
+
+        function formatThaiDateRange(startStr, endStr) {
+            if (!startStr) return '-';
+            const sShort = formatThaiDateShort(startStr);
+            const sObj = new Date(startStr + 'T00:00:00');
+
+            if (!endStr || startStr === endStr) {
+                if (isNaN(sObj.getTime())) return formatThaiDate(startStr);
+                const sD = sObj.getDate();
+                const sM = THAI_MONTHS[sObj.getMonth()];
+                const sY = sObj.getFullYear() + 543;
+                return `<span>${sShort}</span> <span class="calc-val-sub">(${sD} ${sM} ${sY})</span>`;
+            }
+
+            const eShort = formatThaiDateShort(endStr);
+            const eObj = new Date(endStr + 'T00:00:00');
+            if (isNaN(sObj.getTime()) || isNaN(eObj.getTime())) {
+                return `${sShort} - ${eShort}`;
+            }
+            const sD = sObj.getDate();
+            const sM = THAI_MONTHS[sObj.getMonth()];
+            const sY = String(sObj.getFullYear() + 543).slice(-2);
+
+            const eD = eObj.getDate();
+            const eM = THAI_MONTHS[eObj.getMonth()];
+            const eY = String(eObj.getFullYear() + 543).slice(-2);
+
+            if (sObj.getMonth() === eObj.getMonth() && sObj.getFullYear() === eObj.getFullYear()) {
+                return `<span>${sShort} - ${eShort}</span> <span class="calc-val-sub">(${sD} - ${eD} ${sM} ${sY})</span>`;
+            }
+            return `<span>${sShort} - ${eShort}</span> <span class="calc-val-sub">(${sD} ${sM} - ${eD} ${eM} ${eY})</span>`;
+        }
+
+        function addDays(dateStr, numDays) {
+            const d = new Date(dateStr + 'T00:00:00');
+            d.setDate(d.getDate() + numDays);
+            return getLocalDateString(d);
+        }
+
+        function parseMarketOpenDays(description) {
+            if (!description) {
+                return {
+                    openDayIndices: [0, 1, 2, 3, 4, 5, 6],
+                    rawText: 'เปิดทุกวัน (จันทร์ - อาทิตย์)',
+                    countPerWeek: 7,
+                    daysListText: 'ทุกวัน'
+                };
+            }
+
+            const lines = description.split('\n');
+            let dayLine = '';
+            for (const l of lines) {
+                const trimmed = l.trim();
+                if (trimmed.startsWith('วันที่เปิดให้บริการ:')) {
+                    dayLine = trimmed.replace('วันที่เปิดให้บริการ:', '').trim();
+                    break;
+                }
+            }
+
+            if (!dayLine) {
+                return {
+                    openDayIndices: [0, 1, 2, 3, 4, 5, 6],
+                    rawText: 'เปิดทุกวัน (จันทร์ - อาทิตย์)',
+                    countPerWeek: 7,
+                    daysListText: 'ทุกวัน'
+                };
+            }
+
+            const DAY_DEFINITIONS = [
+                { index: 0, label: 'อา.', keywords: ['อา.', 'อาทิตย์', 'วันอาทิตย์', 'sun'] },
+                { index: 1, label: 'จ.', keywords: ['จ.', 'จันทร์', 'วันจันทร์', 'mon'] },
+                { index: 2, label: 'อ.', keywords: ['อ.', 'อังคาร', 'วันอังคาร', 'tue'] },
+                { index: 3, label: 'พ.', keywords: ['พ.', 'พุธ', 'วันพุธ', 'wed'] },
+                { index: 4, label: 'พฤ.', keywords: ['พฤ.', 'พฤหัส', 'พฤหัสบดี', 'วันพฤหัสบดี', 'thu'] },
+                { index: 5, label: 'ศ.', keywords: ['ศ.', 'ศุกร์', 'วันศุกร์', 'fri'] },
+                { index: 6, label: 'ส.', keywords: ['ส.', 'เสาร์', 'วันเสาร์', 'sat'] }
+            ];
+
+            if (dayLine.includes('ทุกวัน')) {
+                return {
+                    openDayIndices: [0, 1, 2, 3, 4, 5, 6],
+                    rawText: 'เปิดทุกวัน (7 วัน/สัปดาห์)',
+                    countPerWeek: 7,
+                    daysListText: 'ทุกวัน'
+                };
+            }
+
+            const openIndices = new Set();
+            const dayTokens = dayLine.split(/[,、/]+/).map(s => s.trim().toLowerCase());
+
+            for (const token of dayTokens) {
+                for (const def of DAY_DEFINITIONS) {
+                    if (def.keywords.some(k => token.includes(k))) {
+                        openIndices.add(def.index);
+                    }
+                }
+            }
+
+            if (dayLine.includes('-') || dayLine.includes('ถึง')) {
+                const parts = dayLine.split(/[-–—ถึง]+/).map(s => s.trim().toLowerCase());
+                if (parts.length === 2) {
+                    let startIdx = -1;
+                    let endIdx = -1;
+                    for (const def of DAY_DEFINITIONS) {
+                        if (def.keywords.some(k => parts[0].includes(k))) startIdx = def.index;
+                        if (def.keywords.some(k => parts[1].includes(k))) endIdx = def.index;
+                    }
+                    if (startIdx !== -1 && endIdx !== -1) {
+                        let curr = startIdx;
+                        while (true) {
+                            openIndices.add(curr);
+                            if (curr === endIdx) break;
+                            curr = (curr + 1) % 7;
+                        }
+                    }
+                }
+            }
+
+            const indicesArray = Array.from(openIndices).sort((a, b) => a - b);
+            const count = indicesArray.length > 0 ? indicesArray.length : 7;
+            const finalIndices = indicesArray.length > 0 ? indicesArray : [0, 1, 2, 3, 4, 5, 6];
+            const readableDays = finalIndices.map(idx => DAY_DEFINITIONS.find(d => d.index === idx)?.label || '').join(', ');
+
+            return {
+                openDayIndices: finalIndices,
+                rawText: `${readableDays} (${count} วัน/สัปดาห์)`,
+                countPerWeek: count,
+                daysListText: readableDays
+            };
+        }
+
+        const THAI_MONTHS_FULL = [
+            'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+            'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+        ];
+
+        // Calendar & Date State
+        const today = getLocalDateString(new Date());
+        let calViewDate = new Date();
+        let calViewYear = calViewDate.getFullYear();
+        let calViewMonth = calViewDate.getMonth();
+        let selectedStartDate = '';
+        let selectedEndDate = '';
+        let calendarRangeSelecting = false;
+        let spaceBookedDates = new Set();
+        let existingBookingsList = [];
+
+        // Input Elements
         const startInput = document.getElementById('start-date');
         const endInput = document.getElementById('end-date');
-        const endWrapper = document.getElementById('end-date-wrapper');
-        const daysCount = document.getElementById('days-count');
-        const totalPrice = document.getElementById('total-price');
-        const radioSingle = document.getElementById('type-single');
-        const radioMulti = document.getElementById('type-multi');
+        const dailyRangeToggle = document.getElementById('daily-range-toggle');
+        const dayNotice = document.getElementById('day-of-week-notice');
 
-        // Set Min Date to Today
-        const today = new Date().toISOString().split('T')[0];
-        startInput.min = today;
-        endInput.min = today;
-        startInput.value = today;
+        const weeklyStartInput = document.getElementById('weekly-start-date');
+        const weeklyCountSelect = document.getElementById('weekly-count');
+
+        const monthlyStartInput = document.getElementById('monthly-start-date');
+        const monthlyCountSelect = document.getElementById('monthly-count');
+
+        const radioDaily = document.getElementById('type-daily');
+        const radioWeekly = document.getElementById('type-weekly');
+        const radioMonthly = document.getElementById('type-monthly');
+
+        const daysCountEl = document.getElementById('days-count');
+        const totalPriceEl = document.getElementById('total-price');
+
+        const detailPlanType = document.getElementById('detail-plan-type');
+        const detailDateRange = document.getElementById('detail-date-range');
+        const detailChargedDays = document.getElementById('detail-charged-days');
+        const detailFormula = document.getElementById('detail-formula');
+
+        function findFirstAvailableOpenDate(startDateStr) {
+            const todayStr = getLocalDateString(new Date());
+            const baseStr = (!startDateStr || startDateStr < todayStr) ? todayStr : startDateStr;
+            for (let i = 0; i < 90; i++) {
+                const d = new Date(baseStr + 'T00:00:00');
+                d.setDate(d.getDate() + i);
+                const dStr = getLocalDateString(d);
+                if (marketSchedule.openDayIndices.includes(d.getDay()) && !spaceBookedDates.has(dStr)) {
+                    return dStr;
+                }
+            }
+            return baseStr;
+        }
+
+        function changeCalendarMonth(delta) {
+            calViewMonth += delta;
+            if (calViewMonth > 11) {
+                calViewMonth = 0;
+                calViewYear++;
+            } else if (calViewMonth < 0) {
+                calViewMonth = 11;
+                calViewYear--;
+            }
+            renderMarketCalendar();
+        }
+
+        function jumpToTodayCalendar() {
+            const now = new Date();
+            calViewYear = now.getFullYear();
+            calViewMonth = now.getMonth();
+            renderMarketCalendar();
+        }
+
+        function handleClosedDayClick(dayName) {
+            const noticeEl = document.getElementById('calendar-click-notice');
+            if (!noticeEl) return;
+            noticeEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ตลาดปิดทำการ<strong>${dayName}</strong> (สามารถกดเลือกได้เฉพาะวันที่เปิด: <strong>${marketSchedule.daysListText}</strong>)`;
+            noticeEl.style.display = 'block';
+            clearTimeout(window._calNoticeTimer);
+            window._calNoticeTimer = setTimeout(() => {
+                noticeEl.style.display = 'none';
+            }, 3500);
+        }
+
+        function handleBookedDayClick(dateStr) {
+            const noticeEl = document.getElementById('calendar-click-notice');
+            if (!noticeEl) return;
+            noticeEl.innerHTML = `<i class="fa-solid fa-lock"></i> วันที่ <strong>${formatThaiDateShort(dateStr)}</strong> บูธนี้มีผู้จองแล้ว กรุณาเลือกวันอื่นที่ยังว่างครับ`;
+            noticeEl.style.display = 'block';
+            clearTimeout(window._calNoticeTimer);
+            window._calNoticeTimer = setTimeout(() => {
+                noticeEl.style.display = 'none';
+            }, 3500);
+        }
+
+        function handleCalendarDayClick(dateStr) {
+            const noticeEl = document.getElementById('calendar-click-notice');
+            if (noticeEl) noticeEl.style.display = 'none';
+
+            if (spaceBookedDates.has(dateStr)) {
+                handleBookedDayClick(dateStr);
+                return;
+            }
+
+            if (radioDaily.checked) {
+                if (!dailyRangeToggle.checked) {
+                    selectedStartDate = dateStr;
+                    selectedEndDate = dateStr;
+                } else {
+                    if (!calendarRangeSelecting || dateStr < selectedStartDate) {
+                        selectedStartDate = dateStr;
+                        selectedEndDate = dateStr;
+                        calendarRangeSelecting = true;
+                    } else {
+                        selectedEndDate = dateStr;
+                        calendarRangeSelecting = false;
+                    }
+                }
+            } else if (radioWeekly.checked) {
+                selectedStartDate = dateStr;
+                const weeks = parseInt(weeklyCountSelect.value) || 1;
+                selectedEndDate = addDays(dateStr, (weeks * 7) - 1);
+            } else if (radioMonthly.checked) {
+                selectedStartDate = dateStr;
+                const months = parseInt(monthlyCountSelect.value) || 1;
+                const endD = new Date(dateStr + 'T00:00:00');
+                endD.setMonth(endD.getMonth() + months);
+                endD.setDate(endD.getDate() - 1);
+                selectedEndDate = getLocalDateString(endD);
+            }
+
+            // Validate that the selected date range does not collide with already booked dates
+            let hasCollision = false;
+            let collidedDate = '';
+            let checkDate = new Date(selectedStartDate + 'T00:00:00');
+            const endLimit = new Date(selectedEndDate + 'T00:00:00');
+            while (checkDate <= endLimit) {
+                const dStr = getLocalDateString(checkDate);
+                if (spaceBookedDates.has(dStr)) {
+                    hasCollision = true;
+                    collidedDate = dStr;
+                    break;
+                }
+                checkDate.setDate(checkDate.getDate() + 1);
+            }
+
+            if (hasCollision) {
+                if (noticeEl) {
+                    noticeEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ช่วงวันที่เลือกมีวันที่ติดจองแล้ว (<strong>${formatThaiDateShort(collidedDate)}</strong>) กรุณาเลือกช่วงวันอื่น`;
+                    noticeEl.style.display = 'block';
+                    clearTimeout(window._calNoticeTimer);
+                    window._calNoticeTimer = setTimeout(() => { noticeEl.style.display = 'none'; }, 4000);
+                }
+                selectedEndDate = selectedStartDate;
+                calendarRangeSelecting = false;
+            }
+
+            // Sync hidden inputs
+            startInput.value = selectedStartDate;
+            endInput.value = selectedEndDate;
+            weeklyStartInput.value = selectedStartDate;
+            monthlyStartInput.value = selectedStartDate;
+
+            calculateTotal();
+            renderMarketCalendar();
+        }
+
+        function renderMarketCalendar() {
+            const labelEl = document.getElementById('calendar-month-year-label');
+            const gridEl = document.getElementById('calendar-days-grid');
+            if (!labelEl || !gridEl) return;
+
+            labelEl.textContent = `${THAI_MONTHS_FULL[calViewMonth]} ${calViewYear + 543}`;
+
+            // Highlight open weekday headers
+            for (let i = 0; i < 7; i++) {
+                const headerCol = document.getElementById('cal-weekday-' + i);
+                if (headerCol) {
+                    headerCol.classList.toggle('is-market-col', marketSchedule.openDayIndices.includes(i));
+                }
+            }
+
+            const firstDayOfWeek = new Date(calViewYear, calViewMonth, 1).getDay();
+            const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
+            const todayStr = getLocalDateString(new Date());
+
+            let html = '';
+
+            // Empty cells before 1st of month
+            for (let i = 0; i < firstDayOfWeek; i++) {
+                html += '<div class="cal-day-cell is-empty"></div>';
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${calViewYear}-${String(calViewMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dObj = new Date(dateStr + 'T00:00:00');
+                const dayOfWeek = dObj.getDay();
+                const isPast = dateStr < todayStr;
+                const isBookedAlready = spaceBookedDates.has(dateStr);
+                const isMarketOpen = marketSchedule.openDayIndices.includes(dayOfWeek);
+                const isToday = dateStr === todayStr;
+
+                let classes = ['cal-day-cell'];
+                let clickAttr = '';
+                let innerExtra = '';
+
+                if (isPast) {
+                    classes.push('is-past');
+                } else if (isBookedAlready) {
+                    classes.push('is-booked-already');
+                    clickAttr = `onclick="handleBookedDayClick('${dateStr}')"`;
+                    innerExtra = '<span class="booked-indicator"><i class="fa-solid fa-lock"></i></span>';
+                } else if (!isMarketOpen) {
+                    classes.push('is-closed');
+                    clickAttr = `onclick="handleClosedDayClick('${THAI_DAY_FULL[dayOfWeek]}')"`;
+                    innerExtra = '<span class="closed-indicator"><i class="fa-solid fa-xmark"></i></span>';
+                } else {
+                    classes.push('is-open');
+                    clickAttr = `onclick="handleCalendarDayClick('${dateStr}')"`;
+                    innerExtra = '<span class="open-indicator"></span>';
+                }
+
+                if (isToday) {
+                    classes.push('is-today-marker');
+                }
+
+                // Selection checks
+                const isStart = (dateStr === selectedStartDate);
+                const isEnd = (dateStr === selectedEndDate);
+                const isBetween = (selectedStartDate && selectedEndDate && dateStr > selectedStartDate && dateStr < selectedEndDate);
+
+                if (isStart || isEnd) {
+                    classes.push('is-selected');
+                } else if (isBetween) {
+                    classes.push('is-in-range');
+                }
+
+                const cellTitle = isPast ? 'วันที่ผ่านมาแล้ว' : (isBookedAlready ? 'ติดจองแล้ว (กดไม่ได้)' : (isMarketOpen ? 'เปิดทำการ (กดเลือกได้)' : 'ปิดทำการ (กดไม่ได้)'));
+                html += `<div class="${classes.join(' ')}" ${clickAttr} title="${cellTitle}">
+                    <span>${day}</span>
+                    ${innerExtra}
+                </div>`;
+            }
+
+            gridEl.innerHTML = html;
+
+            // Update summary badge
+            const sumTextEl = document.getElementById('calendar-selected-text');
+            const stepBadgeEl = document.getElementById('calendar-range-step-badge');
+
+            if (sumTextEl) {
+                if (selectedStartDate) {
+                    const startThai = formatThaiDateShort(selectedStartDate);
+                    const endThai = formatThaiDateShort(selectedEndDate);
+                    const sObj = new Date(selectedStartDate + 'T00:00:00');
+                    const sDayName = THAI_DAY_FULL[sObj.getDay()];
+
+                    if (selectedStartDate === selectedEndDate) {
+                        sumTextEl.innerHTML = `<i class="fa-solid fa-calendar-check" style="color: #16a34a;"></i> วันที่เลือก: <strong>${sDayName} ${startThai}</strong> <span style="background: #dcfce7; color: #166534; font-size: 0.72rem; padding: 2px 7px; border-radius: 8px; margin-left: 5px;">ตลาดเปิด</span>`;
+                    } else {
+                        sumTextEl.innerHTML = `<i class="fa-solid fa-calendar-check" style="color: #16a34a;"></i> ช่วงวันที่เลือก: <strong>${startThai} - ${endThai}</strong>`;
+                    }
+                } else {
+                    sumTextEl.innerHTML = `<i class="fa-solid fa-hand-pointer"></i> กรุณากดเลือกวันที่ตลาดเปิดในปฏิทิน`;
+                }
+            }
+
+            if (stepBadgeEl) {
+                if (radioDaily.checked && dailyRangeToggle.checked && calendarRangeSelecting) {
+                    stepBadgeEl.style.display = 'inline-block';
+                    stepBadgeEl.textContent = '👆 กรุณากดวันสิ้นสุดในปฏิทิน';
+                } else {
+                    stepBadgeEl.style.display = 'none';
+                }
+            }
+        }
 
         async function initPage() {
             let foundData = false;
@@ -364,6 +1336,35 @@
                             if (space.venues.cover_image_url) {
                                 document.getElementById('venue-cover-img').src = space.venues.cover_image_url;
                             }
+                            marketSchedule = parseMarketOpenDays(space.venues.description);
+                        }
+
+                        // Load existing active bookings for this booth to prevent collision
+                        const todayStr = getLocalDateString(new Date());
+                        const { data: bData } = await supabaseClient
+                            .from('bookings')
+                            .select('id, start_date, end_date, status')
+                            .eq('space_id', space.id)
+                            .in('status', ['confirmed', 'pending'])
+                            .gte('end_date', todayStr);
+
+                        spaceBookedDates.clear();
+                        existingBookingsList = bData || [];
+                        if (bData && bData.length > 0) {
+                            bData.forEach(b => {
+                                const s = new Date(b.start_date + 'T00:00:00');
+                                const e = new Date((b.end_date || b.start_date) + 'T00:00:00');
+                                for (let d = new Date(s); d <= e; d.setDate(d.getDate() + 1)) {
+                                    spaceBookedDates.add(getLocalDateString(d));
+                                }
+                            });
+                        }
+
+                        // Self-healing: If booth is marked 'booked' in DB but has no active bookings today or future, restore to 'available'
+                        const isBookedToday = spaceBookedDates.has(todayStr);
+                        if (space.status === 'booked' && !isBookedToday && spaceBookedDates.size === 0) {
+                            supabaseClient.from('spaces').update({ status: 'available' }).eq('id', space.id).then();
+                            space.status = 'available';
                         }
                     }
                 } else if (venueId) {
@@ -380,16 +1381,28 @@
                         if (venue.cover_image_url) {
                             document.getElementById('venue-cover-img').src = venue.cover_image_url;
                         }
+                        marketSchedule = parseMarketOpenDays(venue.description);
                     }
                 }
             } catch (err) {
                 console.error('Error loading booking info:', err);
             }
 
+            document.getElementById('market-open-days-text').textContent = marketSchedule.rawText;
+            document.getElementById('market-days-badge').textContent = `${marketSchedule.countPerWeek} วัน/สัปดาห์`;
+
+            // Auto-select first available open day from today onwards
+            selectedStartDate = findFirstAvailableOpenDate(today);
+            selectedEndDate = selectedStartDate;
+            startInput.value = selectedStartDate;
+            endInput.value = selectedEndDate;
+            weeklyStartInput.value = selectedStartDate;
+            monthlyStartInput.value = selectedStartDate;
+
             if (!foundData) {
                 document.getElementById('venue-name-title').innerText = 'ไม่พบข้อมูลงอีเวนต์หรือบูธที่เลือก';
                 document.getElementById('venue-location-text').innerHTML = '<span style="color: #ef4444;">กรุณาเลือกบูธจากหน้าผังอีเวนต์</span>';
-                const actionBtn = document.querySelector('.action-panel .btn-primary');
+                const actionBtn = document.getElementById('btn-submit');
                 if (actionBtn) {
                     actionBtn.disabled = true;
                     actionBtn.innerText = 'ไม่สามารถดำเนินการได้';
@@ -397,47 +1410,134 @@
             }
 
             calculateTotal();
+            renderMarketCalendar();
+        }
+
+        function handleBookingTypeChange() {
+            const dailyControls = document.getElementById('daily-controls');
+            const weeklyControls = document.getElementById('weekly-controls');
+            const monthlyControls = document.getElementById('monthly-controls');
+
+            calendarRangeSelecting = false;
+
+            if (radioDaily.checked) {
+                dailyControls.style.display = 'block';
+                weeklyControls.style.display = 'none';
+                monthlyControls.style.display = 'none';
+                if (!dailyRangeToggle.checked) {
+                    selectedEndDate = selectedStartDate;
+                }
+            } else if (radioWeekly.checked) {
+                dailyControls.style.display = 'none';
+                weeklyControls.style.display = 'block';
+                monthlyControls.style.display = 'none';
+                const weeks = parseInt(weeklyCountSelect.value) || 1;
+                selectedEndDate = addDays(selectedStartDate, (weeks * 7) - 1);
+            } else if (radioMonthly.checked) {
+                dailyControls.style.display = 'none';
+                weeklyControls.style.display = 'none';
+                monthlyControls.style.display = 'block';
+                const months = parseInt(monthlyCountSelect.value) || 1;
+                const endD = new Date(selectedStartDate + 'T00:00:00');
+                endD.setMonth(endD.getMonth() + months);
+                endD.setDate(endD.getDate() - 1);
+                selectedEndDate = getLocalDateString(endD);
+            }
+
+            startInput.value = selectedStartDate;
+            endInput.value = selectedEndDate;
+            weeklyStartInput.value = selectedStartDate;
+            monthlyStartInput.value = selectedStartDate;
+
+            calculateTotal();
+            renderMarketCalendar();
         }
 
         function calculateTotal() {
-            let days = 1;
-            if (radioMulti.checked) {
-                if (startInput.value && endInput.value) {
-                    const start = new Date(startInput.value);
-                    const end = new Date(endInput.value);
-                    const diffTime = end - start;
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                    
-                    if (diffDays < 1) {
-                        alert('วันสิ้นสุดต้องไม่ก่อนวันเริ่มต้น');
-                        endInput.value = startInput.value;
-                        days = 1;
-                    } else {
-                        days = diffDays;
-                    }
-                }
-            }
-            daysCount.innerText = days;
-            totalPrice.innerText = '฿' + (days * basePrice).toLocaleString();
-            return days * basePrice;
-        }
+            let chargedDays = 1;
+            let startVal = selectedStartDate || today;
+            let endVal = selectedEndDate || startVal;
+            let planDesc = 'รายวัน';
+            let chargedDaysDesc = '';
+            let formulaDesc = '';
 
-        function toggleDateType() {
-            if (radioMulti.checked) {
-                endWrapper.style.display = 'block';
-                if (!endInput.value) {
-                    endInput.value = startInput.value;
+            if (radioDaily.checked) {
+                const dObj = new Date(startVal + 'T00:00:00');
+                const dayIdx = dObj.getDay();
+                const dayName = THAI_DAY_FULL[dayIdx];
+                const isOpenDay = marketSchedule.openDayIndices.includes(dayIdx);
+
+                if (dailyRangeToggle.checked) {
+                    let openDaysInRange = 0;
+                    let curr = new Date(startVal + 'T00:00:00');
+                    const endLimit = new Date(endVal + 'T00:00:00');
+
+                    while (curr <= endLimit) {
+                        if (marketSchedule.openDayIndices.includes(curr.getDay())) {
+                            openDaysInRange++;
+                        }
+                        curr.setDate(curr.getDate() + 1);
+                    }
+
+                    chargedDays = Math.max(1, openDaysInRange);
+                    planDesc = 'รายวัน (กำหนดช่วงวันที่)';
+                    chargedDaysDesc = `<span>${chargedDays} วันทำการ</span> <span class="calc-val-highlight-sub">(ตรงกับวันเปิดตลาด ${marketSchedule.daysListText})</span>`;
+                } else {
+                    endVal = startVal;
+                    chargedDays = 1;
+                    planDesc = 'รายวัน (1 วัน)';
+                    chargedDaysDesc = `<span>1 วันทำการ</span> <span class="calc-val-highlight-sub">(${dayName})</span>`;
                 }
-            } else {
-                endWrapper.style.display = 'none';
+            } else if (radioWeekly.checked) {
+                const weeks = parseInt(weeklyCountSelect.value) || 1;
+                chargedDays = weeks * marketSchedule.countPerWeek;
+                planDesc = `รายอาทิตย์ (${weeks} สัปดาห์)`;
+                chargedDaysDesc = `<span>${chargedDays} วันทำการ</span> <span class="calc-val-highlight-sub">(${weeks} สัปดาห์ × ${marketSchedule.countPerWeek} วันเปิดตลาด/สัปดาห์)</span>`;
+            } else if (radioMonthly.checked) {
+                const months = parseInt(monthlyCountSelect.value) || 1;
+                const weeksInMonths = months * 4;
+                chargedDays = weeksInMonths * marketSchedule.countPerWeek;
+                planDesc = `รายเดือน (${months} เดือน / ${weeksInMonths} สัปดาห์)`;
+                chargedDaysDesc = `<span>${chargedDays} วันทำการ</span> <span class="calc-val-highlight-sub">(${weeksInMonths} สัปดาห์ × ${marketSchedule.countPerWeek} วันเปิด/สัปดาห์)</span>`;
             }
-            calculateTotal();
+
+            const total = chargedDays * basePrice;
+            formulaDesc = `฿${basePrice.toLocaleString()} × ${chargedDays} วัน = ฿${total.toLocaleString()}`;
+
+            daysCountEl.innerText = chargedDays;
+            totalPriceEl.innerText = '฿' + total.toLocaleString();
+
+            detailPlanType.innerText = planDesc;
+            detailDateRange.innerHTML = formatThaiDateRange(startVal, endVal);
+            detailChargedDays.innerHTML = chargedDaysDesc;
+            detailFormula.innerText = formulaDesc;
+
+            return {
+                startVal,
+                endVal,
+                chargedDays,
+                totalPrice: total,
+                planDesc
+            };
         }
 
         async function proceedToPayment() {
-            const startVal = startInput.value;
-            const endVal = radioMulti.checked ? endInput.value : startVal;
-            const totalVal = calculateTotal();
+            const calc = calculateTotal();
+            const startVal = calc.startVal;
+            const endVal = calc.endVal;
+            const totalVal = calc.totalPrice;
+
+            // Pre-validation: ensure no collision with already booked dates
+            let checkDate = new Date(startVal + 'T00:00:00');
+            const endLimit = new Date(endVal + 'T00:00:00');
+            while (checkDate <= endLimit) {
+                const dStr = getLocalDateString(checkDate);
+                if (spaceBookedDates.has(dStr)) {
+                    alert(`ไม่สามารถทำรายการได้ เนื่องจากวันที่ ${formatThaiDateShort(dStr)} บูธนี้มีผู้จองแล้ว กรุณาเลือกวันอื่น`);
+                    return;
+                }
+                checkDate.setDate(checkDate.getDate() + 1);
+            }
 
             const session = await getSession();
             if (!session || !session.user) {
@@ -446,39 +1546,72 @@
                 return;
             }
 
-            // Create unpaid booking first
-            const { data: newBooking, error: bErr } = await supabaseClient
-                .from('bookings')
-                .insert([{
-                    space_id: spaceId,
-                    user_id: session.user.id,
-                    start_date: startVal,
-                    end_date: endVal,
-                    total_price: totalVal,
-                    status: 'pending'
-                }])
-                .select()
-                .single();
+            const btn = document.getElementById('btn-submit');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกการจอง...';
 
-            if (bErr || !newBooking) {
-                console.error(bErr);
-                alert('ไม่สามารถสร้างการจองได้ กรุณาลองใหม่');
-                return;
+            try {
+                const { data: newBooking, error: bErr } = await supabaseClient
+                    .from('bookings')
+                    .insert([{
+                        space_id: spaceId,
+                        user_id: session.user.id,
+                        start_date: startVal,
+                        end_date: endVal,
+                        total_price: totalVal,
+                        status: 'pending'
+                    }])
+                    .select()
+                    .single();
+
+                if (bErr || !newBooking) {
+                    throw (bErr || new Error('ไม่สามารถสร้างการจองได้'));
+                }
+
+                const bookingType = radioDaily.checked ? 'daily' : (radioWeekly.checked ? 'weekly' : 'monthly');
+                const targetUrl = `payment.html?booking_id=${newBooking.id}&venue_id=${venueId || ''}&space_id=${spaceId || ''}&start_date=${startVal}&end_date=${endVal}&total_price=${totalVal}&booking_type=${bookingType}&period_text=${encodeURIComponent(calc.planDesc)}`;
+                window.location.href = targetUrl;
+            } catch (err) {
+                console.error(err);
+                alert('ไม่สามารถสร้างการจองได้: ' + (err.message || 'กรุณาลองใหม่อีกครั้ง'));
+                btn.disabled = false;
+                btn.innerHTML = 'ยืนยันการจอง';
             }
-
-            const targetUrl = `payment.html?booking_id=${newBooking.id}`;
-            window.location.href = targetUrl;
         }
 
-        radioSingle.addEventListener('change', toggleDateType);
-        radioMulti.addEventListener('change', toggleDateType);
-        startInput.addEventListener('change', () => {
-            if (radioMulti.checked && new Date(endInput.value) < new Date(startInput.value)) {
-                endInput.value = startInput.value;
+        radioDaily.addEventListener('change', handleBookingTypeChange);
+        radioWeekly.addEventListener('change', handleBookingTypeChange);
+        radioMonthly.addEventListener('change', handleBookingTypeChange);
+
+        dailyRangeToggle.addEventListener('change', (e) => {
+            calendarRangeSelecting = false;
+            if (!e.target.checked) {
+                selectedEndDate = selectedStartDate;
             }
             calculateTotal();
+            renderMarketCalendar();
         });
-        endInput.addEventListener('change', calculateTotal);
+
+        weeklyCountSelect.addEventListener('change', () => {
+            if (radioWeekly.checked && selectedStartDate) {
+                const weeks = parseInt(weeklyCountSelect.value) || 1;
+                selectedEndDate = addDays(selectedStartDate, (weeks * 7) - 1);
+                calculateTotal();
+                renderMarketCalendar();
+            }
+        });
+
+        monthlyCountSelect.addEventListener('change', () => {
+            if (radioMonthly.checked && selectedStartDate) {
+                const months = parseInt(monthlyCountSelect.value) || 1;
+                const endD = new Date(selectedStartDate + 'T00:00:00');
+                endD.setMonth(endD.getMonth() + months);
+                endD.setDate(endD.getDate() - 1);
+                selectedEndDate = getLocalDateString(endD);
+                calculateTotal();
+                renderMarketCalendar();
+            }
+        });
 
         window.addEventListener('DOMContentLoaded', initPage);
     </script>

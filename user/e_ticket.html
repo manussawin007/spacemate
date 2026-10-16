@@ -361,9 +361,29 @@
                 const venueName = booking.spaces?.venues?.name || 'พื้นที่จัดแสดง / ตลาด';
                 document.getElementById('ticket-market-name').innerText = venueName;
 
-                const dateDisplay = booking.start_date === booking.end_date 
-                    ? booking.start_date 
-                    : `${booking.start_date} ถึง ${booking.end_date}`;
+                function formatTicketDate(dateStr) {
+                    if (!dateStr) return '-';
+                    const parts = dateStr.split('-');
+                    if (parts.length === 3) {
+                        const y = parseInt(parts[0], 10);
+                        const m = parts[1].padStart(2, '0');
+                        const d = parts[2].padStart(2, '0');
+                        const beYearShort = String(y + 543).slice(-2);
+                        return `${d}/${m}/${beYearShort}`;
+                    }
+                    const d = new Date(dateStr + 'T00:00:00');
+                    if (isNaN(d.getTime())) return dateStr;
+                    const day = String(d.getDate()).padStart(2, '0');
+                    const month = String(d.getMonth() + 1).padStart(2, '0');
+                    const beYearShort = String(d.getFullYear() + 543).slice(-2);
+                    return `${day}/${month}/${beYearShort}`;
+                }
+
+                const sFmt = formatTicketDate(booking.start_date);
+                const eFmt = formatTicketDate(booking.end_date);
+                const dateDisplay = (booking.start_date === booking.end_date || !booking.end_date)
+                    ? sFmt 
+                    : `${sFmt} ถึง ${eFmt}`;
                 document.getElementById('ticket-date-time').innerText = dateDisplay;
 
                 const bookerName = booking.profiles 

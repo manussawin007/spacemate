@@ -2708,9 +2708,14 @@
                     displayName = nameInput.value.trim();
                 }
 
+                let finalId = idVal;
+                if (window.currentUserProfile?.kyc_status === 'approved' || window.currentUserProfile?.is_verified) {
+                    finalId = window.currentUserProfile.id_card_number || idVal;
+                }
+
                 const updates = {
                     phone: phoneVal,
-                    id_card_number: idVal,
+                    id_card_number: finalId,
                     company_name: companyInput ? companyInput.value.trim() : ''
                 };
                 
@@ -2971,8 +2976,23 @@
                 const editPhoneEl = document.getElementById('owner-edit-phone');
                 if (editPhoneEl) editPhoneEl.value = profile.phone || '';
                 
+                const isKycApproved = profile.kyc_status === 'approved' || profile.is_verified;
                 const editIdCardEl = document.getElementById('owner-edit-idcard');
-                if (editIdCardEl) editIdCardEl.value = profile.id_card_number || '';
+                if (editIdCardEl) {
+                    editIdCardEl.value = profile.id_card_number || '';
+                    if (isKycApproved) {
+                        editIdCardEl.readOnly = true;
+                        editIdCardEl.style.backgroundColor = '#f3f4f6';
+                        editIdCardEl.style.color = '#6b7280';
+                        editIdCardEl.style.cursor = 'not-allowed';
+                        editIdCardEl.title = 'เลขประจำตัวประชาชนได้รับการยืนยันตัวตน (e-KYC) แล้ว ไม่สามารถแก้ไขได้';
+                    } else {
+                        editIdCardEl.readOnly = false;
+                        editIdCardEl.style.backgroundColor = '';
+                        editIdCardEl.style.color = '';
+                        editIdCardEl.style.cursor = '';
+                    }
+                }
                 
                 const editEmailEl = document.getElementById('owner-edit-email');
                 if (editEmailEl) editEmailEl.value = session.user.email || profile.email || '';
@@ -3648,6 +3668,8 @@
             document.getElementById('venue-modal').style.display = 'none';
         }
 
+        let currentBookingData = null;
+
         function openBookingModal(encodedData, element) {
             if (element) {
                 markNotificationAsRead(element);
@@ -3656,6 +3678,7 @@
             const data = JSON.parse(decodeURIComponent(encodedData));
             currentBookingId = data.id;
             currentSpaceId = data.space_id;
+            currentBookingData = data;
 
             document.getElementById('modal-booker-name').textContent = data.bookerName;
             document.getElementById('modal-booker-phone').textContent = data.bookerPhone || '-';
@@ -3686,6 +3709,7 @@
             document.getElementById('booking-modal').style.display = 'none';
             currentBookingId = null;
             currentSpaceId = null;
+            currentBookingData = null;
         }
 
         function requireOwnerKYC(e, url) {
@@ -3714,10 +3738,16 @@
                 
                 if (bErr) throw bErr;
 
-                // 2. Update Space Status
+                // 2. Update Space Status: only mark 'booked' if the booking actually covers today
+                const todayD = new Date();
+                const todayStr = `${todayD.getFullYear()}-${String(todayD.getMonth() + 1).padStart(2, '0')}-${String(todayD.getDate()).padStart(2, '0')}`;
+                const sDate = currentBookingData?.startDate || '';
+                const eDate = currentBookingData?.endDate || sDate;
+                const coversToday = (sDate <= todayStr && eDate >= todayStr);
+
                 const { error: sErr } = await supabaseClient
                     .from('spaces')
-                    .update({ status: 'booked' })
+                    .update({ status: coversToday ? 'booked' : 'available' })
                     .eq('id', currentSpaceId);
 
                 if (sErr) throw sErr;

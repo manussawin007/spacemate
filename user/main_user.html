@@ -490,17 +490,61 @@
 
         .location-badge {
             position: absolute;
-            bottom: 1rem;
-            left: 1rem;
+            bottom: 0.85rem;
+            left: 0.85rem;
+            max-width: calc(100% - 1.7rem);
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(4px);
-            color: #1e293b;
-            padding: 0.4rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
+            backdrop-filter: blur(8px);
+            color: #0f172a;
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.78rem;
             font-weight: 600;
             z-index: 2;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.85);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.3;
+        }
+
+        .location-badge i {
+            color: #ea580c;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .location-badge span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-location {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.82rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+            min-width: 0;
+        }
+
+        .card-location i {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .card-location-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.4;
         }
 
         .empty-state {
@@ -3808,13 +3852,18 @@
             submitBtn.disabled = true;
 
             try {
+                let finalIdCard = idCardVal;
+                if (window.currentUserProfile?.kyc_status === 'approved' || window.currentUserProfile?.is_verified) {
+                    finalIdCard = window.currentUserProfile.id_card_number || idCardVal;
+                }
+
                 const { error } = await supabaseClient
                     .from('profiles')
                     .upsert({
                         id: currentUserId,
                         display_name: displayVal,
                         phone: phoneVal,
-                        id_card_number: idCardVal,
+                        id_card_number: finalIdCard,
                         address: addressVal
                     });
 
@@ -3883,11 +3932,59 @@
             const submitBtn = document.getElementById('user-kyc-submit-btn');
             const menuBadge = document.getElementById('user-kyc-menu-badge');
 
+            const kycInputIds = [
+                'user-kyc-firstname',
+                'user-kyc-lastname',
+                'user-kyc-idcard',
+                'user-kyc-addr-no',
+                'user-kyc-addr-road',
+                'user-kyc-addr-subdistrict',
+                'user-kyc-addr-district',
+                'user-kyc-addr-province',
+                'user-kyc-addr-zip',
+                'user-kyc-phone'
+            ];
+            const termsCheck = document.getElementById('user-kyc-terms');
+            const boxIdcard = document.getElementById('user-box-idcard');
+            const boxSelfie = document.getElementById('user-box-selfie');
+            const fileIdcard = document.getElementById('user-file-idcard');
+            const fileSelfie = document.getElementById('user-file-selfie');
+            const editIdCard = document.getElementById('user-edit-idcard');
+
             if (!status || status === 'unverified') {
                 if (step1) { step1.style.background = '#a46309'; step1.style.color = 'white'; step1.innerHTML = '1'; }
                 if (step2) { step2.style.background = '#f1f5f9'; step2.style.color = '#94a3b8'; step2.innerHTML = '2'; }
                 if (bannerContainer) bannerContainer.style.display = 'none';
                 if (menuBadge) { menuBadge.innerHTML = 'ด่วน'; menuBadge.style.background = '#ef4444'; }
+
+                // Unlock all inputs
+                kycInputIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.disabled = false;
+                        el.readOnly = false;
+                        el.style.backgroundColor = '';
+                        el.style.color = '';
+                        el.style.cursor = '';
+                    }
+                });
+                if (termsCheck) termsCheck.disabled = false;
+                [boxIdcard, boxSelfie].forEach(box => {
+                    if (box) {
+                        box.style.pointerEvents = 'auto';
+                        box.style.opacity = '1';
+                        box.style.cursor = 'pointer';
+                    }
+                });
+                if (fileIdcard) fileIdcard.disabled = false;
+                if (fileSelfie) fileSelfie.disabled = false;
+                if (submitBtn) {
+                    submitBtn.innerHTML = 'ยืนยันและส่งข้อมูล';
+                    submitBtn.disabled = false;
+                    submitBtn.style.background = '';
+                    submitBtn.style.cursor = 'pointer';
+                    submitBtn.style.opacity = '1';
+                }
                 return;
             }
 
@@ -3899,17 +3996,60 @@
                 if (menuBadge) { menuBadge.innerHTML = 'ยืนยันแล้ว'; menuBadge.style.background = '#10b981'; }
                 
                 if (bannerContainer) bannerContainer.innerHTML = `
-                    <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 1rem; display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem;">
-                        <div style="width: 40px; height: 40px; background: #34d399; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;"><i class="fa-solid fa-check"></i></div>
-                        <div>
-                            <div style="font-weight: 700; color: #065f46; font-size: 1.05rem;">ยืนยันตัวตนสำเร็จแล้ว (Approved)</div>
-                            <div style="font-size: 0.85rem; color: #047857;">บัญชีของคุณได้รับการตรวจสอบเรียบร้อยแล้ว</div>
+                    <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 1.15rem; display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem;">
+                        <div style="width: 44px; height: 44px; background: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;"><i class="fa-solid fa-circle-check"></i></div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; color: #065f46; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+                                ยืนยันตัวตนสำเร็จแล้ว (Approved)
+                                <span style="font-size: 0.72rem; background: #059669; color: white; padding: 2px 8px; border-radius: 10px;"><i class="fa-solid fa-lock"></i> ข้อมูลถูกล็อค</span>
+                            </div>
+                            <div style="font-size: 0.85rem; color: #047857; margin-top: 2px;">บัญชีของคุณได้รับการตรวจสอบและรับรองเรียบร้อยแล้ว ข้อมูลถูกล็อคเพื่อความปลอดภัยและไม่สามารถแก้ไขได้</div>
                         </div>
                     </div>
                 `;
+
+                // Lock all KYC inputs
+                kycInputIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.disabled = true;
+                        el.readOnly = true;
+                        el.style.backgroundColor = '#f1f5f9';
+                        el.style.color = '#475569';
+                        el.style.cursor = 'not-allowed';
+                    }
+                });
+
+                if (termsCheck) {
+                    termsCheck.checked = true;
+                    termsCheck.disabled = true;
+                }
+
+                [boxIdcard, boxSelfie].forEach(box => {
+                    if (box) {
+                        box.style.pointerEvents = 'none';
+                        box.style.opacity = '0.9';
+                        box.style.cursor = 'not-allowed';
+                    }
+                });
+                if (fileIdcard) fileIdcard.disabled = true;
+                if (fileSelfie) fileSelfie.disabled = true;
+
+                // Lock ID card in edit profile too
+                if (editIdCard) {
+                    editIdCard.readOnly = true;
+                    editIdCard.style.backgroundColor = '#f1f5f9';
+                    editIdCard.style.color = '#475569';
+                    editIdCard.style.cursor = 'not-allowed';
+                    editIdCard.title = 'เลขประจำตัวประชาชนยืนยันตัวตนแล้ว ไม่สามารถแก้ไขได้';
+                }
+
                 if (submitBtn) {
-                    submitBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> บัญชีได้รับการยืนยันแล้ว';
+                    submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> บัญชีได้รับการยืนยันตัวตนแล้ว (ข้อมูลถูกล็อค)';
                     submitBtn.disabled = true;
+                    submitBtn.style.background = '#059669';
+                    submitBtn.style.cursor = 'not-allowed';
+                    submitBtn.style.opacity = '0.85';
                 }
             } else if (status === 'pending') {
                 if (step1) { step1.style.background = '#22c55e'; step1.style.color = 'white'; step1.innerHTML = '<i class="fa-solid fa-check"></i>'; }
@@ -3917,17 +4057,95 @@
                 if (menuBadge) { menuBadge.innerHTML = 'รอตรวจสอบ'; menuBadge.style.background = '#eab308'; }
 
                 if (bannerContainer) bannerContainer.innerHTML = `
-                    <div style="background: #fefce8; border: 1px solid #fde047; border-radius: 12px; padding: 1rem; display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem;">
-                        <div style="width: 40px; height: 40px; background: #facc15; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;"><i class="fa-solid fa-hourglass-half"></i></div>
-                        <div>
-                            <div style="font-weight: 700; color: #854d0e; font-size: 1.05rem;">กำลังรอการตรวจสอบ (Pending)</div>
-                            <div style="font-size: 0.85rem; color: #a16207;">เจ้าหน้าที่จะตรวจสอบข้อมูลของคุณภายใน 24 ชม.</div>
+                    <div style="background: #fefce8; border: 1px solid #fde047; border-radius: 12px; padding: 1.15rem; display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem;">
+                        <div style="width: 44px; height: 44px; background: #facc15; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;"><i class="fa-solid fa-hourglass-half"></i></div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; color: #854d0e; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+                                กำลังรอการตรวจสอบ (Pending)
+                                <span style="font-size: 0.72rem; background: #d97706; color: white; padding: 2px 8px; border-radius: 10px;"><i class="fa-solid fa-lock"></i> อยู่ระหว่างตรวจสอบ</span>
+                            </div>
+                            <div style="font-size: 0.85rem; color: #a16207; margin-top: 2px;">เจ้าหน้าที่กำลังตรวจสอบข้อมูลและเอกสารของคุณ ใช้เวลาประมาณ 24 ชม. ข้อมูลถูกล็อคในระหว่างนี้</div>
                         </div>
                     </div>
                 `;
+
+                // Lock inputs while pending
+                kycInputIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.disabled = true;
+                        el.readOnly = true;
+                        el.style.backgroundColor = '#f8fafc';
+                        el.style.color = '#64748b';
+                        el.style.cursor = 'not-allowed';
+                    }
+                });
+
+                if (termsCheck) {
+                    termsCheck.checked = true;
+                    termsCheck.disabled = true;
+                }
+
+                [boxIdcard, boxSelfie].forEach(box => {
+                    if (box) {
+                        box.style.pointerEvents = 'none';
+                        box.style.opacity = '0.9';
+                        box.style.cursor = 'not-allowed';
+                    }
+                });
+                if (fileIdcard) fileIdcard.disabled = true;
+                if (fileSelfie) fileSelfie.disabled = true;
+
                 if (submitBtn) {
-                    submitBtn.innerHTML = '<i class="fa-solid fa-hourglass-half"></i> รอการตรวจสอบ...';
+                    submitBtn.innerHTML = '<i class="fa-solid fa-hourglass-half"></i> อยู่ระหว่างรอการตรวจสอบ (ข้อมูลถูกล็อค)';
                     submitBtn.disabled = true;
+                    submitBtn.style.background = '#d97706';
+                    submitBtn.style.cursor = 'not-allowed';
+                    submitBtn.style.opacity = '0.85';
+                }
+            } else if (status === 'rejected') {
+                if (step1) { step1.style.background = '#ef4444'; step1.style.color = 'white'; step1.innerHTML = '<i class="fa-solid fa-xmark"></i>'; }
+                if (step2) { step2.style.background = '#f1f5f9'; step2.style.color = '#94a3b8'; step2.innerHTML = '2'; }
+                if (menuBadge) { menuBadge.innerHTML = 'ไม่อนุมัติ'; menuBadge.style.background = '#ef4444'; }
+
+                if (bannerContainer) bannerContainer.innerHTML = `
+                    <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 1.15rem; display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem;">
+                        <div style="width: 44px; height: 44px; background: #ef4444; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;"><i class="fa-solid fa-xmark"></i></div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; color: #991b1b; font-size: 1.05rem;">เอกสารไม่ผ่านการอนุมัติ (Rejected)</div>
+                            <div style="font-size: 0.85rem; color: #b91c1c; margin-top: 2px;">กรุณาตรวจสอบความถูกต้องของข้อมูลและภาพถ่ายเอกสารให้ชัดเจน แล้วกดส่งข้อมูลใหม่อีกครั้ง</div>
+                        </div>
+                    </div>
+                `;
+
+                // Re-enable inputs for correction
+                kycInputIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.disabled = false;
+                        el.readOnly = false;
+                        el.style.backgroundColor = '';
+                        el.style.color = '';
+                        el.style.cursor = '';
+                    }
+                });
+                if (termsCheck) termsCheck.disabled = false;
+                [boxIdcard, boxSelfie].forEach(box => {
+                    if (box) {
+                        box.style.pointerEvents = 'auto';
+                        box.style.opacity = '1';
+                        box.style.cursor = 'pointer';
+                    }
+                });
+                if (fileIdcard) fileIdcard.disabled = false;
+                if (fileSelfie) fileSelfie.disabled = false;
+
+                if (submitBtn) {
+                    submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ยื่นข้อมูลยืนยันตัวตนใหม่อีกครั้ง';
+                    submitBtn.disabled = false;
+                    submitBtn.style.background = '';
+                    submitBtn.style.cursor = 'pointer';
+                    submitBtn.style.opacity = '1';
                 }
             }
         }
@@ -3937,6 +4155,16 @@
                 alert('เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่');
                 window.location.replace('../index.html');
                 return;
+            }
+
+            const currentKycStatus = window.currentUserProfile?.kyc_status || (window.currentUserProfile?.is_verified ? 'approved' : 'unverified');
+            if (currentKycStatus === 'approved') {
+                alert('บัญชีของคุณได้รับการยืนยันตัวตน (KYC) เรียบร้อยแล้ว ข้อมูลถูกล็อคและไม่สามารถแก้ไขได้');
+                return false;
+            }
+            if (currentKycStatus === 'pending') {
+                alert('ข้อมูลของคุณอยู่ระหว่างรอเจ้าหน้าที่ตรวจสอบ ไม่สามารถแก้ไขได้ในขณะนี้');
+                return false;
             }
 
             const termsCheck = document.getElementById('user-kyc-terms');
@@ -4382,6 +4610,28 @@
                     const kycPhone = document.getElementById('user-kyc-phone');
                     if (kycPhone) kycPhone.value = profile.phone || '';
 
+                    if (profile.address) {
+                        const parts = profile.address.split(' ');
+                        if (parts.length >= 5 && profile.address.includes('ต.') && profile.address.includes('อ.') && profile.address.includes('จ.')) {
+                            if (document.getElementById('user-kyc-addr-no')) document.getElementById('user-kyc-addr-no').value = parts[0] || '';
+                            if (document.getElementById('user-kyc-addr-subdistrict')) document.getElementById('user-kyc-addr-subdistrict').value = (parts[1] || '').replace('ต.', '');
+                            if (document.getElementById('user-kyc-addr-district')) document.getElementById('user-kyc-addr-district').value = (parts[2] || '').replace('อ.', '');
+                            if (document.getElementById('user-kyc-addr-province')) document.getElementById('user-kyc-addr-province').value = (parts[3] || '').replace('จ.', '');
+                            if (document.getElementById('user-kyc-addr-zip')) document.getElementById('user-kyc-addr-zip').value = parts[4] || '';
+                        } else {
+                            if (document.getElementById('user-kyc-addr-no')) document.getElementById('user-kyc-addr-no').value = profile.address;
+                        }
+                    }
+
+                    if (profile.id_card_image_url) {
+                        userUploadedFiles.idcard = profile.id_card_image_url;
+                        renderUserFilePreview('idcard', profile.id_card_image_url, 'บัตรประชาชนที่บันทึกไว้');
+                    }
+                    if (profile.selfie_image_url) {
+                        userUploadedFiles.selfie = profile.selfie_image_url;
+                        renderUserFilePreview('selfie', profile.selfie_image_url, 'ภาพถ่ายเซลฟี่ที่บันทึกไว้');
+                    }
+
                     // Set KYC UI State
                     renderUserKycStatusUI(profile.kyc_status || (profile.is_verified ? 'approved' : 'unverified'));
 
@@ -4475,14 +4725,24 @@
 
                     const priceText = minPrice > 0 ? `฿${minPrice.toLocaleString()} <span>/ วัน</span>` : 'เปิดให้จอง';
 
+                    const badgeText = venue.province && venue.province.trim() ? venue.province.trim() : (venue.location || 'ทั่วไป');
+                    const fullAddress = venue.location || venue.province || 'ทั่วไป';
+
                     const cardHtml = `
-                        <div class="listing-card" data-location="${venue.location || 'ทั่วไป'}" data-province="${venue.province || ''}" data-price="${minPrice}">
+                        <div class="listing-card" data-location="${venue.location || 'ทั่วไป'}" data-province="${venue.province || ''}" data-price="${minPrice}" data-lat="${venue.latitude || ''}" data-lon="${venue.longitude || ''}">
                             <div class="card-image-container">
                                 <img src="${coverImg}" alt="${venue.name}" class="card-image">
-                                <span class="location-badge">📍 ${venue.location || 'ทั่วไป'}</span>
+                                <span class="location-badge" title="${fullAddress}">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    <span>${badgeText}</span>
+                                </span>
                             </div>
                             <div class="card-body">
                                 <h3 class="card-title">${venue.name}</h3>
+                                <div class="card-location" title="${fullAddress}">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    <span class="card-location-text">${fullAddress}</span>
+                                </div>
                                 <div class="card-info">
                                     <span>${venue.type === 'market' ? '🏪' : '🎪'}</span>
                                     <span>${venue.type === 'market' ? 'ตลาดนัด' : 'งานอีเวนต์'}</span>
@@ -4519,6 +4779,24 @@
                 console.error('Error fetching venues:', err);
                 filterItems();
             }
+        }
+
+        function formatBookingDate(dateStr) {
+            if (!dateStr) return '-';
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                const y = parseInt(parts[0], 10);
+                const m = parts[1].padStart(2, '0');
+                const d = parts[2].padStart(2, '0');
+                const beYearShort = String(y + 543).slice(-2);
+                return `${d}/${m}/${beYearShort}`;
+            }
+            const d = new Date(dateStr + 'T00:00:00');
+            if (isNaN(d.getTime())) return dateStr;
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const beYearShort = String(d.getFullYear() + 543).slice(-2);
+            return `${day}/${month}/${beYearShort}`;
         }
 
         async function fetchUserBookings(userId) {
@@ -4569,7 +4847,9 @@
                     const venueName = b.spaces?.venues?.name || 'ตลาดที่จอง';
                     const spaceNo = b.spaces?.space_number ? `โซน ${b.spaces.zone || '-'} - ล็อค ${b.spaces.space_number}` : 'พื้นที่จัดแสดง';
                     const coverImg = b.spaces?.venues?.cover_image_url || 'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&q=80&w=200';
-                    const dateDisplay = b.start_date === b.end_date ? b.start_date : `${b.start_date} ถึง ${b.end_date}`;
+                    const sFmt = formatBookingDate(b.start_date);
+                    const eFmt = formatBookingDate(b.end_date);
+                    const dateDisplay = (b.start_date === b.end_date || !b.end_date) ? sFmt : `${sFmt} ถึง ${eFmt}`;
                     const priceFmt = '฿' + Number(b.total_price || 0).toLocaleString();
 
                     let statusTab = 'ค้างชำระ';

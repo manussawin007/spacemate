@@ -280,18 +280,21 @@
 
         /* Bank Details */
         .bank-details {
-            background: #f8fafc;
-            border-radius: 0.75rem;
-            padding: 1rem;
+            background: #ffffff;
+            border-radius: 1rem;
+            padding: 1.15rem;
             display: flex;
             align-items: center;
             gap: 1rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            transition: all 0.2s ease;
         }
 
         .bank-logo {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
             background: #10b981;
             color: white;
             display: flex;
@@ -300,47 +303,65 @@
             font-weight: bold;
             font-size: 1rem;
             flex-shrink: 0;
+            object-fit: cover;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
         }
 
         .bank-info {
             flex: 1;
+            min-width: 0;
         }
 
         .bank-name {
-            font-weight: 600;
-            font-size: 0.9rem;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-main);
         }
 
         .acc-name {
             font-size: 0.85rem;
             color: var(--text-muted);
+            margin-top: 0.15rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .acc-number {
-            font-weight: 600;
-            font-size: 1.1rem;
+            font-weight: 700;
+            font-size: 1.15rem;
             letter-spacing: 0.5px;
             color: var(--primary-color);
-            margin-top: 0.2rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .copy-btn {
             background: #FFFFFF;
-            border: 1px solid #e2e8f0;
-            width: 36px;
-            height: 36px;
+            border: 1px solid #cbd5e1;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--text-main);
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
             transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .copy-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: scale(1.05);
         }
 
         .copy-btn:active {
-            transform: scale(0.9);
+            transform: scale(0.95);
         }
 
         /* Slip Upload */
@@ -515,6 +536,10 @@
                 <span>พื้นที่ / ล็อค</span>
                 <span id="receipt-space-info">-</span>
             </div>
+            <div class="receipt-row" id="receipt-plan-row" style="display: none;">
+                <span>รูปแบบการจอง</span>
+                <span id="receipt-plan-text" style="font-weight: 600; color: #a46309;">-</span>
+            </div>
 
             <div class="receipt-divider"></div>
 
@@ -538,21 +563,32 @@
                             src="../assets/images/qr.jpg"
                             alt="QR Code" class="qr-image">
                     </div>
-                    <button class="save-qr-btn" onclick="alert('บันทึกรูป QR Code สำเร็จ')">
+                    <div id="promptpay-info-box" style="margin-top: 0.75rem; text-align: center; display: none;">
+                        <span id="promptpay-owner-text" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
+                            พร้อมเพย์: <span id="promptpay-phone-text" style="font-weight: 600; color: var(--text-main);">-</span>
+                        </span>
+                    </div>
+                    <button class="save-qr-btn" onclick="saveQrCode()">
                         <i class="fa-solid fa-download"></i> บันทึก QR Code
                     </button>
                 </div>
             </div>
 
             <div id="bank-tab" class="tab-content">
-                <div class="bank-details">
-                    <div class="bank-logo">K</div>
+                <div class="bank-details" id="bank-details-box">
+                    <img id="bank-logo-img" src="../assets/กสิกรไทย.png" alt="Bank Logo" class="bank-logo">
+                    <div id="bank-logo-badge" class="bank-logo" style="display: none;">K</div>
                     <div class="bank-info">
-                        <div class="bank-name">ธนาคารกสิกรไทย (KBank)</div>
-                        <div class="acc-name">บจก. สเปซเมท แพลตฟอร์ม</div>
-                        <div class="acc-number" id="acc-num">012-3-45678-9</div>
+                        <div id="bank-owner-badge-container" style="margin-bottom: 0.35rem;">
+                            <span style="background: #ecfdf5; color: #047857; font-size: 0.72rem; padding: 2px 8px; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; border: 1px solid #a7f3d0;">
+                                <i class="fa-solid fa-circle-check"></i> บัญชีรับเงินของเจ้าของตลาด
+                            </span>
+                        </div>
+                        <div class="bank-name" id="bank-name-text">กำลังโหลดข้อมูลบัญชี...</div>
+                        <div class="acc-name" id="bank-acc-name">ชื่อบัญชี: กำลังโหลด...</div>
+                        <div class="acc-number"><span id="acc-num">-</span></div>
                     </div>
-                    <button class="copy-btn" onclick="copyAccount()">
+                    <button class="copy-btn" id="bank-copy-btn" onclick="copyAccount()" title="คัดลอกเลขบัญชี">
                         <i class="fa-regular fa-copy"></i>
                     </button>
                 </div>
@@ -591,17 +627,218 @@
     <script src="../assets/js/supabase.js"></script>
 
     <script>
+        // Local Date and Thai Formatting Helpers
+        function getLocalDateString(d = new Date()) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        const THAI_MONTHS_LIST = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+
+        function formatThaiDateShort(dateStr) {
+            if (!dateStr) return '-';
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                const y = parseInt(parts[0], 10);
+                const m = parts[1].padStart(2, '0');
+                const d = parts[2].padStart(2, '0');
+                const beYearShort = String(y + 543).slice(-2);
+                return `${d}/${m}/${beYearShort}`;
+            }
+            const d = new Date(dateStr + 'T00:00:00');
+            if (isNaN(d.getTime())) return dateStr;
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const beYearShort = String(d.getFullYear() + 543).slice(-2);
+            return `${day}/${month}/${beYearShort}`;
+        }
+
+        function formatThaiDateLong(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                const y = parseInt(parts[0], 10);
+                const m = parseInt(parts[1], 10) - 1;
+                const d = parseInt(parts[2], 10);
+                return `${d} ${THAI_MONTHS_LIST[m]} ${y + 543}`;
+            }
+            const d = new Date(dateStr + 'T00:00:00');
+            if (isNaN(d.getTime())) return dateStr;
+            return `${d.getDate()} ${THAI_MONTHS_LIST[d.getMonth()]} ${d.getFullYear() + 543}`;
+        }
+
         // Parse Query Params
         const urlParams = new URLSearchParams(window.location.search);
         const bookingId = urlParams.get('booking_id');
         const venueId = urlParams.get('venue_id');
         let spaceId = urlParams.get('space_id');
-        let startDate = urlParams.get('start_date') || new Date().toISOString().split('T')[0];
+        let startDate = urlParams.get('start_date') || getLocalDateString(new Date());
         let endDate = urlParams.get('end_date') || startDate;
         let totalPrice = parseFloat(urlParams.get('total_price')) || 0;
 
         let currentUser = null;
         let uploadedSlipBase64 = null;
+
+        // Bank brand configuration
+        const BANK_CONFIG = {
+            'kbank': { name: 'ธนาคารกสิกรไทย (KBank)', logo: '../assets/กสิกรไทย.png', badge: 'K', color: '#138f2d' },
+            'scb': { name: 'ธนาคารไทยพาณิชย์ (SCB)', logo: '../assets/ไทยพาณิชย์.jpg', badge: 'SCB', color: '#4e2e7f' },
+            'bbl': { name: 'ธนาคารกรุงเทพ (BBL)', logo: '../assets/กรุงเทพ.jpg', badge: 'BBL', color: '#1e3799' },
+            'ktb': { name: 'ธนาคารกรุงไทย (KTB)', logo: '../assets/กรุงไทย.png', badge: 'KTB', color: '#00a3e8' },
+            'bay': { name: 'ธนาคารกรุงศรีอยุธยา (BAY)', logo: '../assets/กรุงศรี.png', badge: 'BAY', color: '#fdb913' },
+            'ttb': { name: 'ธนาคารทหารไทยธนชาต (ttb)', logo: '../assets/ทีทีบี.jpg', badge: 'TTB', color: '#002d62' }
+        };
+
+        function formatBankAccountNo(accNo) {
+            if (!accNo) return '-';
+            const clean = accNo.toString().replace(/\D/g, '');
+            if (clean.length === 10) {
+                return `${clean.slice(0, 3)}-${clean.slice(3, 4)}-${clean.slice(4, 9)}-${clean.slice(9)}`;
+            } else if (clean.length === 12) {
+                return `${clean.slice(0, 3)}-${clean.slice(3, 4)}-${clean.slice(4, 10)}-${clean.slice(10)}`;
+            }
+            return accNo;
+        }
+
+        async function loadOwnerPaymentDetails(ownerId, venueName) {
+            const bankLogoImg = document.getElementById('bank-logo-img');
+            const bankLogoBadge = document.getElementById('bank-logo-badge');
+            const bankNameText = document.getElementById('bank-name-text');
+            const bankAccName = document.getElementById('bank-acc-name');
+            const accNumEl = document.getElementById('acc-num');
+            const badgeContainer = document.getElementById('bank-owner-badge-container');
+
+            if (!ownerId) {
+                renderFallbackBank(null, venueName);
+                return;
+            }
+
+            try {
+                const { data: ownerProfile, error } = await supabaseClient
+                    .from('profiles')
+                    .select('bank_name, bank_account_no, bank_account_name, display_name, first_name, last_name, company_name, phone')
+                    .eq('id', ownerId)
+                    .single();
+
+                if (error || !ownerProfile) {
+                    console.warn('Could not load owner profile for bank details:', error);
+                    renderFallbackBank(null, venueName);
+                    return;
+                }
+
+                // If owner has configured bank info
+                if (ownerProfile.bank_account_no && ownerProfile.bank_name) {
+                    const bankKey = (ownerProfile.bank_name || '').toLowerCase().trim();
+                    const bankInfo = BANK_CONFIG[bankKey] || {
+                        name: ownerProfile.bank_name || 'ธนาคาร',
+                        logo: '../assets/imagelogo.png',
+                        badge: 'B',
+                        color: '#6366f1'
+                    };
+
+                    if (bankLogoImg) {
+                        bankLogoImg.src = bankInfo.logo;
+                        bankLogoImg.alt = bankInfo.name;
+                        bankLogoImg.style.display = 'block';
+                        bankLogoImg.onerror = () => {
+                            bankLogoImg.style.display = 'none';
+                            if (bankLogoBadge) {
+                                bankLogoBadge.style.display = 'flex';
+                                bankLogoBadge.textContent = bankInfo.badge;
+                                bankLogoBadge.style.backgroundColor = bankInfo.color || '#a46309';
+                            }
+                        };
+                    }
+                    if (bankLogoBadge) {
+                        bankLogoBadge.style.display = 'none';
+                    }
+
+                    if (bankNameText) {
+                        bankNameText.textContent = bankInfo.name;
+                    }
+
+                    const accountHolder = ownerProfile.bank_account_name ||
+                        (ownerProfile.first_name ? `${ownerProfile.first_name} ${ownerProfile.last_name || ''}`.trim() : '') ||
+                        ownerProfile.company_name ||
+                        ownerProfile.display_name ||
+                        'เจ้าของตลาด';
+
+                    if (bankAccName) {
+                        bankAccName.textContent = `ชื่อบัญชี: ${accountHolder}`;
+                    }
+
+                    if (accNumEl) {
+                        accNumEl.textContent = formatBankAccountNo(ownerProfile.bank_account_no);
+                        accNumEl.dataset.raw = ownerProfile.bank_account_no.replace(/\D/g, '');
+                    }
+
+                    if (badgeContainer) {
+                        badgeContainer.innerHTML = `
+                            <span style="background: #ecfdf5; color: #047857; font-size: 0.72rem; padding: 2px 8px; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; border: 1px solid #a7f3d0;">
+                                <i class="fa-solid fa-circle-check"></i> บัญชีรับเงินของ${venueName ? ' ' + venueName : 'เจ้าของตลาด'}
+                            </span>
+                        `;
+                    }
+                } else {
+                    renderFallbackBank(ownerProfile, venueName);
+                }
+
+                // PromptPay integration if owner has phone
+                const cleanPhone = (ownerProfile.phone || '').replace(/\D/g, '');
+                if (cleanPhone && (cleanPhone.length === 10 || cleanPhone.length === 13)) {
+                    const qrImg = document.getElementById('qr-image');
+                    if (qrImg) {
+                        qrImg.src = `https://promptpay.io/${cleanPhone}/${totalPrice > 0 ? totalPrice : ''}.png`;
+                    }
+                    const ppInfoBox = document.getElementById('promptpay-info-box');
+                    const ppPhoneText = document.getElementById('promptpay-phone-text');
+                    if (ppInfoBox && ppPhoneText) {
+                        ppInfoBox.style.display = 'block';
+                        const formattedPhone = cleanPhone.length === 10
+                            ? `${cleanPhone.slice(0, 3)}-${cleanPhone.slice(3, 6)}-${cleanPhone.slice(6)}`
+                            : cleanPhone;
+                        ppPhoneText.textContent = formattedPhone;
+                    }
+                }
+
+            } catch (err) {
+                console.error('Error fetching owner bank details:', err);
+                renderFallbackBank(null, venueName);
+            }
+        }
+
+        function renderFallbackBank(ownerProfile, venueName) {
+            const bankLogoImg = document.getElementById('bank-logo-img');
+            const bankLogoBadge = document.getElementById('bank-logo-badge');
+            const bankNameText = document.getElementById('bank-name-text');
+            const bankAccName = document.getElementById('bank-acc-name');
+            const accNumEl = document.getElementById('acc-num');
+            const badgeContainer = document.getElementById('bank-owner-badge-container');
+
+            if (bankLogoImg) bankLogoImg.src = '../assets/กสิกรไทย.png';
+            if (bankLogoBadge) bankLogoBadge.style.display = 'none';
+            if (bankNameText) bankNameText.textContent = 'ธนาคารกสิกรไทย (KBank)';
+
+            const ownerName = ownerProfile?.bank_account_name ||
+                ownerProfile?.company_name ||
+                (ownerProfile?.first_name ? `${ownerProfile.first_name} ${ownerProfile.last_name || ''}`.trim() : '') ||
+                (venueName ? `บัญชีส่วนกลาง (${venueName})` : 'บจก. สเปซเมท แพลตฟอร์ม');
+
+            if (bankAccName) bankAccName.textContent = `ชื่อบัญชี: ${ownerName}`;
+            if (accNumEl) {
+                accNumEl.textContent = '012-3-45678-9';
+                accNumEl.dataset.raw = '0123456789';
+            }
+            if (badgeContainer) {
+                badgeContainer.innerHTML = `
+                    <span style="background: #fef3c7; color: #92400e; font-size: 0.72rem; padding: 2px 8px; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; border: 1px solid #fde68a;">
+                        <i class="fa-solid fa-building-columns"></i> บัญชีโอนเงินสำหรับ${venueName || 'การจองนี้'}
+                    </span>
+                `;
+            }
+        }
 
         // Init and verify Auth
         async function initPage() {
@@ -613,6 +850,9 @@
                     return;
                 }
                 currentUser = session.user;
+
+                let detectedOwnerId = null;
+                let detectedVenueName = 'ตลาดที่เลือก';
 
                 // Load Booking info if provided
                 if (bookingId) {
@@ -628,8 +868,9 @@
                         endDate = bData.end_date;
                         totalPrice = parseFloat(bData.total_price);
                         
-                        const venueName = bData.spaces?.venues?.name || 'ตลาดที่เลือก';
-                        document.getElementById('receipt-venue-name').innerText = venueName;
+                        detectedVenueName = bData.spaces?.venues?.name || 'ตลาดที่เลือก';
+                        detectedOwnerId = bData.spaces?.venues?.owner_id || null;
+                        document.getElementById('receipt-venue-name').innerText = detectedVenueName;
                         document.getElementById('receipt-space-info').innerText = `โซน ${bData.spaces?.zone || '-'} / ล็อค ${bData.spaces?.space_number}`;
                     }
                 } else if (spaceId) {
@@ -640,8 +881,9 @@
                         .single();
 
                     if (!sErr && spaceData) {
-                        const venueName = spaceData.venues ? spaceData.venues.name : 'ตลาดที่เลือก';
-                        document.getElementById('receipt-venue-name').innerText = venueName;
+                        detectedVenueName = spaceData.venues ? spaceData.venues.name : 'ตลาดที่เลือก';
+                        detectedOwnerId = spaceData.venues ? spaceData.venues.owner_id : null;
+                        document.getElementById('receipt-venue-name').innerText = detectedVenueName;
                         document.getElementById('receipt-space-info').innerText = `โซน ${spaceData.zone || '-'} / ล็อค ${spaceData.space_number}`;
 
                         if (!totalPrice || totalPrice === 0) {
@@ -651,17 +893,69 @@
                 } else if (venueId) {
                     const { data: vData } = await supabaseClient
                         .from('venues')
-                        .select('name')
+                        .select('name, owner_id')
                         .eq('id', venueId)
                         .single();
-                    if (vData) document.getElementById('receipt-venue-name').innerText = vData.name;
+                    if (vData) {
+                        detectedVenueName = vData.name;
+                        detectedOwnerId = vData.owner_id;
+                        document.getElementById('receipt-venue-name').innerText = detectedVenueName;
+                    }
+                }
+
+                // If detectedOwnerId is still not found and venueId exists:
+                if (!detectedOwnerId && venueId) {
+                    const { data: vFallback } = await supabaseClient
+                        .from('venues')
+                        .select('owner_id, name')
+                        .eq('id', venueId)
+                        .single();
+                    if (vFallback) {
+                        detectedOwnerId = vFallback.owner_id;
+                        if (!detectedVenueName || detectedVenueName === 'ตลาดที่เลือก') {
+                            detectedVenueName = vFallback.name;
+                        }
+                    }
                 }
 
                 // Update summary UI
                 const randomRef = 'BK-' + Math.floor(1000 + Math.random() * 9000);
                 document.getElementById('receipt-booking-ref').innerText = '#' + randomRef;
-                document.getElementById('receipt-dates').innerText = startDate === endDate ? startDate : `${startDate} ถึง ${endDate}`;
+                const startShort = formatThaiDateShort(startDate);
+                const endShort = formatThaiDateShort(endDate);
+                const dateDisplay = startDate === endDate 
+                    ? `${startShort} (${formatThaiDateLong(startDate)})` 
+                    : `${startShort} - ${endShort}`;
+                document.getElementById('receipt-dates').innerText = dateDisplay;
                 document.getElementById('receipt-total-price').innerText = '฿' + totalPrice.toLocaleString();
+
+                // Display booking plan description if available
+                const planRow = document.getElementById('receipt-plan-row');
+                const planText = document.getElementById('receipt-plan-text');
+                const periodTextParam = urlParams.get('period_text');
+                if (planRow && planText) {
+                    if (periodTextParam) {
+                        planRow.style.display = 'flex';
+                        planText.innerText = periodTextParam;
+                    } else if (startDate && endDate) {
+                        const d1 = new Date(startDate);
+                        const d2 = new Date(endDate);
+                        const diffDays = Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
+                        if (diffDays === 1) {
+                            planRow.style.display = 'flex';
+                            planText.innerText = 'รายวัน (1 วัน)';
+                        } else if (diffDays >= 6 && diffDays <= 8) {
+                            planRow.style.display = 'flex';
+                            planText.innerText = 'รายอาทิตย์ (1 สัปดาห์)';
+                        } else if (diffDays >= 27 && diffDays <= 32) {
+                            planRow.style.display = 'flex';
+                            planText.innerText = 'รายเดือน (1 เดือน)';
+                        }
+                    }
+                }
+
+                // Load Market Owner Bank & PromptPay info
+                await loadOwnerPaymentDetails(detectedOwnerId, detectedVenueName);
 
             } catch (err) {
                 console.error('Init Payment Error:', err);
@@ -679,17 +973,41 @@
 
         // Copy Account Number
         function copyAccount() {
-            const accNum = document.getElementById('acc-num').innerText.replace(/-/g, '');
-            navigator.clipboard.writeText(accNum).then(() => {
-                const btn = document.querySelector('.copy-btn');
-                const icon = btn.querySelector('i');
-                icon.className = 'fa-solid fa-check';
-                icon.style.color = '#10b981';
-                setTimeout(() => {
-                    icon.className = 'fa-regular fa-copy';
-                    icon.style.color = '';
-                }, 2000);
+            const accNumEl = document.getElementById('acc-num');
+            const rawNumber = accNumEl?.dataset?.raw || accNumEl?.innerText?.replace(/\D/g, '') || '';
+            if (!rawNumber) return;
+
+            navigator.clipboard.writeText(rawNumber).then(() => {
+                const btn = document.getElementById('bank-copy-btn') || document.querySelector('.copy-btn');
+                const icon = btn?.querySelector('i');
+                if (icon) {
+                    const originalClass = icon.className;
+                    const originalColor = icon.style.color;
+                    icon.className = 'fa-solid fa-check';
+                    icon.style.color = '#10b981';
+                    setTimeout(() => {
+                        icon.className = originalClass;
+                        icon.style.color = originalColor;
+                    }, 2000);
+                }
+            }).catch(err => {
+                console.error('Copy account number failed:', err);
             });
+        }
+
+        function saveQrCode() {
+            const qrImg = document.getElementById('qr-image');
+            if (!qrImg || !qrImg.src) {
+                alert('ไม่พบรูป QR Code');
+                return;
+            }
+            const a = document.createElement('a');
+            a.href = qrImg.src;
+            a.download = `PromptPay_QR_${totalPrice || 'payment'}.png`;
+            a.target = '_blank';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         }
 
         // File Upload Preview & Base64 conversion
