@@ -4576,7 +4576,10 @@
             }
         }
 
+        let isFetchingOwnerVenues = false;
         async function fetchOwnerVenues(ownerId) {
+            if (isFetchingOwnerVenues) return;
+            isFetchingOwnerVenues = true;
             try {
                 const { data: venues, error } = await supabaseClient
                     .from('venues')
@@ -4591,8 +4594,8 @@
                 const marketsEmpty = document.getElementById('markets-empty');
                 const eventsEmpty = document.getElementById('events-empty');
 
-                marketsList.innerHTML = '';
-                eventsList.innerHTML = '';
+                let marketsHtml = '';
+                let eventsHtml = '';
 
                 let marketCount = 0;
                 let eventCount = 0;
@@ -4827,20 +4830,25 @@
                         `;
 
                         if (venue.type === 'market') {
-                            marketsList.innerHTML += cardHtml;
+                            marketsHtml += cardHtml;
                             marketCount++;
                         } else if (venue.type === 'event') {
-                            eventsList.innerHTML += cardHtml;
+                            eventsHtml += cardHtml;
                             eventCount++;
                         }
                     });
                 }
+
+                marketsList.innerHTML = marketsHtml;
+                eventsList.innerHTML = eventsHtml;
 
                 marketsEmpty.style.display = marketCount === 0 ? 'block' : 'none';
                 eventsEmpty.style.display = eventCount === 0 ? 'block' : 'none';
                 
             } catch (err) {
                 console.error("Error fetching venues:", err);
+            } finally {
+                isFetchingOwnerVenues = false;
             }
         }
 
@@ -5733,10 +5741,9 @@
             }
         }
 
-        // Call checkAuth and fetch bookings when page loads
+        // Fetch pending bookings and profile stats after auth resolution
         window.addEventListener('DOMContentLoaded', () => {
-            checkAuth();
-            // Assuming the owner is already authenticated here, wait a bit for auth to resolve
+            // Note: checkAuth() is already invoked in the primary DOMContentLoaded handler
             setTimeout(() => {
                 fetchPendingBookings();
                 fetchProfileStats();
