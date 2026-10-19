@@ -1386,192 +1386,420 @@
         }
 
 
-        /* User Edit Profile View */
+        /* ====================================================
+           MODERN USER PROFILE, KYC & SECURITY STYLES (PREMIUM)
+           ==================================================== */
         .edit-profile-header {
             position: sticky;
             top: 0;
-            background: #FFFFFF;
-            padding: 1rem;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            padding: 1rem 1.25rem;
             display: flex;
             align-items: center;
             z-index: 100;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
         }
         
         .edit-profile-back {
-            background: rgba(255, 255, 255, 0.8);
+            background: #ffffff;
             border: 1px solid #e2e8f0;
             color: #1e293b;
-            font-size: 1.1rem;
+            font-size: 1rem;
             cursor: pointer;
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: all 0.25s ease;
             text-decoration: none;
             margin-right: 1rem;
+            flex-shrink: 0;
         }
         .edit-profile-back:hover {
             background: #ffffff;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
-            color: var(--primary-color);
+            transform: translateX(-3px);
+            box-shadow: 0 6px 16px rgba(164, 99, 9, 0.15);
+            color: #a46309;
             border-color: #cbd5e1;
         }
         .edit-profile-back:active {
-            transform: translateY(0);
+            transform: translateX(0);
         }
         
+        .edit-profile-title-wrap {
+            flex: 1;
+        }
         .edit-profile-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--text-main);
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #0f172a;
             margin: 0;
+            line-height: 1.2;
+        }
+        .edit-profile-subtitle {
+            font-size: 0.76rem;
+            color: #64748b;
+            margin: 0;
+            margin-top: 2px;
         }
 
-        .edit-profile-avatar-section {
+        /* Avatar Studio Card */
+        .avatar-studio-box {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 2rem 0;
-            background: #FFFFFF;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .avatar-container {
+            padding: 2.25rem 1.5rem 1.75rem;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            border-bottom: 1px solid #e2e8f0;
             position: relative;
-            width: 100px;
-            height: 100px;
         }
-
-        .avatar-container img {
+        .avatar-ring-container {
+            position: relative;
+            width: 104px;
+            height: 104px;
+            margin-bottom: 0.75rem;
+        }
+        .avatar-ring-container img {
             width: 100%;
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid #f8fafc;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border: 4px solid #ffffff;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
         }
-
         .avatar-camera-btn {
             position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 32px;
-            height: 32px;
+            bottom: 2px;
+            right: 2px;
+            width: 36px;
+            height: 36px;
             background: #a46309;
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px solid #FFFFFF;
+            border: 3px solid #FFFFFF;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(164,99,9,0.2);
-            font-size: 0.85rem;
+            box-shadow: 0 4px 12px rgba(164,99,9,0.35);
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        .avatar-camera-btn:hover {
+            transform: scale(1.1);
+            background: #854d0e;
         }
 
-        .edit-profile-form-card {
+        /* Form Layout & Cards */
+        .settings-content-wrap {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 1.5rem 1.25rem 6.5rem;
+        }
+        .modern-section-card {
             background: #FFFFFF;
-            border-radius: 24px;
-            margin: 1.5rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
             padding: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+            transition: all 0.25s ease;
+        }
+        .modern-section-card:hover {
+            box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+            border-color: #cbd5e1;
+        }
+        .section-header-tag {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .section-header-tag i {
+            color: #a46309;
+            font-size: 1rem;
         }
 
         .form-group {
             margin-bottom: 1.25rem;
         }
-
-        .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-            font-weight: 500;
+        .form-group:last-child {
+            margin-bottom: 0;
         }
-
+        .form-group label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.86rem;
+            color: #334155;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
         .form-input-wrapper {
             position: relative;
             display: flex;
             align-items: center;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            transition: all 0.2s ease;
         }
-
-        .form-input-wrapper i {
+        .form-input-wrapper:focus-within {
+            background: #ffffff;
+            border-color: #a46309;
+            box-shadow: 0 0 0 4px rgba(164, 99, 9, 0.12);
+        }
+        .form-input-wrapper i.leading-icon {
             position: absolute;
-            left: 1rem;
+            left: 1.1rem;
             color: #94a3b8;
             font-size: 1rem;
+            pointer-events: none;
             transition: color 0.2s;
         }
-
+        .form-input-wrapper:focus-within i.leading-icon {
+            color: #a46309;
+        }
         .form-input-wrapper input, .form-input-wrapper textarea {
             width: 100%;
-            padding: 0.85rem 1rem 0.85rem 2.75rem;
-            border: 1px solid #f1f5f9;
-            border-radius: 12px;
-            background: #f8fafc;
+            padding: 0.85rem 1.1rem 0.85rem 3rem;
+            border: none;
+            background: transparent;
             font-family: 'Prompt', sans-serif;
             font-size: 0.95rem;
-            color: var(--text-main);
+            color: #0f172a;
             outline: none;
-            transition: all 0.2s;
         }
-
         .form-input-wrapper textarea {
-            min-height: 100px;
-            resize: none;
-            padding-top: 1rem;
+            min-height: 95px;
+            resize: vertical;
+            padding-top: 0.85rem;
         }
-
-        .form-input-wrapper input:focus, .form-input-wrapper textarea:focus {
-            border-color: #a46309;
-            background: #FFFFFF;
-            box-shadow: 0 0 0 3px rgba(164,99,9,0.1);
+        .password-toggle-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            padding: 0 1rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
         }
-
-        .form-input-wrapper:focus-within i {
+        .password-toggle-btn:hover {
             color: #a46309;
         }
 
-        .edit-profile-actions {
-            padding: 0 1rem 2rem 1rem;
+        /* KYC Milestone Stepper */
+        .kyc-stepper-track {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 480px;
+            margin: 1.5rem auto 1.75rem;
+            padding: 0 1rem;
+        }
+        .stepper-step-node {
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        .stepper-circle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+        }
+        .stepper-label {
+            font-size: 0.76rem;
+            font-weight: 600;
+            margin-top: 0.45rem;
+            white-space: nowrap;
+        }
+        .stepper-line {
+            flex: 1;
+            height: 3px;
+            background: #e2e8f0;
+            margin: 0 0.5rem;
+            margin-bottom: 1.4rem;
+            border-radius: 2px;
+            transition: background 0.3s;
         }
 
-        .btn-save-profile {
-            width: 100%;
+        /* KYC Upload Boxes */
+        .kyc-upload-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+        }
+        .kyc-doc-card {
+            border: 2px dashed #cbd5e1;
+            border-radius: 18px;
+            padding: 1.75rem 1.25rem;
+            text-align: center;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 180px;
+        }
+        .kyc-doc-card:hover {
+            border-color: #a46309;
+            background: #fffbeb;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(164, 99, 9, 0.08);
+        }
+        .kyc-watermark-badge {
+            position: absolute;
+            top: 10px;
+            right: -32px;
             background: #a46309;
-            color: white;
-            border: none;
-            padding: 0.9rem;
-            border-radius: 12px;
-            font-family: 'Prompt', sans-serif;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(164,99,9,0.2);
-            transition: all 0.2s;
+            color: #ffffff;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 3px 30px;
+            transform: rotate(45deg);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            letter-spacing: 0.5px;
         }
 
-        .btn-cancel-profile {
-            width: 100%;
-            background: transparent;
-            color: var(--text-muted);
+        /* Security Dashboard Tiles */
+        .security-hero-banner {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 24px;
+            padding: 1.75rem;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+        .security-badge-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 18px;
+            background: rgba(34, 197, 94, 0.15);
+            border: 2px solid #22c55e;
+            color: #22c55e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
+        }
+        .security-tile-item {
+            display: flex;
+            align-items: center;
+            gap: 1.15rem;
+            padding: 1.25rem 1.35rem;
+            background: #ffffff;
             border: 1px solid #e2e8f0;
-            padding: 0.9rem;
-            border-radius: 12px;
+            border-radius: 18px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-decoration: none;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        }
+        .security-tile-item:hover {
+            border-color: #cbd5e1;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        }
+        .security-tile-item.danger-tile {
+            background: #fffafa;
+            border-color: #fecaca;
+        }
+        .security-tile-item.danger-tile:hover {
+            border-color: #f87171;
+            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.1);
+        }
+        .security-tile-icon-box {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        /* Buttons */
+        .edit-profile-actions {
+            padding: 1rem 0 2rem;
+            display: flex;
+            gap: 0.85rem;
+        }
+        .btn-save-profile {
+            flex: 1;
+            background: linear-gradient(135deg, #a46309 0%, #b45309 100%);
+            color: #ffffff;
+            border: none;
+            padding: 0.95rem 1.25rem;
+            border-radius: 14px;
+            font-family: 'Prompt', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(164, 99, 9, 0.3);
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+        }
+        .btn-save-profile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(164, 99, 9, 0.4);
+            filter: brightness(1.05);
+        }
+        .btn-cancel-profile {
+            background: #f8fafc;
+            color: #475569;
+            border: 1.5px solid #e2e8f0;
+            padding: 0.95rem 1.5rem;
+            border-radius: 14px;
             font-family: 'Prompt', sans-serif;
             font-weight: 600;
             font-size: 1rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
+        }
+        .btn-cancel-profile:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+            border-color: #cbd5e1;
         }
         .nav-text {
             display: none;
@@ -2443,346 +2671,601 @@
         </div>
     </div>
 
-    <!-- User Edit Profile View -->
-    <div id="user-edit-profile" class="user-page" style="display: none;">
-        <div class="edit-profile-header">
-            <button class="edit-profile-back" onclick="switchUserView('profile')">
+    <!-- ====================================================
+         1. USER EDIT PROFILE VIEW (PREMIUM REDESIGN)
+         ==================================================== -->
+    <div id="user-edit-profile" class="user-page" style="display: none; background: #f8fafc; min-height: 100vh;">
+        <!-- Header -->
+        <header class="edit-profile-header">
+            <button class="edit-profile-back" onclick="switchUserView('profile')" title="ย้อนกลับ">
                 <i class="fa-solid fa-arrow-left"></i>
             </button>
-            <h2 class="edit-profile-title">แก้ไขข้อมูลส่วนตัว</h2>
-        </div>
+            <div class="edit-profile-title-wrap">
+                <h1 class="edit-profile-title">แก้ไขข้อมูลส่วนตัว</h1>
+                <p class="edit-profile-subtitle">จัดการข้อมูลบัญชีผู้ใช้และการติดต่อ</p>
+            </div>
+            <button type="button" class="edit-profile-back" style="margin-right: 0;" onclick="saveUserProfile()" title="บันทึกข้อมูล">
+                <i class="fa-solid fa-check" style="color: #a46309;"></i>
+            </button>
+        </header>
 
-        <div class="edit-profile-avatar-section">
-            <div class="avatar-container">
+        <!-- Avatar Studio Box -->
+        <div class="avatar-studio-box">
+            <div class="avatar-ring-container">
                 <img id="edit-profile-avatar-img" src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&q=80&w=200" alt="User Avatar">
-                <div class="avatar-camera-btn">
+                <button type="button" class="avatar-camera-btn" onclick="document.getElementById('user-avatar-file-input').click()" title="แตะเพื่อเปลี่ยนรูปโปรไฟล์">
                     <i class="fa-solid fa-camera"></i>
-                </div>
+                </button>
+                <input type="file" id="user-avatar-file-input" accept="image/*" style="display: none;" onchange="handleUserAvatarUpload(event)">
+            </div>
+            <div style="font-size: 0.82rem; font-weight: 600; color: #a46309; background: #fefce8; border: 1px solid #fef08a; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px;">
+                <i class="fa-solid fa-camera-rotate"></i> แตะไอคอนกล้องเพื่อเปลี่ยนภาพโปรไฟล์
             </div>
         </div>
 
-        <div class="edit-profile-form-card">
-            <!-- Security Alert -->
-            <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; gap: 0.75rem; align-items: flex-start;">
-                <i class="fa-solid fa-shield-halved" style="color: #3b82f6; margin-top: 0.2rem;"></i>
-                <div style="font-size: 0.85rem; color: #1e3a8a;">
-                    <strong>การปกป้องข้อมูลของคุณ</strong><br>
-                    ข้อมูลถูกเข้ารหัสอย่างปลอดภัย หากเปลี่ยนอีเมลหรือเบอร์โทรศัพท์ ระบบจะส่ง OTP เพื่อยืนยัน
+        <div class="settings-content-wrap">
+            <!-- Security Info Alert Banner -->
+            <div style="background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%); border: 1px solid #bfdbfe; border-radius: 16px; padding: 1.15rem 1.25rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: flex-start; box-shadow: 0 2px 10px rgba(59, 130, 246, 0.05);">
+                <div style="width: 36px; height: 36px; border-radius: 10px; background: #dbeafe; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div style="flex: 1;">
+                    <strong style="color: #1e3a8a; font-size: 0.92rem; display: block; margin-bottom: 0.2rem;">การปกป้องข้อมูลและความเป็นส่วนตัว</strong>
+                    <span style="font-size: 0.8rem; color: #3b82f6; line-height: 1.4; display: block;">ข้อมูลของคุณถูกเข้ารหัสความปลอดภัยระดับ 256-bit SSL ตามมาตรฐาน พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA)</span>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>ชื่อบัญชีผู้ใช้ (Display Name)</label>
-                <div class="form-input-wrapper">
-                    <i class="fa-solid fa-user"></i>
-                    <input type="text" id="user-edit-displayname" placeholder="ชื่อที่จะแสดงให้ผู้อื่นเห็น">
+            <!-- Card 1: ข้อมูลแสดงตัวตน -->
+            <section class="modern-section-card">
+                <div class="section-header-tag">
+                    <i class="fa-solid fa-id-badge"></i> ข้อมูลแสดงตัวตน (Account Identity)
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label style="display: flex; justify-content: space-between;">
-                    เบอร์โทรศัพท์
-                    <span style="color: #16a34a; font-size: 0.75rem;"><i class="fa-solid fa-circle-check"></i> ยืนยันแล้ว</span>
-                </label>
-                <div class="form-input-wrapper">
-                    <i class="fa-solid fa-phone"></i>
-                    <input type="tel" id="user-edit-phone" value="0812345678" maxlength="10" inputmode="numeric" oninput="validateNumberOnly(this, 10)">
+                <div class="form-group">
+                    <label for="user-edit-displayname">
+                        <span>ชื่อบัญชีที่แสดง (Display Name) <span style="color: #ef4444;">*</span></span>
+                        <span style="font-size: 0.75rem; color: #94a3b8; font-weight: normal;">แสดงให้ผู้ใช้อื่นและเจ้าของตลาดเห็น</span>
+                    </label>
+                    <div class="form-input-wrapper">
+                        <i class="fa-solid fa-user leading-icon"></i>
+                        <input type="text" id="user-edit-displayname" placeholder="ระบุชื่อบัญชีผู้ใช้ของคุณ" autocomplete="name">
+                    </div>
                 </div>
-                <div id="user-edit-phone-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: none;">⚠️ กรุณากรอกเบอร์โทรศัพท์เป็นตัวเลข 10 หลัก</div>
-            </div>
 
-            <div class="form-group">
-                <label>เลขประจำตัวประชาชน (13 หลัก)</label>
-                <div class="form-input-wrapper">
-                    <i class="fa-regular fa-id-card"></i>
-                    <input type="text" id="user-edit-idcard" value="1100200300405" placeholder="กรอกเลขประจำตัวประชาชน 13 หลัก" maxlength="13" inputmode="numeric" oninput="validateNumberOnly(this, 13)">
+                <div class="form-group">
+                    <label for="user-edit-email">
+                        <span>อีเมลบัญชีผู้ใช้ (Email)</span>
+                        <span style="color: #16a34a; font-size: 0.75rem; font-weight: 600;"><i class="fa-solid fa-circle-check"></i> บัญชีหลักที่ปลอดภัย</span>
+                    </label>
+                    <div class="form-input-wrapper" style="background: #f1f5f9; cursor: not-allowed;">
+                        <i class="fa-solid fa-envelope leading-icon"></i>
+                        <input type="email" id="user-edit-email" readonly style="color: #64748b; cursor: not-allowed;" title="ไม่สามารถเปลี่ยนอีเมลหลักได้โดยตรงเพื่อความปลอดภัย">
+                    </div>
+                    <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.35rem; padding-left: 0.5rem;">
+                        <i class="fa-solid fa-lock"></i> อีเมลถูกล็อคตามนโยบายความปลอดภัยของระบบ
+                    </div>
                 </div>
-                <div id="user-edit-idcard-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: none;">⚠️ กรุณากรอกเลขประจำตัวประชาชนเป็นตัวเลข 13 หลัก</div>
-            </div>
+            </section>
 
-            <div class="form-group">
-                <label style="display: flex; justify-content: space-between;">
-                    อีเมล
-                    <span style="color: #16a34a; font-size: 0.75rem;"><i class="fa-solid fa-circle-check"></i> ยืนยันแล้ว</span>
-                </label>
-                <div class="form-input-wrapper">
-                    <i class="fa-solid fa-envelope"></i>
-                    <input type="email" id="user-edit-email" readonly style="background: #f1f5f9; color: #94a3b8; cursor: not-allowed;" title="ไม่สามารถเปลี่ยนอีเมลได้ในขณะนี้">
+            <!-- Card 2: ข้อมูลการติดต่อ -->
+            <section class="modern-section-card">
+                <div class="section-header-tag">
+                    <i class="fa-solid fa-address-book"></i> ช่องทางการติดต่อ (Contact Details)
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label>ข้อมูลเพิ่มเติม/ที่อยู่</label>
-                <div class="form-input-wrapper" style="align-items: flex-start;">
-                    <i class="fa-solid fa-location-dot" style="top: 1rem;"></i>
-                    <textarea id="user-edit-address" placeholder="กรอกข้อมูลที่อยู่ หรือรายละเอียดอื่นๆ..."></textarea>
+                <div class="form-group">
+                    <label for="user-edit-phone">
+                        <span>เบอร์โทรศัพท์มือถือ (Phone Number) <span style="color: #ef4444;">*</span></span>
+                        <span style="color: #a46309; font-size: 0.75rem; font-weight: 600;"><i class="fa-solid fa-mobile-screen-button"></i> 10 หลัก</span>
+                    </label>
+                    <div class="form-input-wrapper">
+                        <i class="fa-solid fa-phone leading-icon"></i>
+                        <input type="tel" id="user-edit-phone" placeholder="ตัวอย่าง: 0812345678" maxlength="10" inputmode="numeric" oninput="validateNumberOnly(this, 10)">
+                    </div>
+                    <div id="user-edit-phone-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.4rem; display: none; padding-left: 0.5rem;">
+                        <i class="fa-solid fa-circle-exclamation"></i> กรุณากรอกเบอร์โทรศัพท์เป็นตัวเลข 10 หลักให้ถูกต้อง
+                    </div>
                 </div>
+            </section>
+
+            <!-- Card 3: ข้อมูลประจำตัวและที่อยู่ -->
+            <section class="modern-section-card">
+                <div class="section-header-tag">
+                    <i class="fa-solid fa-map-location-dot"></i> ข้อมูลประจำตัวและที่อยู่ (Official Address)
+                </div>
+
+                <div class="form-group">
+                    <label for="user-edit-idcard">
+                        <span>เลขประจำตัวประชาชน 13 หลัก</span>
+                        <span style="font-size: 0.75rem; color: #64748b;">ใช้เชื่อมโยงกับระบบ e-KYC</span>
+                    </label>
+                    <div class="form-input-wrapper">
+                        <i class="fa-regular fa-id-card leading-icon"></i>
+                        <input type="text" id="user-edit-idcard" placeholder="กรอกเลขประจำตัวประชาชน 13 หลัก" maxlength="13" inputmode="numeric" oninput="validateNumberOnly(this, 13)">
+                    </div>
+                    <div id="user-edit-idcard-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.4rem; display: none; padding-left: 0.5rem;">
+                        <i class="fa-solid fa-circle-exclamation"></i> กรุณากรอกเลขประจำตัวประชาชนเป็นตัวเลข 13 หลัก
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="user-edit-address">
+                        <span>ที่อยู่สำหรับออกเอกสาร / ติดต่อ</span>
+                        <span style="font-size: 0.75rem; color: #94a3b8;">ระบุที่อยู่ปัจจุบันของคุณ</span>
+                    </label>
+                    <div class="form-input-wrapper" style="align-items: flex-start;">
+                        <i class="fa-solid fa-location-dot leading-icon" style="top: 1rem;"></i>
+                        <textarea id="user-edit-address" placeholder="บ้านเลขที่, หมู่, ถนน, ตำบล, อำเภอ, จังหวัด, รหัสไปรษณีย์..."></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Actions -->
+            <div class="edit-profile-actions">
+                <button type="button" class="btn-save-profile" onclick="saveUserProfile()">
+                    <i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูลส่วนตัว
+                </button>
+                <button type="button" class="btn-cancel-profile" onclick="switchUserView('profile')">
+                    ยกเลิก
+                </button>
             </div>
-
-
-        </div>
-
-        <div class="edit-profile-actions">
-            <button class="btn-save-profile" onclick="saveUserProfile()">บันทึกข้อมูล</button>
-            <button class="btn-cancel-profile" onclick="switchUserView('profile')">ยกเลิก</button>
         </div>
     </div>
 
-    <!-- User Verify Identity View -->
-    <div id="user-verify" class="user-page" style="display: none;">
-        <div class="edit-profile-header">
-            <button class="edit-profile-back" onclick="switchUserView('profile')">
+
+    <!-- ====================================================
+         2. USER VERIFY IDENTITY VIEW (e-KYC PREMIUM REDESIGN)
+         ==================================================== -->
+    <div id="user-verify" class="user-page" style="display: none; background: #f8fafc; min-height: 100vh;">
+        <!-- Header -->
+        <header class="edit-profile-header">
+            <button class="edit-profile-back" onclick="switchUserView('profile')" title="ย้อนกลับ">
                 <i class="fa-solid fa-arrow-left"></i>
             </button>
-            <h2 class="edit-profile-title">ยืนยันตัวตน (KYC)</h2>
-        </div>
-        
-        <!-- Progress Steps -->
-        <div id="user-kyc-steps" style="display: flex; justify-content: center; margin: 1.5rem 0; gap: 0.5rem; align-items: center;">
-            <div style="text-align: center;">
-                <div id="user-step-1" style="width: 32px; height: 32px; background: #a46309; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; margin: 0 auto 0.5rem; font-size: 0.9rem;">1</div>
-                <div style="font-size: 0.75rem; color: #a46309; font-weight: 500;">ข้อมูล</div>
+            <div class="edit-profile-title-wrap">
+                <h1 class="edit-profile-title">ยืนยันตัวตน (e-KYC)</h1>
+                <p class="edit-profile-subtitle">ระบบตรวจสอบตัวตนมาตรฐานความปลอดภัยระดับสูง</p>
             </div>
-            <div style="width: 60px; height: 2px; background: #cbd5e1; margin-bottom: 1.25rem;"></div>
-            <div style="text-align: center;">
-                <div id="user-step-2" style="width: 32px; height: 32px; background: #f1f5f9; color: #94a3b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; margin: 0 auto 0.5rem; font-size: 0.9rem;">2</div>
-                <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 500;">รอตรวจสอบ</div>
+            <div style="background: #fefce8; border: 1px solid #fef08a; color: #a46309; padding: 0.35rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                <i class="fa-solid fa-shield-cat"></i> Level 2
             </div>
-        </div>
+        </header>
 
-        <div id="user-kyc-banner-container" style="padding: 0 1.25rem; display: none;"></div>
+        <!-- Modern 3-Step Milestone Stepper -->
+        <nav class="kyc-stepper-track" id="user-kyc-steps" aria-label="ขั้นตอนการยืนยันตัวตน">
+            <div class="stepper-step-node">
+                <div class="stepper-circle" id="user-step-1" style="background: #a46309; color: #ffffff;">1</div>
+                <div class="stepper-label" style="color: #a46309;">ข้อมูลส่วนตัว</div>
+            </div>
+            <div class="stepper-line" id="user-stepper-line-1"></div>
+            <div class="stepper-step-node">
+                <div class="stepper-circle" id="user-step-2" style="background: #f1f5f9; color: #94a3b8;">2</div>
+                <div class="stepper-label" style="color: #64748b;">ภาพถ่ายเอกสาร</div>
+            </div>
+            <div class="stepper-line" id="user-stepper-line-2"></div>
+            <div class="stepper-step-node">
+                <div class="stepper-circle" id="user-step-3" style="background: #f1f5f9; color: #94a3b8;">3</div>
+                <div class="stepper-label" style="color: #64748b;">อนุมัติสิทธิ์</div>
+            </div>
+        </nav>
 
-        <div class="edit-profile-form-card" style="margin-top: 0.5rem;">
-            <div style="text-align: center; margin-bottom: 1.5rem;">
-                <div style="width: 64px; height: 64px; background: #fefce8; color: #eab308; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1rem;">
-                    <i class="fa-solid fa-shield-cat"></i>
+        <div class="settings-content-wrap" style="padding-top: 0;">
+            <!-- Status Dynamic Banner Container (Rendered by JS) -->
+            <div id="user-kyc-banner-container" style="display: none; margin-bottom: 1.5rem;"></div>
+
+            <!-- Introductory Trust Card -->
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+                <div style="width: 54px; height: 54px; background: linear-gradient(135deg, #fefce8, #fef08a); color: #a46309; border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 0.75rem; box-shadow: 0 4px 12px rgba(164, 99, 9, 0.15);">
+                    <i class="fa-solid fa-fingerprint"></i>
                 </div>
-                <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.5rem;">ระบบยืนยันตัวตน (e-KYC)</h3>
-                <p style="font-size: 0.85rem; color: var(--text-muted);">เพื่อมาตรฐานความปลอดภัยสูงสุดของคอมมูนิตี้ Spacemate</p>
+                <h2 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin: 0 0 0.35rem;">ยืนยันตัวตนผู้เช่าพื้นที่ SpaceMate</h2>
+                <p style="font-size: 0.84rem; color: #64748b; margin: 0 auto; max-width: 520px; line-height: 1.5;">เพื่อความโปร่งใสและสร้างความเชื่อมั่นระหว่างผู้เช่ากับเจ้าของตลาด ข้อมูลของท่านจะได้รับการคุ้มครองด้วยการเข้ารหัสความปลอดภัยสูงสุด</p>
             </div>
 
-            <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; gap: 0.75rem; align-items: flex-start;">
-                <i class="fa-solid fa-lock" style="color: #3b82f6; margin-top: 0.2rem;"></i>
-                <div style="font-size: 0.85rem; color: #1e3a8a;">
-                    <strong>ข้อมูลถูกเข้ารหัสแบบ End-to-End</strong><br>
-                    ข้อมูลเหล่านี้จะถูกใช้เพื่อการยืนยันตัวตนตามกฎหมายเท่านั้น และจะไม่ถูกเปิดเผยต่อสาธารณะหรือบุคคลที่สาม
-                </div>
-            </div>
-
+            <!-- Desktop 2-Column KYC Grid -->
             <div class="desktop-kyc-grid">
-            <div class="kyc-col">
+                
+                <!-- COLUMN 1: ข้อมูลตามบัตรประชาชน -->
+                <div class="kyc-col">
+                    <section class="modern-section-card">
+                        <div class="section-header-tag">
+                            <i class="fa-solid fa-address-card"></i> 1. ข้อมูลตามบัตรประชาชน
+                        </div>
 
-            <div class="form-group name-split-group">
-                <div style="flex: 1;">
-                    <label>ชื่อ (ตามบัตรประชาชน)</label>
-                    <div class="form-input-wrapper">
-                        <i class="fa-solid fa-user-check"></i>
-                        <input type="text" id="user-kyc-firstname" placeholder="ตัวอย่าง: สมชาย">
-                    </div>
+                        <!-- First & Last Name -->
+                        <div class="form-group name-split-group">
+                            <div style="flex: 1;">
+                                <label for="user-kyc-firstname">ชื่อ (ตามบัตร ปชช.) <span style="color: #ef4444;">*</span></label>
+                                <div class="form-input-wrapper">
+                                    <i class="fa-solid fa-user-check leading-icon"></i>
+                                    <input type="text" id="user-kyc-firstname" placeholder="สมชาย" autocomplete="given-name">
+                                </div>
+                            </div>
+                            <div style="flex: 1;">
+                                <label for="user-kyc-lastname">นามสกุล <span style="color: #ef4444;">*</span></label>
+                                <div class="form-input-wrapper">
+                                    <i class="fa-solid fa-user-check leading-icon"></i>
+                                    <input type="text" id="user-kyc-lastname" placeholder="ขยันขาย" autocomplete="family-name">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ID Card Number -->
+                        <div class="form-group">
+                            <label for="user-kyc-idcard">
+                                <span>เลขประจำตัวประชาชน (13 หลัก) <span style="color: #ef4444;">*</span></span>
+                                <span style="font-size: 0.72rem; color: #a46309;">ตรวจสอบตัวเลข 13 หลัก</span>
+                            </label>
+                            <div class="form-input-wrapper">
+                                <i class="fa-regular fa-id-card leading-icon"></i>
+                                <input type="text" id="user-kyc-idcard" placeholder="กรอกเลขประจำตัวประชาชน 13 หลัก" maxlength="13" inputmode="numeric" oninput="validateNumberOnly(this, 13)">
+                            </div>
+                            <div id="user-kyc-idcard-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.4rem; display: none; padding-left: 0.5rem;">
+                                <i class="fa-solid fa-circle-exclamation"></i> กรุณากรอกเลขประจำตัวประชาชนเป็นตัวเลข 13 หลัก
+                            </div>
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="form-group">
+                            <label for="user-kyc-phone">
+                                <span>เบอร์โทรศัพท์ติดต่อ <span style="color: #ef4444;">*</span></span>
+                                <span style="font-size: 0.72rem; color: #64748b;">สำหรับรับรหัสยืนยัน / แจ้งเตือน</span>
+                            </label>
+                            <div class="form-input-wrapper">
+                                <i class="fa-solid fa-phone leading-icon"></i>
+                                <input type="tel" id="user-kyc-phone" placeholder="กรอกเบอร์โทรศัพท์ 10 หลัก" maxlength="10" inputmode="numeric" oninput="validateNumberOnly(this, 10)">
+                            </div>
+                            <div id="user-kyc-phone-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.4rem; display: none; padding-left: 0.5rem;">
+                                <i class="fa-solid fa-circle-exclamation"></i> กรุณากรอกเบอร์โทรศัพท์เป็นตัวเลข 10 หลัก
+                            </div>
+                        </div>
+
+                        <!-- Address according to ID card -->
+                        <div class="form-group">
+                            <label>ที่อยู่ตามทะเบียนบ้าน / บัตรประชาชน</label>
+                            <div class="address-grid">
+                                <div class="form-input-wrapper">
+                                    <i class="fa-solid fa-house leading-icon"></i>
+                                    <input type="text" id="user-kyc-addr-no" placeholder="เลขที่ / หมู่">
+                                </div>
+                                <div class="form-input-wrapper">
+                                    <i class="fa-solid fa-road leading-icon"></i>
+                                    <input type="text" id="user-kyc-addr-road" placeholder="ซอย / ถนน">
+                                </div>
+                                <div class="form-input-wrapper">
+                                    <i class="fa-solid fa-map-pin leading-icon"></i>
+                                    <input type="text" id="user-kyc-addr-subdistrict" placeholder="ตำบล / แขวง">
+                                </div>
+                                <div class="form-input-wrapper">
+                                    <i class="fa-solid fa-map-location-dot leading-icon"></i>
+                                    <input type="text" id="user-kyc-addr-district" placeholder="อำเภอ / เขต">
+                                </div>
+                                <div class="form-input-wrapper">
+                                    <i class="fa-solid fa-city leading-icon"></i>
+                                    <input type="text" id="user-kyc-addr-province" placeholder="จังหวัด">
+                                </div>
+                                <div class="form-input-wrapper">
+                                    <i class="fa-solid fa-envelopes-bulk leading-icon"></i>
+                                    <input type="text" id="user-kyc-addr-zip" placeholder="รหัสไปรษณีย์" maxlength="5" inputmode="numeric">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
-                <div style="flex: 1;">
-                    <label>นามสกุล (ตามบัตรประชาชน)</label>
-                    <div class="form-input-wrapper">
-                        <i class="fa-solid fa-user-check"></i>
-                        <input type="text" id="user-kyc-lastname" placeholder="ตัวอย่าง: ขยันขาย">
-                    </div>
+
+                <!-- COLUMN 2: ภาพถ่ายเอกสารยืนยันตัวตน -->
+                <div class="kyc-col">
+                    <section class="modern-section-card">
+                        <div class="section-header-tag">
+                            <i class="fa-solid fa-camera"></i> 2. ภาพถ่ายเอกสารและสแกนใบหน้า
+                        </div>
+
+                        <!-- Upload ID Card -->
+                        <div class="form-group">
+                            <label>
+                                <span>ภาพถ่ายบัตรประชาชนด้านหน้า <span style="color: #ef4444;">*</span></span>
+                                <span style="font-size: 0.72rem; color: #a46309; background: #fefce8; padding: 2px 8px; border-radius: 8px; border: 1px solid #fef08a;">
+                                    <i class="fa-solid fa-shield-halved"></i> มีลายน้ำอัตโนมัติ
+                                </span>
+                            </label>
+
+                            <div id="user-box-idcard" class="kyc-doc-card" onclick="document.getElementById('user-file-idcard').click()">
+                                <div class="kyc-watermark-badge">SPACEMATE KYC</div>
+                                <div style="width: 52px; height: 52px; border-radius: 14px; background: #eff6ff; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 0.75rem;">
+                                    <i class="fa-solid fa-id-card-clip"></i>
+                                </div>
+                                <div style="font-size: 0.92rem; font-weight: 700; color: #1e293b; margin-bottom: 0.25rem;">อัปโหลดภาพถ่ายบัตรประชาชน</div>
+                                <p style="font-size: 0.78rem; color: #64748b; margin: 0; line-height: 1.4;">ถ่ายให้เห็นตัวหนังสือและรูปถ่ายชัดเจน ไม่เบลอ ไม่สะท้อนแสง<br>รองรับ JPG, PNG สูงสุด 5MB</p>
+                                <div id="user-preview-idcard" style="display: none; position: absolute; inset: 0; background: #ffffff; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; z-index: 5;"></div>
+                            </div>
+                            <input type="file" id="user-file-idcard" accept="image/*" style="display: none;" onchange="handleUserFileChange(event, 'idcard')">
+                        </div>
+
+                        <!-- Upload Selfie with ID Card -->
+                        <div class="form-group" style="margin-top: 1.25rem;">
+                            <label>
+                                <span>ภาพถ่ายเซลฟี่คู่กับบัตรประชาชน <span style="color: #ef4444;">*</span></span>
+                                <span style="font-size: 0.72rem; color: #0891b2; background: #ecfeff; padding: 2px 8px; border-radius: 8px; border: 1px solid #cffafe;">
+                                    <i class="fa-solid fa-robot"></i> AI Liveness Check
+                                </span>
+                            </label>
+
+                            <div id="user-box-selfie" class="kyc-doc-card" onclick="document.getElementById('user-file-selfie').click()">
+                                <div class="kyc-watermark-badge">FACE MATCH</div>
+                                <div style="width: 52px; height: 52px; border-radius: 14px; background: #fdf2f8; color: #db2777; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 0.75rem;">
+                                    <i class="fa-solid fa-camera-rotate"></i>
+                                </div>
+                                <div style="font-size: 0.92rem; font-weight: 700; color: #1e293b; margin-bottom: 0.25rem;">อัปโหลดภาพเซลฟี่ถือบัตร</div>
+                                <p style="font-size: 0.78rem; color: #64748b; margin: 0; line-height: 1.4;">ถือบัตรระดับอก หันหน้าตรง แสงสว่างพอ ไม่สวมหมวก/แว่นตาดำ<br>ระบบจะตรวจสอบความสอดคล้องของใบหน้า</p>
+                                <div id="user-preview-selfie" style="display: none; position: absolute; inset: 0; background: #ffffff; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; z-index: 5;"></div>
+                            </div>
+                            <input type="file" id="user-file-selfie" accept="image/*" style="display: none;" onchange="handleUserFileChange(event, 'selfie')">
+                        </div>
+                    </section>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>เลขประจำตัวประชาชน (13 หลัก)</label>
-                <div class="form-input-wrapper">
-                    <i class="fa-regular fa-id-card"></i>
-                    <input type="text" id="user-kyc-idcard" placeholder="กรอกเลขประจำตัวประชาชน 13 หลัก" maxlength="13" inputmode="numeric" oninput="validateNumberOnly(this, 13)">
-                </div>
-                <div id="user-kyc-idcard-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: none;">⚠️ กรุณากรอกเลขประจำตัวประชาชนเป็นตัวเลข 13 หลัก</div>
-            </div>
-
-            <div class="form-group">
-                <label>ที่อยู่ตามบัตรประชาชน</label>
-                <div class="address-grid">
-                    <div class="form-input-wrapper">
-                        <i class="fa-solid fa-house"></i>
-                        <input type="text" id="user-kyc-addr-no" placeholder="เลขที่ / หมู่">
-                    </div>
-                    <div class="form-input-wrapper">
-                        <i class="fa-solid fa-road"></i>
-                        <input type="text" id="user-kyc-addr-road" placeholder="ซอย / ถนน (ถ้ามี)">
-                    </div>
-                    <div class="form-input-wrapper">
-                        <i class="fa-solid fa-map-pin"></i>
-                        <input type="text" id="user-kyc-addr-subdistrict" placeholder="ตำบล / แขวง">
-                    </div>
-                    <div class="form-input-wrapper">
-                        <i class="fa-solid fa-map-location-dot"></i>
-                        <input type="text" id="user-kyc-addr-district" placeholder="อำเภอ / เขต">
-                    </div>
-                    <div class="form-input-wrapper">
-                        <i class="fa-solid fa-city"></i>
-                        <input type="text" id="user-kyc-addr-province" placeholder="จังหวัด">
-                    </div>
-                    <div class="form-input-wrapper">
-                        <i class="fa-solid fa-envelopes-bulk"></i>
-                        <input type="text" id="user-kyc-addr-zip" placeholder="รหัสไปรษณีย์" maxlength="5" inputmode="numeric">
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>เบอร์โทรศัพท์ติดต่อ</label>
-                <div class="form-input-wrapper">
-                    <i class="fa-solid fa-phone"></i>
-                    <input type="tel" id="user-kyc-phone" placeholder="กรอกเบอร์โทรศัพท์ 10 หลัก" maxlength="10" inputmode="numeric" oninput="validateNumberOnly(this, 10)">
-                </div>
-                <div id="user-kyc-phone-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: none;">⚠️ กรุณากรอกเบอร์โทรศัพท์เป็นตัวเลข 10 หลัก</div>
-            </div>
-            </div>
-
-            <hr class="desktop-kyc-divider" style="border: 0; border-top: 1px dashed #e2e8f0; margin: 2rem 0 1.5rem;">
-
-            <div class="kyc-col">
-
-            <div class="form-group">
-                <label style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>อัปโหลดรูปถ่ายหน้าบัตรประชาชน</span>
-                    <span style="font-size: 0.7rem; color: #a46309; background: #fefce8; padding: 0.2rem 0.5rem; border-radius: 8px; border: 1px solid #fef08a;"><i class="fa-solid fa-shield"></i> มีลายน้ำอัตโนมัติ</span>
+            <!-- PDPA Consent Card -->
+            <div id="user-kyc-footer" class="modern-section-card" style="padding: 1.25rem; margin-top: 1rem;">
+                <label style="display: flex; gap: 0.85rem; align-items: flex-start; cursor: pointer; margin: 0;">
+                    <input type="checkbox" id="user-kyc-terms" style="margin-top: 0.25rem; width: 18px; height: 18px; accent-color: #a46309; flex-shrink: 0; cursor: pointer;">
+                    <span style="font-size: 0.82rem; color: #475569; line-height: 1.5;">
+                        ข้าพเจ้ายินยอมให้แพลตฟอร์ม SpaceMate จัดเก็บและประมวลผลข้อมูลส่วนบุคคลและรูปถ่ายเอกสารเพื่อการยืนยันตัวตนตาม <a href="javascript:void(0)" style="color: #a46309; text-decoration: underline; font-weight: 600;">พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA)</a> และขอรับรองว่าข้อมูลทั้งหมดเป็นความจริงทุกประการ
+                    </span>
                 </label>
-                <div id="user-box-idcard" style="border: 2px dashed #cbd5e1; border-radius: 12px; padding: 2rem; text-align: center; background: #f8fafc; cursor: pointer; transition: all 0.2s; position: relative;" onclick="document.getElementById('user-file-idcard').click()" onmouseover="this.style.borderColor='#a46309'; this.style.background='#fffbeb';" onmouseout="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">
-                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: #94a3b8; margin-bottom: 0.5rem;"></i>
-                    <p style="font-size: 0.9rem; color: #64748b;">คลิกเพื่ออัปโหลดรูปภาพ</p>
-                    <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem;">รองรับ JPG, PNG ขนาดไม่เกิน 5MB</p>
-                    <div id="user-preview-idcard" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: #fff; border-radius: 10px; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding: 0.5rem;"></div>
-                </div>
-                <input type="file" id="user-file-idcard" accept="image/*" style="display: none;" onchange="handleUserFileChange(event, 'idcard')">
             </div>
 
-            <div class="form-group" style="margin-bottom: 0;">
-                <label>อัปโหลดรูปถ่ายเซลฟี่คู่กับบัตร</label>
-                <div id="user-box-selfie" style="border: 2px dashed #cbd5e1; border-radius: 12px; padding: 2rem; text-align: center; background: #f8fafc; cursor: pointer; transition: all 0.2s; position: relative;" onclick="document.getElementById('user-file-selfie').click()" onmouseover="this.style.borderColor='#a46309'; this.style.background='#fffbeb';" onmouseout="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">
-                    <i class="fa-solid fa-camera-retro" style="font-size: 2rem; color: #94a3b8; margin-bottom: 0.5rem;"></i>
-                    <p style="font-size: 0.9rem; color: #64748b;">คลิกเพื่อถ่ายภาพเซลฟี่</p>
-                    <div style="display: inline-block; margin-top: 0.5rem; background: #ecfeff; color: #0891b2; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.7rem;"><i class="fa-solid fa-robot"></i> ตรวจสอบการมีชีวิตด้วย AI (Liveness Detection)</div>
-                    <div id="user-preview-selfie" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: #fff; border-radius: 10px; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding: 0.5rem;"></div>
-                </div>
-                <input type="file" id="user-file-selfie" accept="image/*" style="display: none;" onchange="handleUserFileChange(event, 'selfie')">
+            <!-- Submission Actions -->
+            <div id="user-kyc-actions" class="edit-profile-actions">
+                <button type="button" class="btn-save-profile" id="user-kyc-submit-btn" onclick="submitUserVerification()">
+                    <i class="fa-solid fa-paper-plane"></i> ยืนยันและส่งข้อมูล e-KYC
+                </button>
             </div>
-            </div>
-            </div>
-        </div>
 
-        <div id="user-kyc-footer" style="padding: 0 1.25rem; margin-bottom: 1.5rem;">
-            <label style="display: flex; gap: 0.75rem; align-items: flex-start; cursor: pointer;">
-                <input type="checkbox" id="user-kyc-terms" style="margin-top: 0.25rem; width: 16px; height: 16px; accent-color: #a46309;">
-                <span style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
-                    ข้าพเจ้ายินยอมให้ประมวลผลข้อมูลส่วนบุคคลตาม <a href="#" style="color: #a46309; text-decoration: underline;">พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA)</a> และรับรองว่าข้อมูลทั้งหมดเป็นความจริง
-                </span>
-            </label>
-        </div>
-
-        <div id="user-kyc-actions" class="edit-profile-actions" style="padding-bottom: 0.5rem;">
-            <button class="btn-save-profile" id="user-kyc-submit-btn" onclick="submitUserVerification()">ยืนยันและส่งข้อมูล</button>
-        </div>
-        
-        <div style="text-align: center; padding-bottom: 2rem; color: #94a3b8; font-size: 0.75rem;">
-            <i class="fa-solid fa-shield-halved"></i> Secured by 256-bit SSL Encryption
+            <!-- Security Footer Note -->
+            <div style="text-align: center; padding-bottom: 2rem; color: #94a3b8; font-size: 0.78rem; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <i class="fa-solid fa-shield-halved" style="color: #a46309;"></i> Secured with End-to-End 256-bit SSL Data Encryption
+            </div>
         </div>
     </div>
 
-    <!-- User Security View -->
-    <div id="user-security" class="user-page" style="display: none;">
-        <div class="edit-profile-header">
-            <button class="edit-profile-back" onclick="switchUserView('profile')">
+
+    <!-- ====================================================
+         3. USER SECURITY VIEW (PREMIUM DASHBOARD REDESIGN)
+         ==================================================== -->
+    <div id="user-security" class="user-page" style="display: none; background: #f8fafc; min-height: 100vh;">
+        <!-- Header -->
+        <header class="edit-profile-header">
+            <button class="edit-profile-back" onclick="switchUserView('profile')" title="ย้อนกลับ">
                 <i class="fa-solid fa-arrow-left"></i>
             </button>
-            <h2 class="edit-profile-title">ความปลอดภัย</h2>
-        </div>
-
-        <div class="profile-menu-group" style="margin-top: 1.5rem;">
-            <a href="javascript:void(0)" class="profile-menu-item" onclick="showChangePasswordModal()">
-                <div class="profile-menu-icon-wrapper" style="background: #fefce8; color: #a46309;"><i class="fa-solid fa-lock"></i></div>
-                <span class="profile-menu-text">เปลี่ยนรหัสผ่าน</span>
-                <i class="fa-solid fa-chevron-right profile-menu-arrow"></i>
-            </a>
-        </div>
-
-        <div class="profile-menu-group" style="margin-top: 1.5rem;">
-            <a href="javascript:void(0)" class="profile-menu-item" onclick="showDeleteAccountModal()">
-                <div class="profile-menu-icon-wrapper red-icon"><i class="fa-solid fa-trash-can"></i></div>
-                <span class="profile-menu-text text-red">ลบบัญชีผู้ใช้</span>
-                <i class="fa-solid fa-chevron-right profile-menu-arrow"></i>
-            </a>
-        </div>
-    </div>
-    
-    <!-- Delete Account Modal -->
-    <div id="delete-account-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 1.5rem; backdrop-filter: blur(4px);">
-        <div style="background: white; border-radius: 24px; padding: 2rem; width: 100%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); position: relative;">
-            <div style="width: 60px; height: 60px; background: #fef2f2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: #ef4444; font-size: 1.5rem;">
-                <i class="fa-solid fa-triangle-exclamation"></i>
+            <div class="edit-profile-title-wrap">
+                <h1 class="edit-profile-title">ความปลอดภัยของบัญชี</h1>
+                <p class="edit-profile-subtitle">รหัสผ่าน การเข้าสู่ระบบ และการคุ้มครองข้อมูล</p>
             </div>
-            
-            <h3 style="text-align: center; color: #1e293b; font-size: 1.25rem; margin-bottom: 0.5rem;">ยืนยันการลบบัญชี</h3>
-            <p style="text-align: center; color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem;">การดำเนินการนี้ไม่สามารถย้อนกลับได้ ข้อมูลทั้งหมดของคุณจะถูกลบอย่างถาวร กรุณากรอกอีเมลและรหัสผ่านเพื่อยืนยัน</p>
-            
-            <div class="form-group" style="margin-bottom: 1rem;">
-                <label style="font-size: 0.85rem; color: #475569; font-weight: 600; margin-bottom: 0.5rem; display: block;">อีเมล (บัญชีของคุณ)</label>
-                <div class="form-input-wrapper" style="position: relative; display: flex; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0 1rem; height: 48px;">
-                    <i class="fa-solid fa-envelope" style="color: #94a3b8; font-size: 1rem; margin-right: 0.75rem;"></i>
-                    <input type="email" id="delete-account-email" placeholder="กรอกอีเมลของคุณ" style="border: none; background: transparent; outline: none; width: 100%; font-family: inherit; font-size: 0.95rem; color: #1e293b;">
+            <div style="width: 42px;"></div>
+        </header>
+
+        <div class="settings-content-wrap">
+            <!-- Security Health Overview Banner -->
+            <div class="security-hero-banner">
+                <div class="security-badge-icon">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.35rem;">
+                        <span style="font-size: 1.15rem; font-weight: 800;">สถานะความปลอดภัย: สูง</span>
+                        <span style="background: #22c55e; color: #ffffff; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 20px;">95% Active</span>
+                    </div>
+                    <p style="font-size: 0.82rem; color: #94a3b8; margin: 0; line-height: 1.4;">บัญชีของคุณได้รับการปกป้องด้วยรหัสผ่านและการเชื่อมต่อที่ปลอดภัยผ่าน Supabase Auth Service</p>
                 </div>
             </div>
-            
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label style="font-size: 0.85rem; color: #475569; font-weight: 600; margin-bottom: 0.5rem; display: block;">รหัสผ่าน</label>
-                <div class="form-input-wrapper" style="position: relative; display: flex; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0 1rem; height: 48px;">
-                    <i class="fa-solid fa-lock" style="color: #94a3b8; font-size: 1rem; margin-right: 0.75rem;"></i>
-                    <input type="text" id="delete-account-password" placeholder="กรอกรหัสผ่านของคุณ" style="border: none; background: transparent; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; color: #1e293b;">
-                </div>
+
+            <!-- SECTION 1: รหัสผ่านและการเข้าสู่ระบบ -->
+            <div class="section-header-tag" style="margin-top: 1.5rem;">
+                <i class="fa-solid fa-key"></i> การเข้าสู่ระบบและรหัสผ่าน (Credentials)
             </div>
-            
-            <div style="display: flex; gap: 1rem;">
-                <button onclick="closeDeleteAccountModal()" style="flex: 1; padding: 0.875rem; border-radius: 12px; border: 1px solid #e2e8f0; background: white; color: #64748b; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit;">ยกเลิก</button>
-                <button onclick="confirmDeleteAccount()" id="btn-confirm-delete-account" style="flex: 1; padding: 0.875rem; border-radius: 12px; border: none; background: #ef4444; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit;">ลบบัญชีถาวร</button>
+
+            <div class="security-tile-item" onclick="showChangePasswordModal()">
+                <div class="security-tile-icon-box" style="background: #fefce8; color: #a46309;">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-size: 0.98rem; font-weight: 700; color: #0f172a;">เปลี่ยนรหัสผ่าน (Change Password)</div>
+                    <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">แนะนำให้เปลี่ยนรหัสผ่านเป็นประจำเพื่อความปลอดภัยสูงสุด</div>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="color: #cbd5e1; font-size: 0.9rem;"></i>
+            </div>
+
+            <div class="security-tile-item" onclick="Swal.fire({ icon: 'info', title: 'การยืนยันตัวตน 2 ชั้น (2FA)', text: 'ระบบกำลังเตรียมเปิดใช้งาน OTP ทาง SMS และ Authenticator App เร็วๆ นี้ครับ', confirmButtonColor: '#a46309' })">
+                <div class="security-tile-icon-box" style="background: #eff6ff; color: #2563eb;">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-size: 0.98rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                        การยืนยันตัวตน 2 ชั้น (2FA)
+                        <span style="font-size: 0.68rem; background: #dbeafe; color: #1d4ed8; padding: 2px 8px; border-radius: 8px; font-weight: 700;">เร็วๆ นี้</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">เพิ่มความปลอดภัยอีกขั้นด้วยการรับรหัส OTP เมื่อเข้าสู่ระบบ</div>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="color: #cbd5e1; font-size: 0.9rem;"></i>
+            </div>
+
+            <!-- SECTION 2: อุปกรณ์และการใช้งาน -->
+            <div class="section-header-tag" style="margin-top: 1.75rem;">
+                <i class="fa-solid fa-laptop-code"></i> อุปกรณ์ที่กำลังใช้งาน (Active Session)
+            </div>
+
+            <div class="security-tile-item" style="cursor: default;">
+                <div class="security-tile-icon-box" style="background: #ecfdf5; color: #059669;">
+                    <i class="fa-solid fa-desktop"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-size: 0.95rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                        เบราว์เซอร์ปัจจุบัน (อุปกรณ์นี้)
+                        <span style="font-size: 0.68rem; background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 8px; font-weight: 700;"><i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i> ออนไลน์</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">เข้าสู่ระบบผ่าน Web Browser • สิทธิ์ผู้ใช้งาน SpaceMate</div>
+                </div>
+                <i class="fa-solid fa-check" style="color: #10b981; font-size: 1rem;"></i>
+            </div>
+
+            <!-- SECTION 3: สิทธิความเป็นส่วนตัว (PDPA) -->
+            <div class="section-header-tag" style="margin-top: 1.75rem;">
+                <i class="fa-solid fa-user-shield"></i> สิทธิความเป็นส่วนตัว (Privacy & Rights)
+            </div>
+
+            <div class="security-tile-item" onclick="Swal.fire({ icon: 'info', title: 'การคุ้มครองข้อมูลส่วนบุคคล (PDPA)', html: 'SpaceMate จัดเก็บข้อมูลของท่านตามมาตรฐานกฎหมาย PDPA โดยเข้ารหัสแบบปลอดภัยและใช้เฉพาะในระบบจองพื้นที่ตลาดเท่านั้น', confirmButtonColor: '#a46309' })">
+                <div class="security-tile-icon-box" style="background: #fdf4ff; color: #c026d3;">
+                    <i class="fa-solid fa-file-shield"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-size: 0.98rem; font-weight: 700; color: #0f172a;">นโยบายความเป็นส่วนตัวและสิทธิของคุณ</div>
+                    <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">ตรวจสอบการจัดการข้อมูลและการขอสำเนาข้อมูลตามกฎหมาย</div>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="color: #cbd5e1; font-size: 0.9rem;"></i>
+            </div>
+
+            <!-- SECTION 4: โซนอันตราย (Danger Zone) -->
+            <div class="section-header-tag" style="margin-top: 2rem; color: #ef4444; border-bottom-color: #fee2e2;">
+                <i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i> โซนอันตราย (Danger Zone)
+            </div>
+
+            <div class="security-tile-item danger-tile" onclick="showDeleteAccountModal()">
+                <div class="security-tile-icon-box" style="background: #fee2e2; color: #ef4444;">
+                    <i class="fa-solid fa-trash-can"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-size: 0.98rem; font-weight: 700; color: #b91c1c;">ขอลบบัญชีผู้ใช้ถาวร (Delete Account)</div>
+                    <div style="font-size: 0.8rem; color: #ef4444; margin-top: 2px;">ลบข้อมูลบัญชี ประวัติการจอง และเอกสารทั้งหมดอย่างถาวร ไม่สามารถกู้คืนได้</div>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="color: #f87171; font-size: 0.9rem;"></i>
             </div>
         </div>
     </div>
 
-    <!-- Change Password Modal -->
-    <div id="change-password-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 1.5rem; backdrop-filter: blur(4px);">
-        <div style="background: white; border-radius: 24px; padding: 2rem; width: 100%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); position: relative;">
-            <div style="width: 60px; height: 60px; background: #fefce8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: #a46309; font-size: 1.5rem;">
+
+    <!-- ====================================================
+         MODAL 1: CHANGE PASSWORD MODAL (PREMIUM GLASS)
+         ==================================================== -->
+    <div id="change-password-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); z-index: 1000; align-items: center; justify-content: center; padding: 1.25rem; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
+        <div style="background: #ffffff; border-radius: 28px; padding: 2rem 1.75rem; width: 100%; max-width: 440px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); position: relative; border: 1px solid rgba(226, 232, 240, 0.9); animation: popupIn 0.25s ease-out;">
+            <!-- Close icon button -->
+            <button type="button" onclick="closeChangePasswordModal()" style="position: absolute; top: 1.25rem; right: 1.25rem; background: #f1f5f9; border: none; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #64748b; font-size: 0.95rem; transition: all 0.2s;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Modal Header -->
+            <div style="width: 58px; height: 58px; background: linear-gradient(135deg, #fefce8, #fef08a); border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; color: #a46309; font-size: 1.6rem; box-shadow: 0 4px 14px rgba(164, 99, 9, 0.2);">
                 <i class="fa-solid fa-key"></i>
             </div>
             
-            <h3 style="text-align: center; color: #1e293b; font-size: 1.25rem; margin-bottom: 1.5rem;">เปลี่ยนรหัสผ่าน</h3>
+            <h3 style="text-align: center; color: #0f172a; font-size: 1.25rem; font-weight: 700; margin: 0 0 0.35rem;">เปลี่ยนรหัสผ่านใหม่</h3>
+            <p style="text-align: center; color: #64748b; font-size: 0.84rem; margin: 0 0 1.5rem;">กรุณากรอกรหัสผ่านปัจจุบันและรหัสผ่านใหม่ที่ต้องการตั้ง</p>
             
-            <div class="form-group" style="margin-bottom: 1rem;">
-                <label style="font-size: 0.85rem; color: #475569; font-weight: 600; margin-bottom: 0.5rem; display: block;">รหัสผ่านปัจจุบัน</label>
-                <div class="form-input-wrapper" style="position: relative; display: flex; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0 1rem; height: 48px;">
-                    <i class="fa-solid fa-lock" style="color: #94a3b8; font-size: 1rem; margin-right: 0.75rem;"></i>
-                    <input type="text" id="change-password-current" placeholder="กรอกรหัสผ่านปัจจุบัน" style="border: none; background: transparent; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; color: #1e293b;">
+            <!-- Current Password -->
+            <div class="form-group">
+                <label for="change-password-current">รหัสผ่านปัจจุบัน <span style="color: #ef4444;">*</span></label>
+                <div class="form-input-wrapper">
+                    <i class="fa-solid fa-lock leading-icon"></i>
+                    <input type="password" id="change-password-current" placeholder="กรอกรหัสผ่านปัจจุบันของคุณ" autocomplete="current-password">
+                    <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('change-password-current', this)" title="แสดง/ซ่อนรหัสผ่าน">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
                 </div>
             </div>
             
-            <div class="form-group" style="margin-bottom: 1rem;">
-                <label style="font-size: 0.85rem; color: #475569; font-weight: 600; margin-bottom: 0.5rem; display: block;">รหัสผ่านใหม่</label>
-                <div class="form-input-wrapper" style="position: relative; display: flex; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0 1rem; height: 48px;">
-                    <i class="fa-solid fa-key" style="color: #94a3b8; font-size: 1rem; margin-right: 0.75rem;"></i>
-                    <input type="text" id="change-password-new" placeholder="รหัสผ่านใหม่อย่างน้อย 6 ตัวอักษร" style="border: none; background: transparent; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; color: #1e293b;">
+            <!-- New Password -->
+            <div class="form-group">
+                <label for="change-password-new">รหัสผ่านใหม่ <span style="color: #ef4444;">*</span></label>
+                <div class="form-input-wrapper">
+                    <i class="fa-solid fa-key leading-icon"></i>
+                    <input type="password" id="change-password-new" placeholder="อย่างน้อย 6 ตัวอักษร" autocomplete="new-password" oninput="checkNewPasswordStrength(this.value)">
+                    <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('change-password-new', this)" title="แสดง/ซ่อนรหัสผ่าน">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+                <!-- Strength indicator -->
+                <div style="margin-top: 0.5rem;">
+                    <div style="height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
+                        <div id="password-strength-fill" style="width: 0%; height: 100%; background: #e2e8f0; transition: all 0.3s ease;"></div>
+                    </div>
+                    <div id="password-strength-label" style="font-size: 0.72rem; color: #94a3b8; margin-top: 0.3rem; text-align: right;">กรุณากรอกรหัสผ่าน</div>
                 </div>
             </div>
 
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label style="font-size: 0.85rem; color: #475569; font-weight: 600; margin-bottom: 0.5rem; display: block;">ยืนยันรหัสผ่านใหม่</label>
-                <div class="form-input-wrapper" style="position: relative; display: flex; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0 1rem; height: 48px;">
-                    <i class="fa-solid fa-check-double" style="color: #94a3b8; font-size: 1rem; margin-right: 0.75rem;"></i>
-                    <input type="text" id="change-password-confirm" placeholder="กรอกรหัสผ่านใหม่อีกครั้ง" style="border: none; background: transparent; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; color: #1e293b;">
+            <!-- Confirm New Password -->
+            <div class="form-group" style="margin-bottom: 1.75rem;">
+                <label for="change-password-confirm">ยืนยันรหัสผ่านใหม่อีกครั้ง <span style="color: #ef4444;">*</span></label>
+                <div class="form-input-wrapper">
+                    <i class="fa-solid fa-check-double leading-icon"></i>
+                    <input type="password" id="change-password-confirm" placeholder="กรอกรหัสผ่านใหม่อีกครั้ง" autocomplete="new-password">
+                    <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('change-password-confirm', this)" title="แสดง/ซ่อนรหัสผ่าน">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
                 </div>
             </div>
             
-            <div style="display: flex; gap: 1rem;">
-                <button onclick="closeChangePasswordModal()" style="flex: 1; padding: 0.875rem; border-radius: 12px; border: 1px solid #e2e8f0; background: white; color: #64748b; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit;">ยกเลิก</button>
-                <button onclick="confirmChangePassword()" id="btn-confirm-change-password" style="flex: 1; padding: 0.875rem; border-radius: 12px; border: none; background: #a46309; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit;">เปลี่ยนรหัสผ่าน</button>
+            <!-- Action buttons -->
+            <div style="display: flex; gap: 0.85rem;">
+                <button type="button" onclick="closeChangePasswordModal()" class="btn-cancel-profile" style="padding: 0.85rem;">
+                    ยกเลิก
+                </button>
+                <button type="button" onclick="confirmChangePassword()" id="btn-confirm-change-password" class="btn-save-profile" style="padding: 0.85rem;">
+                    <i class="fa-solid fa-shield-check"></i> บันทึกรหัสผ่านใหม่
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ====================================================
+         MODAL 2: DELETE ACCOUNT MODAL (PREMIUM DANGER CONFIRM)
+         ==================================================== -->
+    <div id="delete-account-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); z-index: 1000; align-items: center; justify-content: center; padding: 1.25rem; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
+        <div style="background: #ffffff; border-radius: 28px; padding: 2rem 1.75rem; width: 100%; max-width: 440px; box-shadow: 0 25px 50px -12px rgba(239, 68, 68, 0.25); position: relative; border: 1.5px solid #fecaca; animation: popupIn 0.25s ease-out;">
+            <!-- Close icon button -->
+            <button type="button" onclick="closeDeleteAccountModal()" style="position: absolute; top: 1.25rem; right: 1.25rem; background: #fee2e2; border: none; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #ef4444; font-size: 0.95rem; transition: all 0.2s;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Warning Icon with animated pulse ring -->
+            <div style="width: 64px; height: 64px; background: #fee2e2; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; color: #ef4444; font-size: 1.75rem; border: 2px solid #fecaca;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            
+            <h3 style="text-align: center; color: #991b1b; font-size: 1.25rem; font-weight: 800; margin: 0 0 0.35rem;">ยืนยันการลบบัญชีถาวร</h3>
+            <p style="text-align: center; color: #64748b; font-size: 0.84rem; margin: 0 0 1.25rem; line-height: 1.5;">การลบบัญชีจะไม่สามารถย้อนกลับได้ ข้อมูลส่วนตัว ประวัติการจอง และสิทธิ์ใช้งานทั้งหมดจะถูกลบออกจากเซิร์ฟเวอร์ทันที</p>
+            
+            <!-- Email -->
+            <div class="form-group">
+                <label for="delete-account-email">อีเมลบัญชีผู้ใช้ของคุณ</label>
+                <div class="form-input-wrapper" style="background: #f1f5f9; cursor: not-allowed;">
+                    <i class="fa-solid fa-envelope leading-icon"></i>
+                    <input type="email" id="delete-account-email" placeholder="อีเมลของคุณ" readonly style="cursor: not-allowed; color: #64748b;">
+                </div>
+            </div>
+            
+            <!-- Password Confirmation -->
+            <div class="form-group" style="margin-bottom: 1.75rem;">
+                <label for="delete-account-password">รหัสผ่านเพื่อยืนยันความเป็นเจ้าของ <span style="color: #ef4444;">*</span></label>
+                <div class="form-input-wrapper">
+                    <i class="fa-solid fa-lock leading-icon"></i>
+                    <input type="password" id="delete-account-password" placeholder="กรอกรหัสผ่านเพื่อยืนยัน" autocomplete="current-password">
+                    <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('delete-account-password', this)" title="แสดง/ซ่อนรหัสผ่าน">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div style="display: flex; gap: 0.85rem;">
+                <button type="button" onclick="closeDeleteAccountModal()" class="btn-cancel-profile" style="padding: 0.85rem;">
+                    ยกเลิก
+                </button>
+                <button type="button" onclick="confirmDeleteAccount()" id="btn-confirm-delete-account" style="flex: 1; padding: 0.85rem; border-radius: 14px; border: none; background: #ef4444; color: #ffffff; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: 'Prompt', sans-serif; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);">
+                    <i class="fa-solid fa-trash-can"></i> ลบบัญชีถาวร
+                </button>
             </div>
         </div>
     </div>
@@ -3988,6 +4471,9 @@
             const bannerContainer = document.getElementById('user-kyc-banner-container');
             const step1 = document.getElementById('user-step-1');
             const step2 = document.getElementById('user-step-2');
+            const step3 = document.getElementById('user-step-3');
+            const stepLine1 = document.getElementById('user-stepper-line-1');
+            const stepLine2 = document.getElementById('user-stepper-line-2');
             const submitBtn = document.getElementById('user-kyc-submit-btn');
             const menuBadge = document.getElementById('user-kyc-menu-badge');
 
@@ -4011,8 +4497,11 @@
             const editIdCard = document.getElementById('user-edit-idcard');
 
             if (!status || status === 'unverified') {
-                if (step1) { step1.style.background = '#a46309'; step1.style.color = 'white'; step1.innerHTML = '1'; }
+                if (step1) { step1.style.background = '#a46309'; step1.style.color = '#ffffff'; step1.innerHTML = '1'; }
                 if (step2) { step2.style.background = '#f1f5f9'; step2.style.color = '#94a3b8'; step2.innerHTML = '2'; }
+                if (step3) { step3.style.background = '#f1f5f9'; step3.style.color = '#94a3b8'; step3.innerHTML = '3'; }
+                if (stepLine1) stepLine1.style.background = '#e2e8f0';
+                if (stepLine2) stepLine2.style.background = '#e2e8f0';
                 if (bannerContainer) bannerContainer.style.display = 'none';
                 if (menuBadge) { menuBadge.innerHTML = 'ด่วน'; menuBadge.style.background = '#ef4444'; }
 
@@ -4038,7 +4527,7 @@
                 if (fileIdcard) fileIdcard.disabled = false;
                 if (fileSelfie) fileSelfie.disabled = false;
                 if (submitBtn) {
-                    submitBtn.innerHTML = 'ยืนยันและส่งข้อมูล';
+                    submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ยืนยันและส่งข้อมูลตรวจสอบ';
                     submitBtn.disabled = false;
                     submitBtn.style.background = '';
                     submitBtn.style.cursor = 'pointer';
@@ -4050,19 +4539,22 @@
             if (bannerContainer) bannerContainer.style.display = 'block';
 
             if (status === 'approved') {
-                if (step1) { step1.style.background = '#22c55e'; step1.style.color = 'white'; step1.innerHTML = '<i class="fa-solid fa-check"></i>'; }
-                if (step2) { step2.style.background = '#22c55e'; step2.style.color = 'white'; step2.innerHTML = '<i class="fa-solid fa-check"></i>'; }
+                if (step1) { step1.style.background = '#10b981'; step1.style.color = 'white'; step1.innerHTML = '<i class="fa-solid fa-check"></i>'; }
+                if (step2) { step2.style.background = '#10b981'; step2.style.color = 'white'; step2.innerHTML = '<i class="fa-solid fa-check"></i>'; }
+                if (step3) { step3.style.background = '#10b981'; step3.style.color = 'white'; step3.innerHTML = '<i class="fa-solid fa-check"></i>'; }
+                if (stepLine1) stepLine1.style.background = '#10b981';
+                if (stepLine2) stepLine2.style.background = '#10b981';
                 if (menuBadge) { menuBadge.innerHTML = 'ยืนยันแล้ว'; menuBadge.style.background = '#10b981'; }
                 
                 if (bannerContainer) bannerContainer.innerHTML = `
-                    <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 1.15rem; display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem;">
-                        <div style="width: 44px; height: 44px; background: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;"><i class="fa-solid fa-circle-check"></i></div>
+                    <div style="background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%); border: 1px solid #a7f3d0; border-radius: 16px; padding: 1.25rem; display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.08);">
+                        <div style="width: 48px; height: 48px; background: #10b981; color: white; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);"><i class="fa-solid fa-circle-check"></i></div>
                         <div style="flex: 1;">
                             <div style="font-weight: 700; color: #065f46; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
-                                ยืนยันตัวตนสำเร็จแล้ว (Approved)
-                                <span style="font-size: 0.72rem; background: #059669; color: white; padding: 2px 8px; border-radius: 10px;"><i class="fa-solid fa-lock"></i> ข้อมูลถูกล็อค</span>
+                                ยืนยันตัวตนสำเร็จแล้ว (Verified & Approved)
+                                <span style="font-size: 0.72rem; background: #059669; color: white; padding: 3px 8px; border-radius: 10px; font-weight: 600;"><i class="fa-solid fa-lock"></i> ข้อมูลถูกล็อค</span>
                             </div>
-                            <div style="font-size: 0.85rem; color: #047857; margin-top: 2px;">บัญชีของคุณได้รับการตรวจสอบและรับรองเรียบร้อยแล้ว ข้อมูลถูกล็อคเพื่อความปลอดภัยและไม่สามารถแก้ไขได้</div>
+                            <div style="font-size: 0.84rem; color: #047857; margin-top: 3px;">บัญชีของคุณได้รับการตรวจสอบและรับรองความถูกต้องเรียบร้อยแล้ว ได้รับสิทธิ์จองพื้นที่และรับสิทธิประโยชน์ระดับสมบูรณ์</div>
                         </div>
                     </div>
                 `;
@@ -4111,19 +4603,22 @@
                     submitBtn.style.opacity = '0.85';
                 }
             } else if (status === 'pending') {
-                if (step1) { step1.style.background = '#22c55e'; step1.style.color = 'white'; step1.innerHTML = '<i class="fa-solid fa-check"></i>'; }
-                if (step2) { step2.style.background = '#eab308'; step2.style.color = 'white'; step2.innerHTML = '2'; }
+                if (step1) { step1.style.background = '#10b981'; step1.style.color = 'white'; step1.innerHTML = '<i class="fa-solid fa-check"></i>'; }
+                if (step2) { step2.style.background = '#eab308'; step2.style.color = 'white'; step2.innerHTML = '<i class="fa-solid fa-clock"></i>'; }
+                if (step3) { step3.style.background = '#f1f5f9'; step3.style.color = '#94a3b8'; step3.innerHTML = '3'; }
+                if (stepLine1) stepLine1.style.background = '#10b981';
+                if (stepLine2) stepLine2.style.background = '#fde047';
                 if (menuBadge) { menuBadge.innerHTML = 'รอตรวจสอบ'; menuBadge.style.background = '#eab308'; }
 
                 if (bannerContainer) bannerContainer.innerHTML = `
-                    <div style="background: #fefce8; border: 1px solid #fde047; border-radius: 12px; padding: 1.15rem; display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem;">
-                        <div style="width: 44px; height: 44px; background: #facc15; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <div style="background: linear-gradient(135deg, #fefce8 0%, #fffbeb 100%); border: 1px solid #fde047; border-radius: 16px; padding: 1.25rem; display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; box-shadow: 0 4px 14px rgba(234, 179, 8, 0.08);">
+                        <div style="width: 48px; height: 48px; background: #eab308; color: white; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(234, 179, 8, 0.25);"><i class="fa-solid fa-hourglass-half"></i></div>
                         <div style="flex: 1;">
                             <div style="font-weight: 700; color: #854d0e; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
-                                กำลังรอการตรวจสอบ (Pending)
-                                <span style="font-size: 0.72rem; background: #d97706; color: white; padding: 2px 8px; border-radius: 10px;"><i class="fa-solid fa-lock"></i> อยู่ระหว่างตรวจสอบ</span>
+                                กำลังรอการตรวจสอบ (Pending Verification)
+                                <span style="font-size: 0.72rem; background: #d97706; color: white; padding: 3px 8px; border-radius: 10px; font-weight: 600;"><i class="fa-solid fa-shield-halved"></i> อยู่ระหว่างตรวจสอบ</span>
                             </div>
-                            <div style="font-size: 0.85rem; color: #a16207; margin-top: 2px;">เจ้าหน้าที่กำลังตรวจสอบข้อมูลและเอกสารของคุณ ใช้เวลาประมาณ 24 ชม. ข้อมูลถูกล็อคในระหว่างนี้</div>
+                            <div style="font-size: 0.84rem; color: #a16207; margin-top: 3px;">เจ้าหน้าที่กำลังตรวจสอบข้อมูลและเอกสารยืนยันตัวตนของคุณอย่างละเอียด ใช้เวลาประมาณ 24 ชั่วโมง ข้อมูลจะถูกล็อคชั่วคราว</div>
                         </div>
                     </div>
                 `;
@@ -4165,14 +4660,17 @@
             } else if (status === 'rejected') {
                 if (step1) { step1.style.background = '#ef4444'; step1.style.color = 'white'; step1.innerHTML = '<i class="fa-solid fa-xmark"></i>'; }
                 if (step2) { step2.style.background = '#f1f5f9'; step2.style.color = '#94a3b8'; step2.innerHTML = '2'; }
+                if (step3) { step3.style.background = '#f1f5f9'; step3.style.color = '#94a3b8'; step3.innerHTML = '3'; }
+                if (stepLine1) stepLine1.style.background = '#fecaca';
+                if (stepLine2) stepLine2.style.background = '#e2e8f0';
                 if (menuBadge) { menuBadge.innerHTML = 'ไม่อนุมัติ'; menuBadge.style.background = '#ef4444'; }
 
                 if (bannerContainer) bannerContainer.innerHTML = `
-                    <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 1.15rem; display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem;">
-                        <div style="width: 44px; height: 44px; background: #ef4444; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;"><i class="fa-solid fa-xmark"></i></div>
+                    <div style="background: linear-gradient(135deg, #fef2f2 0%, #fff5f5 100%); border: 1px solid #fecaca; border-radius: 16px; padding: 1.25rem; display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.08);">
+                        <div style="width: 48px; height: 48px; background: #ef4444; color: white; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25);"><i class="fa-solid fa-xmark"></i></div>
                         <div style="flex: 1;">
-                            <div style="font-weight: 700; color: #991b1b; font-size: 1.05rem;">เอกสารไม่ผ่านการอนุมัติ (Rejected)</div>
-                            <div style="font-size: 0.85rem; color: #b91c1c; margin-top: 2px;">กรุณาตรวจสอบความถูกต้องของข้อมูลและภาพถ่ายเอกสารให้ชัดเจน แล้วกดส่งข้อมูลใหม่อีกครั้ง</div>
+                            <div style="font-weight: 700; color: #991b1b; font-size: 1.05rem;">เอกสารไม่ผ่านการอนุมัติ (Verification Rejected)</div>
+                            <div style="font-size: 0.84rem; color: #b91c1c; margin-top: 3px;">กรุณาตรวจสอบความถูกต้องของข้อมูลและภาพถ่ายเอกสารให้คมชัด ไม่เบลอ และไม่มีแสงสะท้อน แล้วกดส่งข้อมูลตรวจสอบใหม่อีกครั้ง</div>
                         </div>
                     </div>
                 `;
@@ -5239,15 +5737,115 @@
             }
         }
 
+        function checkNewPasswordStrength(pwd) {
+            const fill = document.getElementById('password-strength-fill');
+            const label = document.getElementById('password-strength-label');
+            if (!fill || !label) return;
+
+            if (!pwd || pwd.length === 0) {
+                fill.style.width = '0%';
+                fill.style.backgroundColor = '#e2e8f0';
+                label.innerText = 'กรุณากรอกรหัสผ่าน';
+                label.style.color = '#94a3b8';
+                return;
+            }
+
+            let score = 0;
+            if (pwd.length >= 6) score += 1;
+            if (pwd.length >= 8) score += 1;
+            if (/[A-Z]/.test(pwd) && /[a-z]/.test(pwd)) score += 1;
+            if (/[0-9]/.test(pwd)) score += 1;
+            if (/[^A-Za-z0-9]/.test(pwd)) score += 1;
+
+            if (pwd.length < 6) {
+                fill.style.width = '20%';
+                fill.style.backgroundColor = '#ef4444';
+                label.innerText = 'รหัสผ่านสั้นเกินไป (อย่างน้อย 6 ตัวอักษร)';
+                label.style.color = '#ef4444';
+            } else if (score <= 2) {
+                fill.style.width = '45%';
+                fill.style.backgroundColor = '#f97316';
+                label.innerText = 'ความปลอดภัย: ระดับเริ่มต้น';
+                label.style.color = '#f97316';
+            } else if (score <= 3) {
+                fill.style.width = '75%';
+                fill.style.backgroundColor = '#eab308';
+                label.innerText = 'ความปลอดภัย: ปานกลาง';
+                label.style.color = '#ca8a04';
+            } else {
+                fill.style.width = '100%';
+                fill.style.backgroundColor = '#10b981';
+                label.innerText = 'ความปลอดภัย: สูงมาก แข็งแกร่ง!';
+                label.style.color = '#10b981';
+            }
+        }
+
         function showChangePasswordModal() {
             document.getElementById('change-password-modal').style.display = 'flex';
             document.getElementById('change-password-current').value = '';
             document.getElementById('change-password-new').value = '';
             document.getElementById('change-password-confirm').value = '';
+            checkNewPasswordStrength('');
         }
 
         function closeChangePasswordModal() {
             document.getElementById('change-password-modal').style.display = 'none';
+            checkNewPasswordStrength('');
+        }
+
+        async function handleUserAvatarUpload(event) {
+            const file = event.target?.files?.[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ไฟล์มีขนาดใหญ่เกินไป',
+                    text: 'กรุณาเลือกไฟล์ภาพที่มีขนาดไม่เกิน 5 MB ครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
+                return;
+            }
+
+            // 1. Instant local preview across all avatar elements
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const previewUrl = e.target.result;
+                const editImg = document.getElementById('edit-profile-avatar-img');
+                if (editImg) editImg.src = previewUrl;
+                const profileImg = document.getElementById('profile-page-avatar-img');
+                if (profileImg) profileImg.src = previewUrl;
+                const sidebarImg = document.getElementById('sidebar-user-avatar-img');
+                if (sidebarImg) sidebarImg.src = previewUrl;
+
+                // 2. Upload to Supabase storage if user is logged in
+                if (currentUserId && window.supabaseClient) {
+                    try {
+                        const fileExt = file.name.split('.').pop() || 'png';
+                        const fileName = `avatar_${currentUserId}_${Date.now()}.${fileExt}`;
+                        const filePath = `avatars/${fileName}`;
+
+                        const { error: uploadError } = await supabaseClient.storage
+                            .from('avatars')
+                            .upload(filePath, file, { upsert: true });
+
+                        if (!uploadError) {
+                            const { data: urlData } = supabaseClient.storage.from('avatars').getPublicUrl(filePath);
+                            const publicUrl = urlData?.publicUrl;
+
+                            if (publicUrl) {
+                                await supabaseClient.from('profiles').update({ avatar_url: publicUrl }).eq('id', currentUserId);
+                                if (window.currentUserProfile) window.currentUserProfile.avatar_url = publicUrl;
+                            }
+                        }
+                    } catch (storageErr) {
+                        console.warn('Storage bucket upload skipped/error:', storageErr);
+                    }
+                }
+            };
+            reader.readAsDataURL(file);
         }
 
         async function confirmChangePassword() {
