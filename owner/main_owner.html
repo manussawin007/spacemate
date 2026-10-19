@@ -5181,6 +5181,17 @@
 
             if (!res.isConfirmed) return;
 
+            // Show loading alert
+            Swal.fire({
+                title: 'กำลังลบข้อมูล...',
+                text: 'กรุณารอสักครู่ ระบบกำลังลบข้อมูลและอัปเดตฐานข้อมูล',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             try {
                 // 1. Fetch all spaces for this venue
                 const { data: spaces, error: spaceFetchErr } = await supabaseClient
@@ -5194,7 +5205,6 @@
                     const spaceIds = spaces.map(s => s.id);
                     
                     // 2. Delete all bookings for these spaces
-                    // Delete in chunks if there are many spaces to avoid URL length limits in REST
                     for (let i = 0; i < spaceIds.length; i += 50) {
                         const chunk = spaceIds.slice(i, i + 50);
                         const { error: bookingDelErr } = await supabaseClient
@@ -5212,19 +5222,29 @@
                     if (spaceDelErr) throw spaceDelErr;
                 }
 
-                // 4. Delete the venue
-                const { error: venueDelErr } = await supabaseClient
+                // 4. Delete the venue and verify deletion via select()
+                const { data: deletedVenues, error: venueDelErr } = await supabaseClient
                     .from('venues')
                     .delete()
-                    .eq('id', venueId);
+                    .eq('id', venueId)
+                    .select();
 
                 if (venueDelErr) throw venueDelErr;
                 
-                fetchOwnerVenues(window.currentUserProfile.id); // Reload UI
+                // If 0 rows were deleted, it is blocked by Supabase RLS
+                if (!deletedVenues || deletedVenues.length === 0) {
+                    throw new Error('ฐานข้อมูลไม่อนุญาตให้ลบ (ติดสิทธิ์ RLS Policy ของ Supabase) โปรดรันสคริปต์ SQL allow_delete_venues.sql ในหน้า Supabase Dashboard เพื่อเปิดสิทธิ์การลบครับ');
+                }
+                
+                const ownerId = window.currentUserProfile?.id || (await getSession())?.user?.id;
+                if (ownerId) {
+                    fetchOwnerVenues(ownerId);
+                }
+
                 Swal.fire({
                     icon: 'success',
                     title: 'ลบสำเร็จ!',
-                    text: 'ลบตลาด/พื้นที่ออกจากระบบเรียบร้อยแล้วครับ',
+                    text: 'ลบตลาด/พื้นที่ออกจากระบบและฐานข้อมูลเรียบร้อยแล้วครับ',
                     confirmButtonText: 'ตกลง',
                     confirmButtonColor: '#a46309',
                     customClass: { popup: 'swal-custom-popup' },
@@ -5234,8 +5254,8 @@
                 console.error('Error deleting venue:', err);
                 Swal.fire({
                     icon: 'error',
-                    title: 'เกิดข้อผิดพลาด',
-                    text: 'เกิดข้อผิดพลาดในการลบตลาด: ' + (err.message || 'ไม่ทราบสาเหตุ กรุณาลองใหม่อีกครั้ง'),
+                    title: 'ลบไม่สำเร็จ',
+                    text: (err.message || 'เกิดข้อผิดพลาดในการลบตลาด ไม่ทราบสาเหตุ กรุณาลองใหม่อีกครั้ง'),
                     confirmButtonText: 'ตกลง',
                     confirmButtonColor: '#a46309',
                     customClass: { popup: 'swal-custom-popup' }
