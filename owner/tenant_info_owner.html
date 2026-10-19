@@ -544,6 +544,251 @@
             font-weight: 500;
         }
 
+        /* Date Inspection Bar Styling */
+        .date-inspection-bar {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .date-inspection-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .date-inspection-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .date-arrow-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: #475569;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+
+        .date-arrow-btn:hover {
+            background: #f1f5f9;
+            color: var(--primary-color);
+            border-color: #94a3b8;
+        }
+
+        .date-picker-styled {
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-family: inherit;
+            font-size: 0.88rem;
+            color: #1e293b;
+            font-weight: 500;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .date-picker-styled:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(164, 99, 9, 0.15);
+        }
+
+        .date-quick-btn {
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: #475569;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .date-quick-btn:hover {
+            background: #f1f5f9;
+            color: var(--primary-color);
+        }
+
+        .date-quick-btn.active {
+            background: #fffbeb;
+            border-color: #f59e0b;
+            color: #b45309;
+        }
+
+        /* Stall Bookings Schedule in Modal */
+        .stall-bookings-schedule-box {
+            margin-top: 1rem;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 14px;
+            text-align: left;
+        }
+
+        .schedule-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .schedule-box-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .schedule-box-sub {
+            font-size: 0.74rem;
+            color: #64748b;
+        }
+
+        .schedule-booking-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 250px;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+
+        .schedule-item-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .schedule-item-card.is-active-inspect {
+            background: #fffbeb;
+            border-color: #fcd34d;
+        }
+
+        .schedule-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #1e293b;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .schedule-tag-pill {
+            font-size: 0.7rem;
+            padding: 2px 7px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .schedule-tag-pill.active {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        .schedule-tag-pill.upcoming {
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+        }
+
+        .schedule-tag-pill.past {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .schedule-item-body {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #475569;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .schedule-user-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .schedule-call-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .schedule-call-btn:hover {
+            background: #bfdbfe;
+        }
+
+        .schedule-switch-date-btn {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+            padding: 2px 7px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .schedule-switch-date-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .schedule-empty-state {
+            padding: 1.5rem 1rem;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px dashed #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
         /* Analytics Modal Styling */
         #graphModal .modal-card {
             max-width: 680px;
@@ -1603,6 +1848,24 @@
             </div>
         </div>
 
+        <!-- Row 1.5: Date Inspection Bar -->
+        <div class="date-inspection-bar">
+            <div class="date-inspection-left">
+                <i class="fa-solid fa-calendar-day" style="color: var(--primary-color); font-size: 1.15rem;"></i>
+                <div>
+                    <div style="font-size: 0.74rem; color: #64748b; font-weight: 500;">เลือกวันที่ต้องการดูสถานะล็อค</div>
+                    <div style="font-size: 0.95rem; font-weight: 700; color: #1e293b;" id="inspect-date-display-text">กำลังโหลด...</div>
+                </div>
+            </div>
+            <div class="date-inspection-actions">
+                <button type="button" class="date-arrow-btn" onclick="shiftInspectDate(-1)" title="วันก่อนหน้า"><i class="fa-solid fa-chevron-left"></i></button>
+                <input type="date" id="inspect-date-input" class="date-picker-styled" onchange="handleInspectDateChange(this.value)">
+                <button type="button" class="date-arrow-btn" onclick="shiftInspectDate(1)" title="วันถัดไป"><i class="fa-solid fa-chevron-right"></i></button>
+                <button type="button" class="date-quick-btn active" id="btn-quick-today" onclick="setInspectDateToday()">วันนี้</button>
+                <button type="button" class="date-quick-btn" id="btn-quick-tomorrow" onclick="setInspectDateTomorrow()">พรุ่งนี้</button>
+            </div>
+        </div>
+
         <!-- Row 2: Status & Zone Filter Chips -->
         <div class="filter-chips-row">
             <!-- Status Chips -->
@@ -1697,6 +1960,19 @@
                         <span class="meta-box-label">ขนาดพื้นที่</span>
                         <span class="meta-box-val" id="modal-booking-size">-</span>
                     </div>
+                </div>
+            </div>
+
+            <!-- Stall Bookings Schedule in Modal -->
+            <div class="stall-bookings-schedule-box">
+                <div class="schedule-box-header">
+                    <div class="schedule-box-title">
+                        <i class="fa-solid fa-calendar-days" style="color: var(--primary-color);"></i> รายการจองทั้งหมดของล็อคนี้ (<span id="schedule-booking-count">0</span>)
+                    </div>
+                    <span class="schedule-box-sub">ตรวจสอบประวัติ & คิวการจอง</span>
+                </div>
+                <div class="schedule-booking-list" id="modal-stall-booking-list">
+                    <!-- Rendered dynamically -->
                 </div>
             </div>
 
@@ -2095,9 +2371,154 @@
         let analyticsChartInstance = null;
         let currentGraphTab = 'occupancy'; // 'occupancy', 'zone', 'revenue'
         let venueName = '';
+        let currentInspectDate = '';
+
+        // Thai Date Helper
+        function formatThaiDateShort(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('T')[0].split('-');
+            if (parts.length !== 3) return dateStr;
+            const year = parseInt(parts[0], 10) + 543;
+            const monthIdx = parseInt(parts[1], 10) - 1;
+            const day = parseInt(parts[2], 10);
+            const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+            return `${day} ${months[monthIdx]} ${year}`;
+        }
+
+        function getLocalDateString(d) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function formatThaiDateWithDay(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('T')[0].split('-');
+            if (parts.length !== 3) return dateStr;
+            const y = parseInt(parts[0], 10);
+            const m = parseInt(parts[1], 10) - 1;
+            const d = parseInt(parts[2], 10);
+            const dt = new Date(y, m, d);
+            const dayNames = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+            const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+            const todayStr = getLocalDateString(new Date());
+            let prefix = '';
+            if (dateStr === todayStr) prefix = ' (วันนี้)';
+            else {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                if (dateStr === getLocalDateString(tomorrow)) prefix = ' (พรุ่งนี้)';
+            }
+            return `วัน${dayNames[dt.getDay()]}ที่ ${d} ${months[m]} ${y + 543}${prefix}`;
+        }
+
+        function updateInspectDateUI() {
+            const inputEl = document.getElementById('inspect-date-input');
+            const displayEl = document.getElementById('inspect-date-display-text');
+            const btnToday = document.getElementById('btn-quick-today');
+            const btnTomorrow = document.getElementById('btn-quick-tomorrow');
+            
+            if (inputEl) inputEl.value = currentInspectDate;
+            if (displayEl) displayEl.innerText = formatThaiDateWithDay(currentInspectDate);
+
+            const todayStr = getLocalDateString(new Date());
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = getLocalDateString(tomorrow);
+
+            if (btnToday) {
+                if (currentInspectDate === todayStr) btnToday.classList.add('active');
+                else btnToday.classList.remove('active');
+            }
+            if (btnTomorrow) {
+                if (currentInspectDate === tomorrowStr) btnTomorrow.classList.add('active');
+                else btnTomorrow.classList.remove('active');
+            }
+        }
+
+        function handleInspectDateChange(val) {
+            if (!val) return;
+            currentInspectDate = val;
+            updateInspectDateUI();
+            evaluateSpacesForInspectDate();
+            renderSpaces();
+        }
+
+        function shiftInspectDate(delta) {
+            const parts = currentInspectDate.split('-');
+            const cur = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+            cur.setDate(cur.getDate() + delta);
+            currentInspectDate = getLocalDateString(cur);
+            updateInspectDateUI();
+            evaluateSpacesForInspectDate();
+            renderSpaces();
+        }
+
+        function setInspectDateToday() {
+            currentInspectDate = getLocalDateString(new Date());
+            updateInspectDateUI();
+            evaluateSpacesForInspectDate();
+            renderSpaces();
+        }
+
+        function setInspectDateTomorrow() {
+            const d = new Date();
+            d.setDate(d.getDate() + 1);
+            currentInspectDate = getLocalDateString(d);
+            updateInspectDateUI();
+            evaluateSpacesForInspectDate();
+            renderSpaces();
+        }
+
+        function evaluateSpacesForInspectDate() {
+            if (!globalSpaces || globalSpaces.length === 0) return;
+            const targetDate = currentInspectDate || getLocalDateString(new Date());
+
+            globalSpaces.forEach(space => {
+                if (space.status === 'label' || (space.map_data && space.map_data.isLabel)) return;
+
+                // Find all valid bookings for this space
+                const bList = activeBookings.filter(b => b.space_id === space.id);
+
+                // Booking on currentInspectDate: start_date <= targetDate <= (end_date || start_date)
+                const targetBooking = bList.find(b => {
+                    const s = b.start_date || '';
+                    const e = b.end_date || s;
+                    return s <= targetDate && e >= targetDate;
+                });
+
+                // Next upcoming booking after targetDate
+                const upcomingList = bList
+                    .filter(b => (b.start_date || '') > targetDate)
+                    .sort((a, b) => (a.start_date || '').localeCompare(b.start_date || ''));
+                const upcomingBooking = upcomingList.length > 0 ? upcomingList[0] : null;
+
+                space._targetDateBooking = targetBooking || null;
+                space._upcomingBooking = upcomingBooking;
+
+                const isManuallyClosed = space.status === 'closed' || space.status === 'maintenance';
+
+                if (isManuallyClosed) {
+                    space._isVacantOnInspectDate = false;
+                } else if (targetBooking) {
+                    space._isVacantOnInspectDate = false;
+                } else if (space.map_data && (space.map_data.manual_tenant_name || space.map_data.manual_tenant_phone)) {
+                    // Manual offline booking marker (if set as booked)
+                    space._isVacantOnInspectDate = (space.status === 'available');
+                } else {
+                    space._isVacantOnInspectDate = true;
+                }
+            });
+        }
 
         // 1. Check Auth & Init
         async function initPage() {
+            if (!currentInspectDate) {
+                currentInspectDate = getLocalDateString(new Date());
+            }
+            updateInspectDateUI();
+
             const { data: { session }, error } = await supabaseClient.auth.getSession();
             if (error || !session) {
                 window.location.href = '../index.html';
@@ -2150,25 +2571,6 @@
             } catch (err) {
                 console.error("Error loading venue:", err);
             }
-        }
-
-        // Thai Date Helper
-        function formatThaiDateShort(dateStr) {
-            if (!dateStr) return '';
-            const parts = dateStr.split('T')[0].split('-');
-            if (parts.length !== 3) return dateStr;
-            const year = parseInt(parts[0], 10) + 543;
-            const monthIdx = parseInt(parts[1], 10) - 1;
-            const day = parseInt(parts[2], 10);
-            const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-            return `${day} ${months[monthIdx]} ${year}`;
-        }
-
-        function getLocalDateString(d) {
-            const year = d.getFullYear();
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
         }
 
         // 3. Load Spaces & Active Bookings (with Expiration Auto-revert to Green)
@@ -2297,6 +2699,8 @@
                     }
                 }
 
+                evaluateSpacesForInspectDate();
+                updateInspectDateUI();
                 renderZoneChips();
                 renderSpaces();
             } catch (err) {
@@ -2354,12 +2758,12 @@
                 } else if (currentSort === 'price-desc') {
                     return (Number(b.price) || 0) - (Number(a.price) || 0);
                 } else if (currentSort === 'status-vacant') {
-                    const aVal = a.status === 'available' ? 0 : 1;
-                    const bVal = b.status === 'available' ? 0 : 1;
+                    const aVal = (a._isVacantOnInspectDate !== undefined ? a._isVacantOnInspectDate : (a.status === 'available')) ? 0 : 1;
+                    const bVal = (b._isVacantOnInspectDate !== undefined ? b._isVacantOnInspectDate : (b.status === 'available')) ? 0 : 1;
                     return aVal - bVal;
                 } else if (currentSort === 'status-rented') {
-                    const aVal = (a.status === 'booked' || a.status === 'rented') ? 0 : 1;
-                    const bVal = (b.status === 'booked' || b.status === 'rented') ? 0 : 1;
+                    const aVal = !(a._isVacantOnInspectDate !== undefined ? a._isVacantOnInspectDate : (a.status === 'available')) ? 0 : 1;
+                    const bVal = !(b._isVacantOnInspectDate !== undefined ? b._isVacantOnInspectDate : (b.status === 'available')) ? 0 : 1;
                     return aVal - bVal;
                 }
                 return 0;
@@ -2369,14 +2773,16 @@
 
         // 6. Build Stall Card HTML
         function buildStallCardHtml(space) {
-            const isVacant = space.status === 'available';
+            const isVacant = (space._isVacantOnInspectDate !== undefined)
+                ? space._isVacantOnInspectDate
+                : (space.status === 'available');
             const statusClass = isVacant ? 'status-vacant' : 'status-rented';
             const statusText = isVacant ? 'ว่าง' : 'เช่าแล้ว';
             const priceFmt = (Number(space.price) || 0).toLocaleString();
 
             let tenantBadgeHtml = '';
             if (!isVacant) {
-                const booking = space._activeBooking || activeBookings.find(b => b.space_id === space.id);
+                const booking = space._targetDateBooking || space._activeBooking || activeBookings.find(b => b.space_id === space.id);
                 if (booking) {
                     const prof = booking.profiles || {};
                     let merchantName = prof.first_name ? `${prof.first_name} ${prof.last_name || ''}`.trim() : (prof.display_name || '');
@@ -2454,8 +2860,8 @@
             );
 
             let countAll = realSpaces.length;
-            let countVacant = realSpaces.filter(s => s.status === 'available').length;
-            let countRented = realSpaces.filter(s => s.status === 'booked' || s.status === 'rented').length;
+            let countVacant = realSpaces.filter(s => (s._isVacantOnInspectDate !== undefined ? s._isVacantOnInspectDate : (s.status === 'available'))).length;
+            let countRented = countAll - countVacant;
 
             const countAllEl = document.getElementById('count-all');
             const countVacantEl = document.getElementById('count-vacant');
@@ -2465,8 +2871,9 @@
             if (countRentedEl) countRentedEl.innerText = countRented;
 
             let filtered = realSpaces.filter(space => {
-                if (currentFilter === 'vacant' && space.status !== 'available') return false;
-                if (currentFilter === 'rented' && space.status !== 'booked' && space.status !== 'rented') return false;
+                const spaceIsVacant = (space._isVacantOnInspectDate !== undefined ? space._isVacantOnInspectDate : (space.status === 'available'));
+                if (currentFilter === 'vacant' && !spaceIsVacant) return false;
+                if (currentFilter === 'rented' && spaceIsVacant) return false;
 
                 if (currentZone !== 'all') {
                     const spaceZone = (space.zone && space.zone.trim()) ? space.zone.trim() : 'ไม่ระบุโซน';
@@ -2507,8 +2914,8 @@
                 sortedZones.forEach(z => {
                     const spacesInZone = sortSpacesList(zoneGroups[z]);
                     const zoneTotal = spacesInZone.length;
-                    const zoneVacant = spacesInZone.filter(s => s.status === 'available').length;
-                    const zoneRented = spacesInZone.filter(s => s.status === 'booked' || s.status === 'rented').length;
+                    const zoneVacant = spacesInZone.filter(s => (s._isVacantOnInspectDate !== undefined ? s._isVacantOnInspectDate : (s.status === 'available'))).length;
+                    const zoneRented = zoneTotal - zoneVacant;
                     const zoneOccupancy = zoneTotal > 0 ? Math.round((zoneRented / zoneTotal) * 100) : 0;
 
                     let cardsHtml = '';
@@ -2864,7 +3271,7 @@
             }
         }
 
-        // Detail Modal with Real Tenant Information
+        // Detail Modal with Real Tenant Information & Full Booking Timeline
         function openSpaceDetail(spaceId) {
             const space = globalSpaces.find(s => s.id === spaceId);
             if (!space) return;
@@ -2873,7 +3280,10 @@
             const subTitleEl = document.getElementById('modal-venue-sub-title');
             if (subTitleEl) subTitleEl.innerText = venueName ? `${venueName} • ข้อมูลล็อคและผู้เช่า` : 'ข้อมูลล็อคและสถานะผู้เช่า';
             
-            const isVacant = space.status === 'available';
+            const isVacant = (space._isVacantOnInspectDate !== undefined)
+                ? space._isVacantOnInspectDate
+                : (space.status === 'available');
+
             const statusBadge = document.getElementById('modal-stall-status-badge');
             if (statusBadge) {
                 statusBadge.className = `stall-status-pill ${isVacant ? 'available' : 'rented'}`;
@@ -2913,7 +3323,7 @@
                 if (vacantView) vacantView.style.display = 'none';
                 if (rentedView) rentedView.style.display = 'block';
 
-                const booking = space._activeBooking || activeBookings.find(b => b.space_id === space.id);
+                const booking = space._targetDateBooking || space._activeBooking || activeBookings.find(b => b.space_id === space.id);
                 const nameEl = document.getElementById('modal-tenant-name');
                 const phoneLink = document.getElementById('modal-tenant-phone-link');
                 const dateEl = document.getElementById('modal-booking-date');
@@ -2981,9 +3391,102 @@
                 if (zoneEl) zoneEl.innerText = space.zone || 'ไม่ระบุ';
                 if (sizeEl) sizeEl.innerText = space.size_details || 'ไม่ระบุ';
             }
+
+            // Render Stall Booking Schedule Timeline
+            renderStallSchedule(space);
             
             document.getElementById('modal-action-btn').onclick = () => openEditSpaceModal(space.id);
             document.getElementById('tenantModal').classList.add('active');
+        }
+
+        function renderStallSchedule(space) {
+            const listEl = document.getElementById('modal-stall-booking-list');
+            const countEl = document.getElementById('schedule-booking-count');
+            if (!listEl) return;
+
+            const stallBookings = activeBookings
+                .filter(b => b.space_id === space.id)
+                .sort((a, b) => (b.start_date || '').localeCompare(a.start_date || ''));
+
+            if (countEl) countEl.innerText = stallBookings.length;
+
+            if (stallBookings.length === 0) {
+                listEl.innerHTML = `
+                    <div class="schedule-empty-state">
+                        <i class="fa-regular fa-calendar-xmark"></i> ยังไม่มีประวัติหรือรายการจองสำหรับล็อคนี้
+                    </div>
+                `;
+                return;
+            }
+
+            const targetDate = currentInspectDate || getLocalDateString(new Date());
+
+            let html = '';
+            stallBookings.forEach(b => {
+                const sDate = b.start_date || '';
+                const eDate = b.end_date || sDate;
+                const isActive = (sDate <= targetDate && eDate >= targetDate);
+                const isUpcoming = (sDate > targetDate);
+
+                let tagClass = 'past';
+                let tagText = 'เสร็จสิ้นแล้ว';
+                if (isActive) {
+                    tagClass = 'active';
+                    tagText = 'กำลังเช่า (ตรงกับวันที่เลือก)';
+                } else if (isUpcoming) {
+                    tagClass = 'upcoming';
+                    tagText = 'จองล่วงหน้า';
+                }
+
+                const prof = b.profiles || {};
+                let merchantName = prof.first_name ? `${prof.first_name} ${prof.last_name || ''}`.trim() : (prof.display_name || '');
+                if (!merchantName && prof.last_name) merchantName = prof.last_name;
+                if (!merchantName) merchantName = 'ผู้เช่า';
+                const merchantPhone = prof.phone || '';
+
+                let dateRangeStr = formatThaiDateShort(sDate);
+                if (eDate && eDate !== sDate) {
+                    dateRangeStr += ` - ${formatThaiDateShort(eDate)}`;
+                }
+
+                const priceStr = b.total_price ? `฿${Number(b.total_price).toLocaleString()}` : '';
+
+                html += `
+                    <div class="schedule-item-card ${isActive ? 'is-active-inspect' : ''}">
+                        <div class="schedule-item-header">
+                            <div>
+                                <i class="fa-regular fa-calendar" style="color: var(--primary-color); margin-right: 4px;"></i>
+                                <span>${dateRangeStr}</span>
+                            </div>
+                            <span class="schedule-tag-pill ${tagClass}">${tagText}</span>
+                        </div>
+                        <div class="schedule-item-body">
+                            <div class="schedule-user-info">
+                                <i class="fa-solid fa-user" style="color: #64748b; font-size: 0.75rem;"></i>
+                                <span style="font-weight: 600; color: #1e293b;">${merchantName}</span>
+                                ${merchantPhone ? `<a href="tel:${merchantPhone}" class="schedule-call-btn" title="โทรหาผู้เช่า"><i class="fa-solid fa-phone"></i> ${merchantPhone}</a>` : '<span style="font-size:0.75rem; color:#94a3b8;">(ไม่มีเบอร์)</span>'}
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                ${priceStr ? `<span style="font-weight: 700; color: #059669; font-size: 0.8rem;">${priceStr}</span>` : ''}
+                                ${!isActive ? `<button type="button" class="schedule-switch-date-btn" onclick="selectDateFromSchedule('${sDate}', '${space.id}')">ดูสถานะวันนี้</button>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            listEl.innerHTML = html;
+        }
+
+        function selectDateFromSchedule(dateStr, spaceId) {
+            if (!dateStr) return;
+            currentInspectDate = dateStr;
+            updateInspectDateUI();
+            evaluateSpacesForInspectDate();
+            renderSpaces();
+            if (spaceId) {
+                openSpaceDetail(spaceId);
+            }
         }
 
         function closeModal() {
@@ -3259,6 +3762,11 @@
         function openGraphModal() {
             document.getElementById('graphModal').classList.add('active');
 
+            const modalVenueTitle = document.getElementById('graph-modal-venue-name');
+            if (modalVenueTitle) {
+                modalVenueTitle.innerText = `วิเคราะห์ภาพรวม: ${venueName || ''} (${formatThaiDateWithDay(currentInspectDate || getLocalDateString(new Date()))})`;
+            }
+
             // Calculate KPI values
             const realSpaces = globalSpaces.filter(s => 
                 s.status !== 'label' && 
@@ -3267,12 +3775,12 @@
             );
 
             const total = realSpaces.length;
-            const vacant = realSpaces.filter(s => s.status === 'available').length;
-            const rented = realSpaces.filter(s => s.status === 'booked' || s.status === 'rented').length;
+            const vacant = realSpaces.filter(s => (s._isVacantOnInspectDate !== undefined ? s._isVacantOnInspectDate : (s.status === 'available'))).length;
+            const rented = total - vacant;
             const occupancy = total > 0 ? Math.round((rented / total) * 100) : 0;
 
             const currentRev = realSpaces
-                .filter(s => s.status === 'booked' || s.status === 'rented')
+                .filter(s => !(s._isVacantOnInspectDate !== undefined ? s._isVacantOnInspectDate : (s.status === 'available')))
                 .reduce((acc, s) => acc + (Number(s.price) || 0), 0);
 
             const maxRev = realSpaces.reduce((acc, s) => acc + (Number(s.price) || 0), 0);
@@ -3310,8 +3818,8 @@
             );
 
             const total = realSpaces.length;
-            const vacant = realSpaces.filter(s => s.status === 'available').length;
-            const rented = realSpaces.filter(s => s.status === 'booked' || s.status === 'rented').length;
+            const vacant = realSpaces.filter(s => (s._isVacantOnInspectDate !== undefined ? s._isVacantOnInspectDate : (s.status === 'available'))).length;
+            const rented = total - vacant;
             const occupancy = total > 0 ? Math.round((rented / total) * 100) : 0;
 
             const extraDetails = document.getElementById('chart-extra-details');
@@ -3326,7 +3834,8 @@
                 zoneStats[z].total++;
                 const p = Number(s.price) || 0;
                 zoneStats[z].maxRev += p;
-                if (s.status === 'available') {
+                const isVacant = (s._isVacantOnInspectDate !== undefined ? s._isVacantOnInspectDate : (s.status === 'available'));
+                if (isVacant) {
                     zoneStats[z].vacant++;
                 } else {
                     zoneStats[z].rented++;
@@ -3383,7 +3892,7 @@
                 });
 
                 if (extraDetails) {
-                    const rentedRev = realSpaces.filter(s => s.status !== 'available').reduce((a, s) => a + (Number(s.price) || 0), 0);
+                    const rentedRev = realSpaces.filter(s => !(s._isVacantOnInspectDate !== undefined ? s._isVacantOnInspectDate : (s.status === 'available'))).reduce((a, s) => a + (Number(s.price) || 0), 0);
                     extraDetails.innerHTML = `
                         <table class="chart-summary-table">
                             <thead>
