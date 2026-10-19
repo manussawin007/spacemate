@@ -448,9 +448,15 @@
         /* Space KPI Mini Boxes */
         .owner-space-kpi {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
             margin-bottom: 0.85rem;
+        }
+
+        @media (max-width: 400px) {
+            .owner-space-kpi {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         .kpi-mini-box {
@@ -494,6 +500,10 @@
             color: #d97706 !important;
         }
 
+        .text-sky {
+            color: #0284c7 !important;
+        }
+
         .vacant-box {
             background: rgba(16, 185, 129, 0.05);
             border-color: rgba(16, 185, 129, 0.25);
@@ -502,6 +512,286 @@
         .rented-box {
             background: rgba(245, 158, 11, 0.05);
             border-color: rgba(245, 158, 11, 0.25);
+        }
+
+        .upcoming-box {
+            background: rgba(2, 132, 199, 0.06);
+            border-color: rgba(2, 132, 199, 0.28);
+        }
+
+        .venue-upcoming-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.08) 0%, rgba(14, 165, 233, 0.14) 100%);
+            border: 1px solid rgba(2, 132, 199, 0.25);
+            border-radius: 12px;
+            padding: 8px 12px;
+            margin-bottom: 0.85rem;
+            font-size: 0.82rem;
+            color: #0369a1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .venue-upcoming-banner:hover {
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.14) 0%, rgba(14, 165, 233, 0.22) 100%);
+            transform: translateY(-1px);
+        }
+
+        .venue-upcoming-banner .banner-left {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-weight: 600;
+        }
+
+        .venue-upcoming-banner .banner-pill {
+            background: #0284c7;
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Home Upcoming Bookings Summary Widget */
+        .home-upcoming-summary {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
+            border-radius: 18px;
+            padding: 1rem 1.15rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 4px 16px rgba(2, 132, 199, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .home-upcoming-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .home-upcoming-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: #0284c7;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+        }
+
+        .home-upcoming-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #0c4a6e;
+        }
+
+        .home-upcoming-sub {
+            font-size: 0.8rem;
+            color: #0369a1;
+            margin-top: 2px;
+        }
+
+        .home-upcoming-btn {
+            background: #ffffff;
+            color: #0284c7;
+            border: 1px solid #7dd3fc;
+            padding: 0.45rem 0.85rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(2, 132, 199, 0.1);
+        }
+
+        .home-upcoming-btn:hover {
+            background: #0284c7;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        /* Notif Section Headers & Upcoming Booking Cards */
+        .notif-section-header {
+            padding: 12px 16px 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notif-section-header.pending {
+            color: #d97706;
+        }
+
+        .notif-section-header.upcoming {
+            color: #0284c7;
+        }
+
+        .notif-section-header.history {
+            color: #64748b;
+            margin-top: 14px;
+        }
+
+        .upcoming-booking-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .upcoming-booking-card:hover {
+            border-color: #bae6fd;
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.1);
+        }
+
+        .upcoming-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .upcoming-stall-badge {
+            background: #f0f9ff;
+            color: #0284c7;
+            border: 1px solid #bae6fd;
+            font-weight: 700;
+            font-size: 0.82rem;
+            padding: 3px 10px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .upcoming-status-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .upcoming-status-badge.confirmed {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .upcoming-status-badge.pending {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .upcoming-card-body {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: 0.85rem;
+        }
+
+        .upcoming-merchant-row {
+            font-weight: 600;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .upcoming-merchant-row a {
+            color: #0284c7;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .upcoming-merchant-row a:hover {
+            text-decoration: underline;
+        }
+
+        .upcoming-dates-row {
+            color: #0284c7;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .upcoming-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 8px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .upcoming-price {
+            font-weight: 700;
+            color: #16a34a;
+            font-size: 0.95rem;
+        }
+
+        .btn-manage-upcoming {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn-manage-upcoming:hover {
+            opacity: 0.9;
+        }
+
+        .btn-slip-view {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-slip-view:hover {
+            background: #e2e8f0;
+            color: #1e293b;
         }
 
         /* Occupancy Section */
@@ -1593,6 +1883,9 @@
     <!-- Main Content -->
     <main class="main-content" style="padding-bottom: 6rem;">
         
+        <!-- Upcoming Bookings Summary Widget -->
+        <div id="home-upcoming-summary-widget" style="display: none;"></div>
+
         <!-- Tab Toggles -->
         <div class="tabs-container">
             <button class="tab-btn active" onclick="switchTab('markets', this)">ตลาดที่ลงทะเบียน</button>
@@ -3628,6 +3921,10 @@
             if (activeBottomNav) {
                 updateIndicator(activeBottomNav);
             }
+
+            if (viewId === 'notif') {
+                fetchPendingBookings();
+            }
         }
 
         function markAllNotificationsAsRead() {
@@ -4254,6 +4551,31 @@
             }
         }
 
+        function getLocalDateString(d = new Date()) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function formatThaiDateShort(dateStr) {
+            if (!dateStr) return '';
+            try {
+                const parts = dateStr.split('-');
+                if (parts.length === 3) {
+                    const y = parseInt(parts[0], 10);
+                    const m = parseInt(parts[1], 10) - 1;
+                    const d = parseInt(parts[2], 10);
+                    const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+                    return `${d} ${months[m]} ${y + 543}`;
+                }
+                const dt = new Date(dateStr);
+                return dt.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
         async function fetchOwnerVenues(ownerId) {
             try {
                 const { data: venues, error } = await supabaseClient
@@ -4275,6 +4597,85 @@
                 let marketCount = 0;
                 let eventCount = 0;
 
+                // Collect all space IDs across all venues
+                const allSpaces = [];
+                (venues || []).forEach(v => {
+                    (v.spaces || []).forEach(s => {
+                        allSpaces.push({ ...s, venue_id: v.id, venue_name: v.name });
+                    });
+                });
+                const allSpaceIds = allSpaces.map(s => s.id);
+
+                const todayStr = getLocalDateString(new Date());
+                let allOwnerBookings = [];
+
+                if (allSpaceIds.length > 0) {
+                    const chunkSize = 30;
+                    for (let i = 0; i < allSpaceIds.length; i += chunkSize) {
+                        const chunk = allSpaceIds.slice(i, i + chunkSize);
+                        const { data: bData, error: bErr } = await supabaseClient
+                            .from('bookings')
+                            .select('*, profiles(first_name, last_name, phone)')
+                            .in('space_id', chunk)
+                            .neq('status', 'cancelled')
+                            .order('start_date', { ascending: true });
+                        if (!bErr && bData) {
+                            allOwnerBookings = allOwnerBookings.concat(bData);
+                        }
+                    }
+                }
+
+                // Map bookings by space_id and venue_id
+                const bookingsBySpace = {};
+                allOwnerBookings.forEach(b => {
+                    if (!bookingsBySpace[b.space_id]) bookingsBySpace[b.space_id] = [];
+                    bookingsBySpace[b.space_id].push(b);
+                });
+
+                const spaceToVenue = {};
+                allSpaces.forEach(s => spaceToVenue[s.id] = s.venue_id);
+
+                const upcomingBookingsByVenue = {};
+                const allUpcomingBookings = [];
+
+                allOwnerBookings.forEach(b => {
+                    const isUpcoming = b.start_date > todayStr;
+                    if (isUpcoming) {
+                        const vId = spaceToVenue[b.space_id];
+                        if (vId) {
+                            if (!upcomingBookingsByVenue[vId]) upcomingBookingsByVenue[vId] = [];
+                            upcomingBookingsByVenue[vId].push(b);
+                        }
+                        allUpcomingBookings.push(b);
+                    }
+                });
+
+                // Update Home Upcoming Summary Widget
+                const homeSummaryEl = document.getElementById('home-upcoming-summary-widget');
+                if (homeSummaryEl) {
+                    if (allUpcomingBookings.length > 0) {
+                        homeSummaryEl.style.display = 'block';
+                        homeSummaryEl.innerHTML = `
+                            <div class="home-upcoming-summary">
+                                <div class="home-upcoming-left">
+                                    <div class="home-upcoming-icon">
+                                        <i class="fa-solid fa-calendar-check"></i>
+                                    </div>
+                                    <div>
+                                        <div class="home-upcoming-title">มีการจองล่วงหน้าทั้งหมด ${allUpcomingBookings.length} รายการ</div>
+                                        <div class="home-upcoming-sub">มีพ่อค้าแม่ค้าวางแผนเข้าขายในอนาคต คลิกดูคิวและผังร้านได้ทันที</div>
+                                    </div>
+                                </div>
+                                <button type="button" class="home-upcoming-btn" onclick="switchView('notif', document.querySelector('.bottom-nav .nav-item[onclick*=\\'notif\\']'));">
+                                    <i class="fa-solid fa-list-check"></i> ดูคิวทั้งหมด
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        homeSummaryEl.style.display = 'none';
+                    }
+                }
+
                 if (venues && venues.length > 0) {
                     venues.forEach(venue => {
                         const defaultImage = "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&q=80&w=800";
@@ -4288,9 +4689,26 @@
                             (!s.space_number || !s.space_number.startsWith('LABEL_'))
                         );
 
+                        const venueUpcoming = upcomingBookingsByVenue[venue.id] || [];
+                        const upcomingCount = venueUpcoming.length;
+
+                        // Check occupied today
+                        let rentedCount = 0;
+                        realSpaces.forEach(s => {
+                            const sBookings = bookingsBySpace[s.id] || [];
+                            const bookedToday = sBookings.some(b => {
+                                const sDate = b.start_date;
+                                const eDate = b.end_date || sDate;
+                                return sDate <= todayStr && eDate >= todayStr;
+                            });
+                            if (s.status === 'booked' || s.status === 'rented' || bookedToday) {
+                                rentedCount++;
+                            }
+                        });
+
                         const totalStalls = realSpaces.length;
-                        const vacantStalls = realSpaces.filter(s => s.status === 'available').length;
-                        const rentedStalls = realSpaces.filter(s => s.status === 'booked' || s.status === 'rented').length;
+                        const rentedStalls = rentedCount;
+                        const vacantStalls = Math.max(0, totalStalls - rentedStalls);
                         const occupancyRate = totalStalls > 0 ? Math.round((rentedStalls / totalStalls) * 100) : 0;
 
                         // Calculate starting price
@@ -4364,7 +4782,21 @@
                                             <div class="kpi-mini-label"><i class="fa-solid fa-user-check"></i> เช่าแล้ว</div>
                                             <div class="kpi-mini-value text-amber">${rentedStalls} <small>ล็อค</small></div>
                                         </div>
+                                        <div class="kpi-mini-box upcoming-box">
+                                            <div class="kpi-mini-label"><i class="fa-solid fa-calendar-check"></i> จองล่วงหน้า</div>
+                                            <div class="kpi-mini-value text-sky">${upcomingCount} <small>คิว</small></div>
+                                        </div>
                                     </div>
+
+                                    ${upcomingCount > 0 ? `
+                                    <div class="venue-upcoming-banner" onclick="event.stopPropagation(); window.location.href='tenant_info_owner.html?id=${venue.id}';">
+                                        <div class="banner-left">
+                                            <i class="fa-solid fa-calendar-days text-sky"></i>
+                                            <span>มีคิวจองล่วงหน้า ${upcomingCount} รายการ</span>
+                                        </div>
+                                        <span class="banner-pill">ดูคิว & ผังร้าน <i class="fa-solid fa-chevron-right" style="font-size:0.65rem;"></i></span>
+                                    </div>
+                                    ` : ''}
 
                                     <!-- Occupancy Progress Bar -->
                                     <div class="occupancy-section">
@@ -4836,7 +5268,7 @@
                 
                 if (sErr || !spaces || spaces.length === 0) {
                     document.getElementById('notifications-list').innerHTML = '';
-                    await fetchHistoryNotifications();
+                    await fetchHistoryNotifications(false);
                     return;
                 }
 
@@ -4848,21 +5280,20 @@
 
                 // Helper map for space details
                 const spaceMap = {};
-                spaces.forEach(s => spaceMap[s.id] = { number: s.space_number, venueName: venueMap[s.venue_id] });
+                spaces.forEach(s => spaceMap[s.id] = { number: s.space_number, venueName: venueMap[s.venue_id], venueId: s.venue_id });
 
-                let bookings = [];
+                let allBookings = [];
                 let bErr = null;
                 const chunkSize = 20;
                 
-                // 3. Get pending bookings in chunks
+                // 3. Get all non-cancelled bookings in chunks
                 for (let i = 0; i < spaceIds.length; i += chunkSize) {
                     const chunk = spaceIds.slice(i, i + chunkSize);
                     const { data: bData, error: chunkErr } = await supabaseClient
                         .from('bookings')
                         .select('*, profiles(first_name, last_name, phone)')
                         .in('space_id', chunk)
-                        .eq('status', 'pending')
-                        .not('payment_slip_url', 'is', null)
+                        .neq('status', 'cancelled')
                         .order('created_at', { ascending: false });
                         
                     if (chunkErr) {
@@ -4870,38 +5301,39 @@
                         break;
                     }
                     if (bData) {
-                        bookings = bookings.concat(bData);
+                        allBookings = allBookings.concat(bData);
                     }
                 }
                 
-                // Sort all combined bookings
-                bookings.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                const todayStr = getLocalDateString(new Date());
+
+                // Pending payments to review (waiting for verification)
+                const pendingList = allBookings.filter(b => b.status === 'pending');
+                // Upcoming bookings (future start date)
+                const upcomingList = allBookings.filter(b => b.start_date > todayStr);
+                // Sort upcoming by earliest start_date
+                upcomingList.sort((a, b) => (a.start_date > b.start_date ? 1 : -1));
 
                 const notifList = document.getElementById('notifications-list');
-                
-                if (bErr || !bookings || bookings.length === 0) {
-                    notifList.innerHTML = '';
-                    // Clear badge
-                    document.querySelectorAll('.nav-badge').forEach(b => b.style.display = 'none');
-                } else {
-                    // Show badge
+                notifList.innerHTML = '';
+
+                // Handle badge: show if there are pending review items
+                if (pendingList.length > 0) {
                     document.querySelectorAll('.nav-badge').forEach(b => b.style.display = 'block');
-                    hasPendingBookings = true;
-                    notifList.innerHTML = '';
+                } else {
+                    document.querySelectorAll('.nav-badge').forEach(b => b.style.display = 'none');
                 }
 
-                if (hasPendingBookings) {
-                    notifList.innerHTML += '<div style="padding: 10px 15px; font-weight: 600; color: #64748b; font-size: 0.9rem;">รอตรวจสอบ</div>';
-                }
-                
-                if (hasPendingBookings) {
-                    bookings.forEach(booking => {
-                        const spaceInfo = spaceMap[booking.space_id];
-                        const bookerName = booking.profiles ? `${booking.profiles.first_name || ''} ${booking.profiles.last_name || ''}` : 'ผู้ใช้';
+                // Render Pending Verification Section
+                if (pendingList.length > 0) {
+                    notifList.innerHTML += `<div class="notif-section-header pending"><i class="fa-solid fa-clock"></i> รอตรวจสอบการโอนเงิน (${pendingList.length} รายการ)</div>`;
+                    pendingList.forEach(booking => {
+                        const spaceInfo = spaceMap[booking.space_id] || { number: '-', venueName: '-' };
+                        const bookerName = booking.profiles ? `${booking.profiles.first_name || ''} ${booking.profiles.last_name || ''}`.trim() || 'ผู้ใช้' : 'ผู้ใช้';
                         const bookerPhone = booking.profiles ? booking.profiles.phone : '';
                         const timeAgo = new Date(booking.created_at).toLocaleDateString('th-TH', { hour: '2-digit', minute: '2-digit' });
-    
-                        // We store data as a JSON string to pass it to the modal
+                        const dateRange = `${formatThaiDateShort(booking.start_date)} - ${formatThaiDateShort(booking.end_date || booking.start_date)}`;
+
                         const bookingData = encodeURIComponent(JSON.stringify({
                             id: booking.id,
                             space_id: booking.space_id,
@@ -4914,7 +5346,7 @@
                             totalPrice: booking.total_price,
                             slipUrl: booking.payment_slip_url
                         }));
-    
+
                         const notifCard = `
                             <div class="notif-card unread" onclick="openBookingModal('${bookingData}', this)">
                                 <div class="notif-unread-dot"></div>
@@ -4922,8 +5354,12 @@
                                     <i class="fa-solid fa-file-invoice-dollar"></i>
                                 </div>
                                 <div class="notif-content">
-                                    <div class="notif-title-text">รอตรวจสอบการโอนเงิน</div>
-                                    <div class="notif-desc">คุณ ${bookerName} จองพื้นที่ <span style="font-weight:600; color:var(--primary-color);">${spaceInfo.number}</span> (${spaceInfo.venueName})</div>
+                                    <div class="notif-title-text" style="display:flex; justify-content:space-between; align-items:center;">
+                                        <span>รอตรวจสอบการโอนเงิน</span>
+                                        <span class="upcoming-status-badge pending">รอตรวจสอบ</span>
+                                    </div>
+                                    <div class="notif-desc">คุณ <strong>${bookerName}</strong> จองพื้นที่ <span style="font-weight:700; color:var(--primary-color);">${spaceInfo.number}</span> (${spaceInfo.venueName})</div>
+                                    <div style="font-size: 0.8rem; color: #0284c7; margin-top: 3px; font-weight: 500;"><i class="fa-regular fa-calendar-days"></i> ${dateRange}</div>
                                     <div class="notif-time">${timeAgo}</div>
                                 </div>
                             </div>
@@ -4931,8 +5367,72 @@
                         notifList.innerHTML += notifCard;
                     });
                 }
-                
-                await fetchHistoryNotifications(hasPendingBookings);
+
+                // Render Upcoming Bookings Section
+                if (upcomingList.length > 0) {
+                    notifList.innerHTML += `<div class="notif-section-header upcoming"><i class="fa-solid fa-calendar-check"></i> คิวการจองล่วงหน้า (${upcomingList.length} รายการ)</div>`;
+                    upcomingList.forEach(booking => {
+                        const spaceInfo = spaceMap[booking.space_id] || { number: '-', venueName: '-', venueId: '' };
+                        const bookerName = booking.profiles ? `${booking.profiles.first_name || ''} ${booking.profiles.last_name || ''}`.trim() || 'พ่อค้าแม่ค้า' : 'พ่อค้าแม่ค้า';
+                        const bookerPhone = booking.profiles ? booking.profiles.phone : '';
+                        const dateRange = `${formatThaiDateShort(booking.start_date)} - ${formatThaiDateShort(booking.end_date || booking.start_date)}`;
+                        const isConfirmed = booking.status === 'confirmed';
+                        const statusBadgeClass = isConfirmed ? 'confirmed' : 'pending';
+                        const statusBadgeText = isConfirmed ? 'ยืนยันแล้ว' : 'รอตรวจสอบ';
+
+                        const bookingData = encodeURIComponent(JSON.stringify({
+                            id: booking.id,
+                            space_id: booking.space_id,
+                            bookerName: bookerName,
+                            bookerPhone: bookerPhone,
+                            venueName: spaceInfo.venueName,
+                            spaceNumber: spaceInfo.number,
+                            startDate: booking.start_date,
+                            endDate: booking.end_date,
+                            totalPrice: booking.total_price,
+                            slipUrl: booking.payment_slip_url
+                        }));
+
+                        const cardHtml = `
+                            <div class="upcoming-booking-card">
+                                <div class="upcoming-card-top">
+                                    <div class="upcoming-stall-badge">
+                                        <i class="fa-solid fa-store"></i> ล็อค ${spaceInfo.number}
+                                        <span style="font-weight: 400; color: #64748b; font-size: 0.75rem;">(${spaceInfo.venueName})</span>
+                                    </div>
+                                    <span class="upcoming-status-badge ${statusBadgeClass}">${statusBadgeText}</span>
+                                </div>
+                                <div class="upcoming-card-body">
+                                    <div class="upcoming-merchant-row">
+                                        <i class="fa-solid fa-user" style="color: #64748b; font-size: 0.85rem;"></i>
+                                        <span>${bookerName}</span>
+                                        ${bookerPhone ? `<a href="tel:${bookerPhone}" onclick="event.stopPropagation();"><i class="fa-solid fa-phone"></i> ${bookerPhone}</a>` : ''}
+                                    </div>
+                                    <div class="upcoming-dates-row">
+                                        <i class="fa-regular fa-calendar-days"></i>
+                                        <span>วันที่เข้าขาย: ${dateRange}</span>
+                                    </div>
+                                </div>
+                                <div class="upcoming-card-footer">
+                                    <div class="upcoming-price">฿${Number(booking.total_price || 0).toLocaleString()}</div>
+                                    <div style="display: flex; gap: 6px; align-items: center;">
+                                        ${booking.payment_slip_url ? `
+                                            <button type="button" class="btn-slip-view" onclick="openBookingModal('${bookingData}')">
+                                                <i class="fa-solid fa-receipt"></i> สลิป
+                                            </button>
+                                        ` : ''}
+                                        <a href="tenant_info_owner.html?id=${spaceInfo.venueId}&date=${booking.start_date}" class="btn-manage-upcoming">
+                                            <i class="fa-solid fa-map-location-dot"></i> ดูผังตลาด
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        notifList.innerHTML += cardHtml;
+                    });
+                }
+
+                await fetchHistoryNotifications(pendingList.length > 0 || upcomingList.length > 0);
 
             } catch (err) {
                 console.error("Error fetching pending bookings:", err);

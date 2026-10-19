@@ -216,12 +216,12 @@
         .feature-pill-item {
             display: flex;
             align-items: center;
-            gap: 14px;
-            padding: 0.9rem 1.2rem;
+            gap: 16px;
+            padding: 1.05rem 1.35rem;
             background: rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.9);
-            border-radius: 16px;
+            border-radius: 18px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -234,16 +234,26 @@
         }
 
         .feature-icon-circle {
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
+            width: 58px;
+            height: 58px;
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.15rem;
+            font-size: 1.75rem;
             flex-shrink: 0;
-            background: #fef7ee;
+            background: linear-gradient(135deg, #fef7ee 0%, #fff1df 100%);
+            border: 1px solid rgba(164, 99, 9, 0.15);
             color: var(--primary);
+            box-shadow: 0 4px 14px rgba(164, 99, 9, 0.1);
+            transition: all 0.25s ease;
+        }
+
+        .feature-pill-item:hover .feature-icon-circle {
+            transform: scale(1.08) rotate(3deg);
+            background: var(--primary-gradient);
+            color: #ffffff;
+            box-shadow: 0 8px 20px rgba(164, 99, 9, 0.25);
         }
 
         .feature-text-wrap {
@@ -253,40 +263,42 @@
 
         .feature-title {
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 1rem;
             color: var(--text-dark);
         }
 
         .feature-sub {
-            font-size: 0.82rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
-            margin-top: 2px;
+            margin-top: 3px;
         }
 
         /* Live Activity Floating Pill */
         .live-activity-card {
             display: inline-flex;
             align-items: center;
-            gap: 12px;
-            padding: 0.75rem 1.15rem;
+            gap: 14px;
+            padding: 0.85rem 1.25rem;
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(16px);
-            border-radius: 14px;
+            border-radius: 16px;
             border: 1px solid rgba(16, 185, 129, 0.25);
             box-shadow: 0 8px 20px rgba(16, 185, 129, 0.08);
             width: fit-content;
         }
 
         .live-avatar {
-            width: 32px;
-            height: 32px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: #dcfce7;
             color: #15803d;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.85rem;
+            font-size: 1.15rem;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
         }
 
         .live-text {
@@ -340,17 +352,17 @@
         }
 
         .card-header-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
+            width: 62px;
+            height: 62px;
+            border-radius: 20px;
             background: var(--primary-gradient);
             color: #ffffff;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
-            margin-bottom: 1.15rem;
-            box-shadow: 0 8px 18px rgba(164, 99, 9, 0.28);
+            font-size: 1.85rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 10px 24px rgba(164, 99, 9, 0.32);
         }
 
         .card-header-block h2 {
@@ -380,6 +392,10 @@
             margin-bottom: 1.75rem;
             font-size: 0.78rem;
             color: var(--text-muted);
+        }
+
+        .role-hint-bar i {
+            font-size: 1.1rem;
         }
 
         .role-chips {
@@ -425,16 +441,16 @@
 
         .input-box-wrapper .input-leading-icon {
             position: absolute;
-            left: 1rem;
+            left: 1.15rem;
             color: #94a3b8;
-            font-size: 1.05rem;
+            font-size: 1.25rem;
             transition: color 0.2s ease;
             pointer-events: none;
         }
 
         .custom-input {
             width: 100%;
-            padding: 0.88rem 1rem 0.88rem 2.85rem;
+            padding: 0.95rem 1rem 0.95rem 3.35rem;
             background: #ffffff;
             border: 1.5px solid var(--border-light);
             border-radius: 14px;
@@ -464,17 +480,17 @@
 
         /* Password input specific */
         .custom-input.with-toggle {
-            padding-right: 3.1rem;
+            padding-right: 3.5rem;
         }
 
         .btn-toggle-eye {
             position: absolute;
-            right: 0.65rem;
+            right: 0.75rem;
             top: 50%;
             transform: translateY(-50%);
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
             background: transparent;
             border: none;
             cursor: pointer;
@@ -482,13 +498,14 @@
             align-items: center;
             justify-content: center;
             color: #94a3b8;
-            font-size: 1.1rem;
+            font-size: 1.25rem;
             transition: all 0.2s ease;
         }
 
         .btn-toggle-eye:hover {
             color: var(--primary);
             background: rgba(164, 99, 9, 0.08);
+            transform: translateY(-50%) scale(1.08);
         }
 
         /* Auxiliary actions: Remember & Forgot */
@@ -617,16 +634,33 @@
             box-shadow: 0 4px 12px rgba(164, 99, 9, 0.08);
         }
 
+        .btn-login-primary i {
+            font-size: 1.15rem;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-login-primary:hover i {
+            transform: translateX(4px);
+        }
+
+        .btn-register-secondary i {
+            font-size: 1.35rem;
+        }
+
         /* Card Footer Notes */
         .card-trust-footer {
             margin-top: 1.5rem;
             text-align: center;
-            font-size: 0.78rem;
+            font-size: 0.82rem;
             color: #94a3b8;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 8px;
+        }
+
+        .card-trust-footer i {
+            font-size: 1.2rem;
         }
 
         /* Custom SweetAlert radius */
