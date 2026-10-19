@@ -459,7 +459,10 @@
         
         .status-vacant { background-color: #d1fae5; color: #065f46; }
         .status-rented { background-color: #fef3c7; color: #92400e; }
+        .status-upcoming { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
         .status-overdue { background-color: #fee2e2; color: var(--status-overdue); }
+        .stall-status-pill.upcoming { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .stall-card.has-upcoming { border-color: #7dd3fc; background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 25%); }
 
         .tenant-badge-row {
             font-size: 0.78rem;
@@ -1878,6 +1881,9 @@
             <button class="filter-chip" id="chip-status-rented" onclick="setStatusFilter('rented')">
                 เช่าแล้ว <span class="chip-badge" id="count-rented">0</span>
             </button>
+            <button class="filter-chip" id="chip-status-upcoming" onclick="setStatusFilter('upcoming')">
+                มีคิวจองล่วงหน้า <span class="chip-badge" id="count-upcoming">0</span>
+            </button>
 
             <div class="filter-divider"></div>
 
@@ -2600,11 +2606,20 @@
                                 .from('bookings')
                                 .select('id, space_id, user_id, status, start_date, end_date, total_price, payment_slip_url, created_at, profiles(first_name, last_name, display_name, phone)')
                                 .in('space_id', chunk)
-                                .in('status', ['confirmed', 'approved', 'pending'])
+                                .neq('status', 'cancelled')
                                 .order('created_at', { ascending: false });
 
                             if (!bErr && bData) {
                                 allBookings = allBookings.concat(bData);
+                            } else if (bErr) {
+                                console.warn("Primary bookings fetch error, using fallback query:", bErr);
+                                const { data: fbData } = await supabaseClient
+                                    .from('bookings')
+                                    .select('id, space_id, user_id, status, start_date, end_date, total_price, payment_slip_url, created_at')
+                                    .in('space_id', chunk)
+                                    .neq('status', 'cancelled')
+                                    .order('created_at', { ascending: false });
+                                if (fbData) allBookings = allBookings.concat(fbData);
                             }
                         }
 
@@ -2659,17 +2674,17 @@
                             space._upcomingBooking = upcomingBooking || null;
 
                             const isManuallyClosed = space.status === 'closed' || space.status === 'maintenance';
+                            const isManualBooked = space.map_data && (space.map_data.manual_tenant_name || space.map_data.manual_tenant_phone);
 
-                            if (!isManuallyClosed) {
+                            if (!isManuallyClosed && !isManualBooked) {
                                 if (activeTodayBooking) {
                                     // Space has active booking today -> should be rented (red)
                                     if (space.status !== 'booked') {
                                         space.status = 'booked';
                                         spacesToMarkBooked.push(space.id);
                                     }
-                                } else {
-                                    // No active booking today -> should be available (green)!
-                                    // Even if it was booked yesterday, it is NOW EXPIRED!
+                                } else if (!upcomingBooking) {
+                                    // Only revert to available if there is NO active booking today AND NO upcoming booking in the future!
                                     if (space.status === 'booked' || space.status === 'rented') {
                                         space.status = 'available';
                                         spacesToRevertToAvailable.push(space.id);
@@ -2776,8 +2791,15 @@
             const isVacant = (space._isVacantOnInspectDate !== undefined)
                 ? space._isVacantOnInspectDate
                 : (space.status === 'available');
-            const statusClass = isVacant ? 'status-vacant' : 'status-rented';
-            const statusText = isVacant ? 'ว่าง' : 'เช่าแล้ว';
+            const hasUpcoming = Boolean(space._upcomingBooking);
+
+            let statusClass = isVacant ? 'status-vacant' : 'status-rented';
+            let statusText = isVacant ? 'ว่าง' : 'เช่าแล้ว';
+            if (isVacant && hasUpcoming) {
+                statusClass = 'status-upcoming';
+                statusText = 'มีคิวจอง';
+            }
+
             const priceFmt = (Number(space.price) || 0).toLocaleString();
 
             let tenantBadgeHtml = '';
@@ -2818,14 +2840,18 @@
             } else if (space._upcomingBooking) {
                 const upBooking = space._upcomingBooking;
                 const upProf = upBooking.profiles || {};
-                const upName = upProf.first_name ? `${upProf.first_name}` : (upProf.display_name || 'ผู้เช่า');
+                let upName = upProf.first_name ? `${upProf.first_name} ${upProf.last_name || ''}`.trim() : (upProf.display_name || '');
+                if (!upName && upProf.last_name) upName = upProf.last_name;
+                if (!upName) upName = 'ผู้เช่า';
+                const upPhone = upProf.phone ? upProf.phone : '';
                 const sDateFmt = formatThaiDateShort(upBooking.start_date);
                 tenantBadgeHtml = `
-                    <div class="tenant-badge-row upcoming" title="จองล่วงหน้าเริ่มวันที่ ${sDateFmt} โดย คุณ${upName}">
+                    <div class="tenant-badge-row upcoming" title="จองล่วงหน้าเริ่มวันที่ ${sDateFmt} โดย คุณ${upName} ${upPhone ? `(${upPhone})` : ''}">
                         <div class="tenant-badge-left">
                             <i class="fa-regular fa-calendar-check" style="color: #0284c7;"></i>
-                            <span style="color: #0284c7;">จองเริ่ม ${sDateFmt} (${upName})</span>
+                            <span style="color: #0284c7;">จองเริ่ม ${sDateFmt}: ${upName}</span>
                         </div>
+                        ${upPhone ? `<span class="tenant-badge-phone" style="background:#e0f2fe; color:#0369a1;"><i class="fa-solid fa-phone"></i> ${upPhone}</span>` : ''}
                     </div>
                 `;
             }
@@ -2833,7 +2859,7 @@
             const zoneName = space.zone ? space.zone : 'ไม่ระบุโซน';
 
             return `
-                <div class="stall-card ${isVacant ? 'vacant' : 'rented'}" onclick="openSpaceDetail('${space.id}')">
+                <div class="stall-card ${isVacant ? (hasUpcoming ? 'vacant has-upcoming' : 'vacant') : 'rented'}" onclick="openSpaceDetail('${space.id}')">
                     <div class="stall-header">
                         <span class="stall-id">${space.space_number}</span>
                         <span class="status-badge ${statusClass}">${statusText}</span>
@@ -2862,18 +2888,22 @@
             let countAll = realSpaces.length;
             let countVacant = realSpaces.filter(s => (s._isVacantOnInspectDate !== undefined ? s._isVacantOnInspectDate : (s.status === 'available'))).length;
             let countRented = countAll - countVacant;
+            let countUpcoming = realSpaces.filter(s => Boolean(s._upcomingBooking)).length;
 
             const countAllEl = document.getElementById('count-all');
             const countVacantEl = document.getElementById('count-vacant');
             const countRentedEl = document.getElementById('count-rented');
+            const countUpcomingEl = document.getElementById('count-upcoming');
             if (countAllEl) countAllEl.innerText = countAll;
             if (countVacantEl) countVacantEl.innerText = countVacant;
             if (countRentedEl) countRentedEl.innerText = countRented;
+            if (countUpcomingEl) countUpcomingEl.innerText = countUpcoming;
 
             let filtered = realSpaces.filter(space => {
                 const spaceIsVacant = (space._isVacantOnInspectDate !== undefined ? space._isVacantOnInspectDate : (space.status === 'available'));
                 if (currentFilter === 'vacant' && !spaceIsVacant) return false;
                 if (currentFilter === 'rented' && spaceIsVacant) return false;
+                if (currentFilter === 'upcoming' && !space._upcomingBooking) return false;
 
                 if (currentZone !== 'all') {
                     const spaceZone = (space.zone && space.zone.trim()) ? space.zone.trim() : 'ไม่ระบุโซน';
@@ -2967,7 +2997,7 @@
         // 8. Filter Handlers
         function setStatusFilter(filterType) {
             currentFilter = filterType;
-            ['all', 'vacant', 'rented'].forEach(type => {
+            ['all', 'vacant', 'rented', 'upcoming'].forEach(type => {
                 const el = document.getElementById(`chip-status-${type}`);
                 if (el) {
                     if (type === filterType) el.classList.add('active');
@@ -3286,8 +3316,13 @@
 
             const statusBadge = document.getElementById('modal-stall-status-badge');
             if (statusBadge) {
-                statusBadge.className = `stall-status-pill ${isVacant ? 'available' : 'rented'}`;
-                statusBadge.innerText = isVacant ? 'ว่าง' : 'เช่าแล้ว';
+                if (isVacant && space._upcomingBooking) {
+                    statusBadge.className = 'stall-status-pill upcoming';
+                    statusBadge.innerText = 'มีคิวจองล่วงหน้า';
+                } else {
+                    statusBadge.className = `stall-status-pill ${isVacant ? 'available' : 'rented'}`;
+                    statusBadge.innerText = isVacant ? 'ว่าง' : 'เช่าแล้ว';
+                }
             }
 
             const vacantView = document.getElementById('tenant-vacant-view');
@@ -3307,14 +3342,29 @@
 
                 // Upcoming reservation display if any
                 const upcomingNotice = document.getElementById('modal-upcoming-booking-notice');
-                const upcomingDesc = document.getElementById('modal-upcoming-booking-desc');
-                if (space._upcomingBooking && upcomingNotice && upcomingDesc) {
+                if (space._upcomingBooking && upcomingNotice) {
                     const ub = space._upcomingBooking;
                     const uProf = ub.profiles || {};
-                    const uName = uProf.first_name ? `${uProf.first_name} ${uProf.last_name || ''}`.trim() : (uProf.display_name || 'ผู้เช่า');
-                    const uPhone = uProf.phone ? ` (โทร: ${uProf.phone})` : '';
+                    let uName = uProf.first_name ? `${uProf.first_name} ${uProf.last_name || ''}`.trim() : (uProf.display_name || '');
+                    if (!uName && uProf.last_name) uName = uProf.last_name;
+                    if (!uName) uName = 'ผู้เช่า';
+                    const uPhone = uProf.phone ? uProf.phone : '';
                     const uRange = (ub.start_date && ub.end_date) ? `${formatThaiDateShort(ub.start_date)} ถึง ${formatThaiDateShort(ub.end_date)}` : formatThaiDateShort(ub.start_date);
-                    upcomingDesc.innerText = `ผู้จอง: คุณ${uName}${uPhone} • ช่วงวันที่ ${uRange}`;
+                    
+                    upcomingNotice.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                            <div style="font-weight:600; color:#0369a1; font-size:0.85rem; display:flex; align-items:center; gap:6px;">
+                                <i class="fa-regular fa-calendar-check"></i> มีคิวจองล่วงหน้า
+                            </div>
+                            <button type="button" class="schedule-switch-date-btn" style="padding:4px 10px; font-size:0.75rem;" onclick="selectDateFromSchedule('${ub.start_date}', '${space.id}')">
+                                <i class="fa-solid fa-calendar-day"></i> สลับไปดูวันที่เริ่มจอง (${formatThaiDateShort(ub.start_date)})
+                            </button>
+                        </div>
+                        <div style="font-size:0.85rem; color:#0c4a6e; margin-top:6px; display:flex; flex-direction:column; gap:4px;">
+                            <div><b>ผู้เช่า:</b> คุณ${uName} ${uPhone ? `<a href="tel:${uPhone}" class="schedule-call-btn" style="margin-left:6px;"><i class="fa-solid fa-phone"></i> ${uPhone}</a>` : '<span style="color:#94a3b8; font-size:0.8rem;">(ไม่ระบุเบอร์)</span>'}</div>
+                            <div><b>ช่วงวันที่จอง:</b> ${uRange} ${ub.total_price ? `• <b>ราคา:</b> ฿${Number(ub.total_price).toLocaleString()}` : ''}</div>
+                        </div>
+                    `;
                     upcomingNotice.style.display = 'block';
                 } else if (upcomingNotice) {
                     upcomingNotice.style.display = 'none';
