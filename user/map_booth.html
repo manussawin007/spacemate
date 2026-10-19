@@ -634,8 +634,6 @@
                     window.location.href = `book_booth.html?venue_id=${venueId}&space_id=${space.id}`;
                 }
             });
-        } else {
-            alert(`บูธ ${space.space_number} (ไม่ว่าง)\n\nรายการวันที่ติดจอง:\n` + spaceBookings.map(b => `${formatThaiDate(b.start_date)} ถึง ${formatThaiDate(b.end_date)}`).join('\n'));
         }
     }
 

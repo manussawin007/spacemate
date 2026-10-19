@@ -9,7 +9,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        .swal-custom-popup {
+            border-radius: 20px !important;
+            font-family: 'Prompt', sans-serif !important;
+        }
         :root {
             --bg-color: #F1F4F8;
             --primary-color: #a46309;
@@ -96,111 +101,553 @@
             margin-top: 0.1rem;
         }
 
-        /* Filter Bar */
-        .filter-bar {
-            padding: 1rem 1.5rem;
+        /* Enhanced Controls & Filter Bar */
+        .controls-container {
+            padding: 1rem 1.5rem 0.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .controls-top-row {
             display: flex;
             gap: 0.75rem;
-            overflow-x: auto;
-            scrollbar-width: none; /* Firefox */
+            align-items: center;
+            flex-wrap: wrap;
         }
-        .filter-bar::-webkit-scrollbar {
-            display: none; /* Chrome */
+
+        .search-input-wrapper {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+
+        .search-input-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.88rem;
+        }
+
+        .search-input-wrapper input {
+            width: 100%;
+            padding: 0.55rem 1rem 0.55rem 2.4rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.88rem;
+            background: white;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-input-wrapper input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(164, 99, 9, 0.12);
+        }
+
+        .sort-select-wrapper {
+            position: relative;
+        }
+
+        .sort-select-wrapper select {
+            padding: 0.55rem 2.2rem 0.55rem 0.9rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 500;
+            background: white;
+            color: #334155;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .sort-select-wrapper::after {
+            content: '\f0dc';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.75rem;
+            pointer-events: none;
+        }
+
+        .view-mode-toggle {
+            display: flex;
+            background: #e2e8f0;
+            padding: 3px;
+            border-radius: 12px;
+            gap: 2px;
+        }
+
+        .view-mode-btn {
+            border: none;
+            background: transparent;
+            padding: 0.45rem 0.85rem;
+            border-radius: 9px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .view-mode-btn.active {
+            background: white;
+            color: var(--primary-color);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .btn-add-space-header {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.55rem 1rem;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            box-shadow: 0 3px 8px rgba(164, 99, 9, 0.2);
+            white-space: nowrap;
+        }
+
+        .btn-add-space-header:hover {
+            background: #8c5407;
+            transform: translateY(-1px);
+        }
+
+        /* Filter Chips Bar */
+        .filter-chips-row {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            scrollbar-width: none;
+            align-items: center;
+        }
+
+        .filter-chips-row::-webkit-scrollbar {
+            display: none;
         }
 
         .filter-chip {
             background-color: white;
             color: var(--text-main);
             border: 1px solid var(--border-color);
-            padding: 0.4rem 1.25rem;
+            padding: 0.4rem 1rem;
             border-radius: 20px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 500;
             cursor: pointer;
             white-space: nowrap;
             transition: all 0.2s ease;
             font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .filter-chip:hover {
+            border-color: #cbd5e1;
+            background-color: #f8fafc;
         }
 
         .filter-chip.active {
             background-color: var(--primary-color);
             color: white;
             border-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(164, 99, 9, 0.2);
         }
 
-        /* Stall Grid */
+        .chip-badge {
+            background: rgba(0,0,0,0.08);
+            padding: 1px 7px;
+            border-radius: 10px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        .filter-chip.active .chip-badge {
+            background: rgba(255,255,255,0.25);
+            color: white;
+        }
+
+        .filter-divider {
+            width: 1px;
+            height: 22px;
+            background: #cbd5e1;
+            align-self: center;
+            margin: 0 4px;
+            flex-shrink: 0;
+        }
+
+        /* Grouped by Zone Cards */
+        .zone-group-card {
+            background: white;
+            border-radius: 18px;
+            margin: 0 1.5rem 1.25rem 1.5rem;
+            padding: 1.25rem;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.03);
+            border: 1px solid #e2e8f0;
+            transition: border-color 0.2s ease;
+        }
+
+        .zone-group-card:hover {
+            border-color: #cbd5e1;
+        }
+
+        .zone-group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .zone-group-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .zone-group-title i {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .zone-badge-count {
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .zone-group-stats {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .stat-pill {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-pill.vacant {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .stat-pill.rented {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .stat-pill.occupancy {
+            background: #fbeedb;
+            color: var(--primary-color);
+        }
+
+        .zone-progress-track {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .zone-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #f59e0b 60%, #a46309 100%);
+            border-radius: 999px;
+            transition: width 0.4s ease;
+        }
+
+        /* Stall Grid Layouts */
         .stall-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
             gap: 1rem;
             padding: 0 1.5rem 2rem 1.5rem;
         }
 
+        .zone-stalls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+            gap: 0.85rem;
+        }
+
         .stall-card {
             background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 1rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border-radius: 14px;
+            padding: 0.9rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: 1px solid transparent;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+            border: 1px solid #e2e8f0;
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.45rem;
+            position: relative;
         }
 
         .stall-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+            border-color: #cbd5e1;
+        }
+
+        .stall-card.rented {
+            border-left: 4px solid var(--status-rented);
+            background: linear-gradient(to bottom, #ffffff, #fffdf8);
+        }
+
+        .stall-card.vacant {
+            border-left: 4px solid var(--status-vacant);
         }
 
         .stall-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.15rem;
         }
 
         .stall-id {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 700;
+            color: #1e293b;
         }
 
         .status-badge {
-            font-size: 0.75rem;
-            padding: 0.2rem 0.5rem;
+            font-size: 0.72rem;
+            padding: 2px 7px;
             border-radius: 6px;
-            font-weight: 500;
+            font-weight: 600;
         }
         
-        .status-vacant { background-color: #d1fae5; color: var(--status-vacant); }
-        .status-rented { background-color: #fef3c7; color: var(--status-rented); }
+        .status-vacant { background-color: #d1fae5; color: #065f46; }
+        .status-rented { background-color: #fef3c7; color: #92400e; }
         .status-overdue { background-color: #fee2e2; color: var(--status-overdue); }
 
-        .tenant-info {
-            font-size: 0.85rem;
-            color: var(--text-main);
+        .tenant-badge-row {
+            font-size: 0.78rem;
+            color: #1e293b;
             display: flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 5px;
+            background: #fffbeb;
+            border: 1px solid #fef3c7;
+            padding: 4px 7px;
+            border-radius: 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
-        .tenant-info i {
-            color: var(--text-muted);
-            width: 14px;
+        .tenant-badge-row i {
+            color: #d97706;
+            font-size: 0.75rem;
+            flex-shrink: 0;
         }
 
-        .expiry-info {
-            font-size: 0.8rem;
-            color: var(--text-muted);
+        .stall-meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.78rem;
+            color: #64748b;
+            margin-top: 0.2rem;
+        }
+
+        .stall-price {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .zone-pill-mini {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        /* Analytics Modal Styling */
+        #graphModal .modal-card {
+            max-width: 680px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 20px;
+            padding: 1.5rem;
+        }
+
+        .graph-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-bottom: 1.25rem;
+        }
+
+        .graph-kpi-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 10px 12px;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+        .graph-kpi-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .graph-kpi-label {
+            font-size: 0.74rem;
+            color: #64748b;
+            font-weight: 500;
+            margin-bottom: 4px;
             display: flex;
             align-items: center;
-            gap: 0.4rem;
-            margin-top: 0.25rem;
+            justify-content: center;
+            gap: 4px;
         }
 
-        .expiry-info.overdue {
-            color: var(--status-overdue);
+        .graph-kpi-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.1;
+        }
+
+        .text-emerald { color: #059669 !important; }
+        .text-amber { color: #d97706 !important; }
+
+        .graph-tabs {
+            display: flex;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 12px;
+            gap: 4px;
+            margin-bottom: 1.25rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .graph-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .graph-tab-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 8px 12px;
+            border-radius: 9px;
+            font-family: inherit;
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .graph-tab-btn.active {
+            background: white;
+            color: var(--primary-color);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+
+        .chart-container-box {
+            position: relative;
+            width: 100%;
+            min-height: 260px;
+            height: 290px;
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .chart-summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            margin-top: 0.75rem;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .chart-summary-table th {
+            background: #f8fafc;
+            color: #475569;
+            padding: 8px 10px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .chart-summary-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+        }
+
+        .chart-summary-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        @media (max-width: 640px) {
+            .hide-mobile {
+                display: none;
+            }
+            .controls-top-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .view-mode-toggle {
+                align-self: flex-start;
+            }
         }
 
         /* Modal */
@@ -290,58 +737,693 @@
             cursor: pointer;
         }
 
-        .modal-detail-row {
+        /* ========================================================
+           Modern Redesigned Tenant Detail & Edit Space Modals
+           ======================================================== */
+        #tenantModal .modal-card {
+            max-width: 440px;
+            width: 95%;
+            border-radius: 22px;
+            padding: 1.6rem;
+            box-shadow: 0 20px 45px -10px rgba(0,0,0,0.18);
+            border: 1px solid #e2e8f0;
+        }
+
+        #editSpaceModal .modal-card {
+            max-width: 520px;
+            width: 95%;
+            border-radius: 22px;
+            padding: 1.65rem;
+            box-shadow: 0 20px 45px -10px rgba(0,0,0,0.18);
+            border: 1px solid #e2e8f0;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        #addSpaceModal .modal-card {
+            max-width: 540px;
+            width: 95%;
+            border-radius: 22px;
+            padding: 1.65rem;
+            box-shadow: 0 20px 45px -10px rgba(0,0,0,0.18);
+            border: 1px solid #e2e8f0;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-segmented-tabs {
             display: flex;
-            align-items: flex-start;
-            gap: 1rem;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 14px;
+            gap: 4px;
+            margin-bottom: 1.25rem;
+        }
+
+        .modal-segmented-tab {
+            flex: 1;
+            padding: 9px 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            background: transparent;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-family: inherit;
+        }
+
+        .modal-segmented-tab:hover {
+            color: #1e293b;
+        }
+
+        .modal-segmented-tab.active {
+            background: #ffffff;
+            color: #a46309;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .bulk-sequence-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1fr;
+            gap: 0.65rem;
             margin-bottom: 1rem;
         }
 
-        .modal-detail-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background-color: var(--primary-light);
-            color: var(--primary-color);
+        .bulk-calc-preview-bar {
+            background: #fefce8;
+            border: 1.5px dashed #f59e0b;
+            border-radius: 14px;
+            padding: 10px 14px;
+            margin-bottom: 1.25rem;
             display: flex;
-            justify-content: center;
             align-items: center;
-            font-size: 1.1rem;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 0.82rem;
+            color: #78350f;
+            transition: all 0.2s ease;
         }
 
-        .modal-detail-text h4 {
+        .bulk-calc-preview-bar .badge-count {
+            background: #f59e0b;
+            color: white;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.76rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .bulk-calc-preview-bar .preview-range {
+            font-weight: 600;
+            color: #92400e;
+            text-align: right;
+            word-break: break-all;
+        }
+
+        .modal-hero-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.15rem;
+            padding-bottom: 0.85rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .modal-hero-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .modal-hero-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #fbeedb;
+            color: #a46309;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            flex-shrink: 0;
+        }
+
+        .modal-hero-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.2;
+            margin: 0;
+        }
+
+        .modal-hero-sub {
+            font-size: 0.78rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        /* Stall Identity Banner */
+        .stall-info-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 8px 12px;
+            border-radius: 12px;
+            margin-bottom: 1.25rem;
+        }
+
+        .stall-code-chip {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #1e293b;
+            background: white;
+            padding: 3px 10px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stall-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+        .stall-status-pill.available { background: #d1fae5; color: #065f46; }
+        .stall-status-pill.rented { background: #fef3c7; color: #92400e; }
+
+        /* Form Grid */
+        .edit-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        @media (max-width: 520px) {
+            .edit-form-grid {
+                grid-template-columns: 1fr;
+                gap: 0.85rem;
+            }
+        }
+
+        .edit-field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            text-align: left;
+        }
+
+        .edit-field-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .edit-field-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .edit-field-label i {
+            color: #a46309;
             font-size: 0.85rem;
-            color: var(--text-muted);
-            font-weight: 400;
-            margin-bottom: 0.1rem;
         }
 
-        .modal-detail-text p {
-            font-size: 1rem;
-            font-weight: 500;
+        .edit-field-label .req {
+            color: #ef4444;
         }
 
-        .contact-btn {
+        .modern-input-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .modern-input-box input,
+        .modern-input-box select {
             width: 100%;
-            background-color: var(--primary-color);
+            padding: 0.65rem 0.85rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.92rem;
+            background: #ffffff;
+            color: #1e293b;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .modern-input-box input:focus,
+        .modern-input-box select:focus {
+            border-color: #a46309;
+            box-shadow: 0 0 0 3px rgba(164, 99, 9, 0.12);
+            background: #ffffff;
+        }
+
+        .modern-input-box.with-prefix input {
+            padding-left: 2rem;
+        }
+
+        .modern-input-box.with-suffix input {
+            padding-right: 3.5rem;
+        }
+
+        .input-prefix-icon {
+            position: absolute;
+            left: 10px;
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+
+        .input-suffix-text {
+            position: absolute;
+            right: 12px;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            pointer-events: none;
+        }
+
+        /* Quick Tags */
+        .quick-tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 4px;
+        }
+
+        .quick-tag-btn {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            font-size: 0.73rem;
+            padding: 2px 7px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .quick-tag-btn:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+            border-color: #cbd5e1;
+        }
+
+        .price-hint-box {
+            font-size: 0.76rem;
+            color: #64748b;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .price-hint-box b {
+            color: #059669;
+            font-weight: 700;
+        }
+
+        /* Status Radio Toggle */
+        .status-toggle-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .status-radio-card {
+            position: relative;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+            user-select: none;
+        }
+
+        .status-radio-card:hover {
+            border-color: #cbd5e1;
+            background: #f8fafc;
+        }
+
+        .status-radio-card input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .status-radio-card.active-available {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+
+        .status-radio-card.active-booked {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .dot-green { background: #10b981; }
+        .dot-amber { background: #f59e0b; }
+
+        .status-text-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #1e293b;
+            line-height: 1.1;
+        }
+
+        .status-text-desc {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        /* Edit Modal Footer */
+        .edit-modal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding-top: 1rem;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .btn-danger-outline {
+            background: #fef2f2;
+            color: #ef4444;
+            border: 1.5px solid #fecaca;
+            padding: 0.65rem 1rem;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-danger-outline:hover:not(:disabled) {
+            background: #fee2e2;
+            border-color: #f87171;
+            color: #dc2626;
+        }
+
+        .btn-danger-outline:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .footer-action-btns {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn-cancel-flat {
+            background: #f1f5f9;
+            color: #64748b;
+            border: none;
+            padding: 0.65rem 1.1rem;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-cancel-flat:hover {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .btn-save-primary {
+            background: var(--primary-color);
             color: white;
             border: none;
-            padding: 0.85rem;
-            border-radius: 10px;
+            padding: 0.65rem 1.3rem;
+            border-radius: 12px;
             font-family: inherit;
-            font-size: 1rem;
-            font-weight: 500;
-            margin-top: 1rem;
+            font-size: 0.88rem;
+            font-weight: 600;
             cursor: pointer;
-            display: flex;
-            justify-content: center;
+            display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            transition: background-color 0.2s;
+            gap: 6px;
+            transition: all 0.2s ease;
+            box-shadow: 0 3px 10px rgba(164, 99, 9, 0.22);
         }
 
-        .contact-btn:hover {
-            background-color: #8c5407;
+        .btn-save-primary:hover:not(:disabled) {
+            background: #8c5407;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 14px rgba(164, 99, 9, 0.3);
+        }
+
+        .btn-save-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Tenant Detail Modal (Hero & Breakdown) */
+        .tenant-modal-badge-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .tenant-hero-card {
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .tenant-hero-card.vacant {
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+            border-color: #bbf7d0;
+            text-align: center;
+        }
+
+        .tenant-hero-card.rented {
+            background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+            border-color: #fde68a;
+        }
+
+        .vacant-icon-circle {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #d1fae5;
+            color: #059669;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin: 0 auto 0.75rem auto;
+        }
+
+        .vacant-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #065f46;
+            margin-bottom: 4px;
+        }
+
+        .vacant-sub {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+
+        .vacant-stat-chips {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .vacant-chip {
+            background: white;
+            border: 1px solid #cbd5e1;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            color: #334155;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .vacant-chip i { color: #a46309; }
+
+        /* Rented Tenant Profile */
+        .tenant-profile-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .tenant-profile-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #fde68a;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+
+        .tenant-profile-info {
+            flex: 1;
+            min-width: 0;
+            text-align: left;
+        }
+
+        .tenant-profile-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tenant-call-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .tenant-call-chip:hover {
+            background: #bfdbfe;
+            color: #1e40af;
+        }
+
+        .booking-meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid #fef3c7;
+            text-align: left;
+        }
+
+        .meta-box {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .meta-box-label {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .meta-box-val {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .btn-manage-stall {
+            width: 100%;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(164, 99, 9, 0.25);
+            margin-bottom: 8px;
+        }
+
+        .btn-manage-stall:hover {
+            background: #8c5407;
+            transform: translateY(-1px);
+        }
+
+        .btn-close-tenant-modal {
+            width: 100%;
+            background: #f1f5f9;
+            color: #64748b;
+            border: none;
+            padding: 0.65rem 1rem;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-close-tenant-modal:hover {
+            background: #e2e8f0;
+            color: #334155;
         }
 
         /* Graph Button */
@@ -429,16 +1511,21 @@
 
     <!-- Header -->
     <header class="header">
-        <a href="main_owner.html" class="back-btn">
+        <a href="main_owner.html" class="back-btn" title="กลับไปยังหน้ารายการ">
             <i class="fa-solid fa-arrow-left"></i>
         </a>
         <div class="header-title-wrapper" style="flex: 1;">
             <h1 class="header-title">ข้อมูลพื้นที่เช่า</h1>
             <p class="header-subtitle" id="venue-name-display">กำลังโหลด...</p>
         </div>
-        <button class="graph-btn" onclick="openGraphModal()">
-            <i class="fa-solid fa-chart-pie"></i>
-        </button>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="btn-add-space-header" onclick="openAddSpaceModal()">
+                <i class="fa-solid fa-plus"></i> <span class="hide-mobile">เพิ่มล็อค</span>
+            </button>
+            <button class="graph-btn" onclick="openGraphModal()" title="ดูสถิติและกราฟวิเคราะห์">
+                <i class="fa-solid fa-chart-pie"></i>
+            </button>
+        </div>
     </header>
 
     <!-- Blueprint Section -->
@@ -447,54 +1534,132 @@
         <img id="blueprint-image" src="" alt="Blueprint" class="blueprint-image" onclick="window.open(this.src, '_blank')">
     </div>
 
-    <!-- Filter Bar -->
-    <div class="filter-bar" style="justify-content: space-between; align-items: center;">
-        <div style="display: flex; gap: 0.75rem; overflow-x: auto; scrollbar-width: none;">
-            <button class="filter-chip active" onclick="setFilter(this, 'all')">ทั้งหมด (<span id="count-all">0</span>)</button>
-            <button class="filter-chip" onclick="setFilter(this, 'rented')">เช่าแล้ว (<span id="count-rented">0</span>)</button>
-            <button class="filter-chip" onclick="setFilter(this, 'vacant')">ว่าง (<span id="count-vacant">0</span>)</button>
+    <!-- Enhanced Control & Filter Bar -->
+    <div class="controls-container">
+        <!-- Row 1: Search, Sort, View Mode Toggle -->
+        <div class="controls-top-row">
+            <div class="search-input-wrapper">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="space-search-input" placeholder="ค้นหาหมายเลขล็อคหรือโซน..." oninput="handleSearchChange(this.value)">
+            </div>
+            
+            <div class="sort-select-wrapper">
+                <select id="space-sort-select" onchange="handleSortChange(this.value)">
+                    <option value="number-asc">หมายเลข: A-Z / น้อย-มาก</option>
+                    <option value="number-desc">หมายเลข: Z-A / มาก-น้อย</option>
+                    <option value="price-asc">ราคา: ต่ำไปสูง</option>
+                    <option value="price-desc">ราคา: สูงไปต่ำ</option>
+                    <option value="status-vacant">ว่างก่อน</option>
+                    <option value="status-rented">เช่าแล้วก่อน</option>
+                </select>
+            </div>
+
+            <div class="view-mode-toggle">
+                <button class="view-mode-btn active" id="btn-view-grouped" onclick="setViewMode('grouped')">
+                    <i class="fa-solid fa-layer-group"></i> <span>แยกตามโซน</span>
+                </button>
+                <button class="view-mode-btn" id="btn-view-flat" onclick="setViewMode('flat')">
+                    <i class="fa-solid fa-border-all"></i> <span>ตารางรวม</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Row 2: Status & Zone Filter Chips -->
+        <div class="filter-chips-row">
+            <!-- Status Chips -->
+            <button class="filter-chip active" id="chip-status-all" onclick="setStatusFilter('all')">
+                ทั้งหมด <span class="chip-badge" id="count-all">0</span>
+            </button>
+            <button class="filter-chip" id="chip-status-vacant" onclick="setStatusFilter('vacant')">
+                ว่าง <span class="chip-badge" id="count-vacant">0</span>
+            </button>
+            <button class="filter-chip" id="chip-status-rented" onclick="setStatusFilter('rented')">
+                เช่าแล้ว <span class="chip-badge" id="count-rented">0</span>
+            </button>
+
+            <div class="filter-divider"></div>
+
+            <!-- Dynamic Zone Chips Container -->
+            <div id="zone-chips-container" style="display: flex; gap: 0.5rem; align-items: center;">
+                <!-- Populated dynamically via JS -->
+            </div>
         </div>
     </div>
 
-    <!-- Stall Grid -->
-    <main class="stall-grid" id="spaces-grid">
-        <!-- Dynamic Cards Here -->
+    <!-- Main Container for Stalls -->
+    <main id="spaces-container" style="padding-bottom: 2.5rem;">
+        <!-- Grouped Zone Cards or Flat Grid rendered dynamically here -->
     </main>
 
     <!-- Tenant Detail Modal -->
     <div class="modal-overlay" id="tenantModal">
         <div class="modal-card">
-            <div class="modal-header">
-                <h2 class="modal-title">รายละเอียดล็อค <span id="modal-stall-id">A-01</span></h2>
+            <div class="modal-hero-header">
+                <div class="modal-hero-left">
+                    <div class="modal-hero-icon">
+                        <i class="fa-solid fa-store"></i>
+                    </div>
+                    <div>
+                        <h2 class="modal-hero-title">รายละเอียดพื้นที่</h2>
+                        <p class="modal-hero-sub" id="modal-venue-sub-title">ข้อมูลล็อคและสถานะผู้เช่า</p>
+                    </div>
+                </div>
                 <button class="close-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            
-            <div class="modal-detail-row">
-                <div class="modal-detail-icon"><i class="fa-regular fa-user"></i></div>
-                <div class="modal-detail-text">
-                    <h4>ชื่อผู้เช่า</h4>
-                    <p id="modal-tenant-name">สมหญิง ใจดี</p>
+
+            <div class="tenant-modal-badge-row">
+                <span class="stall-code-chip" id="modal-stall-id">A-01</span>
+                <span class="stall-status-pill available" id="modal-stall-status-badge">ว่าง</span>
+            </div>
+
+            <!-- If Vacant View -->
+            <div id="tenant-vacant-view" class="tenant-hero-card vacant">
+                <div class="vacant-icon-circle"><i class="fa-solid fa-circle-check"></i></div>
+                <div class="vacant-title">ล็อคนี้ยังว่างอยู่</div>
+                <p class="vacant-sub">พร้อมเปิดรับผู้เช่าจองผ่านระบบ หรือบันทึกการเช่าหน้าร้าน</p>
+                <div class="vacant-stat-chips">
+                    <span class="vacant-chip"><i class="fa-solid fa-tag"></i> <span id="modal-stall-price-val">฿0 / วัน</span></span>
+                    <span class="vacant-chip"><i class="fa-solid fa-layer-group"></i> <span id="modal-stall-zone-val">ไม่ระบุโซน</span></span>
+                    <span class="vacant-chip"><i class="fa-solid fa-ruler-combined"></i> <span id="modal-stall-size-val">ไม่ระบุขนาด</span></span>
                 </div>
             </div>
 
-            <div class="modal-detail-row">
-                <div class="modal-detail-icon"><i class="fa-solid fa-phone"></i></div>
-                <div class="modal-detail-text">
-                    <h4>เบอร์ติดต่อ</h4>
-                    <p id="modal-tenant-phone">081-234-5678</p>
+            <!-- If Rented View -->
+            <div id="tenant-rented-view" class="tenant-hero-card rented" style="display: none;">
+                <div class="tenant-profile-row">
+                    <div class="tenant-profile-avatar"><i class="fa-solid fa-user"></i></div>
+                    <div class="tenant-profile-info">
+                        <div class="tenant-profile-name" id="modal-tenant-name">-</div>
+                        <div id="modal-tenant-phone-wrap">
+                            <a href="#" id="modal-tenant-phone-link" class="tenant-call-chip"><i class="fa-solid fa-phone"></i> <span>-</span></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="booking-meta-grid">
+                    <div class="meta-box">
+                        <span class="meta-box-label">วันที่เริ่มจอง</span>
+                        <span class="meta-box-val" id="modal-booking-date">-</span>
+                    </div>
+                    <div class="meta-box">
+                        <span class="meta-box-label">ราคาค่าเช่า</span>
+                        <span class="meta-box-val" id="modal-booking-price" style="color:var(--primary-color); font-weight:700;">-</span>
+                    </div>
+                    <div class="meta-box">
+                        <span class="meta-box-label">โซน</span>
+                        <span class="meta-box-val" id="modal-booking-zone">-</span>
+                    </div>
+                    <div class="meta-box">
+                        <span class="meta-box-label">ขนาดพื้นที่</span>
+                        <span class="meta-box-val" id="modal-booking-size">-</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="modal-detail-row">
-                <div class="modal-detail-icon"><i class="fa-regular fa-calendar"></i></div>
-                <div class="modal-detail-text">
-                    <h4>สถานะ / วันหมดอายุ</h4>
-                    <p id="modal-tenant-expiry">15 ส.ค. 2026</p>
-                </div>
-            </div>
-
-            <button class="contact-btn" id="modal-action-btn">
-                <i class="fa-solid fa-shop"></i> จัดการล็อค
+            <button class="btn-manage-stall" id="modal-action-btn">
+                <i class="fa-solid fa-pen-to-square"></i> แก้ไขรายละเอียดพื้นที่
+            </button>
+            <button class="btn-close-tenant-modal" onclick="closeModal()">
+                ปิดหน้าต่าง
             </button>
         </div>
     </div>
@@ -502,40 +1667,112 @@
     <!-- Edit Space Modal -->
     <div class="modal-overlay" id="editSpaceModal">
         <div class="modal-card">
-            <div class="modal-header">
-                <h2 class="modal-title">จัดการล็อค/พื้นที่เช่า</h2>
+            <div class="modal-hero-header">
+                <div class="modal-hero-left">
+                    <div class="modal-hero-icon">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </div>
+                    <div>
+                        <h2 class="modal-hero-title">แก้ไขรายละเอียดพื้นที่</h2>
+                        <p class="modal-hero-sub">ปรับปรุงหมายเลขล็อค โซน ราคา และขนาดพื้นที่</p>
+                    </div>
+                </div>
                 <button class="close-btn" onclick="closeEditSpaceModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Stall Info Banner -->
+            <div class="stall-info-banner">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="stall-code-chip" id="edit-modal-stall-tag"><i class="fa-solid fa-hashtag"></i> <span>-</span></span>
+                    <span style="font-size: 0.78rem; color: #64748b;">(ล็อคปัจจุบัน)</span>
+                </div>
+                <span class="stall-status-pill available" id="edit-modal-status-badge">ว่าง</span>
             </div>
             
             <form id="editSpaceForm" onsubmit="submitEditSpace(event)">
                 <input type="hidden" id="editSpaceId">
-                <div class="form-group">
-                    <label>ชื่อล็อค / หมายเลข (เช่น A1)</label>
-                    <input type="text" id="editSpaceNumber" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>โซน (ตัวเลือกเสริม)</label>
-                    <input type="text" id="editSpaceZone">
-                </div>
 
-                <div class="form-group">
-                    <label>ราคาเช่า/ล็อค (บาท) <span style="color:red">*</span></label>
-                    <input type="number" id="editSpacePrice" required min="0">
+                <div class="edit-form-grid">
+                    <!-- Space Number -->
+                    <div class="edit-field-group">
+                        <label class="edit-field-label"><i class="fa-solid fa-hashtag"></i> ชื่อ/หมายเลขล็อค <span class="req">*</span></label>
+                        <div class="modern-input-box">
+                            <input type="text" id="editSpaceNumber" placeholder="เช่น A-01, B-12" required>
+                        </div>
+                    </div>
+
+                    <!-- Zone -->
+                    <div class="edit-field-group">
+                        <label class="edit-field-label"><i class="fa-solid fa-layer-group"></i> โซนพื้นที่</label>
+                        <div class="modern-input-box">
+                            <input type="text" id="editSpaceZone" placeholder="เช่น โซนอาหาร, โซน A">
+                        </div>
+                        <div class="quick-tags-row" id="edit-zone-suggestions">
+                            <!-- Populated with quick zone chips -->
+                        </div>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="edit-field-group">
+                        <label class="edit-field-label"><i class="fa-solid fa-tag"></i> ราคาค่าเช่า (บาท/วัน) <span class="req">*</span></label>
+                        <div class="modern-input-box with-prefix with-suffix">
+                            <span class="input-prefix-icon">฿</span>
+                            <input type="number" id="editSpacePrice" required min="0" step="any" placeholder="0.00" oninput="updatePriceEstimate(this.value)">
+                            <span class="input-suffix-text">/ วัน</span>
+                        </div>
+                        <div class="price-hint-box" id="edit-price-estimate">
+                            <i class="fa-regular fa-lightbulb" style="color: #a46309;"></i> ประมาณการ: <b id="edit-monthly-estimate">฿0</b> / เดือน
+                        </div>
+                    </div>
+
+                    <!-- Size -->
+                    <div class="edit-field-group">
+                        <label class="edit-field-label"><i class="fa-solid fa-ruler-combined"></i> ขนาดพื้นที่</label>
+                        <div class="modern-input-box">
+                            <input type="text" id="editSpaceSize" placeholder="เช่น 2x2 เมตร">
+                        </div>
+                        <div class="quick-tags-row">
+                            <button type="button" class="quick-tag-btn" onclick="fillEditSize('2x2 ม.')">2x2 ม.</button>
+                            <button type="button" class="quick-tag-btn" onclick="fillEditSize('2.5x2.5 ม.')">2.5x2.5 ม.</button>
+                            <button type="button" class="quick-tag-btn" onclick="fillEditSize('3x3 ม.')">3x3 ม.</button>
+                            <button type="button" class="quick-tag-btn" onclick="fillEditSize('4x4 ม.')">4x4 ม.</button>
+                        </div>
+                    </div>
+
+                    <!-- Status Selector -->
+                    <div class="edit-field-group full-width">
+                        <label class="edit-field-label"><i class="fa-solid fa-circle-dot"></i> สถานะพื้นที่เช่า</label>
+                        <div class="status-toggle-grid">
+                            <label class="status-radio-card active-available" id="label-status-available" onclick="selectStatusRadio('available')">
+                                <input type="radio" name="editSpaceStatusRadio" value="available" id="status-radio-available" checked>
+                                <span class="status-dot dot-green"></span>
+                                <div>
+                                    <div class="status-text-title">ว่าง (Available)</div>
+                                    <div class="status-text-desc">พร้อมเปิดให้ผู้เช่าจองผ่านระบบ</div>
+                                </div>
+                            </label>
+                            <label class="status-radio-card" id="label-status-booked" onclick="selectStatusRadio('booked')">
+                                <input type="radio" name="editSpaceStatusRadio" value="booked" id="status-radio-booked">
+                                <span class="status-dot dot-amber"></span>
+                                <div>
+                                    <div class="status-text-title">มีผู้เช่า / จองนอกระบบ</div>
+                                    <div class="status-text-desc">มีผู้เช่าแล้ว หรือปิดจองหน้าร้าน</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label>ขนาด (ตัวเลือกเสริม)</label>
-                    <input type="text" id="editSpaceSize" placeholder="Ex. 2x2 เมตร">
-                </div>
-                
-                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                    <button type="button" id="deleteSpaceBtn" onclick="deleteSpace()" style="flex: 1; background: #fee2e2; color: #ef4444; border: 1px solid #f87171; font-weight: 600; cursor: pointer; border-radius: 10px; transition: all 0.2s; padding: 0.85rem; font-size: 1rem; font-family: inherit;">
-                        <i class="fa-solid fa-trash"></i> ลบข้อมูล
+                <div class="edit-modal-footer">
+                    <button type="button" id="deleteSpaceBtn" onclick="deleteSpace()" class="btn-danger-outline">
+                        <i class="fa-solid fa-trash-can"></i> <span>ลบล็อค</span>
                     </button>
-                    <button type="submit" class="contact-btn" id="saveEditSpaceBtn" style="flex: 1; margin-top: 0;">
-                        <i class="fa-solid fa-save"></i> บันทึกข้อมูล
-                    </button>
+                    <div class="footer-action-btns">
+                        <button type="button" class="btn-cancel-flat" onclick="closeEditSpaceModal()">ยกเลิก</button>
+                        <button type="submit" class="btn-save-primary" id="saveEditSpaceBtn">
+                            <i class="fa-solid fa-check"></i> <span>บันทึกการแก้ไข</span>
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -544,100 +1781,243 @@
     <!-- Add Space Modal -->
     <div class="modal-overlay" id="addSpaceModal">
         <div class="modal-card">
-            <div class="modal-header">
-                <h2 class="modal-title">เพิ่มล็อค/พื้นที่เช่า</h2>
-                <button class="close-btn" onclick="closeAddSpaceModal()"><i class="fa-solid fa-xmark"></i></button>
+            <!-- Hero Header -->
+            <div class="modal-hero-header">
+                <div class="modal-hero-left">
+                    <div class="modal-hero-icon">
+                        <i class="fa-solid fa-plus-circle"></i>
+                    </div>
+                    <div>
+                        <h2 class="modal-hero-title">เพิ่มล็อค / พื้นที่เช่า</h2>
+                        <p class="modal-hero-sub">เพิ่มล็อคใหม่ลงในผังตลาดของคุณ</p>
+                    </div>
+                </div>
+                <button class="close-btn" onclick="closeAddSpaceModal()" title="ปิดหน้าต่าง"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
-            <div class="modal-tabs">
-                <button class="modal-tab active" onclick="switchAddSpaceTab('single')">เพิ่มทีละล็อค</button>
-                <button class="modal-tab" onclick="switchAddSpaceTab('bulk')">เพิ่มรวดเร็ว (Bulk Add)</button>
+            <!-- Segmented Switcher -->
+            <div class="modal-segmented-tabs">
+                <button type="button" class="modal-segmented-tab active" id="tabBtnSingle" onclick="switchAddSpaceTab('single')">
+                    <i class="fa-solid fa-cube"></i> เพิ่มทีละล็อค (เดี่ยว)
+                </button>
+                <button type="button" class="modal-segmented-tab" id="tabBtnBulk" onclick="switchAddSpaceTab('bulk')">
+                    <i class="fa-solid fa-layer-group"></i> สร้างชุดล็อคอัตโนมัติ (Bulk)
+                </button>
             </div>
 
             <!-- Tab: Single -->
             <div id="tab-single" class="tab-content active">
                 <form id="addSpaceForm" onsubmit="submitAddSpace(event)">
-                    <div class="form-group">
-                        <label>ชื่อล็อค / หมายเลข (เช่น A1)</label>
-                        <input type="text" id="spaceNumber" required placeholder="Ex. A1">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>โซน (ตัวเลือกเสริม)</label>
-                        <input type="text" id="spaceZone" placeholder="Ex. โซนอาหาร">
+                    <div class="edit-form-grid">
+                        <!-- Space Number -->
+                        <div class="edit-field-group">
+                            <label class="edit-field-label">
+                                <i class="fa-solid fa-hashtag"></i> ชื่อ / เลขล็อค <span class="req">*</span>
+                            </label>
+                            <div class="modern-input-box">
+                                <input type="text" id="spaceNumber" required placeholder="เช่น A01, โซนกลาง-01">
+                            </div>
+                        </div>
+
+                        <!-- Zone -->
+                        <div class="edit-field-group">
+                            <label class="edit-field-label">
+                                <i class="fa-solid fa-map-pin"></i> โซนพื้นที่
+                            </label>
+                            <div class="modern-input-box">
+                                <input type="text" id="spaceZone" placeholder="เช่น โซนอาหาร, โซนแฟชั่น">
+                            </div>
+                            <div class="quick-tags-row" id="add-zone-suggestions"></div>
+                        </div>
+
+                        <!-- Price -->
+                        <div class="edit-field-group">
+                            <label class="edit-field-label">
+                                <i class="fa-solid fa-tag"></i> ราคาค่าเช่า (บาท/วัน) <span class="req">*</span>
+                            </label>
+                            <div class="modern-input-box with-prefix with-suffix">
+                                <span class="input-prefix-icon">฿</span>
+                                <input type="number" id="spacePrice" required placeholder="0" min="0" step="any" oninput="updateAddPriceEstimate(this.value)">
+                                <span class="input-suffix-text">/วัน</span>
+                            </div>
+                            <div class="price-hint-box" id="addPriceEstimate">
+                                <i class="fa-solid fa-calculator"></i> ~0 บาท / เดือน
+                            </div>
+                        </div>
+
+                        <!-- Size Details -->
+                        <div class="edit-field-group">
+                            <label class="edit-field-label">
+                                <i class="fa-solid fa-ruler-combined"></i> ขนาดล็อค
+                            </label>
+                            <div class="modern-input-box">
+                                <input type="text" id="spaceSize" placeholder="เช่น 2x2 เมตร">
+                            </div>
+                            <div class="quick-tags-row">
+                                <button type="button" class="quick-tag-btn" onclick="fillAddSize('2x2 ม.')">2x2 ม.</button>
+                                <button type="button" class="quick-tag-btn" onclick="fillAddSize('2.5x2.5 ม.')">2.5x2.5 ม.</button>
+                                <button type="button" class="quick-tag-btn" onclick="fillAddSize('3x3 ม.')">3x3 ม.</button>
+                                <button type="button" class="quick-tag-btn" onclick="fillAddSize('4x4 ม.')">4x4 ม.</button>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>ราคาค่าเช่า (บาท)</label>
-                        <input type="number" id="spacePrice" required placeholder="500">
+                    <div class="edit-modal-footer">
+                        <button type="button" class="btn-cancel-edit" onclick="closeAddSpaceModal()">ยกเลิก</button>
+                        <button type="submit" class="contact-btn" id="saveSpaceBtn" style="width: auto; min-width: 140px; margin: 0; padding: 0.65rem 1.4rem;">
+                            <i class="fa-solid fa-plus"></i> บันทึกสร้างล็อค
+                        </button>
                     </div>
-
-                    <div class="form-group">
-                        <label>ขนาด (ตัวเลือกเสริม)</label>
-                        <input type="text" id="spaceSize" placeholder="Ex. 2x2 เมตร">
-                    </div>
-
-                    <button type="submit" class="contact-btn" id="saveSpaceBtn">
-                        <i class="fa-solid fa-save"></i> บันทึกข้อมูล
-                    </button>
                 </form>
             </div>
 
             <!-- Tab: Bulk -->
-            <div id="tab-bulk" class="tab-content">
+            <div id="tab-bulk" class="tab-content" style="display: none;">
                 <form id="bulkAddSpaceForm" onsubmit="submitBulkAddSpace(event)">
-                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                            <label>คำนำหน้า</label>
-                            <input type="text" id="bulkPrefix" placeholder="Ex. A-">
+                    <!-- Sequence Range Inputs -->
+                    <div class="bulk-sequence-grid">
+                        <div class="edit-field-group">
+                            <label class="edit-field-label">
+                                <i class="fa-solid fa-font"></i> คำนำหน้า
+                            </label>
+                            <div class="modern-input-box">
+                                <input type="text" id="bulkPrefix" placeholder="เช่น A-" oninput="updateBulkPreview()">
+                            </div>
                         </div>
-                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                            <label>เริ่มที่เลข</label>
-                            <input type="number" id="bulkStart" required placeholder="1" min="1">
+                        <div class="edit-field-group">
+                            <label class="edit-field-label">
+                                <i class="fa-solid fa-arrow-down-1-9"></i> เริ่มเลข <span class="req">*</span>
+                            </label>
+                            <div class="modern-input-box">
+                                <input type="number" id="bulkStart" required placeholder="1" min="1" value="1" oninput="updateBulkPreview()">
+                            </div>
                         </div>
-                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                            <label>ถึงเลข</label>
-                            <input type="number" id="bulkEnd" required placeholder="10" min="1">
+                        <div class="edit-field-group">
+                            <label class="edit-field-label">
+                                <i class="fa-solid fa-arrow-up-9-1"></i> ถึงเลข <span class="req">*</span>
+                            </label>
+                            <div class="modern-input-box">
+                                <input type="number" id="bulkEnd" required placeholder="10" min="1" value="10" oninput="updateBulkPreview()">
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>โซน (ตัวเลือกเสริม)</label>
-                        <input type="text" id="bulkZone" placeholder="Ex. โซนอาหาร">
                     </div>
 
-                    <div class="form-group">
-                        <label>ราคาค่าเช่า (บาท)</label>
-                        <input type="number" id="bulkPrice" required placeholder="500" min="0">
+                    <!-- Live Calculation Preview Bar -->
+                    <div class="bulk-calc-preview-bar" id="bulkPreviewBar">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="badge-count" id="bulkPreviewCount"><i class="fa-solid fa-bolt"></i> 10 ล็อค</span>
+                            <span style="font-weight: 500;">ระบบจะสร้าง:</span>
+                        </div>
+                        <span class="preview-range" id="bulkPreviewRange">A-01 ถึง A-10</span>
                     </div>
 
-                    <div class="form-group">
-                        <label>ขนาด (ตัวเลือกเสริม)</label>
-                        <input type="text" id="bulkSize" placeholder="Ex. 2x2 เมตร">
+                    <div class="edit-form-grid">
+                        <!-- Zone -->
+                        <div class="edit-field-group">
+                            <label class="edit-field-label">
+                                <i class="fa-solid fa-map-pin"></i> โซนพื้นที่ (กำหนดทุกตัว)
+                            </label>
+                            <div class="modern-input-box">
+                                <input type="text" id="bulkZone" placeholder="เช่น โซนอาหาร">
+                            </div>
+                            <div class="quick-tags-row" id="bulk-zone-suggestions"></div>
+                        </div>
+
+                        <!-- Price -->
+                        <div class="edit-field-group">
+                            <label class="edit-field-label">
+                                <i class="fa-solid fa-tag"></i> ราคาค่าเช่า (บาท/วัน) <span class="req">*</span>
+                            </label>
+                            <div class="modern-input-box with-prefix with-suffix">
+                                <span class="input-prefix-icon">฿</span>
+                                <input type="number" id="bulkPrice" required placeholder="0" min="0" step="any" oninput="updateBulkPriceEstimate(this.value)">
+                                <span class="input-suffix-text">/วัน</span>
+                            </div>
+                            <div class="price-hint-box" id="bulkPriceEstimate">
+                                <i class="fa-solid fa-calculator"></i> ~0 บาท / เดือน
+                            </div>
+                        </div>
+
+                        <!-- Size Details -->
+                        <div class="edit-field-group full-width">
+                            <label class="edit-field-label">
+                                <i class="fa-solid fa-ruler-combined"></i> ขนาดล็อค (กำหนดทุกตัว)
+                            </label>
+                            <div class="modern-input-box">
+                                <input type="text" id="bulkSize" placeholder="เช่น 2x2 เมตร">
+                            </div>
+                            <div class="quick-tags-row">
+                                <button type="button" class="quick-tag-btn" onclick="fillBulkSize('2x2 ม.')">2x2 ม.</button>
+                                <button type="button" class="quick-tag-btn" onclick="fillBulkSize('2.5x2.5 ม.')">2.5x2.5 ม.</button>
+                                <button type="button" class="quick-tag-btn" onclick="fillBulkSize('3x3 ม.')">3x3 ม.</button>
+                                <button type="button" class="quick-tag-btn" onclick="fillBulkSize('4x4 ม.')">4x4 ม.</button>
+                            </div>
+                        </div>
                     </div>
 
-                    <button type="submit" class="contact-btn" id="saveBulkSpaceBtn">
-                        <i class="fa-solid fa-layer-group"></i> สร้างล็อคทั้งหมด
-                    </button>
+                    <div class="edit-modal-footer">
+                        <button type="button" class="btn-cancel-edit" onclick="closeAddSpaceModal()">ยกเลิก</button>
+                        <button type="submit" class="contact-btn" id="saveBulkSpaceBtn" style="width: auto; min-width: 160px; margin: 0; padding: 0.65rem 1.4rem;">
+                            <i class="fa-solid fa-layer-group"></i> สร้างชุดล็อคทั้งหมด
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Graph Modal -->
+    <!-- Enhanced Analytics Graph Modal -->
     <div class="modal-overlay" id="graphModal">
         <div class="modal-card">
             <div class="modal-header">
-                <h2 class="modal-title">สถิติสถานะล็อค</h2>
+                <div>
+                    <h2 class="modal-title" style="margin-bottom: 2px;">แดชบอร์ดสถิติ & การวิเคราะห์</h2>
+                    <p style="font-size: 0.82rem; color: var(--text-muted);" id="graph-modal-venue-name">วิเคราะห์ภาพรวมพื้นที่และรายได้</p>
+                </div>
                 <button class="close-btn" onclick="closeGraphModal()"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
-            <div style="position: relative; height: 250px; width: 100%;">
-                <canvas id="statusChart"></canvas>
+            <!-- Top KPI Metric Cards -->
+            <div class="graph-kpi-grid">
+                <div class="graph-kpi-card">
+                    <div class="graph-kpi-label"><i class="fa-solid fa-chart-pie"></i> อัตราการเช่า</div>
+                    <div class="graph-kpi-value text-amber" id="kpi-occupancy-rate">0%</div>
+                </div>
+                <div class="graph-kpi-card">
+                    <div class="graph-kpi-label"><i class="fa-solid fa-shop"></i> สถานะล็อค</div>
+                    <div class="graph-kpi-value" style="font-size: 1.05rem;"><span class="text-emerald" id="kpi-vacant-count">0</span> ว่าง / <span class="text-amber" id="kpi-rented-count">0</span> เช่า</div>
+                </div>
+                <div class="graph-kpi-card">
+                    <div class="graph-kpi-label"><i class="fa-solid fa-sack-dollar"></i> รายได้ปัจจุบัน/วัน</div>
+                    <div class="graph-kpi-value text-emerald" style="font-size: 1.05rem;" id="kpi-current-rev">฿0</div>
+                </div>
+                <div class="graph-kpi-card">
+                    <div class="graph-kpi-label"><i class="fa-solid fa-gem"></i> ศักยภาพเต็ม/วัน</div>
+                    <div class="graph-kpi-value" style="font-size: 1.05rem;" id="kpi-max-rev">฿0</div>
+                </div>
             </div>
-            
-            <div style="margin-top: 1.5rem; text-align: center; font-size: 0.95rem; color: var(--text-muted);">
-                <p>รวมทั้งหมด <strong id="total-graph-count">0</strong> ล็อค</p>
+
+            <!-- Tab Navigation for Analytics Charts -->
+            <div class="graph-tabs">
+                <button class="graph-tab-btn active" id="tab-btn-occupancy" onclick="switchGraphTab('occupancy')">
+                    <i class="fa-solid fa-chart-pie"></i> ภาพรวมสถานะ
+                </button>
+                <button class="graph-tab-btn" id="tab-btn-zone" onclick="switchGraphTab('zone')">
+                    <i class="fa-solid fa-chart-column"></i> เปรียบเทียบตามโซน
+                </button>
+                <button class="graph-tab-btn" id="tab-btn-revenue" onclick="switchGraphTab('revenue')">
+                    <i class="fa-solid fa-money-bill-trend-up"></i> วิเคราะห์รายได้
+                </button>
+            </div>
+
+            <!-- Chart Display Area -->
+            <div class="chart-container-box">
+                <canvas id="analyticsChart"></canvas>
+            </div>
+
+            <!-- Tab Summary Breakdown Table / Notes -->
+            <div id="chart-extra-details">
+                <!-- Dynamically updated per tab -->
             </div>
         </div>
     </div>
@@ -646,7 +2026,15 @@
     <script>
         let currentVenueId = null;
         let globalSpaces = [];
-        let statusChartInstance = null;
+        let activeBookings = [];
+        let currentFilter = 'all'; // 'all', 'vacant', 'rented'
+        let currentZone = 'all';   // 'all' or specific zone string
+        let currentSearch = '';
+        let currentSort = 'number-asc';
+        let currentViewMode = 'grouped'; // 'grouped' or 'flat'
+        let analyticsChartInstance = null;
+        let currentGraphTab = 'occupancy'; // 'occupancy', 'zone', 'revenue'
+        let venueName = '';
 
         // 1. Check Auth & Init
         async function initPage() {
@@ -661,8 +2049,16 @@
             currentVenueId = urlParams.get('id');
 
             if (!currentVenueId) {
-                alert('ไม่พบข้อมูลสถานที่');
-                window.location.href = 'main_owner.html';
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ไม่พบข้อมูลสถานที่',
+                    text: 'ไม่พบข้อมูลสถานที่ กรุณาเลือกสถานที่จากหน้ารายการครับ',
+                    confirmButtonText: 'กลับหน้ารายการ',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                }).then(() => {
+                    window.location.href = 'main_owner.html';
+                });
                 return;
             }
 
@@ -681,7 +2077,11 @@
                 
                 if (error) throw error;
                 if (data) {
-                    document.getElementById('venue-name-display').innerText = data.name + ' (ของฉัน)';
+                    venueName = data.name || '';
+                    document.getElementById('venue-name-display').innerText = venueName + ' (ของฉัน)';
+                    const modalVenueTitle = document.getElementById('graph-modal-venue-name');
+                    if (modalVenueTitle) modalVenueTitle.innerText = `วิเคราะห์ภาพรวม: ${venueName}`;
+
                     if (data.map_image_url) {
                         document.getElementById('blueprint-section').style.display = 'block';
                         document.getElementById('blueprint-image').src = data.map_image_url;
@@ -692,7 +2092,7 @@
             }
         }
 
-        // 3. Load Spaces
+        // 3. Load Spaces & Active Bookings
         async function loadSpaces() {
             try {
                 const { data, error } = await supabaseClient
@@ -703,79 +2103,298 @@
                 
                 if (error) throw error;
                 globalSpaces = data || [];
-                renderSpaces('all');
+
+                // Fetch active bookings for real tenant info
+                activeBookings = [];
+                const spaceIds = globalSpaces.map(s => s.id);
+                if (spaceIds.length > 0) {
+                    try {
+                        const { data: bookingsData } = await supabaseClient
+                            .from('bookings')
+                            .select('id, space_id, status, created_at, profiles(first_name, last_name, phone)')
+                            .in('space_id', spaceIds)
+                            .in('status', ['confirmed', 'approved', 'pending'])
+                            .order('created_at', { ascending: false });
+
+                        if (bookingsData) {
+                            activeBookings = bookingsData;
+                        }
+                    } catch (bErr) {
+                        console.warn("Could not fetch active bookings:", bErr);
+                    }
+                }
+
+                renderZoneChips();
+                renderSpaces();
             } catch (err) {
                 console.error("Error loading spaces:", err);
             }
         }
 
-        // 4. Render Spaces
-        function renderSpaces(filterType) {
-            const grid = document.getElementById('spaces-grid');
-            grid.innerHTML = '';
+        // 4. Dynamic Zone Chips
+        function renderZoneChips() {
+            const container = document.getElementById('zone-chips-container');
+            if (!container) return;
 
-            let countAll = 0;
-            let countVacant = 0;
-            let countRented = 0;
+            const realSpaces = globalSpaces.filter(s => 
+                s.status !== 'label' && 
+                (!s.map_data || !s.map_data.isLabel) && 
+                (!s.space_number || !s.space_number.startsWith('LABEL_'))
+            );
 
-            globalSpaces.forEach(space => {
-                if (space.status === 'label' || (space.map_data && space.map_data.isLabel) || (space.space_number && space.space_number.startsWith('LABEL_'))) return;
-                countAll++;
-                if (space.status === 'available') countVacant++;
-                if (space.status === 'booked' || space.status === 'rented') countRented++; // Handle both booked and rented
+            const zoneMap = {};
+            realSpaces.forEach(s => {
+                const z = (s.zone && s.zone.trim()) ? s.zone.trim() : 'ไม่ระบุโซน';
+                zoneMap[z] = (zoneMap[z] || 0) + 1;
             });
 
-            document.getElementById('count-all').innerText = countAll;
-            document.getElementById('count-vacant').innerText = countVacant;
-            document.getElementById('count-rented').innerText = countRented;
+            const uniqueZones = Object.keys(zoneMap).sort();
 
-            // Filter logic
-            const filtered = globalSpaces.filter(space => {
-                if (space.status === 'label' || (space.map_data && space.map_data.isLabel) || (space.space_number && space.space_number.startsWith('LABEL_'))) return false;
-                if (filterType === 'all') return true;
-                if (filterType === 'vacant') return space.status === 'available';
-                if (filterType === 'rented') return space.status === 'booked' || space.status === 'rented';
+            let html = `
+                <button class="filter-chip ${currentZone === 'all' ? 'active' : ''}" onclick="setZoneFilter('all')">
+                    ทุกโซน <span class="chip-badge">${realSpaces.length}</span>
+                </button>
+            `;
+
+            uniqueZones.forEach(z => {
+                const isActive = currentZone === z;
+                html += `
+                    <button class="filter-chip ${isActive ? 'active' : ''}" onclick="setZoneFilter('${z.replace(/'/g, "\\'")}')">
+                        ${z} <span class="chip-badge">${zoneMap[z]}</span>
+                    </button>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // 5. Sort Spaces Utility
+        function sortSpacesList(list) {
+            const arr = [...list];
+            arr.sort((a, b) => {
+                if (currentSort === 'number-asc') {
+                    return (a.space_number || '').localeCompare(b.space_number || '', undefined, { numeric: true, sensitivity: 'base' });
+                } else if (currentSort === 'number-desc') {
+                    return (b.space_number || '').localeCompare(a.space_number || '', undefined, { numeric: true, sensitivity: 'base' });
+                } else if (currentSort === 'price-asc') {
+                    return (Number(a.price) || 0) - (Number(b.price) || 0);
+                } else if (currentSort === 'price-desc') {
+                    return (Number(b.price) || 0) - (Number(a.price) || 0);
+                } else if (currentSort === 'status-vacant') {
+                    const aVal = a.status === 'available' ? 0 : 1;
+                    const bVal = b.status === 'available' ? 0 : 1;
+                    return aVal - bVal;
+                } else if (currentSort === 'status-rented') {
+                    const aVal = (a.status === 'booked' || a.status === 'rented') ? 0 : 1;
+                    const bVal = (b.status === 'booked' || b.status === 'rented') ? 0 : 1;
+                    return aVal - bVal;
+                }
+                return 0;
+            });
+            return arr;
+        }
+
+        // 6. Build Stall Card HTML
+        function buildStallCardHtml(space) {
+            const isVacant = space.status === 'available';
+            const statusClass = isVacant ? 'status-vacant' : 'status-rented';
+            const statusText = isVacant ? 'ว่าง' : 'เช่าแล้ว';
+            const priceFmt = (Number(space.price) || 0).toLocaleString();
+
+            let tenantBadgeHtml = '';
+            if (!isVacant) {
+                const booking = activeBookings.find(b => b.space_id === space.id);
+                if (booking && booking.profiles) {
+                    const fullName = `${booking.profiles.first_name || ''} ${booking.profiles.last_name || ''}`.trim() || 'ผู้เช่า';
+                    tenantBadgeHtml = `<div class="tenant-badge-row" title="ผู้เช่า: ${fullName}"><i class="fa-solid fa-user"></i> <span>${fullName}</span></div>`;
+                } else {
+                    tenantBadgeHtml = `<div class="tenant-badge-row" title="เช่าแล้ว"><i class="fa-solid fa-user-check"></i> <span>มีผู้เช่าแล้ว</span></div>`;
+                }
+            }
+
+            const zoneName = space.zone ? space.zone : 'ไม่ระบุโซน';
+
+            return `
+                <div class="stall-card ${isVacant ? 'vacant' : 'rented'}" onclick="openSpaceDetail('${space.id}')">
+                    <div class="stall-header">
+                        <span class="stall-id">${space.space_number}</span>
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </div>
+                    ${tenantBadgeHtml}
+                    <div class="stall-meta-row">
+                        <span class="stall-price">฿${priceFmt}/วัน</span>
+                        <span class="zone-pill-mini"><i class="fa-solid fa-layer-group"></i> ${zoneName}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 7. Render Spaces (Supports Grouped by Zone & Flat Grid)
+        function renderSpaces() {
+            const container = document.getElementById('spaces-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const realSpaces = globalSpaces.filter(space => 
+                space.status !== 'label' && 
+                (!space.map_data || !space.map_data.isLabel) && 
+                (!space.space_number || !space.space_number.startsWith('LABEL_'))
+            );
+
+            let countAll = realSpaces.length;
+            let countVacant = realSpaces.filter(s => s.status === 'available').length;
+            let countRented = realSpaces.filter(s => s.status === 'booked' || s.status === 'rented').length;
+
+            const countAllEl = document.getElementById('count-all');
+            const countVacantEl = document.getElementById('count-vacant');
+            const countRentedEl = document.getElementById('count-rented');
+            if (countAllEl) countAllEl.innerText = countAll;
+            if (countVacantEl) countVacantEl.innerText = countVacant;
+            if (countRentedEl) countRentedEl.innerText = countRented;
+
+            let filtered = realSpaces.filter(space => {
+                if (currentFilter === 'vacant' && space.status !== 'available') return false;
+                if (currentFilter === 'rented' && space.status !== 'booked' && space.status !== 'rented') return false;
+
+                if (currentZone !== 'all') {
+                    const spaceZone = (space.zone && space.zone.trim()) ? space.zone.trim() : 'ไม่ระบุโซน';
+                    if (spaceZone !== currentZone) return false;
+                }
+
+                if (currentSearch) {
+                    const term = currentSearch.toLowerCase();
+                    const numMatch = (space.space_number || '').toLowerCase().includes(term);
+                    const zoneMatch = (space.zone || '').toLowerCase().includes(term);
+                    if (!numMatch && !zoneMatch) return false;
+                }
+
                 return true;
             });
 
             if (filtered.length === 0) {
-                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2rem;">ไม่พบข้อมูลล็อค</p>';
+                container.innerHTML = `
+                    <div style="text-align: center; color: var(--text-muted); padding: 3rem 1.5rem; background: white; border-radius: 18px; margin: 0 1.5rem; border: 1px dashed #cbd5e1;">
+                        <i class="fa-solid fa-store-slash" style="font-size: 2.5rem; color: #94a3b8; margin-bottom: 0.75rem;"></i>
+                        <p style="font-size: 1rem; font-weight: 500; color: #475569;">ไม่พบล็อคพื้นที่เช่าที่ตรงตามเงื่อนไข</p>
+                        <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 4px;">ลองเปลี่ยนตัวกรอง ค้นหาคำใหม่ หรือกดปุ่ม "เพิ่มล็อค" ด้านบน</p>
+                    </div>
+                `;
                 return;
             }
 
-            filtered.forEach(space => {
-                const isVacant = space.status === 'available';
-                const statusClass = isVacant ? 'status-vacant' : 'status-rented';
-                const statusText = isVacant ? 'ว่าง' : 'เช่าแล้ว';
-                const priceFmt = new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(space.price);
+            if (currentViewMode === 'grouped') {
+                const zoneGroups = {};
+                filtered.forEach(space => {
+                    const z = (space.zone && space.zone.trim()) ? space.zone.trim() : 'ไม่ระบุโซน';
+                    if (!zoneGroups[z]) zoneGroups[z] = [];
+                    zoneGroups[z].push(space);
+                });
 
-                const cardHtml = `
-                    <div class="stall-card ${isVacant ? 'vacant' : 'rented'}" onclick="openSpaceDetail('${space.id}')">
-                        <div class="stall-header">
-                            <span class="stall-id">${space.space_number}</span>
-                            <span class="status-badge ${statusClass}">${statusText}</span>
+                const sortedZones = Object.keys(zoneGroups).sort();
+
+                sortedZones.forEach(z => {
+                    const spacesInZone = sortSpacesList(zoneGroups[z]);
+                    const zoneTotal = spacesInZone.length;
+                    const zoneVacant = spacesInZone.filter(s => s.status === 'available').length;
+                    const zoneRented = spacesInZone.filter(s => s.status === 'booked' || s.status === 'rented').length;
+                    const zoneOccupancy = zoneTotal > 0 ? Math.round((zoneRented / zoneTotal) * 100) : 0;
+
+                    let cardsHtml = '';
+                    spacesInZone.forEach(space => {
+                        cardsHtml += buildStallCardHtml(space);
+                    });
+
+                    const groupCardHtml = `
+                        <div class="zone-group-card">
+                            <div class="zone-group-header">
+                                <div class="zone-group-title">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    <span>${z}</span>
+                                    <span class="zone-badge-count">${zoneTotal} ล็อค</span>
+                                </div>
+                                <div class="zone-group-stats">
+                                    <span class="stat-pill vacant"><i class="fa-solid fa-circle-check"></i> ว่าง ${zoneVacant}</span>
+                                    <span class="stat-pill rented"><i class="fa-solid fa-user-check"></i> เช่าแล้ว ${zoneRented}</span>
+                                    <span class="stat-pill occupancy">${zoneOccupancy}% จองแล้ว</span>
+                                </div>
+                            </div>
+                            <div class="zone-progress-track">
+                                <div class="zone-progress-fill" style="width: ${zoneOccupancy}%;"></div>
+                            </div>
+                            <div class="zone-stalls-grid">
+                                ${cardsHtml}
+                            </div>
                         </div>
-                        <div class="tenant-info" style="color: ${isVacant ? 'var(--text-muted)' : 'var(--text-main)'};">
-                            <i class="fa-solid fa-sack-dollar"></i> ${priceFmt}
-                        </div>
-                        <div class="expiry-info">
-                            <i class="fa-solid fa-layer-group"></i> ${space.zone ? space.zone : 'ไม่ระบุโซน'}
-                        </div>
+                    `;
+
+                    container.innerHTML += groupCardHtml;
+                });
+
+            } else {
+                const sortedSpaces = sortSpacesList(filtered);
+                let cardsHtml = '';
+                sortedSpaces.forEach(space => {
+                    cardsHtml += buildStallCardHtml(space);
+                });
+
+                container.innerHTML = `
+                    <div class="stall-grid" id="spaces-flat-grid">
+                        ${cardsHtml}
                     </div>
                 `;
-                grid.innerHTML += cardHtml;
+            }
+        }
+
+        // 8. Filter Handlers
+        function setStatusFilter(filterType) {
+            currentFilter = filterType;
+            ['all', 'vacant', 'rented'].forEach(type => {
+                const el = document.getElementById(`chip-status-${type}`);
+                if (el) {
+                    if (type === filterType) el.classList.add('active');
+                    else el.classList.remove('active');
+                }
             });
+            renderSpaces();
         }
 
-        function setFilter(btn, filterType) {
-            document.querySelectorAll('.filter-chip').forEach(el => el.classList.remove('active'));
-            btn.classList.add('active');
-            renderSpaces(filterType);
+        function setZoneFilter(zone) {
+            currentZone = zone;
+            renderZoneChips();
+            renderSpaces();
         }
 
-        // Add Space Logic
+        function handleSearchChange(val) {
+            currentSearch = (val || '').trim();
+            renderSpaces();
+        }
+
+        function handleSortChange(sortVal) {
+            currentSort = sortVal;
+            renderSpaces();
+        }
+
+        function setViewMode(mode) {
+            currentViewMode = mode;
+            const btnGrouped = document.getElementById('btn-view-grouped');
+            const btnFlat = document.getElementById('btn-view-flat');
+            if (btnGrouped && btnFlat) {
+                if (mode === 'grouped') {
+                    btnGrouped.classList.add('active');
+                    btnFlat.classList.remove('active');
+                } else {
+                    btnFlat.classList.add('active');
+                    btnGrouped.classList.remove('active');
+                }
+            }
+            renderSpaces();
+        }
+
+        // Add Space Logic & Enhancements
         function openAddSpaceModal() {
             document.getElementById('addSpaceModal').classList.add('active');
+            populateZoneSuggestions();
+            updateBulkPreview();
         }
 
         function closeAddSpaceModal() {
@@ -783,19 +2402,139 @@
             document.getElementById('addSpaceForm').reset();
             const bulkForm = document.getElementById('bulkAddSpaceForm');
             if (bulkForm) bulkForm.reset();
+            updateAddPriceEstimate(0);
+            updateBulkPriceEstimate(0);
         }
 
         function switchAddSpaceTab(tab) {
-            document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
+            const btnSingle = document.getElementById('tabBtnSingle');
+            const btnBulk = document.getElementById('tabBtnBulk');
+            const contentSingle = document.getElementById('tab-single');
+            const contentBulk = document.getElementById('tab-bulk');
+
             if (tab === 'single') {
-                document.querySelectorAll('.modal-tab')[0].classList.add('active');
-                document.getElementById('tab-single').classList.add('active');
+                if (btnSingle) btnSingle.classList.add('active');
+                if (btnBulk) btnBulk.classList.remove('active');
+                if (contentSingle) {
+                    contentSingle.style.display = 'block';
+                    contentSingle.classList.add('active');
+                }
+                if (contentBulk) {
+                    contentBulk.style.display = 'none';
+                    contentBulk.classList.remove('active');
+                }
             } else {
-                document.querySelectorAll('.modal-tab')[1].classList.add('active');
-                document.getElementById('tab-bulk').classList.add('active');
+                if (btnBulk) btnBulk.classList.add('active');
+                if (btnSingle) btnSingle.classList.remove('active');
+                if (contentBulk) {
+                    contentBulk.style.display = 'block';
+                    contentBulk.classList.add('active');
+                }
+                if (contentSingle) {
+                    contentSingle.style.display = 'none';
+                    contentSingle.classList.remove('active');
+                }
+                updateBulkPreview();
             }
+        }
+
+        function fillAddSize(val) {
+            const el = document.getElementById('spaceSize');
+            if (el) el.value = val;
+        }
+
+        function fillBulkSize(val) {
+            const el = document.getElementById('bulkSize');
+            if (el) el.value = val;
+        }
+
+        function fillAddZone(val) {
+            const el = document.getElementById('spaceZone');
+            if (el) el.value = val;
+        }
+
+        function fillBulkZone(val) {
+            const el = document.getElementById('bulkZone');
+            if (el) el.value = val;
+        }
+
+        function updateAddPriceEstimate(val) {
+            const num = parseFloat(val) || 0;
+            const monthly = num * 30;
+            const el = document.getElementById('addPriceEstimate');
+            if (el) {
+                el.innerHTML = `<i class="fa-solid fa-calculator"></i> ~<b>${monthly.toLocaleString()}</b> บาท / เดือน (30 วัน)`;
+            }
+        }
+
+        function updateBulkPriceEstimate(val) {
+            const num = parseFloat(val) || 0;
+            const monthly = num * 30;
+            const el = document.getElementById('bulkPriceEstimate');
+            if (el) {
+                el.innerHTML = `<i class="fa-solid fa-calculator"></i> ~<b>${monthly.toLocaleString()}</b> บาท / เดือน (30 วัน)`;
+            }
+        }
+
+        function updateBulkPreview() {
+            const prefix = document.getElementById('bulkPrefix') ? document.getElementById('bulkPrefix').value : '';
+            const startVal = document.getElementById('bulkStart') ? parseInt(document.getElementById('bulkStart').value) : 1;
+            const endVal = document.getElementById('bulkEnd') ? parseInt(document.getElementById('bulkEnd').value) : 10;
+            const countEl = document.getElementById('bulkPreviewCount');
+            const rangeEl = document.getElementById('bulkPreviewRange');
+            const barEl = document.getElementById('bulkPreviewBar');
+
+            if (isNaN(startVal) || isNaN(endVal) || startVal < 1 || endVal < 1 || startVal > endVal) {
+                if (countEl) countEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ไม่ถูกต้อง';
+                if (rangeEl) rangeEl.innerText = 'เลขเริ่มต้นต้องน้อยกว่าหรือเท่ากับเลขสิ้นสุด';
+                if (barEl) {
+                    barEl.style.background = '#fef2f2';
+                    barEl.style.borderColor = '#f87171';
+                    barEl.style.color = '#991b1b';
+                }
+                return;
+            }
+
+            const total = (endVal - startVal) + 1;
+            if (barEl) {
+                barEl.style.background = '#fefce8';
+                barEl.style.borderColor = '#f59e0b';
+                barEl.style.color = '#78350f';
+            }
+            if (countEl) countEl.innerHTML = `<i class="fa-solid fa-bolt"></i> ${total} ล็อค`;
+
+            const sFmt = prefix + startVal.toString().padStart(2, '0');
+            const eFmt = prefix + endVal.toString().padStart(2, '0');
+            if (rangeEl) {
+                if (total === 1) {
+                    rangeEl.innerText = sFmt;
+                } else {
+                    rangeEl.innerText = `${sFmt} ถึง ${eFmt}`;
+                }
+            }
+        }
+
+        function populateZoneSuggestions() {
+            const zones = [...new Set(globalSpaces.map(s => (s.zone || '').trim()).filter(Boolean))];
+            const addCont = document.getElementById('add-zone-suggestions');
+            const bulkCont = document.getElementById('bulk-zone-suggestions');
+
+            if (!zones || zones.length === 0) {
+                if (addCont) addCont.innerHTML = '';
+                if (bulkCont) bulkCont.innerHTML = '';
+                return;
+            }
+
+            let chipsHtmlAdd = '';
+            let chipsHtmlBulk = '';
+            zones.forEach(z => {
+                const safeZ = z.replace(/'/g, "\\'");
+                chipsHtmlAdd += `<button type="button" class="quick-tag-btn" onclick="fillAddZone('${safeZ}')"><i class="fa-solid fa-tag"></i> ${z}</button>`;
+                chipsHtmlBulk += `<button type="button" class="quick-tag-btn" onclick="fillBulkZone('${safeZ}')"><i class="fa-solid fa-tag"></i> ${z}</button>`;
+            });
+
+            if (addCont) addCont.innerHTML = chipsHtmlAdd;
+            if (bulkCont) bulkCont.innerHTML = chipsHtmlBulk;
         }
 
         async function submitAddSpace(e) {
@@ -806,10 +2545,10 @@
 
             const spaceData = {
                 venue_id: currentVenueId,
-                space_number: document.getElementById('spaceNumber').value,
-                zone: document.getElementById('spaceZone').value || null,
+                space_number: document.getElementById('spaceNumber').value.trim(),
+                zone: document.getElementById('spaceZone').value.trim() || null,
                 price: parseFloat(document.getElementById('spacePrice').value),
-                size_details: document.getElementById('spaceSize').value || null,
+                size_details: document.getElementById('spaceSize').value.trim() || null,
                 status: 'available'
             };
 
@@ -818,13 +2557,28 @@
                 if (error) throw error;
                 closeAddSpaceModal();
                 await loadSpaces(); // Refresh
-                alert('สร้างล็อคสำเร็จ');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สร้างล็อคสำเร็จ!',
+                    text: `สร้างล็อค ${spaceData.space_number} เรียบร้อยแล้ว`,
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' },
+                    timer: 2000
+                });
             } catch (err) {
                 console.error(err);
-                alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + err.message,
+                    confirmButtonText: 'ลองใหม่อีกครั้ง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-save"></i> บันทึกข้อมูล';
+                btn.innerHTML = '<i class="fa-solid fa-plus"></i> บันทึกสร้างล็อค';
             }
         }
 
@@ -832,19 +2586,26 @@
             e.preventDefault();
             const btn = document.getElementById('saveBulkSpaceBtn');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังสร้าง...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังสร้างชุดล็อค...';
 
             const prefix = document.getElementById('bulkPrefix').value;
             const start = parseInt(document.getElementById('bulkStart').value);
             const end = parseInt(document.getElementById('bulkEnd').value);
-            const zone = document.getElementById('bulkZone').value || null;
+            const zone = document.getElementById('bulkZone').value.trim() || null;
             const price = parseFloat(document.getElementById('bulkPrice').value);
-            const sizeDetails = document.getElementById('bulkSize').value || null;
+            const sizeDetails = document.getElementById('bulkSize').value.trim() || null;
 
             if (start > end) {
-                alert('หมายเลขเริ่มต้นต้องน้อยกว่าหรือเท่ากับหมายเลขสิ้นสุด');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ลำดับหมายเลขไม่ถูกต้อง',
+                    text: 'หมายเลขเริ่มต้นต้องน้อยกว่าหรือเท่ากับหมายเลขสิ้นสุดครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-layer-group"></i> สร้างล็อคทั้งหมด';
+                btn.innerHTML = '<i class="fa-solid fa-layer-group"></i> สร้างชุดล็อคทั้งหมด';
                 return;
             }
 
@@ -866,33 +2627,136 @@
                 if (error) throw error;
                 closeAddSpaceModal();
                 await loadSpaces(); // Refresh
-                alert(`สร้างสำเร็จ ${spaces.length} ล็อค`);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สร้างชุดล็อคสำเร็จ!',
+                    text: `สร้างล็อคสำเร็จทั้งหมด ${spaces.length} ล็อค (${spaces[0].space_number} ถึง ${spaces[spaces.length - 1].space_number})`,
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' },
+                    timer: 2200
+                });
             } catch (err) {
                 console.error(err);
-                alert('เกิดข้อผิดพลาดในการสร้างล็อคแบบรวดเร็ว');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการสร้างล็อคแบบรวดเร็ว: ' + err.message,
+                    confirmButtonText: 'ลองใหม่อีกครั้ง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-layer-group"></i> สร้างล็อคทั้งหมด';
+                btn.innerHTML = '<i class="fa-solid fa-layer-group"></i> สร้างชุดล็อคทั้งหมด';
             }
         }
 
-        // Detail Modal (Read-only for now)
+        // Detail Modal with Real Tenant Information
         function openSpaceDetail(spaceId) {
             const space = globalSpaces.find(s => s.id === spaceId);
-            if(!space) return;
+            if (!space) return;
 
-            document.getElementById('modal-stall-id').innerText = space.space_number;
-            document.getElementById('modal-tenant-name').innerText = space.status === 'available' ? 'ยังไม่มีผู้เช่า' : 'เช่าแล้ว (รอการพัฒนาข้อมูลผู้เช่า)';
-            document.getElementById('modal-tenant-phone').innerText = space.price + ' บาท';
-            document.getElementById('modal-tenant-expiry').innerText = space.size_details || 'ไม่ระบุขนาด';
+            document.getElementById('modal-stall-id').innerText = space.space_number || '-';
+            const subTitleEl = document.getElementById('modal-venue-sub-title');
+            if (subTitleEl) subTitleEl.innerText = venueName ? `${venueName} • ข้อมูลล็อคและผู้เช่า` : 'ข้อมูลล็อคและสถานะผู้เช่า';
+            
+            const isVacant = space.status === 'available';
+            const statusBadge = document.getElementById('modal-stall-status-badge');
+            if (statusBadge) {
+                statusBadge.className = `stall-status-pill ${isVacant ? 'available' : 'rented'}`;
+                statusBadge.innerText = isVacant ? 'ว่าง' : 'เช่าแล้ว';
+            }
+
+            const vacantView = document.getElementById('tenant-vacant-view');
+            const rentedView = document.getElementById('tenant-rented-view');
+
+            if (isVacant) {
+                if (vacantView) vacantView.style.display = 'block';
+                if (rentedView) rentedView.style.display = 'none';
+
+                const priceEl = document.getElementById('modal-stall-price-val');
+                const zoneEl = document.getElementById('modal-stall-zone-val');
+                const sizeEl = document.getElementById('modal-stall-size-val');
+
+                if (priceEl) priceEl.innerText = `฿${(Number(space.price) || 0).toLocaleString()} / วัน`;
+                if (zoneEl) zoneEl.innerText = space.zone ? `โซน: ${space.zone}` : 'ไม่ระบุโซน';
+                if (sizeEl) sizeEl.innerText = space.size_details ? `ขนาด: ${space.size_details}` : 'ไม่ระบุขนาด';
+            } else {
+                if (vacantView) vacantView.style.display = 'none';
+                if (rentedView) rentedView.style.display = 'block';
+
+                const booking = activeBookings.find(b => b.space_id === space.id);
+                const nameEl = document.getElementById('modal-tenant-name');
+                const phoneLink = document.getElementById('modal-tenant-phone-link');
+                const dateEl = document.getElementById('modal-booking-date');
+                const priceEl = document.getElementById('modal-booking-price');
+                const zoneEl = document.getElementById('modal-booking-zone');
+                const sizeEl = document.getElementById('modal-booking-size');
+
+                if (booking && booking.profiles) {
+                    const fullName = `${booking.profiles.first_name || ''} ${booking.profiles.last_name || ''}`.trim() || 'ผู้เช่า';
+                    const phone = booking.profiles.phone || 'ไม่ระบุเบอร์โทร';
+                    if (nameEl) nameEl.innerText = fullName;
+                    if (phoneLink) {
+                        phoneLink.href = `tel:${phone}`;
+                        phoneLink.querySelector('span').innerText = phone;
+                    }
+                    const bookedDate = booking.created_at ? new Date(booking.created_at).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }) : '-';
+                    if (dateEl) dateEl.innerText = bookedDate;
+                } else {
+                    if (nameEl) nameEl.innerText = 'เช่าแล้ว (จองผ่านระบบ / นอกระบบ)';
+                    if (phoneLink) {
+                        phoneLink.href = '#';
+                        phoneLink.querySelector('span').innerText = 'ไม่ระบุเบอร์โทร';
+                    }
+                    if (dateEl) dateEl.innerText = '-';
+                }
+
+                if (priceEl) priceEl.innerText = `฿${(Number(space.price) || 0).toLocaleString()} / วัน`;
+                if (zoneEl) zoneEl.innerText = space.zone || 'ไม่ระบุ';
+                if (sizeEl) sizeEl.innerText = space.size_details || 'ไม่ระบุ';
+            }
             
             document.getElementById('modal-action-btn').onclick = () => openEditSpaceModal(space.id);
-            
             document.getElementById('tenantModal').classList.add('active');
         }
 
         function closeModal() {
             document.getElementById('tenantModal').classList.remove('active');
+        }
+
+        // Helper functions for Edit Modal
+        function selectStatusRadio(val) {
+            const radioAvail = document.getElementById('status-radio-available');
+            const radioBooked = document.getElementById('status-radio-booked');
+            const labelAvail = document.getElementById('label-status-available');
+            const labelBooked = document.getElementById('label-status-booked');
+            if (val === 'available') {
+                if (radioAvail) radioAvail.checked = true;
+                if (labelAvail) labelAvail.classList.add('active-available');
+                if (labelBooked) labelBooked.classList.remove('active-booked');
+            } else {
+                if (radioBooked) radioBooked.checked = true;
+                if (labelBooked) labelBooked.classList.add('active-booked');
+                if (labelAvail) labelAvail.classList.remove('active-available');
+            }
+        }
+
+        function fillEditZone(zone) {
+            const el = document.getElementById('editSpaceZone');
+            if (el) el.value = zone;
+        }
+
+        function fillEditSize(size) {
+            const el = document.getElementById('editSpaceSize');
+            if (el) el.value = size;
+        }
+
+        function updatePriceEstimate(val) {
+            const monthly = Math.round((Number(val) || 0) * 30);
+            const el = document.getElementById('edit-monthly-estimate');
+            if (el) el.innerText = '฿' + monthly.toLocaleString();
         }
         
         // Edit Space Logic
@@ -907,16 +2771,39 @@
             document.getElementById('editSpaceZone').value = space.zone || '';
             document.getElementById('editSpacePrice').value = space.price || 0;
             document.getElementById('editSpaceSize').value = space.size_details || '';
+
+            // Header Banner
+            const stallTagSpan = document.querySelector('#edit-modal-stall-tag span');
+            if (stallTagSpan) stallTagSpan.innerText = space.space_number || '-';
+
+            const isAvail = space.status === 'available';
+            const badgeEl = document.getElementById('edit-modal-status-badge');
+            if (badgeEl) {
+                badgeEl.className = `stall-status-pill ${isAvail ? 'available' : 'rented'}`;
+                badgeEl.innerText = isAvail ? 'ว่าง' : 'เช่าแล้ว';
+            }
+
+            selectStatusRadio(isAvail ? 'available' : 'booked');
+            updatePriceEstimate(space.price || 0);
+
+            // Populate dynamic zone suggestion chips
+            const uniqueZones = [...new Set(globalSpaces.map(s => s.zone).filter(Boolean))];
+            const chipsEl = document.getElementById('edit-zone-suggestions');
+            if (chipsEl) {
+                if (uniqueZones.length > 0) {
+                    chipsEl.innerHTML = uniqueZones.map(z => `<button type="button" class="quick-tag-btn" onclick="fillEditZone('${z.replace(/'/g, "\\'")}')">+ ${z}</button>`).join('');
+                } else {
+                    chipsEl.innerHTML = '';
+                }
+            }
             
             const deleteBtn = document.getElementById('deleteSpaceBtn');
             if (space.status !== 'available') {
                 deleteBtn.disabled = true;
-                deleteBtn.style.opacity = '0.5';
                 deleteBtn.title = 'ไม่สามารถลบล็อคที่มีการจองหรือเช่าอยู่ได้';
             } else {
                 deleteBtn.disabled = false;
-                deleteBtn.style.opacity = '1';
-                deleteBtn.title = '';
+                deleteBtn.title = 'ลบล็อคนี้ออกจากระบบ';
             }
             
             document.getElementById('editSpaceModal').classList.add('active');
@@ -934,11 +2821,15 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
             
             const spaceId = document.getElementById('editSpaceId').value;
+            const selectedRadio = document.querySelector('input[name="editSpaceStatusRadio"]:checked');
+            const selectedStatus = selectedRadio ? selectedRadio.value : 'available';
+
             const updateData = {
-                space_number: document.getElementById('editSpaceNumber').value,
-                zone: document.getElementById('editSpaceZone').value || null,
-                price: parseFloat(document.getElementById('editSpacePrice').value),
-                size_details: document.getElementById('editSpaceSize').value || null
+                space_number: document.getElementById('editSpaceNumber').value.trim(),
+                zone: document.getElementById('editSpaceZone').value.trim() || null,
+                price: parseFloat(document.getElementById('editSpacePrice').value) || 0,
+                size_details: document.getElementById('editSpaceSize').value.trim() || null,
+                status: selectedStatus
             };
             
             try {
@@ -959,19 +2850,46 @@
                 
                 closeEditSpaceModal();
                 await loadSpaces();
-                alert('แก้ไขข้อมูลสำเร็จ');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'แก้ไขสำเร็จ!',
+                    text: `แก้ไขข้อมูลล็อค ${updateData.space_number} เรียบร้อยแล้ว`,
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' },
+                    timer: 2000
+                });
             } catch (err) {
                 console.error(err);
-                alert('เกิดข้อผิดพลาดในการแก้ไขข้อมูล');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการแก้ไขข้อมูล: ' + err.message,
+                    confirmButtonText: 'ลองใหม่อีกครั้ง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-save"></i> บันทึกข้อมูล';
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> <span>บันทึกการแก้ไข</span>';
             }
         }
         
         async function deleteSpace() {
             const spaceId = document.getElementById('editSpaceId').value;
-            if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบล็อคนี้? (การลบจะไม่สามารถกู้คืนได้)')) return;
+            const res = await Swal.fire({
+                title: 'ยืนยันการลบล็อค?',
+                text: 'คุณแน่ใจหรือไม่ว่าต้องการลบล็อคนี้? (การลบจะไม่สามารถกู้คืนได้)',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'ใช่, ลบล็อคนี้',
+                cancelButtonText: 'ยกเลิก',
+                customClass: { popup: 'swal-custom-popup' }
+            });
+
+            if (!res.isConfirmed) return;
             
             try {
                 // Get space number before deleting for the notification
@@ -996,10 +2914,25 @@
 
                 closeEditSpaceModal();
                 await loadSpaces();
-                alert('ลบล็อคสำเร็จ');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ลบล็อคสำเร็จ!',
+                    text: 'ลบล็อคออกจากระบบเรียบร้อยแล้วครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' },
+                    timer: 2000
+                });
             } catch (err) {
                 console.error(err);
-                alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการลบข้อมูล: ' + err.message,
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
             }
         }
 
@@ -1020,36 +2953,112 @@
             }
         });
 
-        // Graph Modal Logic
+        // Detailed Analytics Dashboard Modal Logic
+        function switchGraphTab(tab) {
+            currentGraphTab = tab;
+            ['occupancy', 'zone', 'revenue'].forEach(t => {
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (btn) {
+                    if (t === tab) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                }
+            });
+            renderAnalyticsChart();
+        }
+
         function openGraphModal() {
             document.getElementById('graphModal').classList.add('active');
-            
-            let countVacant = 0;
-            let countRented = 0;
-            let totalSpaces = 0;
-            globalSpaces.forEach(s => {
-                if (s.status === 'label' || (s.map_data && s.map_data.isLabel)) return;
-                totalSpaces++;
-                if (s.status === 'available') countVacant++;
-                else countRented++;
+
+            // Calculate KPI values
+            const realSpaces = globalSpaces.filter(s => 
+                s.status !== 'label' && 
+                (!s.map_data || !s.map_data.isLabel) && 
+                (!s.space_number || !s.space_number.startsWith('LABEL_'))
+            );
+
+            const total = realSpaces.length;
+            const vacant = realSpaces.filter(s => s.status === 'available').length;
+            const rented = realSpaces.filter(s => s.status === 'booked' || s.status === 'rented').length;
+            const occupancy = total > 0 ? Math.round((rented / total) * 100) : 0;
+
+            const currentRev = realSpaces
+                .filter(s => s.status === 'booked' || s.status === 'rented')
+                .reduce((acc, s) => acc + (Number(s.price) || 0), 0);
+
+            const maxRev = realSpaces.reduce((acc, s) => acc + (Number(s.price) || 0), 0);
+
+            // Populate top KPI cards
+            const occEl = document.getElementById('kpi-occupancy-rate');
+            const vacEl = document.getElementById('kpi-vacant-count');
+            const renEl = document.getElementById('kpi-rented-count');
+            const curRevEl = document.getElementById('kpi-current-rev');
+            const maxRevEl = document.getElementById('kpi-max-rev');
+
+            if (occEl) occEl.innerText = `${occupancy}%`;
+            if (vacEl) vacEl.innerText = vacant;
+            if (renEl) renEl.innerText = rented;
+            if (curRevEl) curRevEl.innerText = `฿${currentRev.toLocaleString()}`;
+            if (maxRevEl) maxRevEl.innerText = `฿${maxRev.toLocaleString()}`;
+
+            renderAnalyticsChart();
+        }
+
+        function renderAnalyticsChart() {
+            const canvas = document.getElementById('analyticsChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            if (analyticsChartInstance) {
+                analyticsChartInstance.destroy();
+                analyticsChartInstance = null;
+            }
+
+            const realSpaces = globalSpaces.filter(s => 
+                s.status !== 'label' && 
+                (!s.map_data || !s.map_data.isLabel) && 
+                (!s.space_number || !s.space_number.startsWith('LABEL_'))
+            );
+
+            const total = realSpaces.length;
+            const vacant = realSpaces.filter(s => s.status === 'available').length;
+            const rented = realSpaces.filter(s => s.status === 'booked' || s.status === 'rented').length;
+            const occupancy = total > 0 ? Math.round((rented / total) * 100) : 0;
+
+            const extraDetails = document.getElementById('chart-extra-details');
+
+            // Zone grouping for tabs 2 & 3
+            const zoneStats = {};
+            realSpaces.forEach(s => {
+                const z = (s.zone && s.zone.trim()) ? s.zone.trim() : 'ไม่ระบุโซน';
+                if (!zoneStats[z]) {
+                    zoneStats[z] = { total: 0, vacant: 0, rented: 0, currentRev: 0, maxRev: 0 };
+                }
+                zoneStats[z].total++;
+                const p = Number(s.price) || 0;
+                zoneStats[z].maxRev += p;
+                if (s.status === 'available') {
+                    zoneStats[z].vacant++;
+                } else {
+                    zoneStats[z].rented++;
+                    zoneStats[z].currentRev += p;
+                }
             });
 
-            document.getElementById('total-graph-count').innerText = totalSpaces;
+            const zoneLabels = Object.keys(zoneStats).sort();
 
-            if (statusChartInstance) {
-                statusChartInstance.data.datasets[0].data = [countRented, countVacant];
-                statusChartInstance.update();
-            } else {
-                const ctx = document.getElementById('statusChart').getContext('2d');
-                statusChartInstance = new Chart(ctx, {
+            // TAB 1: OCCUPANCY OVERVIEW (DOUGHNUT)
+            if (currentGraphTab === 'occupancy') {
+                analyticsChartInstance = new Chart(ctx, {
                     type: 'doughnut',
                     plugins: [ChartDataLabels],
                     data: {
                         labels: ['เช่าแล้ว', 'ว่าง'],
                         datasets: [{
-                            data: [countRented, countVacant],
+                            data: [rented, vacant],
                             backgroundColor: ['#f59e0b', '#10b981'],
-                            borderWidth: 0
+                            hoverBackgroundColor: ['#d97706', '#059669'],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
                         }]
                     },
                     options: {
@@ -1057,18 +3066,235 @@
                         maintainAspectRatio: false,
                         plugins: {
                             datalabels: {
-                                color: '#fff',
+                                color: '#ffffff',
                                 font: { family: "'Prompt', sans-serif", weight: 'bold', size: 14 },
-                                formatter: (value, ctx) => {
-                                    if(value === 0) return '';
-                                    let total = ctx.chart._metasets[ctx.datasetIndex].total;
-                                    return Math.round((value / total) * 100) + '%';
+                                formatter: (val, chartCtx) => {
+                                    if (val === 0) return '';
+                                    const sum = chartCtx.chart._metasets[chartCtx.datasetIndex].total || 1;
+                                    return Math.round((val / sum) * 100) + '%';
                                 }
                             },
-                            legend: { position: 'bottom', labels: { font: { family: "'Prompt', sans-serif" } } }
+                            legend: {
+                                position: 'bottom',
+                                labels: { font: { family: "'Prompt', sans-serif", size: 13 }, padding: 15 }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(item) {
+                                        const count = item.parsed;
+                                        const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                                        return ` ${item.label}: ${count} ล็อค (${pct}%)`;
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '62%'
+                    }
+                });
+
+                if (extraDetails) {
+                    const rentedRev = realSpaces.filter(s => s.status !== 'available').reduce((a, s) => a + (Number(s.price) || 0), 0);
+                    extraDetails.innerHTML = `
+                        <table class="chart-summary-table">
+                            <thead>
+                                <tr>
+                                    <th>สถานะ</th>
+                                    <th style="text-align:center;">จำนวนล็อค</th>
+                                    <th style="text-align:center;">สัดส่วน</th>
+                                    <th style="text-align:right;">รายได้ / วัน</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span style="display:inline-block; width:10px; height:10px; background:#f59e0b; border-radius:50%; margin-right:6px;"></span>เช่าแล้ว</td>
+                                    <td style="text-align:center; font-weight:600;">${rented} ล็อค</td>
+                                    <td style="text-align:center; color:#d97706; font-weight:600;">${occupancy}%</td>
+                                    <td style="text-align:right; font-weight:600; color:#059669;">฿${rentedRev.toLocaleString()}</td>
+                                </tr>
+                                <tr>
+                                    <td><span style="display:inline-block; width:10px; height:10px; background:#10b981; border-radius:50%; margin-right:6px;"></span>ว่าง</td>
+                                    <td style="text-align:center; font-weight:600;">${vacant} ล็อค</td>
+                                    <td style="text-align:center; color:#059669; font-weight:600;">${100 - occupancy}%</td>
+                                    <td style="text-align:right; color:#94a3b8;">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    `;
+                }
+
+            // TAB 2: ZONE COMPARISON (STACKED BAR)
+            } else if (currentGraphTab === 'zone') {
+                const rentedData = zoneLabels.map(z => zoneStats[z].rented);
+                const vacantData = zoneLabels.map(z => zoneStats[z].vacant);
+
+                analyticsChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: zoneLabels,
+                        datasets: [
+                            {
+                                label: 'เช่าแล้ว',
+                                data: rentedData,
+                                backgroundColor: '#f59e0b',
+                                borderRadius: 6
+                            },
+                            {
+                                label: 'ว่าง',
+                                data: vacantData,
+                                backgroundColor: '#10b981',
+                                borderRadius: 6
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                stacked: true,
+                                grid: { display: false },
+                                ticks: { font: { family: "'Prompt', sans-serif" } }
+                            },
+                            y: {
+                                stacked: true,
+                                beginAtZero: true,
+                                ticks: { stepSize: 1, font: { family: "'Prompt', sans-serif" } }
+                            }
+                        },
+                        plugins: {
+                            datalabels: { display: false },
+                            legend: {
+                                position: 'bottom',
+                                labels: { font: { family: "'Prompt', sans-serif" } }
+                            }
                         }
                     }
                 });
+
+                if (extraDetails) {
+                    let rows = '';
+                    zoneLabels.forEach(z => {
+                        const zs = zoneStats[z];
+                        const occ = zs.total > 0 ? Math.round((zs.rented / zs.total) * 100) : 0;
+                        rows += `
+                            <tr>
+                                <td style="font-weight:600;">${z}</td>
+                                <td style="text-align:center;">${zs.total}</td>
+                                <td style="text-align:center; color:#059669;">${zs.vacant}</td>
+                                <td style="text-align:center; color:#d97706; font-weight:600;">${zs.rented}</td>
+                                <td style="text-align:right; font-weight:700; color:var(--primary-color);">${occ}%</td>
+                            </tr>
+                        `;
+                    });
+
+                    extraDetails.innerHTML = `
+                        <table class="chart-summary-table">
+                            <thead>
+                                <tr>
+                                    <th>โซน</th>
+                                    <th style="text-align:center;">ทั้งหมด</th>
+                                    <th style="text-align:center;">ว่าง</th>
+                                    <th style="text-align:center;">เช่าแล้ว</th>
+                                    <th style="text-align:right;">อัตราการเช่า</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rows}
+                            </tbody>
+                        </table>
+                    `;
+                }
+
+            // TAB 3: REVENUE ANALYSIS (BAR COMPARISON)
+            } else if (currentGraphTab === 'revenue') {
+                const curRevData = zoneLabels.map(z => zoneStats[z].currentRev);
+                const maxRevData = zoneLabels.map(z => zoneStats[z].maxRev);
+
+                analyticsChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: zoneLabels,
+                        datasets: [
+                            {
+                                label: 'รายได้ปัจจุบัน (฿)',
+                                data: curRevData,
+                                backgroundColor: '#a46309',
+                                borderRadius: 6
+                            },
+                            {
+                                label: 'รายได้เต็มศักยภาพ (฿)',
+                                data: maxRevData,
+                                backgroundColor: '#e2e8f0',
+                                borderRadius: 6
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { family: "'Prompt', sans-serif" } }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    font: { family: "'Prompt', sans-serif" },
+                                    callback: function(v) { return '฿' + v.toLocaleString(); }
+                                }
+                            }
+                        },
+                        plugins: {
+                            datalabels: { display: false },
+                            legend: {
+                                position: 'bottom',
+                                labels: { font: { family: "'Prompt', sans-serif" } }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(item) {
+                                        return ` ${item.dataset.label}: ฿${item.parsed.y.toLocaleString()}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                if (extraDetails) {
+                    let rows = '';
+                    zoneLabels.forEach(z => {
+                        const zs = zoneStats[z];
+                        const diff = zs.maxRev - zs.currentRev;
+                        rows += `
+                            <tr>
+                                <td style="font-weight:600;">${z}</td>
+                                <td style="text-align:right; color:#059669; font-weight:600;">฿${zs.currentRev.toLocaleString()}</td>
+                                <td style="text-align:right; font-weight:600;">฿${zs.maxRev.toLocaleString()}</td>
+                                <td style="text-align:right; color:${diff > 0 ? '#ef4444' : '#10b981'}; font-size:0.78rem;">
+                                    ${diff > 0 ? `ขาด ฿${diff.toLocaleString()}` : 'เต็ม 100%'}
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    extraDetails.innerHTML = `
+                        <table class="chart-summary-table">
+                            <thead>
+                                <tr>
+                                    <th>โซน</th>
+                                    <th style="text-align:right;">รายได้ปัจจุบัน/วัน</th>
+                                    <th style="text-align:right;">ศักยภาพเต็ม/วัน</th>
+                                    <th style="text-align:right;">ส่วนต่าง</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rows}
+                            </tbody>
+                        </table>
+                    `;
+                }
             }
         }
 

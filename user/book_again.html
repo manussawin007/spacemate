@@ -8,10 +8,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Supabase JS CDN & Config -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../assets/js/supabase.js"></script>
     <style>
+        .swal-custom-popup {
+            border-radius: 20px !important;
+            font-family: 'Prompt', sans-serif !important;
+        }
         :root {
             --bg-color: #F1F4F8;
             --primary-color: #a46309;
@@ -2005,8 +2010,16 @@
             const spaceId = currentSpace?.id || '';
 
             if (!spaceId) {
-                alert('ไม่พบข้อมูลล็อค กรุณาเลือกล็อคจากหน้ารายการตลาด');
-                window.location.href = 'main_user.html';
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ไม่พบข้อมูลล็อค',
+                    text: 'ไม่พบข้อมูลล็อค กรุณาเลือกล็อคจากหน้ารายการตลาดครับ',
+                    confirmButtonText: 'กลับหน้ารายการ',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                }).then(() => {
+                    window.location.href = 'main_user.html';
+                });
                 return;
             }
 
@@ -2016,7 +2029,14 @@
             while (checkDate <= endLimit) {
                 const dStr = getLocalDateString(checkDate);
                 if (spaceBookedDates.has(dStr)) {
-                    alert(`ไม่สามารถทำรายการได้ เนื่องจากวันที่ ${formatThaiDateShort(dStr)} ล็อคนี้มีผู้จองแล้ว กรุณาเลือกวันอื่น`);
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'ล็อคติดจองแล้ว',
+                        text: `ไม่สามารถทำรายการได้ เนื่องจากวันที่ ${formatThaiDateShort(dStr)} ล็อคนี้มีผู้จองแล้ว กรุณาเลือกวันอื่นครับ`,
+                        confirmButtonText: 'เลือกวันใหม่',
+                        confirmButtonColor: '#a46309',
+                        customClass: { popup: 'swal-custom-popup' }
+                    });
                     return;
                 }
                 checkDate.setDate(checkDate.getDate() + 1);

@@ -9,7 +9,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        .swal-custom-popup {
+            border-radius: 20px !important;
+            font-family: 'Prompt', sans-serif !important;
+        }
         .day-btn {
             width: 38px;
             height: 38px;
@@ -275,101 +280,354 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Listing Cards */
+        /* Listing Cards - Owner Redesign */
         .listing-card {
             background-color: var(--card-bg);
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.04);
+            box-shadow: 0 4px 18px rgba(0,0,0,0.05);
             display: flex;
             flex-direction: column;
             height: 100%;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
             cursor: pointer;
+            border: 1px solid #f1f5f9;
+            position: relative;
         }
 
         .listing-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+            transform: translateY(-5px);
+            box-shadow: 0 14px 30px rgba(164, 99, 9, 0.12);
+            border-color: #fde68a;
+        }
+
+        .card-image-container {
+            position: relative;
+            width: 100%;
+            height: 195px;
+            overflow: hidden;
+            background-color: #f1f5f9;
         }
 
         .card-image {
             width: 100%;
-            height: 200px;
+            height: 100%;
             object-fit: cover;
-            background-color: #ddd;
+            transition: transform 0.4s ease;
+        }
+
+        .listing-card:hover .card-image {
+            transform: scale(1.04);
+        }
+
+        .card-badges-top {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .badge-category {
+            background: rgba(15, 23, 42, 0.78);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 5px 11px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .badge-market {
+            border: 1px solid rgba(251, 191, 36, 0.4);
+            color: #fef08a;
+        }
+
+        .badge-event {
+            border: 1px solid rgba(167, 139, 250, 0.4);
+            color: #e9d5ff;
+        }
+
+        .badge-status-live {
+            background: rgba(16, 185, 129, 0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+        }
+
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            animation: pulse-live 1.8s infinite;
+        }
+
+        @keyframes pulse-live {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(1.4); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .card-badge-price {
+            position: absolute;
+            bottom: 10px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+            border: 1px solid rgba(251, 238, 219, 0.8);
         }
 
         .card-body {
-            padding: 1.5rem;
+            padding: 1.25rem 1.25rem 1.1rem 1.25rem;
             display: flex;
             flex-direction: column;
             flex: 1;
         }
 
         .card-title {
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
             color: var(--text-main);
             display: -webkit-box;
-            -webkit-line-clamp: 2;
-            line-clamp: 2;
+            -webkit-line-clamp: 1;
+            line-clamp: 1;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            white-space: normal;
             line-height: 1.4;
-            min-height: 3.5rem;
         }
 
-        .card-info {
+        .card-meta-row {
             display: flex;
-            align-items: center;
+            gap: 10px;
             color: var(--text-muted);
-            font-size: 0.95rem;
-            margin-bottom: 1rem;
-            gap: 0.5rem;
-        }
-
-        .card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: auto;
-            padding-top: 1rem;
-            border-top: 1px solid #f1f5f9;
-            gap: 0.5rem;
+            font-size: 0.82rem;
+            margin-bottom: 0.85rem;
             flex-wrap: wrap;
         }
 
-        .card-price {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--primary-color);
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
         }
 
-        .book-btn {
-            background-color: var(--primary-color);
+        .meta-item i {
+            color: var(--primary-color);
+            font-size: 0.82rem;
+        }
+
+        /* Space KPI Mini Boxes */
+        .owner-space-kpi {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 0.85rem;
+        }
+
+        .kpi-mini-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 7px 6px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .kpi-mini-label {
+            font-size: 0.7rem;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 2px;
+            font-weight: 500;
+        }
+
+        .kpi-mini-value {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.1;
+        }
+
+        .kpi-mini-value small {
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: #94a3b8;
+        }
+
+        .text-emerald {
+            color: #059669 !important;
+        }
+
+        .text-amber {
+            color: #d97706 !important;
+        }
+
+        .vacant-box {
+            background: rgba(16, 185, 129, 0.05);
+            border-color: rgba(16, 185, 129, 0.25);
+        }
+
+        .rented-box {
+            background: rgba(245, 158, 11, 0.05);
+            border-color: rgba(245, 158, 11, 0.25);
+        }
+
+        /* Occupancy Section */
+        .occupancy-section {
+            margin-bottom: 1rem;
+        }
+
+        .occupancy-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: #64748b;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .occupancy-pct {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .occupancy-bar-track {
+            width: 100%;
+            height: 7px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .occupancy-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #f59e0b 60%, #a46309 100%);
+            border-radius: 999px;
+            transition: width 0.6s ease;
+        }
+
+        /* Actions */
+        .card-footer.owner-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 0.85rem;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .btn-manage-spaces {
+            flex: 1;
+            background: var(--primary-color);
             color: white;
             border: none;
-            padding: 0.6rem 1.5rem;
+            padding: 0.7rem 0.9rem;
             border-radius: 12px;
             font-family: inherit;
-            font-size: 0.95rem;
-            font-weight: 500;
+            font-size: 0.88rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            box-shadow: 0 3px 10px rgba(164, 99, 9, 0.22);
+            white-space: nowrap;
         }
 
-        .book-btn:hover {
-            background-color: #8c5407;
-        }
-        
-        .book-btn:active {
-            transform: scale(0.96);
+        .btn-manage-spaces:hover {
+            background: #8c5407;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 14px rgba(164, 99, 9, 0.3);
         }
 
-        /* Card Stats for Owner */
+        .btn-manage-spaces:active {
+            transform: scale(0.97);
+        }
+
+        .action-buttons-group {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .btn-card-action {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            padding: 0;
+        }
+
+        .btn-preview:hover {
+            background: #e0f2fe;
+            color: #0284c7;
+            border-color: #bae6fd;
+            transform: translateY(-1px);
+        }
+
+        .btn-edit:hover {
+            background: #e2e8f0;
+            color: #334155;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .btn-delete {
+            background: #fef2f2;
+            color: #ef4444;
+            border-color: #fee2e2;
+        }
+
+        .btn-delete:hover {
+            background: #fee2e2;
+            color: #dc2626;
+            border-color: #fca5a5;
+            transform: translateY(-1px);
+        }
+
+        /* Fallback / legacy stat classes */
         .card-stats {
             display: flex;
             flex-direction: row;
@@ -2327,6 +2585,751 @@
             max-height: 200px;
             opacity: 1;
         }
+
+        /* =========================================================
+           REDESIGNED EDIT VENUE (MARKET / EVENT) MODAL STYLES
+           ========================================================= */
+        .edit-venue-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.68);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 10000;
+            overflow-y: auto;
+            padding: 1.5rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease-out;
+        }
+
+        .edit-venue-backdrop.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .edit-venue-modal-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 740px;
+            border-radius: 24px;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(226, 232, 240, 0.8);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            margin: auto;
+            transform: translateY(16px) scale(0.98);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .edit-venue-backdrop.show .edit-venue-modal-card {
+            transform: translateY(0) scale(1);
+        }
+
+        .edit-venue-header {
+            padding: 1.25rem 1.75rem;
+            background: #ffffff;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+
+        .edit-venue-header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .edit-venue-icon-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #f59e0b, #a46309);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 6px 14px rgba(164, 99, 9, 0.22);
+            flex-shrink: 0;
+        }
+
+        .edit-venue-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .edit-venue-subtitle {
+            font-size: 0.825rem;
+            color: #64748b;
+            margin: 0.2rem 0 0 0;
+        }
+
+        .btn-close-venue-modal {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            border: none;
+            color: #64748b;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-close-venue-modal:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+            transform: scale(1.05);
+        }
+
+        .edit-venue-body {
+            padding: 1.5rem 1.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            max-height: calc(88vh - 145px);
+            overflow-y: auto;
+        }
+
+        .edit-venue-body::-webkit-scrollbar {
+            width: 6px;
+        }
+        .edit-venue-body::-webkit-scrollbar-track {
+            background: #f8fafc;
+        }
+        .edit-venue-body::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        /* Banner Preview */
+        .venue-banner-preview-card {
+            position: relative;
+            height: 140px;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            flex-shrink: 0;
+        }
+
+        .venue-banner-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .venue-banner-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.88) 0%, rgba(15, 23, 42, 0.35) 60%, rgba(15, 23, 42, 0.1) 100%);
+        }
+
+        .venue-banner-top-tags {
+            position: absolute;
+            top: 12px;
+            left: 14px;
+            right: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .venue-tag-pill {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 99px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            backdrop-filter: blur(6px);
+        }
+
+        .venue-tag-pill.tag-market {
+            background: rgba(164, 99, 9, 0.9);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(164, 99, 9, 0.35);
+        }
+
+        .venue-tag-pill.tag-event {
+            background: rgba(99, 102, 241, 0.9);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+        }
+
+        .venue-tag-pill.tag-live {
+            background: rgba(255, 255, 255, 0.92);
+            color: #059669;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .venue-banner-bottom-info {
+            position: absolute;
+            bottom: 12px;
+            left: 16px;
+            right: 16px;
+            color: #ffffff;
+        }
+
+        .venue-banner-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .venue-banner-loc {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.85);
+            margin: 3px 0 0 0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Section Cards */
+        .edit-section-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .edit-section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .edit-section-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: #fbeedb;
+            color: #a46309;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+        }
+
+        .edit-section-heading {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .edit-section-sub {
+            font-size: 0.775rem;
+            color: #64748b;
+            margin: 0.15rem 0 0 0;
+        }
+
+        /* Type Selector Grid */
+        .type-selector-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 560px) {
+            .type-selector-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .type-selector-card {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .type-selector-card:hover {
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .type-selector-card.active {
+            border-color: #a46309;
+            background: #fffbeb;
+            box-shadow: 0 4px 14px rgba(164, 99, 9, 0.12);
+        }
+
+        .type-card-radio {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid #cbd5e1;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .type-selector-card.active .type-card-radio {
+            border-color: #a46309;
+            background: #a46309;
+        }
+
+        .type-selector-card.active .type-card-radio::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ffffff;
+        }
+
+        .type-card-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .type-selector-card.active .type-card-icon {
+            background: #fbeedb;
+            color: #a46309;
+        }
+
+        .type-card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .type-card-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .type-selector-card.active .type-card-title {
+            color: #92400e;
+        }
+
+        .type-card-desc {
+            font-size: 0.725rem;
+            color: #64748b;
+        }
+
+        /* Form Controls */
+        .form-group-custom {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .venue-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .required-star {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .input-with-icon {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .input-prefix-icon {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 0.95rem;
+            pointer-events: none;
+            transition: color 0.2s ease;
+        }
+
+        .venue-input {
+            width: 100%;
+            padding: 11px 14px 11px 40px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.925rem;
+            background: #ffffff;
+            color: #0f172a;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .venue-input:focus {
+            border-color: #a46309;
+            box-shadow: 0 0 0 3px rgba(164, 99, 9, 0.12);
+        }
+
+        .venue-input:focus + .input-prefix-icon,
+        .input-with-icon:focus-within .input-prefix-icon {
+            color: #a46309;
+        }
+
+        .venue-textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.925rem;
+            background: #ffffff;
+            color: #0f172a;
+            transition: all 0.2s ease;
+            outline: none;
+            resize: vertical;
+            min-height: 90px;
+            line-height: 1.5;
+        }
+
+        .venue-textarea:focus {
+            border-color: #a46309;
+            box-shadow: 0 0 0 3px rgba(164, 99, 9, 0.12);
+        }
+
+        /* Detected Province */
+        .detected-province-wrapper {
+            margin-top: 4px;
+        }
+
+        .detected-province-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.775rem;
+            padding: 4px 10px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .detected-province-badge.detected {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+            font-weight: 500;
+        }
+
+        .detected-province-badge.not-detected {
+            background: #f8fafc;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Google Maps Action Group */
+        .input-action-group {
+            display: flex;
+            gap: 8px;
+            align-items: stretch;
+        }
+
+        .btn-test-map {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0 16px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #a46309;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .btn-test-map:hover {
+            background: #fbeedb;
+            border-color: #a46309;
+        }
+
+        .form-hint-text {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Days of Week */
+        .days-header-row, .time-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.4rem;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .preset-chips-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .preset-chip {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 99px;
+            padding: 2px 9px;
+            font-family: inherit;
+            font-size: 0.725rem;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .preset-chip:hover {
+            background: #fbeedb;
+            border-color: #a46309;
+            color: #a46309;
+        }
+
+        .preset-chip.preset-chip-clear {
+            color: #ef4444;
+            border-color: #fca5a5;
+            background: #fef2f2;
+        }
+
+        .preset-chip.preset-chip-clear:hover {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+
+        .days-grid-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .day-pill-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            background: #ffffff;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .day-pill-btn:hover {
+            border-color: #a46309;
+            color: #a46309;
+            background: #fffbeb;
+            transform: translateY(-1px);
+        }
+
+        .day-pill-btn.active {
+            background: #a46309;
+            color: #ffffff;
+            border-color: #a46309;
+            box-shadow: 0 4px 10px rgba(164, 99, 9, 0.25);
+            transform: translateY(-2px);
+        }
+
+        /* Time & Price Grid */
+        .time-price-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .time-price-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .time-inputs-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .time-input-box {
+            flex: 1;
+            position: relative;
+        }
+
+        .time-input-label {
+            position: absolute;
+            top: -7px;
+            left: 10px;
+            background: #ffffff;
+            padding: 0 4px;
+            font-size: 0.675rem;
+            font-weight: 600;
+            color: #64748b;
+            border-radius: 4px;
+            z-index: 2;
+        }
+
+        .time-input {
+            padding: 10px 12px !important;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .time-separator {
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .input-with-suffix {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .currency-prefix {
+            position: absolute;
+            left: 14px;
+            font-weight: 700;
+            color: #a46309;
+            font-size: 1rem;
+        }
+
+        .price-input {
+            padding-left: 32px !important;
+            padding-right: 76px !important;
+            font-weight: 700;
+            color: #a46309;
+        }
+
+        .currency-suffix {
+            position: absolute;
+            right: 14px;
+            font-size: 0.775rem;
+            color: #64748b;
+            font-weight: 500;
+            pointer-events: none;
+        }
+
+        /* Modal Footer */
+        .edit-venue-footer {
+            padding: 1rem 1.75rem;
+            background: #ffffff;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            position: sticky;
+            bottom: 0;
+            z-index: 20;
+        }
+
+        .btn-cancel-venue {
+            background: #f1f5f9;
+            color: #64748b;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            padding: 11px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-cancel-venue:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .btn-save-venue {
+            background: linear-gradient(135deg, #d97706, #a46309);
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            padding: 11px 24px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 14px rgba(164, 99, 9, 0.25);
+            transition: all 0.2s ease;
+        }
+
+        .btn-save-venue:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(164, 99, 9, 0.35);
+        }
+
+        .btn-save-venue:active {
+            transform: translateY(0);
+        }
+
+        .btn-save-venue:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
     </style>
     <div id="app-support" class="app-page" style="display: none;">
         <header class="profile-header" style="display: flex; align-items: center;">
@@ -2348,14 +3351,14 @@
 
             <div class="contact-section-title">ช่องทางการติดต่อ</div>
             
-            <!-- LINE Chatbot -->
-            <a href="#" class="contact-card-premium" onclick="alert('เตรียมเชื่อมต่อ LINE Messaging API สำหรับ Chatbot ที่นี่!')">
+            <!-- LINE Official -->
+            <a href="https://line.me/R/ti/p/@049uytux" target="_blank" rel="noopener noreferrer" class="contact-card-premium">
                 <div class="contact-card-icon">
-                    <i class="fa-solid fa-robot"></i>
+                    <i class="fa-brands fa-line"></i>
                 </div>
                 <div class="contact-card-info">
-                    <div class="contact-card-title">คุยกับผู้ช่วยอัจฉริยะ (LINE Bot)</div>
-                    <div class="contact-card-sub">ให้บริการตลอด 24 ชั่วโมง (เตรียมพร้อมสำหรับอนาคต)</div>
+                    <div class="contact-card-title">ติดต่อผ่าน LINE Official (@049uytux)</div>
+                    <div class="contact-card-sub">คลิกเพื่อแอดไลน์และติดต่อสอบถามกับทีมงานได้ทันที</div>
                 </div>
                 <i class="fa-solid fa-chevron-right" style="color: #cbd5e1;"></i>
             </a>
@@ -2730,12 +3733,27 @@
                     
                 if (error) throw error;
                 
-                alert('บันทึกข้อมูลส่วนตัวเรียบร้อยแล้ว');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'บันทึกสำเร็จ!',
+                    text: 'บันทึกข้อมูลส่วนตัวเรียบร้อยแล้วครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' },
+                    timer: 2000
+                });
                 checkAuth();
                 switchView('profile', document.querySelector('.bottom-nav .nav-item:last-child'));
             } catch (err) {
                 console.error('Error saving profile:', err);
-                alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + err.message,
+                    confirmButtonText: 'ลองใหม่อีกครั้ง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
             }
         }
 
@@ -2754,7 +3772,14 @@
             }
 
             if (!accNameVal) {
-                alert('กรุณาระบุชื่อบัญชีธนาคาร');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ข้อมูลไม่ครบถ้วน',
+                    text: 'กรุณาระบุชื่อบัญชีธนาคารครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 if (accNameInput) { accNameInput.focus(); }
                 return false;
             }
@@ -2786,13 +3811,28 @@
                     
                 if (error) throw error;
                 
-                alert('บันทึกข้อมูลบัญชีธนาคารเรียบร้อยแล้ว');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'บันทึกสำเร็จ!',
+                    text: 'บันทึกข้อมูลบัญชีธนาคารเรียบร้อยแล้วครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' },
+                    timer: 2000
+                });
                 checkAuth();
                 // We don't need to switchView, we are already in the profile view
                 document.getElementById('app-bank-account').scrollIntoView({behavior: 'smooth'});
             } catch (err) {
                 console.error('Error saving bank account:', err);
-                alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + err.message,
+                    confirmButtonText: 'ลองใหม่อีกครั้ง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
             }
         }
 
@@ -2810,7 +3850,14 @@
             try {
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 if (!user) {
-                    alert('กรุณาเข้าสู่ระบบก่อน');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'กรุณาเข้าสู่ระบบ',
+                        text: 'กรุณาเข้าสู่ระบบก่อนทำรายการครับ',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#a46309',
+                        customClass: { popup: 'swal-custom-popup' }
+                    });
                     return;
                 }
                 
@@ -2827,12 +3874,26 @@
 
                 if (error) throw error;
                 
-                alert('อัปเกรดเป็นแพ็กเกจ Pro สำเร็จ!');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'อัปเกรดสำเร็จ!',
+                    text: 'อัปเกรดเป็นแพ็กเกจ Pro เรียบร้อยแล้วครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 await checkAuth();
                 switchView('profile', document.querySelector('.bottom-nav .nav-item:last-child'));
             } catch (err) {
                 console.error('Error upgrading package:', err);
-                alert('เกิดข้อผิดพลาดในการอัปเกรดแพ็กเกจ');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการอัปเกรดแพ็กเกจ: ' + err.message,
+                    confirmButtonText: 'ลองใหม่อีกครั้ง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 const btn = document.getElementById('btn-upgrade-pro');
                 if (btn) {
                     btn.innerHTML = 'อัปเกรดเป็น Pro';
@@ -2859,11 +3920,25 @@
 
                 if (error) throw error;
                 
-                alert('เปลี่ยนกลับเป็นแพ็กเกจเริ่มต้นสำเร็จ');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'เปลี่ยนแพ็กเกจสำเร็จ!',
+                    text: 'เปลี่ยนกลับเป็นแพ็กเกจเริ่มต้นเรียบร้อยแล้วครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 await checkAuth(); 
             } catch(err) {
                 console.error(err);
-                alert('เกิดข้อผิดพลาดในการเปลี่ยนแพ็กเกจ');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการเปลี่ยนแพ็กเกจ: ' + err.message,
+                    confirmButtonText: 'ลองใหม่อีกครั้ง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 const btn = document.getElementById('btn-free-plan');
                 if (btn) {
                     btn.innerHTML = 'กลับไปใช้แพ็กเกจเริ่มต้น';
@@ -3184,7 +4259,7 @@
             try {
                 const { data: venues, error } = await supabaseClient
                     .from('venues')
-                    .select('*')
+                    .select('*, spaces(id, status, price, zone, space_number, map_data)')
                     .eq('owner_id', ownerId)
                     .order('created_at', { ascending: false });
 
@@ -3207,28 +4282,114 @@
                         const imageUrl = venue.cover_image_url || venue.map_image_url || defaultImage;
                         const imgSrc = imageUrl.startsWith('data:') || imageUrl.startsWith('http') ? imageUrl : defaultImage;
 
+                        // Filter out label elements
+                        const realSpaces = (venue.spaces || []).filter(s => 
+                            s.status !== 'label' && 
+                            (!s.map_data || !s.map_data.isLabel) && 
+                            (!s.space_number || !s.space_number.startsWith('LABEL_'))
+                        );
+
+                        const totalStalls = realSpaces.length;
+                        const vacantStalls = realSpaces.filter(s => s.status === 'available').length;
+                        const rentedStalls = realSpaces.filter(s => s.status === 'booked' || s.status === 'rented').length;
+                        const occupancyRate = totalStalls > 0 ? Math.round((rentedStalls / totalStalls) * 100) : 0;
+
+                        // Calculate starting price
+                        let startingPriceText = '';
+                        if (realSpaces.length > 0) {
+                            const validPrices = realSpaces.map(s => Number(s.price) || 0).filter(p => p > 0);
+                            if (validPrices.length > 0) {
+                                const minPrice = Math.min(...validPrices);
+                                startingPriceText = `เริ่ม ฿${minPrice.toLocaleString()}/วัน`;
+                            }
+                        }
+                        if (!startingPriceText && venue.description) {
+                            const matchPrice = venue.description.match(/ราคาเริ่มต้น:\s*([\d,]+)/);
+                            if (matchPrice) {
+                                startingPriceText = `เริ่ม ฿${matchPrice[1]}/วัน`;
+                            }
+                        }
+
+                        // Extract operating hours
+                        let timeText = 'เปิดให้บริการ';
+                        if (venue.description) {
+                            const matchTime = venue.description.match(/เวลาให้บริการ:\s*([^\n\r]+)/);
+                            if (matchTime) {
+                                timeText = matchTime[1].trim();
+                            }
+                        }
+
                         const venueDataStr = encodeURIComponent(JSON.stringify(venue));
+                        const isEvent = venue.type === 'event';
+                        const typeLabel = isEvent ? 'งานอีเวนต์' : 'ตลาดสด/ตลาดนัด';
+                        const typeIcon = isEvent ? 'fa-calendar-days' : 'fa-store';
+
                         const cardHtml = `
-                            <div class="listing-card" data-location="${venue.location || ''}" onclick="openVenueModal('${venueDataStr}')">
+                            <div class="listing-card owner-card" data-location="${venue.location || ''}" onclick="openVenueModal('${venueDataStr}')">
                                 <div class="card-image-container">
-                                    <img src="${imgSrc}" alt="${venue.name}" class="card-image">
+                                    <img src="${imgSrc}" alt="${venue.name}" class="card-image" loading="lazy">
+                                    <div class="card-badges-top">
+                                        <span class="badge-category ${isEvent ? 'badge-event' : 'badge-market'}">
+                                            <i class="fa-solid ${typeIcon}"></i> ${typeLabel}
+                                        </span>
+                                        <span class="badge-status-live">
+                                            <span class="pulse-dot"></span> เปิดบริการ
+                                        </span>
+                                    </div>
+                                    ${startingPriceText ? `<div class="card-badge-price">${startingPriceText}</div>` : ''}
                                 </div>
                                 <div class="card-body">
                                     <h3 class="card-title">${venue.name}</h3>
-                                    <div class="card-stats">
-                                        <div class="stat-item">
+                                    <div class="card-meta-row">
+                                        <div class="meta-item" title="${venue.location || 'ไม่ได้ระบุ'}">
                                             <i class="fa-solid fa-location-dot"></i>
-                                            <span>${venue.location || 'ไม่ได้ระบุ'}</span>
+                                            <span>${venue.location || 'ไม่ได้ระบุที่ตั้ง'}</span>
                                         </div>
-                                        <div class="stat-item">
-                                            <i class="fa-solid fa-clock"></i>
-                                            <span>เปิดให้บริการ</span>
+                                        <div class="meta-item">
+                                            <i class="fa-regular fa-clock"></i>
+                                            <span>${timeText}</span>
                                         </div>
                                     </div>
-                                    <div class="card-footer" style="display: flex; gap: 8px;">
-                                        <button class="book-btn" style="flex: 1;" onclick="event.stopPropagation(); window.location.href='tenant_info_owner.html?id=${venue.id}';">จัดการพื้นที่</button>
-                                        <button title="แก้ไขรายละเอียด" style="background: #f1f5f9; color: #64748b; padding: 0.85rem; border-radius: 14px; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='#e2e8f0'; this.style.color='#334155';" onmouseout="this.style.background='#f1f5f9'; this.style.color='#64748b';" onclick="event.stopPropagation(); openEditVenueModal('${venueDataStr}');"><i class="fa-solid fa-pen-to-square"></i></button>
-                                        <button title="ลบตลาด" style="background: #fee2e2; color: #ef4444; padding: 0.85rem; border-radius: 14px; border: 1px solid #fecaca; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='#fecaca'; this.style.color='#b91c1c';" onmouseout="this.style.background='#fee2e2'; this.style.color='#ef4444';" onclick="event.stopPropagation(); deleteVenue('${venue.id}');"><i class="fa-solid fa-trash"></i></button>
+
+                                    <!-- Space Metrics KPI Grid -->
+                                    <div class="owner-space-kpi">
+                                        <div class="kpi-mini-box">
+                                            <div class="kpi-mini-label"><i class="fa-solid fa-border-all"></i> ทั้งหมด</div>
+                                            <div class="kpi-mini-value">${totalStalls} <small>ล็อค</small></div>
+                                        </div>
+                                        <div class="kpi-mini-box vacant-box">
+                                            <div class="kpi-mini-label"><i class="fa-solid fa-circle-check"></i> ว่าง</div>
+                                            <div class="kpi-mini-value text-emerald">${vacantStalls} <small>ล็อค</small></div>
+                                        </div>
+                                        <div class="kpi-mini-box rented-box">
+                                            <div class="kpi-mini-label"><i class="fa-solid fa-user-check"></i> เช่าแล้ว</div>
+                                            <div class="kpi-mini-value text-amber">${rentedStalls} <small>ล็อค</small></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Occupancy Progress Bar -->
+                                    <div class="occupancy-section">
+                                        <div class="occupancy-labels">
+                                            <span>อัตราการจองพื้นที่</span>
+                                            <span class="occupancy-pct">${occupancyRate}%</span>
+                                        </div>
+                                        <div class="occupancy-bar-track">
+                                            <div class="occupancy-bar-fill" style="width: ${occupancyRate}%;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-footer owner-actions">
+                                        <button class="book-btn btn-manage-spaces" onclick="event.stopPropagation(); window.location.href='tenant_info_owner.html?id=${venue.id}';">
+                                            <i class="fa-solid fa-layer-group"></i> จัดการพื้นที่ & ผู้เช่า
+                                        </button>
+                                        <div class="action-buttons-group">
+                                            <button title="แก้ไขรายละเอียดตลาด" class="btn-card-action btn-edit" onclick="event.stopPropagation(); openEditVenueModal('${venueDataStr}');">
+                                                <i class="fa-solid fa-pen-to-square"></i>
+                                            </button>
+                                            <button title="ลบตลาด" class="btn-card-action btn-delete" onclick="event.stopPropagation(); deleteVenue('${venue.id}');">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -3252,15 +4413,170 @@
             }
         }
 
-        // --- Edit Venue Logic ---
+        // --- Redesigned Edit Venue Logic ---
+        const THAI_PROVINCES = ["กระบี่", "กรุงเทพมหานคร", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร", "ขอนแก่น", "จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ", "ชุมพร", "เชียงราย", "เชียงใหม่", "ตรัง", "ตราด", "ตาก", "นครนายก", "นครปฐม", "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์", "นนทบุรี", "นราธิวาส", "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์", "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา", "พะเยา", "พังงา", "พัทลุง", "พิจิตร", "พิษณุโลก", "เพชรบุรี", "เพชรบูรณ์", "แพร่", "ภูเก็ต", "มหาสารคาม", "มุกดาหาร", "แม่ฮ่องสอน", "ยโสธร", "ยะลา", "ร้อยเอ็ด", "ระนอง", "ระยอง", "ราชบุรี", "ลพบุรี", "ลำปาง", "ลำพูน", "เลย", "ศรีสะเกษ", "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ", "สมุทรสงคราม", "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี", "สุโขทัย", "สุพรรณบุรี", "สุราษฎร์ธานี", "สุรินทร์", "หนองคาย", "หนองบัวลำภู", "อ่างทอง", "อำนาจเจริญ", "อุดรธานี", "อุตรดิตถ์", "อุทัยธานี", "อุบลราชธานี"];
+
+        function detectProvinceFromAddress(address) {
+            if (!address) return '';
+            for (let p of THAI_PROVINCES) {
+                if (address.includes(p)) {
+                    return p;
+                }
+            }
+            return '';
+        }
+
+        function updateDetectedProvince(address) {
+            const detected = detectProvinceFromAddress(address);
+            const badge = document.getElementById('edit-detected-province-badge');
+            if (badge) {
+                if (detected) {
+                    badge.className = 'detected-province-badge detected';
+                    badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> ตรวจพบจังหวัด: <strong>${detected}</strong>`;
+                } else {
+                    badge.className = 'detected-province-badge not-detected';
+                    badge.innerHTML = `<i class="fa-solid fa-circle-info"></i> พิมพ์ชื่อจังหวัดในที่อยู่เพื่อให้ระบบตรวจจับอัตโนมัติ`;
+                }
+            }
+            return detected;
+        }
+
+        function handleAddressChange(address) {
+            const province = updateDetectedProvince(address);
+            const locEl = document.getElementById('edit-venue-preview-location');
+            if (locEl) {
+                locEl.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${province ? province : (address.trim() || 'ระบุที่ตั้ง')}`;
+            }
+        }
+
+        function updateVenueNamePreview(name) {
+            const titleEl = document.getElementById('edit-venue-preview-title');
+            if (titleEl) {
+                titleEl.innerText = name.trim() || 'ชื่อตลาด / อีเวนต์';
+            }
+        }
+
+        function selectVenueType(type) {
+            document.getElementById('edit-venue-type').value = type;
+            const marketCard = document.getElementById('type-opt-market');
+            const eventCard = document.getElementById('type-opt-event');
+            const typeTag = document.getElementById('edit-venue-type-tag');
+
+            if (type === 'event') {
+                if (marketCard) marketCard.classList.remove('active');
+                if (eventCard) eventCard.classList.add('active');
+                if (typeTag) {
+                    typeTag.className = 'venue-tag-pill tag-event';
+                    typeTag.innerHTML = '<i class="fa-solid fa-calendar-days"></i> งานอีเวนต์ / งานเทศกาล';
+                }
+            } else {
+                if (eventCard) eventCard.classList.remove('active');
+                if (marketCard) marketCard.classList.add('active');
+                if (typeTag) {
+                    typeTag.className = 'venue-tag-pill tag-market';
+                    typeTag.innerHTML = '<i class="fa-solid fa-store"></i> ตลาดสด / ตลาดนัด';
+                }
+            }
+        }
+
+        function setDaysPreset(preset) {
+            const dayButtons = document.querySelectorAll('#edit-venue-days .day-pill-btn');
+            if (preset === 'all') {
+                dayButtons.forEach(btn => btn.classList.add('active'));
+            } else if (preset === 'weekdays') {
+                const weekdays = ['จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.'];
+                dayButtons.forEach(btn => {
+                    const day = btn.getAttribute('data-day') || btn.innerText.trim();
+                    if (weekdays.includes(day)) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            } else if (preset === 'weekend') {
+                const weekend = ['ส.', 'อา.'];
+                dayButtons.forEach(btn => {
+                    const day = btn.getAttribute('data-day') || btn.innerText.trim();
+                    if (weekend.includes(day)) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            } else if (preset === 'clear') {
+                dayButtons.forEach(btn => btn.classList.remove('active'));
+            }
+        }
+
+        function setTimePreset(start, end) {
+            const startInput = document.getElementById('edit-venue-time-start');
+            const endInput = document.getElementById('edit-venue-time-end');
+            if (startInput) startInput.value = start;
+            if (endInput) endInput.value = end;
+        }
+
+        function testOpenMapUrl() {
+            const urlInput = document.getElementById('edit-venue-map-url');
+            const url = (urlInput ? urlInput.value : '').trim();
+            if (!url) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'ยังไม่ได้ระบุลิงก์แผนที่',
+                    text: 'กรุณากรอกลิงก์ Google Maps ในช่องด้านข้างก่อนกดทดสอบครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
+                return;
+            }
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'รูปแบบลิงก์ไม่ถูกต้อง',
+                    text: 'ลิงก์ต้องขึ้นต้นด้วย http:// หรือ https:// (ตัวอย่าง: https://maps.app.goo.gl/...)',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
+                return;
+            }
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+
+        function handleEditVenueBackdropClick(event) {
+            if (event.target === document.getElementById('edit-venue-modal')) {
+                closeEditVenueModal();
+            }
+        }
+
         function openEditVenueModal(encodedData) {
             const venue = JSON.parse(decodeURIComponent(encodedData));
             document.getElementById('edit-venue-id').value = venue.id;
-            document.getElementById('edit-venue-type').value = venue.type || 'market';
+            
+            // Set Type
+            selectVenueType(venue.type || 'market');
+
+            // Set Name & Preview
             document.getElementById('edit-venue-name').value = venue.name || '';
-            document.getElementById('edit-venue-address').value = venue.address_details || venue.location || '';
+            updateVenueNamePreview(venue.name || '');
+
+            // Set Banner Image
+            const defaultImage = "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&q=80&w=800";
+            const imageUrl = venue.cover_image_url || venue.map_image_url || defaultImage;
+            const previewImg = document.getElementById('edit-venue-preview-img');
+            if (previewImg) {
+                previewImg.src = (imageUrl.startsWith('data:') || imageUrl.startsWith('http')) ? imageUrl : defaultImage;
+            }
+
+            // Set Address & Province
+            const fullAddress = venue.address_details || venue.location || '';
+            document.getElementById('edit-venue-address').value = fullAddress;
+            handleAddressChange(fullAddress);
+
+            // Set Map URL
             document.getElementById('edit-venue-map-url').value = venue.map_url || '';
             
+            // Parse description lines
             const rawDesc = venue.description || '';
             let actualDesc = [];
             let activeDays = '';
@@ -3281,6 +4597,8 @@
                     if (timeParts.length === 2) {
                         timeStart = timeParts[0].trim();
                         timeEnd = timeParts[1].trim();
+                    } else {
+                        timeStart = timeStr;
                     }
                 } else if (text.startsWith('ราคาเริ่มต้น:')) {
                     price = text.replace('ราคาเริ่มต้น:', '').replace('บาท', '').trim();
@@ -3291,12 +4609,13 @@
 
             document.getElementById('edit-venue-desc').value = actualDesc.join('\n\n');
             
-            // Populate days
-            document.querySelectorAll('#edit-venue-days .day-btn').forEach(btn => btn.classList.remove('active'));
+            // Populate active days
+            document.querySelectorAll('#edit-venue-days .day-pill-btn').forEach(btn => btn.classList.remove('active'));
             if (activeDays) {
                 const dayLabels = activeDays.split(',').map(d => d.trim());
-                document.querySelectorAll('#edit-venue-days .day-btn').forEach(btn => {
-                    if (dayLabels.includes(btn.innerText.trim())) {
+                document.querySelectorAll('#edit-venue-days .day-pill-btn').forEach(btn => {
+                    const day = btn.getAttribute('data-day') || btn.innerText.trim();
+                    if (dayLabels.includes(day)) {
                         btn.classList.add('active');
                     }
                 });
@@ -3306,52 +4625,62 @@
             document.getElementById('edit-venue-time-end').value = timeEnd;
             document.getElementById('edit-venue-price').value = price;
             
-            document.getElementById('edit-venue-modal').style.display = 'block';
+            // Open modal with smooth animation
+            const modal = document.getElementById('edit-venue-modal');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            requestAnimationFrame(() => {
+                modal.classList.add('show');
+            });
         }
 
         function closeEditVenueModal() {
-            document.getElementById('edit-venue-modal').style.display = 'none';
+            const modal = document.getElementById('edit-venue-modal');
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 250);
         }
 
         async function submitEditVenue() {
             const venueId = document.getElementById('edit-venue-id').value;
-            const type = document.getElementById('edit-venue-type').value;
+            const type = document.getElementById('edit-venue-type').value || 'market';
             const name = document.getElementById('edit-venue-name').value.trim();
             const address = document.getElementById('edit-venue-address').value.trim();
             const descRaw = document.getElementById('edit-venue-desc').value.trim();
-            
-            // Auto extract province
-            const provinces = ["กระบี่", "กรุงเทพมหานคร", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร", "ขอนแก่น", "จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ", "ชุมพร", "เชียงราย", "เชียงใหม่", "ตรัง", "ตราด", "ตาก", "นครนายก", "นครปฐม", "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์", "นนทบุรี", "นราธิวาส", "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์", "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา", "พะเยา", "พังงา", "พัทลุง", "พิจิตร", "พิษณุโลก", "เพชรบุรี", "เพชรบูรณ์", "แพร่", "ภูเก็ต", "มหาสารคาม", "มุกดาหาร", "แม่ฮ่องสอน", "ยโสธร", "ยะลา", "ร้อยเอ็ด", "ระนอง", "ระยอง", "ราชบุรี", "ลพบุรี", "ลำปาง", "ลำพูน", "เลย", "ศรีสะเกษ", "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ", "สมุทรสงคราม", "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี", "สุโขทัย", "สุพรรณบุรี", "สุราษฎร์ธานี", "สุรินทร์", "หนองคาย", "หนองบัวลำภู", "อ่างทอง", "อำนาจเจริญ", "อุดรธานี", "อุตรดิตถ์", "อุทัยธานี", "อุบลราชธานี"];
-            let province = '';
-            for (let p of provinces) {
-                if (address.includes(p)) {
-                    province = p;
-                    break;
-                }
-            }
-            
+            const province = detectProvinceFromAddress(address);
             const location = address;
             
-            const activeDays = Array.from(document.querySelectorAll('#edit-venue-days .day-btn.active')).map(btn => btn.innerText).join(', ');
-            const timeStart = document.getElementById('edit-venue-time-start').value;
-            const timeEnd = document.getElementById('edit-venue-time-end').value;
-            const price = document.getElementById('edit-venue-price').value;
+            const activeDays = Array.from(document.querySelectorAll('#edit-venue-days .day-pill-btn.active'))
+                .map(btn => btn.getAttribute('data-day') || btn.innerText.trim())
+                .join(', ');
+            const timeStart = document.getElementById('edit-venue-time-start').value.trim();
+            const timeEnd = document.getElementById('edit-venue-time-end').value.trim();
+            const price = document.getElementById('edit-venue-price').value.trim();
             const mapUrl = document.getElementById('edit-venue-map-url').value.trim();
 
             if (!name || !address || !province) {
-                alert('กรุณากรอกชื่อ ที่อยู่ และจังหวัดให้ครบถ้วน');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ข้อมูลไม่ครบถ้วน',
+                    text: 'กรุณากรอกชื่อตลาด/อีเวนต์ และระบุที่อยู่พร้อมจังหวัดให้ครบถ้วนครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 return;
             }
 
             const btn = document.getElementById('submit-edit-btn');
-            const originalText = btn.innerHTML;
+            const originalContent = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
             btn.disabled = true;
 
             const extraDetails = [
                 descRaw,
                 activeDays ? `วันที่เปิดให้บริการ: ${activeDays}` : null,
-                timeStart || timeEnd ? `เวลาให้บริการ: ${timeStart || '-'} ถึง ${timeEnd || '-'}` : null,
+                (timeStart || timeEnd) ? `เวลาให้บริการ: ${timeStart || '-'} ถึง ${timeEnd || '-'}` : null,
                 price ? `ราคาเริ่มต้น: ${price} บาท` : null
             ].filter(Boolean).join('\n\n');
 
@@ -3360,6 +4689,7 @@
                     .from('venues')
                     .update({
                         name: name,
+                        type: type,
                         location: location,
                         address_details: address,
                         province: province,
@@ -3370,22 +4700,47 @@
 
                 if (error) throw error;
                 
-                alert('อัปเดตข้อมูลสำเร็จ!');
                 closeEditVenueModal();
                 fetchOwnerVenues(window.currentUserProfile.id); // Reload UI
+                Swal.fire({
+                    icon: 'success',
+                    title: 'อัปเดตข้อมูลสำเร็จ!',
+                    text: `อัปเดตข้อมูลของ "${name}" เรียบร้อยแล้วครับ`,
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' },
+                    timer: 2000
+                });
             } catch(err) {
-                console.error(err);
-                alert('เกิดข้อผิดพลาด: ' + err.message);
+                console.error('Error updating venue:', err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + err.message,
+                    confirmButtonText: 'ลองใหม่อีกครั้ง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
             } finally {
-                btn.innerHTML = originalText;
+                btn.innerHTML = originalContent;
                 btn.disabled = false;
             }
         }
 
         async function deleteVenue(venueId) {
-            if (!confirm('คุณแน่ใจหรือไม่ที่จะลบตลาด/พื้นที่นี้? การกระทำนี้ไม่สามารถกู้คืนได้ (ข้อมูลล็อคและการจองทั้งหมดจะถูกลบด้วย)')) {
-                return;
-            }
+            const res = await Swal.fire({
+                title: 'ยืนยันการลบตลาด/พื้นที่?',
+                text: 'คุณแน่ใจหรือไม่ที่จะลบตลาด/พื้นที่นี้? การกระทำนี้ไม่สามารถกู้คืนได้ (ข้อมูลล็อคและการจองทั้งหมดจะถูกลบด้วย)',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'ใช่, ลบตลาดนี้',
+                cancelButtonText: 'ยกเลิก',
+                customClass: { popup: 'swal-custom-popup' }
+            });
+
+            if (!res.isConfirmed) return;
 
             try {
                 // 1. Fetch all spaces for this venue
@@ -3426,11 +4781,26 @@
 
                 if (venueDelErr) throw venueDelErr;
                 
-                alert('ลบตลาด/พื้นที่สำเร็จ!');
                 fetchOwnerVenues(window.currentUserProfile.id); // Reload UI
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ลบสำเร็จ!',
+                    text: 'ลบตลาด/พื้นที่ออกจากระบบเรียบร้อยแล้วครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' },
+                    timer: 2000
+                });
             } catch(err) {
                 console.error('Error deleting venue:', err);
-                alert('เกิดข้อผิดพลาดในการลบตลาด: ' + (err.message || 'ไม่ทราบสาเหตุ กรุณาลองใหม่อีกครั้ง'));
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการลบตลาด: ' + (err.message || 'ไม่ทราบสาเหตุ กรุณาลองใหม่อีกครั้ง'),
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
             }
         }
 
@@ -3716,8 +5086,21 @@
             if (e) e.preventDefault();
             const status = window.currentUserProfile?.kyc_status || (window.currentUserProfile?.is_verified ? 'approved' : 'unverified');
             if (status !== 'approved') {
-                alert('กรุณายืนยันตัวตน (KYC) ให้เสร็จสิ้นและรอการอนุมัติก่อนทำรายการนี้');
-                switchView('profile', document.querySelector('.bottom-nav .nav-item:last-child'));
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ต้องยืนยันตัวตนก่อน',
+                    text: 'กรุณายืนยันตัวตน (e-KYC) ให้เสร็จสิ้นและรอการอนุมัติก่อนทำรายการนี้ครับ',
+                    confirmButtonText: 'ไปหน้ายืนยันตัวตน',
+                    showCancelButton: true,
+                    cancelButtonText: 'ไว้ทีหลัง',
+                    confirmButtonColor: '#a46309',
+                    cancelButtonColor: '#64748b',
+                    customClass: { popup: 'swal-custom-popup' }
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        switchView('profile', document.querySelector('.bottom-nav .nav-item:last-child'));
+                    }
+                });
                 return false;
             }
             if (url) window.location.href = url;
@@ -3727,7 +5110,20 @@
         async function approveBooking() {
             if (!requireOwnerKYC()) return;
             if (!currentBookingId || !currentSpaceId) return;
-            if(!confirm('คุณแน่ใจหรือไม่ที่จะอนุมัติการจองนี้?')) return;
+
+            const res = await Swal.fire({
+                title: 'ยืนยันการอนุมัติ?',
+                text: 'คุณแน่ใจหรือไม่ที่จะอนุมัติการจองและสลิปนี้?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: '<i class="fa-solid fa-check"></i> ใช่, อนุมัติการจอง',
+                cancelButtonText: 'ยกเลิก',
+                customClass: { popup: 'swal-custom-popup' }
+            });
+
+            if (!res.isConfirmed) return;
 
             try {
                 // 1. Update Booking Status
@@ -3752,19 +5148,48 @@
 
                 if (sErr) throw sErr;
 
-                alert('อนุมัติการจองเรียบร้อยแล้ว!');
                 closeBookingModal();
                 fetchPendingBookings(); // Refresh list
 
+                Swal.fire({
+                    icon: 'success',
+                    title: 'อนุมัติสำเร็จ!',
+                    text: 'อนุมัติการจองและแจ้งเตือนผู้เช่าเรียบร้อยแล้วครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' },
+                    timer: 2000
+                });
+
             } catch (err) {
                 console.error("Error approving booking:", err);
-                alert('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้งครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
             }
         }
 
         async function rejectBooking() {
             if (!currentBookingId || !currentSpaceId) return;
-            if(!confirm('คุณแน่ใจหรือไม่ที่จะปฏิเสธการจองนี้? (พื้นที่นี้จะกลับมาว่างอีกครั้ง)')) return;
+
+            const res = await Swal.fire({
+                title: 'ยืนยันปฏิเสธการจอง?',
+                text: 'คุณแน่ใจหรือไม่ที่จะปฏิเสธการจองนี้? (พื้นที่นี้จะกลับมาว่างอีกครั้ง)',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'ใช่, ปฏิเสธการจอง',
+                cancelButtonText: 'ยกเลิก',
+                customClass: { popup: 'swal-custom-popup' }
+            });
+
+            if (!res.isConfirmed) return;
 
             try {
                 // 1. Update Booking Status to cancelled
@@ -3775,7 +5200,7 @@
                 
                 if (bErr) throw bErr;
 
-                // 2. We don't need to update space status because it should already be available or we can force it to available
+                // 2. Space status to available
                 const { error: sErr } = await supabaseClient
                     .from('spaces')
                     .update({ status: 'available' })
@@ -3783,13 +5208,29 @@
                     
                 if (sErr) throw sErr;
 
-                alert('ปฏิเสธการจองเรียบร้อยแล้ว');
                 closeBookingModal();
                 fetchPendingBookings(); // Refresh list
 
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ปฏิเสธการจองแล้ว',
+                    text: 'ปฏิเสธการจองเรียบร้อยแล้ว พื้นที่กลับมาพร้อมจองอีกครั้งครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' },
+                    timer: 2000
+                });
+
             } catch (err) {
                 console.error("Error rejecting booking:", err);
-                alert('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้งครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
             }
         }
 
@@ -3867,68 +5308,233 @@
             });
         }
     </script>
-    <!-- Edit Venue Modal -->
-    <div id="edit-venue-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f8fafc; z-index: 10000; overflow-y: auto;">
-        <div style="background: white; width: 100%; min-height: 100vh; padding: 0; position: relative;">
-            
-            <!-- Header -->
-            <header style="background: #a46309; padding: 20px; position: relative; display: flex; align-items: center; justify-content: center;">
-                <button onclick="closeEditVenueModal()" style="position: absolute; left: 20px; background: transparent; border: none; font-size: 1.5rem; color: white; cursor: pointer;"><i class="fa-solid fa-arrow-left"></i></button>
-                <h1 style="color: white; font-size: 1.25rem; font-weight: 600; margin: 0;">แก้ไขรายละเอียดพื้นที่</h1>
-            </header>
+    <!-- Redesigned Edit Venue (Market / Event) Modal -->
+    <div id="edit-venue-modal" class="edit-venue-backdrop" style="display: none;" onclick="handleEditVenueBackdropClick(event)">
+        <div class="edit-venue-modal-card" onclick="event.stopPropagation()">
+            <!-- Sticky Header -->
+            <div class="edit-venue-header">
+                <div class="edit-venue-header-left">
+                    <div class="edit-venue-icon-badge">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </div>
+                    <div>
+                        <h2 class="edit-venue-title">แก้ไขรายละเอียดพื้นที่</h2>
+                        <p class="edit-venue-subtitle">ปรับแต่งข้อมูลตลาดหรืออีเวนต์ วันเวลาทำการ และที่ตั้ง</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close-venue-modal" onclick="closeEditVenueModal()" title="ปิดหน้าต่าง">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
 
-            <div style="padding: 24px; max-width: 800px; margin: 0 auto;">
+            <!-- Modal Scrollable Body -->
+            <div class="edit-venue-body">
                 <input type="hidden" id="edit-venue-id">
-                <input type="hidden" id="edit-venue-type">
+                <input type="hidden" id="edit-venue-type" value="market">
 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label class="form-label" style="font-size: 0.95rem; font-weight: 600; color: #1e293b; margin-bottom: 6px; display: block;">ชื่อตลาด / อีเวนต์</label>
-                    <input type="text" id="edit-venue-name" style="width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: inherit; font-size: 1rem; background: #f8fafc;">
-                </div>
-
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label class="form-label" style="font-size: 0.95rem; font-weight: 600; color: #1e293b; margin-bottom: 6px; display: block;">ที่อยู่ (พิมพ์ที่อยู่เต็ม ระบบจะดึงจังหวัดให้อัตโนมัติ)</label>
-                    <input type="text" id="edit-venue-address" style="width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: inherit; font-size: 1rem; background: #f8fafc;" placeholder="เช่น 123 ถนนสุขุมวิท เขตวัฒนา กรุงเทพมหานคร 10110">
-                </div>
-
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label class="form-label" style="font-size: 0.95rem; font-weight: 600; color: #1e293b; margin-bottom: 6px; display: block;">ลิงก์ Google Maps (ถ้ามี)</label>
-                    <input type="url" id="edit-venue-map-url" style="width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: inherit; font-size: 1rem; background: #f8fafc;" placeholder="ตัวอย่าง: https://maps.app.goo.gl/...">
-                </div>
-
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label class="form-label" style="font-size: 0.95rem; font-weight: 600; color: #1e293b; margin-bottom: 6px; display: block;">รายละเอียดเพิ่มเติม</label>
-                    <textarea id="edit-venue-desc" rows="4" style="width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: inherit; font-size: 1rem; background: #f8fafc; resize: vertical;"></textarea>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label class="form-label" style="font-size: 0.95rem; font-weight: 600; color: #1e293b; margin-bottom: 6px; display: block;">วันที่เปิดให้บริการ</label>
-                    <div style="display: flex; gap: 4px; flex-wrap: wrap;" id="edit-venue-days">
-                        <button type="button" class="day-btn" onclick="this.classList.toggle('active')">จ.</button>
-                        <button type="button" class="day-btn" onclick="this.classList.toggle('active')">อ.</button>
-                        <button type="button" class="day-btn" onclick="this.classList.toggle('active')">พ.</button>
-                        <button type="button" class="day-btn" onclick="this.classList.toggle('active')">พฤ.</button>
-                        <button type="button" class="day-btn" onclick="this.classList.toggle('active')">ศ.</button>
-                        <button type="button" class="day-btn" onclick="this.classList.toggle('active')">ส.</button>
-                        <button type="button" class="day-btn" onclick="this.classList.toggle('active')">อา.</button>
+                <!-- 1. Live Hero Banner Preview -->
+                <div class="venue-banner-preview-card">
+                    <img id="edit-venue-preview-img" src="https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&q=80&w=800" alt="Venue Cover" class="venue-banner-img">
+                    <div class="venue-banner-overlay"></div>
+                    <div class="venue-banner-top-tags">
+                        <span id="edit-venue-type-tag" class="venue-tag-pill tag-market">
+                            <i class="fa-solid fa-store"></i> ตลาดสด / ตลาดนัด
+                        </span>
+                        <span class="venue-tag-pill tag-live">
+                            <span class="pulse-dot"></span> กำลังเปิดใช้งาน
+                        </span>
+                    </div>
+                    <div class="venue-banner-bottom-info">
+                        <h3 id="edit-venue-preview-title" class="venue-banner-name">ชื่อตลาด / อีเวนต์</h3>
+                        <p id="edit-venue-preview-location" class="venue-banner-loc"><i class="fa-solid fa-location-dot"></i> ระบุที่ตั้ง</p>
                     </div>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label class="form-label" style="font-size: 0.95rem; font-weight: 600; color: #1e293b; margin-bottom: 6px; display: block;">เวลาเปิด-ปิด</label>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <input type="text" id="edit-venue-time-start" style="flex: 1; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-family: inherit;" placeholder="เวลาเปิด">
-                        <span style="color: #64748b; font-weight: 500;">ถึง</span>
-                        <input type="text" id="edit-venue-time-end" style="flex: 1; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-family: inherit;" placeholder="เวลาปิด">
+                <!-- 2. Section: Type & Name -->
+                <div class="edit-section-card">
+                    <div class="edit-section-header">
+                        <span class="edit-section-icon"><i class="fa-solid fa-layer-group"></i></span>
+                        <div>
+                            <h4 class="edit-section-heading">หมวดหมู่และชื่อสถานที่</h4>
+                            <p class="edit-section-sub">เลือกประเภทให้เหมาะสมเพื่อให้ผู้เช่าค้นหาง่ายขึ้น</p>
+                        </div>
+                    </div>
+
+                    <!-- Category Segmented Cards -->
+                    <div class="type-selector-grid">
+                        <div class="type-selector-card active" id="type-opt-market" onclick="selectVenueType('market')">
+                            <div class="type-card-radio"></div>
+                            <div class="type-card-icon"><i class="fa-solid fa-store"></i></div>
+                            <div class="type-card-info">
+                                <span class="type-card-title">ตลาดสด / ตลาดนัด</span>
+                                <span class="type-card-desc">ตลาดประจำ ตลาดเปิดท้าย ไนท์มาร์เก็ต</span>
+                            </div>
+                        </div>
+                        <div class="type-selector-card" id="type-opt-event" onclick="selectVenueType('event')">
+                            <div class="type-card-radio"></div>
+                            <div class="type-card-icon"><i class="fa-solid fa-calendar-days"></i></div>
+                            <div class="type-card-info">
+                                <span class="type-card-title">งานอีเวนต์ / งานเทศกาล</span>
+                                <span class="type-card-desc">งานจัดชั่วคราว เทศกาล คอนเสิร์ต แฟร์</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Name Input -->
+                    <div class="form-group-custom">
+                        <label class="venue-label" for="edit-venue-name">
+                            <i class="fa-solid fa-heading" style="color: #a46309;"></i> ชื่อตลาด / อีเวนต์ <span class="required-star">*</span>
+                        </label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-store input-prefix-icon"></i>
+                            <input type="text" id="edit-venue-name" class="venue-input" placeholder="เช่น ตลาดจตุจักร, งาน Craft Fair 2026" oninput="updateVenueNamePreview(this.value)">
+                        </div>
                     </div>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 25px;">
-                    <label class="form-label" style="font-size: 0.95rem; font-weight: 600; color: #1e293b; margin-bottom: 6px; display: block;">ราคาเริ่มต้น (บาท)</label>
-                    <input type="number" id="edit-venue-price" style="width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: inherit; font-size: 1rem; background: #f8fafc;" placeholder="0">
+                <!-- 3. Section: Location & Map URL -->
+                <div class="edit-section-card">
+                    <div class="edit-section-header">
+                        <span class="edit-section-icon"><i class="fa-solid fa-map-location-dot"></i></span>
+                        <div>
+                            <h4 class="edit-section-heading">ข้อมูลที่ตั้งและแผนที่</h4>
+                            <p class="edit-section-sub">ระบุที่อยู่พร้อมจังหวัดเพื่อแสดงบนแผนที่และตัวกรอง</p>
+                        </div>
+                    </div>
+
+                    <!-- Address Input -->
+                    <div class="form-group-custom">
+                        <label class="venue-label" for="edit-venue-address">
+                            <i class="fa-solid fa-location-dot" style="color: #a46309;"></i> ที่อยู่เต็ม (ถนน, แขวง/ตำบล, เขต/อำเภอ, จังหวัด) <span class="required-star">*</span>
+                        </label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-map-pin input-prefix-icon"></i>
+                            <input type="text" id="edit-venue-address" class="venue-input" placeholder="เช่น 587/10 ถนนกำแพงเพชร 2 แขวงจตุจักร เขตจตุจักร กรุงเทพมหานคร 10900" oninput="handleAddressChange(this.value)">
+                        </div>
+
+                        <!-- Detected Province Pill -->
+                        <div class="detected-province-wrapper" id="detected-province-wrapper">
+                            <span class="detected-province-badge not-detected" id="edit-detected-province-badge">
+                                <i class="fa-solid fa-circle-info"></i> พิมพ์ชื่อจังหวัดในที่อยู่เพื่อให้ระบบตรวจจับอัตโนมัติ
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Google Maps URL -->
+                    <div class="form-group-custom">
+                        <label class="venue-label" for="edit-venue-map-url">
+                            <i class="fa-solid fa-diamond-turn-right" style="color: #a46309;"></i> ลิงก์ Google Maps (ถ้ามี)
+                        </label>
+                        <div class="input-action-group">
+                            <div class="input-with-icon" style="flex: 1;">
+                                <i class="fa-solid fa-link input-prefix-icon"></i>
+                                <input type="url" id="edit-venue-map-url" class="venue-input" placeholder="https://maps.app.goo.gl/...">
+                            </div>
+                            <button type="button" class="btn-test-map" onclick="testOpenMapUrl()" title="ทดสอบเปิดแผนที่ในแท็บใหม่">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> ทดสอบลิงก์
+                            </button>
+                        </div>
+                        <span class="form-hint-text"><i class="fa-regular fa-lightbulb"></i> ช่วยให้ผู้เช่าและลูกค้ากดนำทางไปยังตลาดของคุณได้ง่ายขึ้น</span>
+                    </div>
                 </div>
 
-                <button id="submit-edit-btn" class="book-btn" style="width: 100%; padding: 14px; font-size: 1.05rem;" onclick="submitEditVenue()">บันทึกการแก้ไข</button>
+                <!-- 4. Section: Operating Schedule & Starting Price -->
+                <div class="edit-section-card">
+                    <div class="edit-section-header">
+                        <span class="edit-section-icon"><i class="fa-solid fa-clock"></i></span>
+                        <div>
+                            <h4 class="edit-section-heading">วัน เวลาทำการ และราคาเริ่มต้น</h4>
+                            <p class="edit-section-sub">กำหนดวันและช่วงเวลาที่เปิดตลาด และราคาเริ่มต้นสำหรับผู้เช่า</p>
+                        </div>
+                    </div>
+
+                    <!-- Days of Week -->
+                    <div class="form-group-custom">
+                        <div class="days-header-row">
+                            <label class="venue-label" style="margin-bottom: 0;">
+                                <i class="fa-regular fa-calendar-check" style="color: #a46309;"></i> วันที่เปิดให้บริการ
+                            </label>
+                            <!-- Day Preset Chips -->
+                            <div class="preset-chips-group">
+                                <button type="button" class="preset-chip" onclick="setDaysPreset('all')">ทุกวัน</button>
+                                <button type="button" class="preset-chip" onclick="setDaysPreset('weekdays')">จ. - ศ.</button>
+                                <button type="button" class="preset-chip" onclick="setDaysPreset('weekend')">ส. - อา.</button>
+                                <button type="button" class="preset-chip preset-chip-clear" onclick="setDaysPreset('clear')">ล้าง</button>
+                            </div>
+                        </div>
+
+                        <div class="days-grid-selector" id="edit-venue-days">
+                            <button type="button" class="day-pill-btn" data-day="จ." onclick="this.classList.toggle('active')">จ.</button>
+                            <button type="button" class="day-pill-btn" data-day="อ." onclick="this.classList.toggle('active')">อ.</button>
+                            <button type="button" class="day-pill-btn" data-day="พ." onclick="this.classList.toggle('active')">พ.</button>
+                            <button type="button" class="day-pill-btn" data-day="พฤ." onclick="this.classList.toggle('active')">พฤ.</button>
+                            <button type="button" class="day-pill-btn" data-day="ศ." onclick="this.classList.toggle('active')">ศ.</button>
+                            <button type="button" class="day-pill-btn" data-day="ส." onclick="this.classList.toggle('active')">ส.</button>
+                            <button type="button" class="day-pill-btn" data-day="อา." onclick="this.classList.toggle('active')">อา.</button>
+                        </div>
+                    </div>
+
+                    <!-- Time & Price Grid -->
+                    <div class="time-price-grid">
+                        <div class="form-group-custom">
+                            <div class="time-header-row">
+                                <label class="venue-label" style="margin-bottom: 0;">
+                                    <i class="fa-regular fa-clock" style="color: #a46309;"></i> เวลาเปิด - ปิด
+                                </label>
+                                <div class="preset-chips-group">
+                                    <button type="button" class="preset-chip" onclick="setTimePreset('06:00', '12:00')">เช้า</button>
+                                    <button type="button" class="preset-chip" onclick="setTimePreset('16:00', '22:00')">เย็น/ค่ำ</button>
+                                    <button type="button" class="preset-chip" onclick="setTimePreset('09:00', '21:00')">ทั้งวัน</button>
+                                </div>
+                            </div>
+                            <div class="time-inputs-group">
+                                <div class="time-input-box">
+                                    <span class="time-input-label">เปิด</span>
+                                    <input type="text" id="edit-venue-time-start" class="venue-input time-input" placeholder="06:00">
+                                </div>
+                                <span class="time-separator">ถึง</span>
+                                <div class="time-input-box">
+                                    <span class="time-input-label">ปิด</span>
+                                    <input type="text" id="edit-venue-time-end" class="venue-input time-input" placeholder="22:00">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label class="venue-label" for="edit-venue-price">
+                                <i class="fa-solid fa-tag" style="color: #a46309;"></i> ราคาเริ่มต้น (บาท/วัน)
+                            </label>
+                            <div class="input-with-suffix">
+                                <span class="currency-prefix">฿</span>
+                                <input type="number" id="edit-venue-price" class="venue-input price-input" placeholder="0" min="0">
+                                <span class="currency-suffix">บาท / วัน</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Section: Description -->
+                <div class="edit-section-card">
+                    <div class="edit-section-header">
+                        <span class="edit-section-icon"><i class="fa-solid fa-align-left"></i></span>
+                        <div>
+                            <h4 class="edit-section-heading">รายละเอียดเพิ่มเติม</h4>
+                            <p class="edit-section-sub">ข้อมูลจุดเด่น ที่จอดรถ ประเภทสินค้า หรือเงื่อนไขของตลาด</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group-custom">
+                        <textarea id="edit-venue-desc" class="venue-textarea" rows="4" placeholder="เช่น มีที่จอดรถมากกว่า 200 คัน, มีระบบน้ำ-ไฟพร้อมใช้งาน, เน้นจำหน่ายสินค้าแฟชั่นและอาหารโฮมเมด..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sticky Modal Footer -->
+            <div class="edit-venue-footer">
+                <button type="button" class="btn-cancel-venue" onclick="closeEditVenueModal()">ยกเลิก</button>
+                <button type="button" id="submit-edit-btn" class="btn-save-venue" onclick="submitEditVenue()">
+                    <i class="fa-solid fa-floppy-disk"></i> บันทึกการแก้ไข
+                </button>
             </div>
         </div>
     </div>

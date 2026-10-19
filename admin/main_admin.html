@@ -6,7 +6,12 @@
     <title>Spacemate - Admin Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        .swal-custom-popup {
+            border-radius: 20px !important;
+            font-family: 'Prompt', sans-serif !important;
+        }
         :root {
             --primary: #a46309;
             --primary-light: #fefce8;
@@ -1388,8 +1393,16 @@
                 .single();
 
             if (error || !profile || profile.role !== 'admin') {
-                alert('หน้านี้สงวนสิทธิ์เฉพาะผู้ดูแลระบบ (Admin) เท่านั้น');
-                window.location.replace('../index.html');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่มีสิทธิ์เข้าถึง',
+                    text: 'หน้านี้สงวนสิทธิ์เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นครับ',
+                    confirmButtonText: 'กลับหน้าหลัก',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                }).then(() => {
+                    window.location.replace('../index.html');
+                });
                 return;
             }
 
@@ -1559,7 +1572,18 @@
 
     async function quickDecideKyc(userId, status) {
         const actionText = status === 'approved' ? 'อนุมัติ' : 'ไม่อนุมัติ';
-        if (!confirm(`คุณต้องการ ${actionText} ผู้ใช้งานนี้ใช่หรือไม่?`)) return;
+        const res = await Swal.fire({
+            icon: 'question',
+            title: `ยืนยันการ${actionText}?`,
+            text: `คุณต้องการ ${actionText} ผู้ใช้งานนี้ใช่หรือไม่?`,
+            showCancelButton: true,
+            confirmButtonText: 'ยืนยัน',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonColor: '#a46309',
+            cancelButtonColor: '#64748b',
+            customClass: { popup: 'swal-custom-popup' }
+        });
+        if (!res.isConfirmed) return;
         await updateKycInDb(userId, status);
     }
 
@@ -1579,16 +1603,38 @@
 
             if (!data || data.length === 0) {
                 console.warn("No rows updated. RLS might be blocking the admin.");
-                alert('ไม่สามารถอัปเดตข้อมูลได้ เนื่องจากติดสิทธิ์ RLS (Row Level Security) โปรดตรวจสอบ Policy ของ Supabase');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ไม่สามารถอัปเดตได้',
+                    text: 'ไม่สามารถอัปเดตข้อมูลได้ เนื่องจากติดสิทธิ์ RLS (Row Level Security) โปรดตรวจสอบ Policy ของ Supabase',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 return;
             }
 
-            alert(`บันทึกสถานะเรียบร้อยแล้ว (${status === 'approved' ? 'อนุมัติ' : 'ไม่อนุมัติ'})`);
+            Swal.fire({
+                icon: 'success',
+                title: 'บันทึกสถานะเรียบร้อยแล้ว',
+                text: `บันทึกสถานะเรียบร้อยแล้ว (${status === 'approved' ? 'อนุมัติ' : 'ไม่อนุมัติ'})`,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#a46309',
+                customClass: { popup: 'swal-custom-popup' },
+                timer: 2000
+            });
             await loadKycUsers();
             await loadAdminStats();
         } catch (err) {
             console.error('Error updating KYC:', err);
-            alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: 'เกิดข้อผิดพลาดในการอัปเดตสถานะ: ' + (err.message || ''),
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#a46309',
+                customClass: { popup: 'swal-custom-popup' }
+            });
         }
     }
 
@@ -1619,7 +1665,6 @@
 
         } catch (err) {
             console.error('Error loading pending payments:', err);
-            alert('Error loading pending payments: ' + err.message);
         }
     }
 
@@ -1692,7 +1737,18 @@
 
     async function quickDecidePayment(bookingId, status) {
         const actionText = status === 'confirmed' ? 'ยืนยันการชำระเงิน' : 'ไม่อนุมัติ (ยกเลิกจอง)';
-        if (!confirm(`คุณต้องการ ${actionText} ใช่หรือไม่?`)) return;
+        const res = await Swal.fire({
+            icon: 'question',
+            title: `ยืนยันการทำรายการ?`,
+            text: `คุณต้องการ ${actionText} ใช่หรือไม่?`,
+            showCancelButton: true,
+            confirmButtonText: 'ยืนยัน',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonColor: '#a46309',
+            cancelButtonColor: '#64748b',
+            customClass: { popup: 'swal-custom-popup' }
+        });
+        if (!res.isConfirmed) return;
         await updatePaymentInDb(bookingId, status);
     }
 
@@ -1754,12 +1810,27 @@
                 }
             }
             
-            alert(`บันทึกสถานะเรียบร้อยแล้ว (${status === 'confirmed' ? 'ยืนยัน' : 'ยกเลิก'})`);
+            Swal.fire({
+                icon: 'success',
+                title: 'บันทึกสำเร็จ',
+                text: `บันทึกสถานะเรียบร้อยแล้ว (${status === 'confirmed' ? 'ยืนยัน' : 'ยกเลิก'})`,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#a46309',
+                customClass: { popup: 'swal-custom-popup' },
+                timer: 2000
+            });
             await loadPendingPayments();
             await loadAdminStats();
         } catch (err) {
             console.error('Error updating payment:', err);
-            alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: 'เกิดข้อผิดพลาดในการอัปเดตสถานะ: ' + (err.message || ''),
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#a46309',
+                customClass: { popup: 'swal-custom-popup' }
+            });
         }
     }
 

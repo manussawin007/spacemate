@@ -6,7 +6,12 @@
     <title>จองบูธอีเวนต์ - Spacemate</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        .swal-custom-popup {
+            border-radius: 20px !important;
+            font-family: 'Prompt', sans-serif !important;
+        }
         :root {
             --primary-color: #a46309;
             --primary-light: #fbeedb;
@@ -1533,7 +1538,14 @@
             while (checkDate <= endLimit) {
                 const dStr = getLocalDateString(checkDate);
                 if (spaceBookedDates.has(dStr)) {
-                    alert(`ไม่สามารถทำรายการได้ เนื่องจากวันที่ ${formatThaiDateShort(dStr)} บูธนี้มีผู้จองแล้ว กรุณาเลือกวันอื่น`);
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'บูธติดจองแล้ว',
+                        text: `ไม่สามารถทำรายการได้ เนื่องจากวันที่ ${formatThaiDateShort(dStr)} บูธนี้มีผู้จองแล้ว กรุณาเลือกวันอื่นครับ`,
+                        confirmButtonText: 'เลือกวันใหม่',
+                        confirmButtonColor: '#a46309',
+                        customClass: { popup: 'swal-custom-popup' }
+                    });
                     return;
                 }
                 checkDate.setDate(checkDate.getDate() + 1);
@@ -1541,8 +1553,16 @@
 
             const session = await getSession();
             if (!session || !session.user) {
-                alert('กรุณาเข้าสู่ระบบก่อนทำการจอง');
-                window.location.href = '../index.html';
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณาเข้าสู่ระบบ',
+                    text: 'กรุณาเข้าสู่ระบบก่อนทำการจองบูธครับ',
+                    confirmButtonText: 'ไปหน้าเข้าสู่ระบบ',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                }).then(() => {
+                    window.location.href = '../index.html';
+                });
                 return;
             }
 
@@ -1564,16 +1584,56 @@
                     .select()
                     .single();
 
-                if (bErr || !newBooking) {
-                    throw (bErr || new Error('ไม่สามารถสร้างการจองได้'));
+                let finalBookingId = null;
+
+                if (bErr) {
+                    if (bErr.code === '23505') {
+                        // Check if it's the user's own pending booking
+                        const { data: existingBooking } = await supabaseClient
+                            .from('bookings')
+                            .select('id, user_id, status')
+                            .eq('space_id', spaceId)
+                            .eq('start_date', startVal)
+                            .eq('end_date', endVal)
+                            .single();
+                            
+                        if (existingBooking && existingBooking.user_id === session.user.id && existingBooking.status === 'pending') {
+                            finalBookingId = existingBooking.id;
+                        } else {
+                            btn.disabled = false;
+                            btn.innerHTML = 'ยืนยันการจอง';
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'บูธติดจองแล้ว',
+                                text: 'บูธนี้ถูกจองหรือรอตรวจสอบไปแล้วในช่วงเวลาดังกล่าว กรุณาเลือกวันหรือบูธอื่นครับ',
+                                confirmButtonText: 'ตกลง',
+                                confirmButtonColor: '#a46309',
+                                customClass: { popup: 'swal-custom-popup' }
+                            });
+                            return;
+                        }
+                    } else {
+                        throw bErr;
+                    }
+                } else if (newBooking) {
+                    finalBookingId = newBooking.id;
                 }
 
+                if (!finalBookingId) return;
+
                 const bookingType = radioDaily.checked ? 'daily' : (radioWeekly.checked ? 'weekly' : 'monthly');
-                const targetUrl = `payment.html?booking_id=${newBooking.id}&venue_id=${venueId || ''}&space_id=${spaceId || ''}&start_date=${startVal}&end_date=${endVal}&total_price=${totalVal}&booking_type=${bookingType}&period_text=${encodeURIComponent(calc.planDesc)}`;
+                const targetUrl = `payment.html?booking_id=${finalBookingId}&venue_id=${venueId || ''}&space_id=${spaceId || ''}&start_date=${startVal}&end_date=${endVal}&total_price=${totalVal}&booking_type=${bookingType}&period_text=${encodeURIComponent(calc.planDesc)}`;
                 window.location.href = targetUrl;
             } catch (err) {
                 console.error(err);
-                alert('ไม่สามารถสร้างการจองได้: ' + (err.message || 'กรุณาลองใหม่อีกครั้ง'));
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่สามารถสร้างการจองได้',
+                    text: 'เกิดข้อผิดพลาด: ' + (err.message || 'กรุณาลองใหม่อีกครั้งครับ'),
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 btn.disabled = false;
                 btn.innerHTML = 'ยืนยันการจอง';
             }

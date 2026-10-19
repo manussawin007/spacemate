@@ -6,7 +6,12 @@
     <title>จองพื้นที่ - Spacemate</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        .swal-custom-popup {
+            border-radius: 20px !important;
+            font-family: 'Prompt', sans-serif !important;
+        }
         :root {
             --primary-color: #a46309;
             --primary-light: #fbeedb;
@@ -1559,7 +1564,14 @@
             while (checkDate <= endLimit) {
                 const dStr = getLocalDateString(checkDate);
                 if (spaceBookedDates.has(dStr)) {
-                    alert(`ไม่สามารถทำรายการได้ เนื่องจากวันที่ ${formatThaiDateShort(dStr)} ล็อคนี้มีผู้จองแล้ว กรุณาเลือกวันอื่น`);
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'ล็อคนี้ไม่ว่าง',
+                        text: `ไม่สามารถทำรายการได้ เนื่องจากวันที่ ${formatThaiDateShort(dStr)} ล็อคนี้มีผู้จองแล้ว กรุณาเลือกวันอื่นครับ`,
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#a46309',
+                        customClass: { popup: 'swal-custom-popup' }
+                    });
                     return;
                 }
                 checkDate.setDate(checkDate.getDate() + 1);
@@ -1567,8 +1579,16 @@
 
             const session = await getSession();
             if (!session || !session.user) {
-                alert('กรุณาเข้าสู่ระบบก่อนทำการจอง');
-                window.location.href = '../index.html';
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณาเข้าสู่ระบบ',
+                    text: 'กรุณาเข้าสู่ระบบก่อนทำการจองพื้นที่ครับ',
+                    confirmButtonText: 'ไปหน้าเข้าสู่ระบบ',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                }).then(() => {
+                    window.location.href = '../index.html';
+                });
                 return;
             }
 
@@ -1607,9 +1627,16 @@
                         if (existingBooking && existingBooking.user_id === session.user.id && existingBooking.status === 'pending') {
                             finalBookingId = existingBooking.id;
                         } else {
-                            alert('ล็อคนี้ถูกจองหรือรอตรวจสอบไปแล้วในช่วงเวลาดังกล่าว กรุณาเลือกวันหรือล็อคอื่น');
                             btn.disabled = false;
                             btn.innerHTML = 'ยืนยันการจอง';
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'ล็อคติดจองแล้ว',
+                                text: 'ล็อคนี้ถูกจองหรือรอตรวจสอบไปแล้วในช่วงเวลาดังกล่าว กรุณาเลือกวันหรือล็อคอื่นครับ',
+                                confirmButtonText: 'ตกลง',
+                                confirmButtonColor: '#a46309',
+                                customClass: { popup: 'swal-custom-popup' }
+                            });
                             return;
                         }
                     } else {
@@ -1626,9 +1653,16 @@
                 window.location.href = targetUrl;
             } catch (err) {
                 console.error(err);
-                alert('ไม่สามารถสร้างการจองได้: ' + (err.message || 'กรุณาลองใหม่อีกครั้ง'));
                 btn.disabled = false;
                 btn.innerHTML = 'ยืนยันการจอง';
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถสร้างการจองได้: ' + (err.message || 'กรุณาลองใหม่อีกครั้งครับ'),
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
             }
         }
 

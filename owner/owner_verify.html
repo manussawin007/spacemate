@@ -8,10 +8,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Supabase JS CDN & Config -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../assets/js/supabase.js"></script>
     <style>
+        .swal-custom-popup {
+            border-radius: 20px !important;
+            font-family: 'Prompt', sans-serif !important;
+        }
         :root {
             --bg-color: #F1F4F8;
             --primary-color: #a46309;
@@ -609,7 +614,14 @@
 
             // Size check (max 5MB)
             if (file.size > 5 * 1024 * 1024) {
-                alert('ขนาดไฟล์ต้องไม่เกิน 5 MB');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ไฟล์มีขนาดใหญ่เกินไป',
+                    text: 'ขนาดไฟล์ต้องไม่เกิน 5 MB กรุณาเลือกไฟล์ใหม่ครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 event.target.value = '';
                 return;
             }
@@ -929,11 +941,25 @@
             if (e) e.preventDefault();
 
             if (window.currentOwnerKycStatus === 'approved') {
-                alert('บัญชีของคุณได้รับการยืนยันตัวตน (e-KYC) เรียบร้อยแล้ว ข้อมูลถูกล็อคและไม่สามารถแก้ไขได้');
+                Swal.fire({
+                    icon: 'info',
+                    title: 'ยืนยันตัวตนแล้ว',
+                    text: 'บัญชีของคุณได้รับการยืนยันตัวตน (e-KYC) เรียบร้อยแล้ว ข้อมูลถูกล็อคและไม่สามารถแก้ไขได้ครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 return false;
             }
             if (window.currentOwnerKycStatus === 'pending') {
-                alert('ข้อมูลของคุณอยู่ระหว่างรอเจ้าหน้าที่ Admin ตรวจสอบ ไม่สามารถแก้ไขได้ในขณะนี้');
+                Swal.fire({
+                    icon: 'info',
+                    title: 'อยู่ระหว่างตรวจสอบ',
+                    text: 'ข้อมูลของคุณอยู่ระหว่างรอเจ้าหน้าที่ Admin ตรวจสอบ ไม่สามารถแก้ไขได้ในขณะนี้ครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 return false;
             }
 
@@ -976,19 +1002,40 @@
 
             // Check required file uploads
             if (!uploadedFiles.idcard) {
-                alert('กรุณาอัปโหลดรูปถ่ายหน้าบัตรประชาชน');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ยังแนบรูปไม่ครบ',
+                    text: 'กรุณาอัปโหลดรูปถ่ายหน้าบัตรประชาชนครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 document.getElementById('box-idcard').scrollIntoView({ behavior: 'smooth' });
                 return false;
             }
 
             if (!uploadedFiles.selfie) {
-                alert('กรุณาอัปโหลดรูปถ่ายเซลฟี่คู่กับบัตรประชาชน');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ยังแนบรูปไม่ครบ',
+                    text: 'กรุณาอัปโหลดรูปถ่ายเซลฟี่คู่กับบัตรประชาชนครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 document.getElementById('box-selfie').scrollIntoView({ behavior: 'smooth' });
                 return false;
             }
 
             if (!consent) {
-                alert('กรุณายินยอมให้ประมวลผลข้อมูลส่วนบุคคล');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณายินยอมเงื่อนไข',
+                    text: 'กรุณายินยอมให้ประมวลผลข้อมูลส่วนบุคคลตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA) ก่อนครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 return false;
             }
 
@@ -1033,13 +1080,28 @@
                         .eq('id', currentUserId);
                 }
 
-                alert('ส่งข้อมูลยืนยันตัวตนสำเร็จ! อยู่ระหว่างรอการตรวจสอบจากเจ้าหน้าที่ Admin');
-                sessionStorage.setItem('active_owner_view', 'profile');
-                window.location.href = 'main_owner.html?view=profile';
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ส่งข้อมูลยืนยันตัวตนสำเร็จ!',
+                    text: 'ข้อมูลของคุณถูกส่งแล้ว อยู่ระหว่างรอการตรวจสอบจากเจ้าหน้าที่ Admin ครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                }).then(() => {
+                    sessionStorage.setItem('active_owner_view', 'profile');
+                    window.location.href = 'main_owner.html?view=profile';
+                });
 
             } catch (err) {
                 console.error('Error submitting verification:', err);
-                alert('เกิดข้อผิดพลาดในการส่งข้อมูลยืนยันตัวตน กรุณาลองใหม่อีกครั้ง');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการส่งข้อมูลยืนยันตัวตน กรุณาลองใหม่อีกครั้งครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 btn.innerHTML = 'ส่งข้อมูลยืนยันตัวตน';
                 btn.style.opacity = '1';
                 btn.disabled = false;

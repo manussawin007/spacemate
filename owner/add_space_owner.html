@@ -3,18 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เพิ่มพื้นที่ใหม่ - Spacemate</title>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>ลงทะเบียนพื้นที่ใหม่ - Spacemate Partner Hub</title>
+    <link rel="icon" type="image/png" href="../images/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
     <style>
         :root {
-            --bg-color: #F1F4F8;
             --primary-color: #a46309;
+            --primary-dark: #8c5206;
             --primary-light: #fbeedb;
-            --card-bg: #FFFFFF;
-            --text-main: #1e293b;
+            --primary-hover: #b45309;
+            --primary-gradient: linear-gradient(135deg, #d97706 0%, #a46309 100%);
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-secondary: #334155;
             --text-muted: #64748b;
             --border-color: #e2e8f0;
+            --border-focus: #a46309;
+            --radius-sm: 10px;
+            --radius-md: 16px;
+            --radius-lg: 22px;
         }
 
         * {
@@ -28,432 +42,1408 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             min-height: 100vh;
-            padding-bottom: 40px;
+            padding-bottom: 90px;
+            position: relative;
         }
 
-        /* Header */
-        .header {
-            background-color: rgba(241, 244, 248, 0.95);
-            backdrop-filter: blur(8px);
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
+        .swal-custom-popup {
+            border-radius: 22px !important;
+            font-family: 'Prompt', sans-serif !important;
+            padding: 1.5rem !important;
+        }
+
+        /* Sticky Creator Header */
+        .creator-header {
             position: sticky;
             top: 0;
             z-index: 100;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            padding: 0.85rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
         }
 
-        .back-btn {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid #e2e8f0;
-            color: #1e293b;
-            font-size: 1.1rem;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-back-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
+            font-size: 1.1rem;
             text-decoration: none;
-            margin-left: -0.5rem;
-            margin-right: 1rem;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
         }
-        .back-btn:hover {
-            background: #ffffff;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+
+        .nav-back-btn:hover {
+            background: #f8fafc;
+            border-color: var(--primary-color);
             color: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        .header-titles {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-main-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.25;
+        }
+
+        .header-sub-title {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #fffbeb;
+            border: 1px solid #fef3c7;
+            color: #b45309;
+            padding: 6px 12px;
+            border-radius: 99px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Container */
+        .creator-container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 1.5rem 1rem 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Hero Banner */
+        .creator-hero {
+            background: linear-gradient(135deg, #ffffff 0%, #fffdfa 100%);
+            border: 1.5px solid rgba(164, 99, 9, 0.12);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem 1.75rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 24px -4px rgba(164, 99, 9, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+        }
+
+        .hero-decor-circle {
+            position: absolute;
+            right: -30px;
+            top: -30px;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(217, 119, 6, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            flex: 1;
+        }
+
+        .hero-pill-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--primary-light);
+            color: var(--primary-color);
+            font-size: 0.775rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 99px;
+            margin-bottom: 0.6rem;
+        }
+
+        .hero-heading {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.35rem;
+        }
+
+        .hero-desc {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            max-width: 580px;
+        }
+
+        .hero-icon-visual {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            background: var(--primary-gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.85rem;
+            box-shadow: 0 10px 20px rgba(164, 99, 9, 0.25);
+            flex-shrink: 0;
+        }
+
+        /* Card Section Component */
+        .form-section-card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.02);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-section-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
             border-color: #cbd5e1;
         }
-        .back-btn:active {
-            transform: translateY(0);
-        }
 
-        .header-title {
-            flex-grow: 1;
-            text-align: center;
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-right: 1.25rem; /* Balance the back button */
-        }
-
-        /* Form Container */
-        .form-container {
-            padding: 1.5rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .form-card {
-            background-color: var(--card-bg);
-            border-radius: 24px;
-            padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        .section-header-row {
             display: flex;
-            flex-direction: column;
-            gap: 1.75rem;
-            border: 1px solid rgba(164, 99, 9, 0.08);
-            transition: box-shadow 0.3s ease;
-        }
-        
-        .form-card:hover {
-            box-shadow: 0 15px 40px rgba(164, 99, 9, 0.08);
-        }
-
-        .type-selector {
-            display: flex;
-            background-color: #f8fafc;
-            border-radius: 16px;
-            padding: 6px;
-            gap: 6px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.04);
-        }
-
-        .type-btn {
-            flex: 1;
-            padding: 12px;
-            text-align: center;
-            border: none;
-            background: transparent;
-            font-family: inherit;
-            font-size: 1.05rem;
-            font-weight: 600;
-            color: #64748b;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .type-btn.active {
-            background: linear-gradient(135deg, #a46309 0%, #8f5506 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(164, 99, 9, 0.25);
-            transform: scale(1.02);
-        }
-
-        /* Input Fields */
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.6rem;
-        }
-
-        .form-label {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--text-main);
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 14px 18px;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 14px;
-            font-family: inherit;
-            font-size: 1rem;
-            color: var(--text-main);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            background-color: #f8fafc;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #a46309;
-            background-color: #ffffff;
-            box-shadow: 0 0 0 4px rgba(164, 99, 9, 0.1);
-        }
-
-        /* Upload Box */
-        .upload-box {
-            border: 2px dashed #cbd5e1;
-            border-radius: 16px;
-            padding: 2.5rem 1.5rem;
-            display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
             gap: 0.85rem;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            color: var(--text-muted);
-            background-color: #f8fafc;
+            padding-bottom: 0.85rem;
+            border-bottom: 1px solid #f1f5f9;
         }
 
-        .upload-box:hover {
-            border-color: #a46309;
-            background-color: #fffaf0;
-            color: #a46309;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(164, 99, 9, 0.05);
-        }
-
-        .upload-icon {
-            font-size: 2.5rem;
-            color: #a46309;
-            transition: transform 0.3s ease;
-        }
-        
-        .upload-box:hover .upload-icon {
-            transform: scale(1.1) translateY(-5px);
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        /* Days Selector */
-        .days-selector {
-            display: flex;
-            gap: 0.25rem;
-            justify-content: space-between;
-            flex-wrap: wrap;
-        }
-
-        .day-btn {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: 2px solid #e2e8f0;
-            background-color: #ffffff;
-            font-family: inherit;
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #64748b;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        .section-icon-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: var(--primary-light);
+            color: var(--primary-color);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
         }
-        
-        .day-btn:hover {
-            border-color: rgba(164, 99, 9, 0.4);
-            color: #a46309;
+
+        .section-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.3;
+        }
+
+        .section-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* 1. Category Selector Cards */
+        .category-selector-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .category-selector-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .category-card {
+            background: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            position: relative;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .category-card:hover {
+            border-color: #cbd5e1;
             transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
         }
 
-        .day-btn.active {
-            background: linear-gradient(135deg, #a46309 0%, #8f5506 100%);
-            border-color: transparent;
-            color: white;
-            box-shadow: 0 6px 15px rgba(164, 99, 9, 0.3);
-            transform: scale(1.05);
+        .category-card.active {
+            border-color: var(--primary-color);
+            background: #fffbeb;
+            box-shadow: 0 8px 22px rgba(164, 99, 9, 0.12);
         }
 
-        /* Price Input */
-        .price-input-wrapper {
+        .category-radio {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid #cbd5e1;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+            transition: all 0.2s ease;
+        }
+
+        .category-card.active .category-radio {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+        }
+
+        .category-card.active .category-radio::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ffffff;
+        }
+
+        .category-icon-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: #f1f5f9;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .category-card.active .category-icon-wrap {
+            background: var(--primary-light);
+            color: var(--primary-color);
+        }
+
+        .category-details {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .category-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .category-card.active .category-title {
+            color: #92400e;
+        }
+
+        .category-desc {
+            font-size: 0.775rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Form Inputs */
+        .form-group-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+        }
+
+        .form-label-styled {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .required-tag {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .input-icon-wrapper {
             position: relative;
             display: flex;
             align-items: center;
+            width: 100%;
         }
 
-        .price-input-wrapper .form-input {
-            padding-right: 2.5rem;
-        }
-
-        .currency-suffix {
+        .input-icon-prefix {
             position: absolute;
-            right: 16px;
+            left: 15px;
+            color: #94a3b8;
+            font-size: 1rem;
+            pointer-events: none;
+            transition: color 0.2s ease;
+        }
+
+        .form-control-styled {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            background-color: #ffffff;
+            transition: all 0.25s ease;
+            outline: none;
+        }
+
+        .form-control-styled:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(164, 99, 9, 0.12);
+        }
+
+        .input-icon-wrapper:focus-within .input-icon-prefix {
+            color: var(--primary-color);
+        }
+
+        .form-textarea-styled {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            background-color: #ffffff;
+            transition: all 0.25s ease;
+            outline: none;
+            resize: vertical;
+            min-height: 100px;
+            line-height: 1.6;
+        }
+
+        .form-textarea-styled:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(164, 99, 9, 0.12);
+        }
+
+        /* Upload Zones Grid */
+        .uploads-dual-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        @media (max-width: 680px) {
+            .uploads-dual-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .upload-card-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .upload-dropzone {
+            border: 2px dashed #cbd5e1;
+            border-radius: var(--radius-md);
+            padding: 2rem 1.25rem;
+            background: #fafaf9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            min-height: 180px;
+        }
+
+        .upload-dropzone:hover {
+            border-color: var(--primary-color);
+            background: #fffdfa;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(164, 99, 9, 0.08);
+        }
+
+        .upload-icon-circle {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .upload-dropzone:hover .upload-icon-circle {
+            background: var(--primary-light);
+            transform: scale(1.1);
+        }
+
+        .upload-primary-text {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+        }
+
+        .upload-secondary-text {
+            font-size: 0.775rem;
             color: var(--text-muted);
+        }
+
+        .upload-preview-box {
+            display: none;
+            position: relative;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1.5px solid var(--border-color);
+            height: 180px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+        }
+
+        .upload-preview-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .upload-preview-blueprint {
+            object-fit: contain;
+            background: #0f172a;
+        }
+
+        .preview-action-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.7) 0%, transparent 60%);
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            padding: 12px;
+        }
+
+        .preview-tag-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.92);
+            color: var(--text-main);
+            padding: 4px 10px;
+            border-radius: 99px;
+            backdrop-filter: blur(4px);
+        }
+
+        .preview-delete-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .preview-delete-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        /* Province Badge & Maps Action */
+        .detected-province-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.775rem;
+            padding: 5px 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            margin-top: 4px;
+        }
+
+        .detected-province-pill.detected {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
             font-weight: 500;
         }
 
-        /* Submit Button */
-        .submit-btn {
-            width: 100%;
-            padding: 1rem;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #a46309 0%, #8f5506 100%);
-            color: white;
-            border: none;
+        .detected-province-pill.not-detected {
+            background: #f8fafc;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+
+        .map-input-group {
+            display: flex;
+            gap: 8px;
+            align-items: stretch;
+        }
+
+        .btn-test-map-url {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0 16px;
             font-family: inherit;
-            font-size: 1.15rem;
-            font-weight: 700;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary-color);
             cursor: pointer;
-            box-shadow: 0 8px 20px rgba(164, 99, 9, 0.25);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            margin-top: 1.5rem;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .btn-test-map-url:hover {
+            background: var(--primary-light);
+            border-color: var(--primary-color);
+        }
+
+        /* Days and Hours Preset Bar */
+        .header-with-presets {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 0.35rem;
+        }
+
+        .chips-cluster {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .preset-chip-btn {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 99px;
+            padding: 3px 10px;
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .preset-chip-btn:hover {
+            background: var(--primary-light);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .preset-chip-btn.clear-chip {
+            color: #ef4444;
+            border-color: #fca5a5;
+            background: #fef2f2;
+        }
+
+        .preset-chip-btn.clear-chip:hover {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+
+        .days-pill-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .day-pill-toggle {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            border: 1.5px solid var(--border-color);
+            background: #ffffff;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .day-pill-toggle:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: #fffbeb;
+            transform: translateY(-2px);
+        }
+
+        .day-pill-toggle.active {
+            background: var(--primary-gradient);
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 4px 12px rgba(164, 99, 9, 0.28);
+            transform: translateY(-2px);
+        }
+
+        /* Time & Price Grid */
+        .time-price-dual-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 1.25rem;
+        }
+
+        @media (max-width: 640px) {
+            .time-price-dual-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .time-dual-inputs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .time-box-item {
+            flex: 1;
             position: relative;
+        }
+
+        .time-box-tag {
+            position: absolute;
+            top: -7px;
+            left: 12px;
+            background: #ffffff;
+            padding: 0 5px;
+            font-size: 0.675rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-radius: 4px;
+            z-index: 2;
+        }
+
+        .time-input-field {
+            text-align: center;
+            font-weight: 600;
+            padding: 12px 14px !important;
+        }
+
+        .time-divider-text {
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .currency-input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .currency-symbol-tag {
+            position: absolute;
+            left: 14px;
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .price-input-control {
+            padding-left: 36px !important;
+            padding-right: 80px !important;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .currency-unit-text {
+            position: absolute;
+            right: 14px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            pointer-events: none;
+        }
+
+        /* Live Listing Preview Card */
+        .preview-section-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            color: #ffffff;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.15);
+        }
+
+        .preview-header-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .preview-badge-live {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fde68a;
+            font-size: 0.775rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 99px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mockup-tenant-card {
+            background: #ffffff;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            color: var(--text-main);
+            transition: transform 0.2s ease;
+        }
+
+        .mockup-image-box {
+            position: relative;
+            height: 180px;
+            background: #e2e8f0;
             overflow: hidden;
         }
-        
-        .submit-btn::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
+
+        .mockup-img {
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: all 0.5s ease;
+            object-fit: cover;
+            display: block;
         }
 
-        .submit-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 25px rgba(164, 99, 9, 0.35);
-        }
-        
-        .submit-btn:hover::after {
-            left: 100%;
-        }
-        
-        .submit-btn:active {
-            transform: scale(0.98) translateY(0);
+        .mockup-badges-top {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        @media (max-width: 480px) {
-            .day-btn {
-                width: 38px;
-                height: 38px;
-            }
+        .mockup-category-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 99px;
+            color: white;
+            backdrop-filter: blur(6px);
+        }
+
+        .mockup-category-badge.tag-market {
+            background: rgba(164, 99, 9, 0.9);
+        }
+
+        .mockup-category-badge.tag-event {
+            background: rgba(99, 102, 241, 0.9);
+        }
+
+        .mockup-live-status {
+            background: rgba(255, 255, 255, 0.92);
+            color: #059669;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 99px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .mockup-price-tag {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            color: #fde68a;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 99px;
+        }
+
+        .mockup-card-body {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .mockup-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mockup-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            font-size: 0.825rem;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+        }
+
+        .mockup-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mockup-meta-item i {
+            color: var(--primary-color);
+        }
+
+        /* Sticky Action Bar at Bottom */
+        .creator-action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-top: 1px solid rgba(226, 232, 240, 0.8);
+            padding: 1rem 1.5rem;
+            z-index: 90;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .action-bar-inner {
+            max-width: 860px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .btn-cancel-action {
+            background: #f1f5f9;
+            color: var(--text-muted);
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px 22px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .btn-cancel-action:hover {
+            background: #e2e8f0;
+            color: var(--text-main);
+        }
+
+        .btn-submit-action {
+            flex: 1;
+            max-width: 320px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 13px 24px;
+            font-family: inherit;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 6px 18px rgba(164, 99, 9, 0.28);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .btn-submit-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(164, 99, 9, 0.38);
+        }
+
+        .btn-submit-action:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit-action:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+            animation: pulseDot 2s infinite;
+        }
+
+        @keyframes pulseDot {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <header class="header">
-        <a href="main_owner.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
-        <h1 class="header-title">เพิ่มพื้นที่ใหม่</h1>
+    <!-- Sticky Navigation Header -->
+    <header class="creator-header">
+        <div class="header-left">
+            <a href="main_owner.html" class="nav-back-btn" title="กลับหน้าหลัก">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <div class="header-titles">
+                <h1 class="header-main-title">ลงทะเบียนพื้นที่ใหม่</h1>
+                <span class="header-sub-title">Spacemate Partner Hub</span>
+            </div>
+        </div>
+        <div class="header-badge">
+            <i class="fa-solid fa-sparkles"></i> สร้างพื้นที่ใหม่
+        </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="form-container">
-        <div class="form-card">
-            
-            <!-- Type Selector -->
-            <div class="type-selector">
-                <button type="button" class="type-btn active" onclick="selectType('market', this)">ตลาด</button>
-                <button type="button" class="type-btn" onclick="selectType('event', this)">อีเวนต์</button>
+    <!-- Main Container -->
+    <main class="creator-container">
+
+        <!-- Hero Card -->
+        <div class="creator-hero">
+            <div class="hero-decor-circle"></div>
+            <div class="hero-content">
+                <div class="hero-pill-badge">
+                    <i class="fa-solid fa-store"></i> สำหรับเจ้าของพื้นที่
+                </div>
+                <h2 class="hero-heading">เปิดรับผู้เช่าพื้นที่ของคุณวันนี้</h2>
+                <p class="hero-desc">
+                    กรอกข้อมูลรายละเอียดตลาดหรืออีเวนต์ กำหนดวันเวลาเปิดให้บริการ และอัปโหลดแผนผัง เพื่อเริ่มเปิดรับการจองล็อคผ่านแพลตฟอร์ม Spacemate
+                </p>
+            </div>
+            <div class="hero-icon-visual">
+                <i class="fa-solid fa-shop"></i>
+            </div>
+        </div>
+
+        <!-- 1. Category Selection -->
+        <div class="form-section-card">
+            <div class="section-header-row">
+                <div class="section-icon-box">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <div>
+                    <h3 class="section-title">1. ประเภทพื้นที่</h3>
+                    <p class="section-desc">เลือกประเภทของพื้นที่เพื่อให้ตรงกับกลุ่มผู้เช่าและตัวกรองการค้นหา</p>
+                </div>
             </div>
 
-            <!-- Name Input -->
-            <div class="form-group">
-                <label class="form-label">ชื่อตลาด / อีเวนต์</label>
-                <input type="text" id="venue-name" class="form-input" placeholder="กรอกชื่อสถานที่ของคุณ">
+            <div class="category-selector-grid">
+                <div class="category-card active" id="category-market-card" onclick="selectType('market')">
+                    <div class="category-radio"></div>
+                    <div class="category-icon-wrap">
+                        <i class="fa-solid fa-store"></i>
+                    </div>
+                    <div class="category-details">
+                        <span class="category-title">ตลาดสด / ตลาดนัด</span>
+                        <span class="category-desc">ตลาดประจำ ตลาดเปิดท้าย ไนท์มาร์เก็ต พื้นที่ขายของระยะยาว</span>
+                    </div>
+                </div>
+
+                <div class="category-card" id="category-event-card" onclick="selectType('event')">
+                    <div class="category-radio"></div>
+                    <div class="category-icon-wrap">
+                        <i class="fa-solid fa-calendar-days"></i>
+                    </div>
+                    <div class="category-details">
+                        <span class="category-title">งานอีเวนต์ / งานเทศกาล</span>
+                        <span class="category-desc">งานจัดชั่วคราว เทศกาลอาหาร คอนเสิร์ต แฟร์สินค้า</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Basic Information -->
+        <div class="form-section-card">
+            <div class="section-header-row">
+                <div class="section-icon-box">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </div>
+                <div>
+                    <h3 class="section-title">2. ข้อมูลทั่วไปของสถานที่</h3>
+                    <p class="section-desc">ระบุชื่อและรายละเอียดจุดเด่นเพื่อสร้างความน่าสนใจให้ผู้เช่า</p>
+                </div>
             </div>
 
-            <!-- Location Input -->
-            <div class="form-group">
-                <label class="form-label">ที่อยู่ (พิมพ์ที่อยู่เต็ม ระบบจะดึงจังหวัดให้อัตโนมัติ)</label>
-                <input type="text" id="venue-address" class="form-input" placeholder="เช่น 123 ถนนสุขุมวิท เขตวัฒนา กรุงเทพมหานคร 10110">
-            </div>
-
-            <!-- Map URL Input -->
-            <div class="form-group">
-                <label class="form-label">ลิงก์ Google Maps (ถ้ามี)</label>
-                <input type="url" id="venue-map-url" class="form-input" placeholder="ตัวอย่าง: https://maps.app.goo.gl/...">
+            <!-- Venue Name -->
+            <div class="form-group-item">
+                <label class="form-label-styled" for="venue-name">
+                    ชื่อตลาด / อีเวนต์ <span class="required-tag">*</span>
+                </label>
+                <div class="input-icon-wrapper">
+                    <i class="fa-solid fa-store input-icon-prefix"></i>
+                    <input type="text" id="venue-name" class="form-control-styled" placeholder="เช่น ตลาดจตุจักรวินเทจ, เทศกาลอาหารเมืองกรุง 2026" oninput="updateLivePreview()">
+                </div>
             </div>
 
             <!-- Additional Details -->
-            <div class="form-group">
-                <label class="form-label">รายละเอียดเพิ่มเติม</label>
-                <textarea id="venue-desc" class="form-input" placeholder="กรอกรายละเอียดเพิ่มเติม เช่น สิ่งอำนวยความสะดวก, กฎระเบียบ, กลุ่มเป้าหมาย..." rows="4" style="resize: vertical; font-family: inherit;"></textarea>
+            <div class="form-group-item">
+                <label class="form-label-styled" for="venue-desc">
+                    รายละเอียดเพิ่มเติมเกี่ยวกับสถานที่
+                </label>
+                <textarea id="venue-desc" class="form-textarea-styled" rows="4" placeholder="กรอกจุดเด่น เช่น มีที่จอดรถมากกว่า 200 คัน, มีระบบน้ำ-ไฟพร้อมใช้, ใกล้รถไฟฟ้า, กลุ่มลูกค้าหลัก..."></textarea>
             </div>
+        </div>
 
-            <!-- Cover Image -->
-            <div class="form-group">
-                <label class="form-label">รูปภาพปก</label>
-                <div class="upload-box" id="upload-box" onclick="document.getElementById('venue-image-file').click()">
-                    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
-                    <div style="font-weight: 600; color: var(--text-main);">คลิกเพื่ออัปโหลดรูปภาพ</div>
-                    <div style="font-size: 0.85rem;">PNG, JPG (แนะนำขนาดไม่เกิน 2MB)</div>
+        <!-- 3. Media & Blueprint Uploads -->
+        <div class="form-section-card">
+            <div class="section-header-row">
+                <div class="section-icon-box">
+                    <i class="fa-solid fa-images"></i>
                 </div>
-                <input type="file" id="venue-image-file" class="file-input" accept="image/png, image/jpeg" onchange="handleImageSelect(event)">
-                
-                <!-- Image Preview -->
-                <div id="image-preview" style="margin-top: 10px; display: none; position: relative;">
-                    <img id="preview-img" src="" alt="Preview" style="width: 100%; max-height: 250px; object-fit: cover; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                    <button type="button" onclick="removeImage()" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
+                <div>
+                    <h3 class="section-title">3. รูปภาพหน้าปกและแผนผังพื้นที่</h3>
+                    <p class="section-desc">อัปโหลดภาพถ่ายสถานที่จริงและภาพผังพื้นที่เพื่อใช้วางตำแหน่งล็อค</p>
                 </div>
             </div>
 
-            <!-- Blueprint Image -->
-            <div class="form-group">
-                <label class="form-label">รูปแผนผัง (Blueprint)</label>
-                <div class="upload-box" id="blueprint-upload-box" onclick="document.getElementById('venue-blueprint-file').click()">
-                    <i class="fa-solid fa-map upload-icon"></i>
-                    <div style="font-weight: 600; color: var(--text-main);">คลิกเพื่ออัปโหลดแผนผัง</div>
-                    <div style="font-size: 0.85rem;">PNG, JPG (แนะนำขนาดไม่เกิน 2MB)</div>
+            <div class="uploads-dual-grid">
+                <!-- Cover Image Upload -->
+                <div class="upload-card-wrapper">
+                    <label class="form-label-styled">
+                        รูปภาพหน้าปก (Cover Photo)
+                    </label>
+                    <div class="upload-dropzone" id="upload-box" onclick="document.getElementById('venue-image-file').click()">
+                        <div class="upload-icon-circle">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                        </div>
+                        <div class="upload-primary-text">คลิกเพื่ออัปโหลดรูปปก</div>
+                        <div class="upload-secondary-text">PNG, JPG (ขนาดไม่เกิน 2MB)</div>
+                    </div>
+                    <input type="file" id="venue-image-file" style="display: none;" accept="image/png, image/jpeg" onchange="handleImageSelect(event)">
+
+                    <!-- Cover Image Preview -->
+                    <div class="upload-preview-box" id="image-preview">
+                        <img id="preview-img" src="" alt="Cover Preview" class="upload-preview-img">
+                        <div class="preview-action-overlay">
+                            <span class="preview-tag-badge"><i class="fa-solid fa-image"></i> ภาพปกที่เลือก</span>
+                            <button type="button" class="preview-delete-btn" onclick="removeImage()" title="ลบรูปภาพ">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <input type="file" id="venue-blueprint-file" class="file-input" accept="image/png, image/jpeg" onchange="handleBlueprintSelect(event)">
-                
-                <!-- Blueprint Preview -->
-                <div id="blueprint-preview" style="margin-top: 10px; display: none; position: relative;">
-                    <img id="blueprint-preview-img" src="" alt="Preview" style="width: 100%; max-height: 250px; object-fit: contain; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                    <button type="button" onclick="removeBlueprint()" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
-                        <i class="fa-solid fa-xmark"></i>
+
+                <!-- Blueprint Upload -->
+                <div class="upload-card-wrapper">
+                    <label class="form-label-styled">
+                        รูปแผนผังพื้นที่ (Blueprint Layout)
+                    </label>
+                    <div class="upload-dropzone" id="blueprint-upload-box" onclick="document.getElementById('venue-blueprint-file').click()">
+                        <div class="upload-icon-circle">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                        </div>
+                        <div class="upload-primary-text">คลิกเพื่ออัปโหลดแผนผัง</div>
+                        <div class="upload-secondary-text">แผนผังล็อคหรือผังพื้นที่ (ไม่เกิน 2MB)</div>
+                    </div>
+                    <input type="file" id="venue-blueprint-file" style="display: none;" accept="image/png, image/jpeg" onchange="handleBlueprintSelect(event)">
+
+                    <!-- Blueprint Preview -->
+                    <div class="upload-preview-box" id="blueprint-preview">
+                        <img id="blueprint-preview-img" src="" alt="Blueprint Preview" class="upload-preview-img upload-preview-blueprint">
+                        <div class="preview-action-overlay">
+                            <span class="preview-tag-badge"><i class="fa-solid fa-map"></i> แผนผังที่เลือก</span>
+                            <button type="button" class="preview-delete-btn" onclick="removeBlueprint()" title="ลบแผนผัง">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Location & Maps -->
+        <div class="form-section-card">
+            <div class="section-header-row">
+                <div class="section-icon-box">
+                    <i class="fa-solid fa-location-dot"></i>
+                </div>
+                <div>
+                    <h3 class="section-title">4. ข้อมูลที่ตั้งและพิกัดแผนที่</h3>
+                    <p class="section-desc">พิมพ์ที่อยู่ให้ครบถ้วนเพื่อให้ระบบตรวจจับจังหวัดอัตโนมัติ</p>
+                </div>
+            </div>
+
+            <!-- Address Input -->
+            <div class="form-group-item">
+                <label class="form-label-styled" for="venue-address">
+                    ที่อยู่เต็ม (บ้านเลขที่, ถนน, แขวง/ตำบล, เขต/อำเภอ, จังหวัด) <span class="required-tag">*</span>
+                </label>
+                <div class="input-icon-wrapper">
+                    <i class="fa-solid fa-map-pin input-icon-prefix"></i>
+                    <input type="text" id="venue-address" class="form-control-styled" placeholder="เช่น 587/10 ถนนกำแพงเพชร 2 แขวงจตุจักร เขตจตุจักร กรุงเทพมหานคร 10900" oninput="handleAddressChange(this.value)">
+                </div>
+
+                <!-- Detected Province Badge -->
+                <div>
+                    <span class="detected-province-pill not-detected" id="detected-province-pill">
+                        <i class="fa-solid fa-circle-info"></i> พิมพ์ชื่อจังหวัดในที่อยู่เพื่อให้ระบบตรวจจับอัตโนมัติ
+                    </span>
+                </div>
+            </div>
+
+            <!-- Map URL -->
+            <div class="form-group-item">
+                <label class="form-label-styled" for="venue-map-url">
+                    ลิงก์ Google Maps (ถ้ามี)
+                </label>
+                <div class="map-input-group">
+                    <div class="input-icon-wrapper" style="flex: 1;">
+                        <i class="fa-solid fa-link input-icon-prefix"></i>
+                        <input type="url" id="venue-map-url" class="form-control-styled" placeholder="https://maps.app.goo.gl/...">
+                    </div>
+                    <button type="button" class="btn-test-map-url" onclick="testOpenMapUrl()" title="ทดสอบเปิดแผนที่">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> ทดสอบลิงก์
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Schedule & Starting Price -->
+        <div class="form-section-card">
+            <div class="section-header-row">
+                <div class="section-icon-box">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+                <div>
+                    <h3 class="section-title">5. วัน เวลาทำการ และราคาเริ่มต้น</h3>
+                    <p class="section-desc">กำหนดวันและเวลาที่เปิดบริการ และราคาค่าเช่าเริ่มต้น</p>
                 </div>
             </div>
 
             <!-- Operating Days -->
-            <div class="form-group">
-                <label class="form-label">วันที่เปิดให้บริการ</label>
-                <div class="days-selector" id="venue-days">
-                    <button type="button" class="day-btn" onclick="toggleDay(this)">จ.</button>
-                    <button type="button" class="day-btn" onclick="toggleDay(this)">อ.</button>
-                    <button type="button" class="day-btn" onclick="toggleDay(this)">พ.</button>
-                    <button type="button" class="day-btn" onclick="toggleDay(this)">พฤ.</button>
-                    <button type="button" class="day-btn" onclick="toggleDay(this)">ศ.</button>
-                    <button type="button" class="day-btn" onclick="toggleDay(this)">ส.</button>
-                    <button type="button" class="day-btn" onclick="toggleDay(this)">อา.</button>
-                </div>
-            </div>
-
-            <!-- Operating Hours -->
-            <div class="form-group">
-                <label class="form-label">เวลาเปิด-ปิดให้บริการ</label>
-                <div style="display: flex; gap: 15px; align-items: center;">
-                    <div style="flex: 1;">
-                        <input type="text" id="venue-time-start" class="text-input form-input" style="width: 100%; box-sizing: border-box;" placeholder="เวลาเปิด">
-                    </div>
-                    <span style="color: var(--text-muted); font-weight: 500;">ถึง</span>
-                    <div style="flex: 1;">
-                        <input type="text" id="venue-time-end" class="text-input form-input" style="width: 100%; box-sizing: border-box;" placeholder="เวลาปิด">
+            <div class="form-group-item">
+                <div class="header-with-presets">
+                    <label class="form-label-styled" style="margin-bottom: 0;">
+                        วันที่เปิดให้บริการ
+                    </label>
+                    <div class="chips-cluster">
+                        <button type="button" class="preset-chip-btn" onclick="setDaysPreset('all')">ทุกวัน</button>
+                        <button type="button" class="preset-chip-btn" onclick="setDaysPreset('weekdays')">จ. - ศ.</button>
+                        <button type="button" class="preset-chip-btn" onclick="setDaysPreset('weekend')">ส. - อา.</button>
+                        <button type="button" class="preset-chip-btn clear-chip" onclick="setDaysPreset('clear')">ล้าง</button>
                     </div>
                 </div>
-            </div>
 
-            <!-- Price Input -->
-            <div class="form-group">
-                <label class="form-label">ราคาเริ่มต้น (ต่อวัน/งาน)</label>
-                <div class="price-input-wrapper">
-                    <input type="number" id="venue-price" class="form-input" placeholder="0.00">
-                    <span class="currency-suffix">฿</span>
+                <div class="days-pill-row" id="venue-days">
+                    <button type="button" class="day-pill-toggle" data-day="จ." onclick="toggleDay(this)">จ.</button>
+                    <button type="button" class="day-pill-toggle" data-day="อ." onclick="toggleDay(this)">อ.</button>
+                    <button type="button" class="day-pill-toggle" data-day="พ." onclick="toggleDay(this)">พ.</button>
+                    <button type="button" class="day-pill-toggle" data-day="พฤ." onclick="toggleDay(this)">พฤ.</button>
+                    <button type="button" class="day-pill-toggle" data-day="ศ." onclick="toggleDay(this)">ศ.</button>
+                    <button type="button" class="day-pill-toggle" data-day="ส." onclick="toggleDay(this)">ส.</button>
+                    <button type="button" class="day-pill-toggle" data-day="อา." onclick="toggleDay(this)">อา.</button>
                 </div>
             </div>
 
-            <!-- Submit Button -->
-            <button type="button" class="submit-btn" onclick="submitForm()">ยืนยันการลงทะเบียน</button>
+            <!-- Hours & Price Dual Grid -->
+            <div class="time-price-dual-grid">
+                <!-- Hours -->
+                <div class="form-group-item">
+                    <div class="header-with-presets">
+                        <label class="form-label-styled" style="margin-bottom: 0;">
+                            เวลาเปิด - ปิดทำการ
+                        </label>
+                        <div class="chips-cluster">
+                            <button type="button" class="preset-chip-btn" onclick="setTimePreset('06:00', '12:00')">เช้า</button>
+                            <button type="button" class="preset-chip-btn" onclick="setTimePreset('16:00', '22:00')">เย็น/ค่ำ</button>
+                            <button type="button" class="preset-chip-btn" onclick="setTimePreset('09:00', '21:00')">ทั้งวัน</button>
+                        </div>
+                    </div>
+                    <div class="time-dual-inputs">
+                        <div class="time-box-item">
+                            <span class="time-box-tag">เปิด</span>
+                            <input type="text" id="venue-time-start" class="form-control-styled time-input-field" placeholder="06:00" onchange="updateLivePreview()">
+                        </div>
+                        <span class="time-divider-text">ถึง</span>
+                        <div class="time-box-item">
+                            <span class="time-box-tag">ปิด</span>
+                            <input type="text" id="venue-time-end" class="form-control-styled time-input-field" placeholder="22:00" onchange="updateLivePreview()">
+                        </div>
+                    </div>
+                </div>
 
+                <!-- Price -->
+                <div class="form-group-item">
+                    <label class="form-label-styled" for="venue-price">
+                        ราคาเริ่มต้น (ต่อวัน / ต่อรอบ)
+                    </label>
+                    <div class="currency-input-wrap">
+                        <span class="currency-symbol-tag">฿</span>
+                        <input type="number" id="venue-price" class="form-control-styled price-input-control" placeholder="0" min="0" oninput="updateLivePreview()">
+                        <span class="currency-unit-text">บาท / วัน</span>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <!-- 6. Real-time Tenant Preview Mockup -->
+        <div class="preview-section-card">
+            <div class="preview-header-info">
+                <div>
+                    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 2px;">
+                        <i class="fa-solid fa-eye" style="color: #fde68a;"></i> ตัวอย่างการแสดงผลบนหน้าค้นหา
+                    </h3>
+                    <p style="font-size: 0.8rem; color: #94a3b8;">
+                        นี่คือหน้าตาการ์ดที่ผู้เช่าจะเห็นเมื่อค้นหาพื้นที่ของคุณ
+                    </p>
+                </div>
+                <div class="preview-badge-live">
+                    <span class="pulse-dot"></span> พรีวิวแบบสด (Live Preview)
+                </div>
+            </div>
+
+            <!-- Mockup Card -->
+            <div class="mockup-tenant-card">
+                <div class="mockup-image-box">
+                    <img id="mockup-img" src="https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&q=80&w=800" alt="Venue Cover" class="mockup-img">
+                    <div class="mockup-badges-top">
+                        <span id="mockup-category-badge" class="mockup-category-badge tag-market">
+                            <i class="fa-solid fa-store"></i> ตลาดสด / ตลาดนัด
+                        </span>
+                        <span class="mockup-live-status">
+                            <span class="pulse-dot"></span> เปิดบริการ
+                        </span>
+                    </div>
+                    <div class="mockup-price-tag" id="mockup-price-badge">
+                        เริ่ม ฿0/วัน
+                    </div>
+                </div>
+                <div class="mockup-card-body">
+                    <h4 class="mockup-title" id="mockup-title">ชื่อตลาด / อีเวนต์ของคุณ</h4>
+                    <div class="mockup-meta-row">
+                        <div class="mockup-meta-item">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <span id="mockup-location">ยังไม่ได้ระบุที่ตั้ง</span>
+                        </div>
+                        <div class="mockup-meta-item">
+                            <i class="fa-regular fa-clock"></i>
+                            <span id="mockup-time">เปิดให้บริการ</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
+
+    <!-- Sticky Bottom Actions -->
+    <div class="creator-action-bar">
+        <div class="action-bar-inner">
+            <a href="main_owner.html" class="btn-cancel-action">
+                ยกเลิก
+            </a>
+            <button type="button" class="btn-submit-action" id="btn-submit-venue" onclick="submitForm()">
+                <i class="fa-solid fa-sparkles"></i> ยืนยันการลงทะเบียนพื้นที่
+            </button>
+        </div>
+    </div>
 
     <!-- Supabase Core & Custom Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../assets/js/supabase.js"></script>
 
     <!-- Flatpickr for 24h Time Picker -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-    <!-- JavaScript -->
+    <!-- Page Logic -->
     <script>
-        // Initialize 24h time pickers
-        flatpickr("#venue-time-start", { enableTime: true, noCalendar: true, dateFormat: "H:i", time_24hr: true });
-        flatpickr("#venue-time-end", { enableTime: true, noCalendar: true, dateFormat: "H:i", time_24hr: true });
-
         let currentOwnerId = null;
+        let selectedType = 'market';
+        let selectedBase64Image = null;
+        let selectedBlueprintBase64 = null;
+        let timePickerStart = null;
+        let timePickerEnd = null;
+
+        const THAI_PROVINCES = [
+            "กระบี่", "กรุงเทพมหานคร", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร", "ขอนแก่น", "จันทบุรี", "ฉะเชิงเทรา",
+            "ชลบุรี", "ชัยนาท", "ชัยภูมิ", "ชุมพร", "เชียงราย", "เชียงใหม่", "ตรัง", "ตราด", "ตาก", "นครนายก",
+            "นครปฐม", "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์", "นนทบุรี", "นราธิวาส", "น่าน", "บึงกาฬ",
+            "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์", "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา", "พะเยา", "พังงา",
+            "พัทลุง", "พิจิตร", "พิษณุโลก", "เพชรบุรี", "เพชรบูรณ์", "แพร่", "ภูเก็ต", "มหาสารคาม", "มุกดาหาร",
+            "แม่ฮ่องสอน", "ยโสธร", "ยะลา", "ร้อยเอ็ด", "ระนอง", "ระยอง", "ราชบุรี", "ลพบุรี", "ลำปาง", "ลำพูน",
+            "เลย", "ศรีสะเกษ", "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ", "สมุทรสงคราม", "สมุทรสาคร", "สระแก้ว",
+            "สระบุรี", "สิงห์บุรี", "สุโขทัย", "สุพรรณบุรี", "สุราษฎร์ธานี", "สุรินทร์", "หนองคาย", "หนองบัวลำภู",
+            "อ่างทอง", "อำนาจเจริญ", "อุดรธานี", "อุตรดิตถ์", "อุทัยธานี", "อุบลราชธานี"
+        ];
 
         // Ensure user is Owner and logged in
         window.addEventListener('DOMContentLoaded', async () => {
+            // Initialize 24h time pickers
+            timePickerStart = flatpickr("#venue-time-start", {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "H:i",
+                time_24hr: true,
+                onChange: updateLivePreview
+            });
+            timePickerEnd = flatpickr("#venue-time-end", {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "H:i",
+                time_24hr: true,
+                onChange: updateLivePreview
+            });
+
             try {
                 const session = await getSession();
                 if (!session) {
@@ -478,30 +1468,147 @@
             }
         });
 
-        // Handle Type Selector
-        function selectType(type, btnElement) {
-            document.querySelectorAll('.type-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            btnElement.classList.add('active');
+        // Handle Type Selection
+        function selectType(type) {
+            selectedType = type;
+            const marketCard = document.getElementById('category-market-card');
+            const eventCard = document.getElementById('category-event-card');
+            const mockupBadge = document.getElementById('mockup-category-badge');
+
+            if (type === 'event') {
+                marketCard.classList.remove('active');
+                eventCard.classList.add('active');
+                if (mockupBadge) {
+                    mockupBadge.className = 'mockup-category-badge tag-event';
+                    mockupBadge.innerHTML = '<i class="fa-solid fa-calendar-days"></i> งานอีเวนต์ / งานเทศกาล';
+                }
+            } else {
+                eventCard.classList.remove('active');
+                marketCard.classList.add('active');
+                if (mockupBadge) {
+                    mockupBadge.className = 'mockup-category-badge tag-market';
+                    mockupBadge.innerHTML = '<i class="fa-solid fa-store"></i> ตลาดสด / ตลาดนัด';
+                }
+            }
         }
 
         // Handle Days Toggle
         function toggleDay(btnElement) {
             btnElement.classList.toggle('active');
+            updateLivePreview();
         }
 
-        let selectedBase64Image = null;
+        function setDaysPreset(preset) {
+            const dayButtons = document.querySelectorAll('#venue-days .day-pill-toggle');
+            if (preset === 'all') {
+                dayButtons.forEach(btn => btn.classList.add('active'));
+            } else if (preset === 'weekdays') {
+                const weekdays = ['จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.'];
+                dayButtons.forEach(btn => {
+                    const day = btn.getAttribute('data-day') || btn.innerText.trim();
+                    if (weekdays.includes(day)) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            } else if (preset === 'weekend') {
+                const weekend = ['ส.', 'อา.'];
+                dayButtons.forEach(btn => {
+                    const day = btn.getAttribute('data-day') || btn.innerText.trim();
+                    if (weekend.includes(day)) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            } else if (preset === 'clear') {
+                dayButtons.forEach(btn => btn.classList.remove('active'));
+            }
+            updateLivePreview();
+        }
 
-        // Handle Image Selection and Base64 Conversion
+        function setTimePreset(start, end) {
+            const startInput = document.getElementById('venue-time-start');
+            const endInput = document.getElementById('venue-time-end');
+            if (timePickerStart) timePickerStart.setDate(start);
+            else if (startInput) startInput.value = start;
+
+            if (timePickerEnd) timePickerEnd.setDate(end);
+            else if (endInput) endInput.value = end;
+
+            updateLivePreview();
+        }
+
+        // Province Detection
+        function detectProvinceFromAddress(address) {
+            if (!address) return '';
+            for (let p of THAI_PROVINCES) {
+                if (address.includes(p)) {
+                    return p;
+                }
+            }
+            return '';
+        }
+
+        function handleAddressChange(address) {
+            const province = detectProvinceFromAddress(address);
+            const badge = document.getElementById('detected-province-pill');
+            if (badge) {
+                if (province) {
+                    badge.className = 'detected-province-pill detected';
+                    badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> ตรวจพบจังหวัด: <strong>${province}</strong>`;
+                } else {
+                    badge.className = 'detected-province-pill not-detected';
+                    badge.innerHTML = `<i class="fa-solid fa-circle-info"></i> พิมพ์ชื่อจังหวัดในที่อยู่เพื่อให้ระบบตรวจจับอัตโนมัติ`;
+                }
+            }
+            updateLivePreview();
+        }
+
+        function testOpenMapUrl() {
+            const urlInput = document.getElementById('venue-map-url');
+            const url = (urlInput ? urlInput.value : '').trim();
+            if (!url) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'ยังไม่ได้ระบุลิงก์แผนที่',
+                    text: 'กรุณากรอกลิงก์ Google Maps ในช่องด้านข้างก่อนกดทดสอบครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
+                return;
+            }
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'รูปแบบลิงก์ไม่ถูกต้อง',
+                    text: 'ลิงก์ต้องขึ้นต้นด้วย http:// หรือ https:// (ตัวอย่าง: https://maps.app.goo.gl/...)',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
+                return;
+            }
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+
+        // Image Selection (Cover)
         function handleImageSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            // Optional: validate size (e.g., max 2MB)
             if (file.size > 2 * 1024 * 1024) {
-                alert('ไฟล์รูปภาพมีขนาดใหญ่เกินไป (สูงสุด 2MB)');
-                event.target.value = ''; // clear
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ไฟล์รูปภาพใหญ่เกินไป',
+                    text: 'ไฟล์รูปภาพมีขนาดใหญ่เกินไป (สูงสุด 2MB) กรุณาเลือกไฟล์ใหม่ครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
+                event.target.value = '';
                 return;
             }
 
@@ -511,28 +1618,34 @@
                 document.getElementById('preview-img').src = selectedBase64Image;
                 document.getElementById('image-preview').style.display = 'block';
                 document.getElementById('upload-box').style.display = 'none';
+                updateLivePreview();
             }
             reader.readAsDataURL(file);
         }
 
-        // Remove Selected Image
         function removeImage() {
             selectedBase64Image = null;
             document.getElementById('venue-image-file').value = '';
             document.getElementById('image-preview').style.display = 'none';
             document.getElementById('upload-box').style.display = 'flex';
+            updateLivePreview();
         }
 
-        let selectedBlueprintBase64 = null;
-
-        // Handle Blueprint Selection
+        // Blueprint Selection
         function handleBlueprintSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             if (file.size > 2 * 1024 * 1024) {
-                alert('ไฟล์รูปแผนผังมีขนาดใหญ่เกินไป (สูงสุด 2MB)');
-                event.target.value = ''; // clear
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ไฟล์แผนผังใหญ่เกินไป',
+                    text: 'ไฟล์รูปแผนผังมีขนาดใหญ่เกินไป (สูงสุด 2MB) กรุณาเลือกไฟล์ใหม่ครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
+                event.target.value = '';
                 return;
             }
 
@@ -546,7 +1659,6 @@
             reader.readAsDataURL(file);
         }
 
-        // Remove Selected Blueprint
         function removeBlueprint() {
             selectedBlueprintBase64 = null;
             document.getElementById('venue-blueprint-file').value = '';
@@ -554,56 +1666,107 @@
             document.getElementById('blueprint-upload-box').style.display = 'flex';
         }
 
-        // Handle Submit Data to Supabase
+        // Live Preview Updater
+        function updateLivePreview() {
+            const name = (document.getElementById('venue-name').value || '').trim();
+            const address = (document.getElementById('venue-address').value || '').trim();
+            const price = (document.getElementById('venue-price').value || '').trim();
+            const timeStart = (document.getElementById('venue-time-start').value || '').trim();
+            const timeEnd = (document.getElementById('venue-time-end').value || '').trim();
+            const province = detectProvinceFromAddress(address);
+
+            // Title
+            const mockupTitle = document.getElementById('mockup-title');
+            if (mockupTitle) mockupTitle.innerText = name || 'ชื่อตลาด / อีเวนต์ของคุณ';
+
+            // Image
+            const mockupImg = document.getElementById('mockup-img');
+            const defaultImage = "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&q=80&w=800";
+            if (mockupImg) {
+                mockupImg.src = selectedBase64Image || defaultImage;
+            }
+
+            // Location
+            const mockupLoc = document.getElementById('mockup-location');
+            if (mockupLoc) {
+                mockupLoc.innerText = province || address || 'ยังไม่ได้ระบุที่ตั้ง';
+            }
+
+            // Price badge
+            const mockupPrice = document.getElementById('mockup-price-badge');
+            if (mockupPrice) {
+                const num = Number(price);
+                mockupPrice.innerText = (num > 0) ? `เริ่ม ฿${num.toLocaleString()}/วัน` : 'เริ่ม ฿0/วัน';
+            }
+
+            // Time & Days
+            const mockupTime = document.getElementById('mockup-time');
+            if (mockupTime) {
+                if (timeStart && timeEnd) {
+                    mockupTime.innerText = `${timeStart} - ${timeEnd} น.`;
+                } else if (timeStart) {
+                    mockupTime.innerText = `เปิด ${timeStart} น.`;
+                } else {
+                    mockupTime.innerText = 'เปิดให้บริการ';
+                }
+            }
+        }
+
+        // Handle Form Submission
         async function submitForm() {
             if (!currentOwnerId) {
-                alert('เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่');
-                window.location.replace('../index.html');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'เซสชันหมดอายุ',
+                    text: 'กรุณาเข้าสู่ระบบใหม่อีกครั้งครับ',
+                    confirmButtonText: 'เข้าสู่ระบบใหม่',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                }).then(() => {
+                    window.location.replace('../index.html');
+                });
                 return;
             }
 
-            const submitBtn = document.querySelector('.submit-btn');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
-
-            const type = document.querySelector('.type-btn.active').innerText.includes('ตลาด') ? 'market' : 'event';
             const name = document.getElementById('venue-name').value.trim();
             const address = document.getElementById('venue-address').value.trim();
-            
-            // Auto extract province
-            const provinces = ["กระบี่", "กรุงเทพมหานคร", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร", "ขอนแก่น", "จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ", "ชุมพร", "เชียงราย", "เชียงใหม่", "ตรัง", "ตราด", "ตาก", "นครนายก", "นครปฐม", "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์", "นนทบุรี", "นราธิวาส", "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์", "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา", "พะเยา", "พังงา", "พัทลุง", "พิจิตร", "พิษณุโลก", "เพชรบุรี", "เพชรบูรณ์", "แพร่", "ภูเก็ต", "มหาสารคาม", "มุกดาหาร", "แม่ฮ่องสอน", "ยโสธร", "ยะลา", "ร้อยเอ็ด", "ระนอง", "ระยอง", "ราชบุรี", "ลพบุรี", "ลำปาง", "ลำพูน", "เลย", "ศรีสะเกษ", "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ", "สมุทรสงคราม", "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี", "สุโขทัย", "สุพรรณบุรี", "สุราษฎร์ธานี", "สุรินทร์", "หนองคาย", "หนองบัวลำภู", "อ่างทอง", "อำนาจเจริญ", "อุดรธานี", "อุตรดิตถ์", "อุทัยธานี", "อุบลราชธานี"];
-            let province = '';
-            for (let p of provinces) {
-                if (address.includes(p)) {
-                    province = p;
-                    break;
-                }
+            const province = detectProvinceFromAddress(address);
+
+            if (!name || !address) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ข้อมูลไม่ครบถ้วน',
+                    text: 'กรุณากรอกชื่อสถานที่และที่อยู่ให้ครบถ้วนครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
+                return;
             }
+
+            const submitBtn = document.getElementById('btn-submit-venue');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกข้อมูล...';
 
             const location = address;
             const descRaw = document.getElementById('venue-desc').value.trim();
             const coverImgUrl = selectedBase64Image;
             const mapImgUrl = selectedBlueprintBase64;
             
-            const activeDays = Array.from(document.querySelectorAll('#venue-days .day-btn.active')).map(btn => btn.innerText).join(', ');
-            const timeStart = document.getElementById('venue-time-start').value;
-            const timeEnd = document.getElementById('venue-time-end').value;
-            const price = document.getElementById('venue-price').value;
+            const activeDays = Array.from(document.querySelectorAll('#venue-days .day-pill-toggle.active'))
+                .map(btn => btn.getAttribute('data-day') || btn.innerText.trim())
+                .join(', ');
+            const timeStart = document.getElementById('venue-time-start').value.trim();
+            const timeEnd = document.getElementById('venue-time-end').value.trim();
+            const price = document.getElementById('venue-price').value.trim();
             const mapUrl = document.getElementById('venue-map-url').value.trim();
-
-            if (!name || !address) {
-                alert('กรุณากรอกชื่อสถานที่และที่อยู่ครับ');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
-                return;
-            }
 
             // Combine extra fields into description
             const extraDetails = [
                 descRaw,
                 activeDays ? `วันที่เปิดให้บริการ: ${activeDays}` : null,
-                timeStart || timeEnd ? `เวลาให้บริการ: ${timeStart || '-'} ถึง ${timeEnd || '-'}` : null,
+                (timeStart || timeEnd) ? `เวลาให้บริการ: ${timeStart || '-'} ถึง ${timeEnd || '-'}` : null,
                 price ? `ราคาเริ่มต้น: ${price} บาท` : null
             ].filter(Boolean).join('\n\n');
 
@@ -613,14 +1776,14 @@
                     .insert([
                         {
                             owner_id: currentOwnerId,
-                            type: type,
+                            type: selectedType,
                             name: name,
                             description: extraDetails,
                             location: location,
                             address_details: address,
                             province: province,
                             map_image_url: mapImgUrl || null,
-                            cover_image_url: coverImgUrl || null, // Note: You need to add this column in Supabase!
+                            cover_image_url: coverImgUrl || null,
                             map_url: mapUrl || null,
                             is_active: true
                         }
@@ -637,17 +1800,31 @@
                     is_read: false
                 }]);
 
-                alert('ลงทะเบียนพื้นที่สำเร็จ!');
-                window.location.href = 'main_owner.html';
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ลงทะเบียนสำเร็จ!',
+                    text: `ลงทะเบียนพื้นที่ "${name}" เรียบร้อยแล้ว พร้อมเปิดให้ผู้เช่าจองแล้วครับ`,
+                    confirmButtonText: 'ไปหน้ารายการตลาด',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                }).then(() => {
+                    window.location.href = 'main_owner.html';
+                });
 
             } catch (error) {
                 console.error('Error inserting venue:', error);
-                alert('เกิดข้อผิดพลาดในการบันทึก: ' + error.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการบันทึก: ' + error.message,
+                    confirmButtonText: 'ลองใหม่อีกครั้ง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
             }
         }
     </script>
-
 </body>
 </html>

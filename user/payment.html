@@ -9,7 +9,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 for modern alert modals -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        .swal-custom-popup {
+            border-radius: 20px !important;
+            font-family: 'Prompt', sans-serif !important;
+        }
         :root {
             --bg-color: #F1F4F8;
             --primary-color: #a46309;
@@ -845,8 +851,16 @@
             try {
                 const session = await getSession();
                 if (!session) {
-                    alert('กรุณาเข้าสู่ระบบก่อนทำการชำระเงิน');
-                    window.location.replace('../index.html');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'กรุณาเข้าสู่ระบบ',
+                        text: 'กรุณาเข้าสู่ระบบก่อนทำการชำระเงินครับ',
+                        confirmButtonText: 'ไปหน้าเข้าสู่ระบบ',
+                        confirmButtonColor: '#a46309',
+                        customClass: { popup: 'swal-custom-popup' }
+                    }).then(() => {
+                        window.location.replace('../index.html');
+                    });
                     return;
                 }
                 currentUser = session.user;
@@ -998,7 +1012,14 @@
         function saveQrCode() {
             const qrImg = document.getElementById('qr-image');
             if (!qrImg || !qrImg.src) {
-                alert('ไม่พบรูป QR Code');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่พบรูปภาพ',
+                    text: 'ไม่พบรูป QR Code สำหรับบันทึกครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 return;
             }
             const a = document.createElement('a');
@@ -1021,7 +1042,14 @@
             const file = e.target.files[0];
             if (file) {
                 if (file.size > 5 * 1024 * 1024) {
-                    alert('ขนาดรูปสลิปต้องไม่เกิน 5MB');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'ขนาดไฟล์เกินกำหนด',
+                        text: 'ขนาดรูปภาพสลิปต้องไม่เกิน 5 MB ครับ',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#a46309',
+                        customClass: { popup: 'swal-custom-popup' }
+                    });
                     return;
                 }
                 const reader = new FileReader();
@@ -1047,13 +1075,28 @@
         // Submit Booking to Supabase
         async function submitPayment() {
             if (!currentUser) {
-                alert('กรุณาเข้าสู่ระบบก่อน');
-                window.location.replace('../index.html');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณาเข้าสู่ระบบ',
+                    text: 'กรุณาเข้าสู่ระบบก่อนดำเนินการต่อครับ',
+                    confirmButtonText: 'ไปหน้าเข้าสู่ระบบ',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                }).then(() => {
+                    window.location.replace('../index.html');
+                });
                 return;
             }
 
             if (!uploadedSlipBase64) {
-                alert('กรุณาแนบหลักฐานการชำระเงิน (สลิปโอนเงิน)');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ยังไม่ได้แนบสลิป',
+                    text: 'กรุณาแนบหลักฐานการชำระเงิน (สลิปโอนเงิน) ก่อนกดยืนยันครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 return;
             }
 
@@ -1111,10 +1154,18 @@
 
                     if (bErr) {
                         if (bErr.code === '23505') {
-                            alert('มีการส่งหลักฐานสำหรับล็อคและวันดังกล่าวไปแล้ว กรุณารอเจ้าของตรวจสอบ หรือตรวจสอบสถานะในหน้าแรก');
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = originalText;
-                            window.location.href = 'main_user.html';
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'ส่งหลักฐานแล้ว',
+                                text: 'มีการส่งหลักฐานสำหรับล็อคและวันดังกล่าวไปแล้ว กรุณารอเจ้าของตรวจสอบ หรือตรวจสอบสถานะในหน้ารายการจองครับ',
+                                confirmButtonText: 'ดูรายการจองของฉัน',
+                                confirmButtonColor: '#a46309',
+                                customClass: { popup: 'swal-custom-popup' }
+                            }).then(() => {
+                                window.location.href = 'main_user.html?view=bookings';
+                            });
                             return;
                         } else {
                             throw bErr;
@@ -1158,12 +1209,27 @@
 
                 await supabaseClient.from('notifications').insert(notifications);
 
-                alert('แจ้งชำระเงินเรียบร้อยแล้ว! กรุณารอเจ้าของพื้นที่ตรวจสอบสลิป');
-                window.location.href = `main_user.html`;
+                Swal.fire({
+                    icon: 'success',
+                    title: 'แจ้งชำระเงินเรียบร้อยแล้ว!',
+                    text: 'ระบบได้บันทึกหลักฐานการชำระเงินของคุณแล้ว กรุณารอเจ้าของพื้นที่ตรวจสอบสลิปครับ',
+                    confirmButtonText: 'ดูรายการจองของฉัน',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                }).then(() => {
+                    window.location.href = 'main_user.html?view=bookings';
+                });
 
             } catch (err) {
                 console.error('Payment submit error:', err);
-                alert('เกิดข้อผิดพลาดในการบันทึก: ' + (err.message || 'กรุณาลองใหม่อีกครั้ง'));
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการบันทึก: ' + (err.message || 'กรุณาลองใหม่อีกครั้งครับ'),
+                    confirmButtonText: 'ลองใหม่อีกครั้ง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
             }

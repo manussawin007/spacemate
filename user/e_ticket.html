@@ -391,7 +391,8 @@
                     : 'ผู้ใช้บริการ';
                 document.getElementById('ticket-booker-name').innerText = bookerName;
 
-                const spaceInfo = `โซน ${booking.spaces?.zone || '-'} - ล็อค ${booking.spaces?.space_number || '-'}`;
+                const zoneText = booking.spaces?.zone ? `โซน ${booking.spaces.zone} - ` : '';
+                const spaceInfo = `${zoneText}ล็อค ${booking.spaces?.space_number || '-'}`;
                 document.getElementById('ticket-space-info').innerText = spaceInfo;
 
                 document.getElementById('ticket-total-price').innerText = '฿' + Number(booking.total_price).toLocaleString();

@@ -3,23 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spacemate - ลงทะเบียน</title>
+    <title>SpaceMate - สมัครสมาชิกใหม่</title>
     <link rel="icon" type="image/png" href="images/logo.png">
-    <meta name="description" content="สร้างบัญชีผู้ใช้บน Spacemate">
+    <meta name="description" content="สร้างบัญชีผู้ใช้ SpaceMate แพลตฟอร์มบริหารจัดการและจองพื้นที่ตลาดแบบครบวงจร">
+    
+    <!-- Google Fonts: Prompt for Thai & Outfit for numbers/English -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Added Prompt font for excellent Thai language support alongside Outfit -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SweetAlert2 for modern alert modals -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
         :root {
-            --bg-color: #F1F4F8;
-            --card-bg: #FFFFFF;
-            --primary-btn: #a46309;
-            --primary-btn-hover: #8c5407;
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-            --input-border: #d1d5db;
-            --input-focus: #a46309;
+            --primary: #a46309;
+            --primary-hover: #8c5407;
+            --primary-gradient: linear-gradient(135deg, #a46309 0%, #c4770c 50%, #e08b12 100%);
+            --primary-subtle: rgba(164, 99, 9, 0.08);
+            --primary-border: rgba(164, 99, 9, 0.18);
+            --bg-page: #fbf9f5;
+            --card-glass: rgba(255, 255, 255, 0.95);
+            --text-dark: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+            --border-light: #e2e8f0;
+            --focus-ring: rgba(164, 99, 9, 0.18);
         }
 
         * {
@@ -28,346 +40,610 @@
             padding: 0;
         }
 
-        /* Hide Edge native password reveal button */
+        /* Edge password reveal hide */
         input[type="password"]::-ms-reveal,
         input[type="password"]::-ms-clear {
             display: none;
         }
 
-        body {
-            /* Using Prompt for Thai text, falling back to Outfit/sans-serif */
-            font-family: 'Prompt', 'Outfit', sans-serif;
-            background-color: var(--bg-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: var(--text-main);
-            padding: 2rem 1rem;
-        }
-
-        .register-container {
-            background-color: var(--card-bg);
-            width: 100%;
-            max-width: 500px;
-            padding: 2.5rem;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .register-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .logo {
-            max-width: 150px;
-            height: auto;
-            margin-bottom: 1rem;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .register-header h1 {
-            font-size: 1.75rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .register-header p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
-
-        /* Role Selection Styles */
-        .role-section {
-            margin-bottom: 1.5rem;
-        }
-        
-        .role-label-title {
-            display: block;
-            margin-bottom: 0.75rem;
-            font-weight: 500;
-            font-size: 0.95rem;
-        }
-
-        .role-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        .role-card {
-            position: relative;
-        }
-
-        .role-card input[type="radio"] {
-            position: absolute;
-            opacity: 0;
-            cursor: pointer;
-            height: 0;
-            width: 0;
-        }
-
-        .role-card label {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            border: 2px solid var(--input-border);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: center;
+        html, body {
             height: 100%;
-            font-weight: 500;
-        }
-
-        .role-card label:hover {
-            border-color: #bfa17d;
-            background-color: #fcf9f5;
-        }
-
-        .role-card input[type="radio"]:checked + label {
-            border-color: var(--primary-btn);
-            background-color: #fdf8f2;
-            color: var(--primary-btn);
-            box-shadow: 0 0 0 2px rgba(164, 99, 9, 0.1);
-        }
-
-        .role-icon {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .input-group {
-            margin-bottom: 1.25rem;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            font-size: 1rem;
-        }
-
-        .input-group input {
             width: 100%;
-            padding: 0.85rem 1rem;
-            border: 1px solid var(--input-border);
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-family: inherit;
-            transition: all 0.2s ease;
-            outline: none;
         }
 
-        .input-group input:focus {
-            border-color: var(--input-focus);
-            box-shadow: 0 0 0 3px rgba(164, 99, 9, 0.15);
-        }
-
-        .password-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .password-wrapper input {
-            padding-right: 3rem;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 0.75rem;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.25rem;
-            color: var(--text-muted);
+        body {
+            font-family: 'Prompt', 'Outfit', sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-dark);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0.2rem;
-            transition: opacity 0.2s;
-        }
-        
-        .toggle-password:hover {
-            opacity: 0.7;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+            position: relative;
+            background-image: 
+                radial-gradient(rgba(164, 99, 9, 0.08) 1.2px, transparent 1.2px),
+                radial-gradient(rgba(164, 99, 9, 0.04) 1px, transparent 1px);
+            background-size: 32px 32px, 16px 16px;
+            background-position: 0 0, 16px 16px;
+            padding: 1rem;
+            overflow-x: hidden;
         }
 
-        @media (max-width: 480px) {
-            .form-row {
-                grid-template-columns: 1fr;
-                gap: 0;
+        /* Web Mode: Fit exactly 100% within screen height without scrollbar */
+        @media (min-width: 768px) and (min-height: 600px) {
+            body {
+                overflow: hidden;
             }
         }
 
-        .register-btn-wrapper {
-            margin-top: 2rem;
+        /* Ambient Glowing Background Orbs */
+        .ambient-orb {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(85px);
+            opacity: 0.6;
         }
 
-        .register-btn {
-            display: block;
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            top: -100px;
+            left: -100px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, rgba(217, 119, 6, 0.12) 50%, transparent 80%);
+            animation: orbFloat1 20s ease-in-out infinite alternate;
+        }
+
+        .orb-2 {
+            width: 550px;
+            height: 550px;
+            bottom: -120px;
+            right: -120px;
+            background: radial-gradient(circle, rgba(164, 99, 9, 0.25) 0%, rgba(251, 146, 60, 0.1) 60%, transparent 80%);
+            animation: orbFloat2 24s ease-in-out infinite alternate;
+        }
+
+        @keyframes orbFloat1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, 30px) scale(1.08); }
+        }
+
+        @keyframes orbFloat2 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-40px, -40px) scale(1.06); }
+        }
+
+        /* Main Registration Container */
+        .register-wrapper {
+            position: relative;
+            z-index: 1;
             width: 100%;
-            background-color: var(--primary-btn);
-            color: white;
-            text-align: center;
-            padding: 0.875rem;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 1.05rem;
-            text-decoration: none;
-            transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
-            box-shadow: 0 4px 6px -1px rgba(164, 99, 9, 0.2), 0 2px 4px -1px rgba(164, 99, 9, 0.1);
-            border: none;
-            cursor: pointer;
-            font-family: inherit;
+            max-width: 600px;
+            margin: auto;
         }
 
-        .register-btn:hover {
-            background-color: var(--primary-btn-hover);
-            box-shadow: 0 6px 10px -1px rgba(164, 99, 9, 0.3), 0 2px 4px -1px rgba(164, 99, 9, 0.15);
+        .register-card {
+            background: var(--card-glass);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 24px;
+            padding: 1.85rem 2.25rem;
+            box-shadow: 
+                0 20px 50px -10px rgba(164, 99, 9, 0.12),
+                0 10px 25px -5px rgba(0, 0, 0, 0.03),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            animation: cardEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .register-btn:active {
-            transform: scale(0.97);
-            box-shadow: 0 2px 4px -1px rgba(164, 99, 9, 0.2);
+        @keyframes cardEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(16px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
-        
-        .footer-text {
+
+        /* Card Header */
+        .card-header-compact {
             text-align: center;
-            margin-top: 1.5rem;
-            font-size: 0.9rem;
+            margin-bottom: 1.15rem;
+        }
+
+        .brand-logo-img {
+            height: 44px;
+            width: auto;
+            object-fit: contain;
+            margin-bottom: 0.45rem;
+            filter: drop-shadow(0 4px 8px rgba(164, 99, 9, 0.12));
+        }
+
+        .card-header-compact h1 {
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            letter-spacing: -0.01em;
+            line-height: 1.25;
+        }
+
+        .card-header-compact p {
+            font-size: 0.85rem;
             color: var(--text-muted);
+            margin-top: 2px;
         }
 
-        .footer-text a {
-            color: var(--primary-btn);
-            text-decoration: none;
+        /* Role Segmented Switch */
+        .role-switch-container {
+            margin-bottom: 1.15rem;
+        }
+
+        .role-switch-label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.35rem;
+            text-align: center;
+        }
+
+        .role-segmented-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            background: #f1f5f9;
+            padding: 5px;
+            border-radius: 14px;
+            border: 1px solid var(--border-light);
+        }
+
+        .role-segment-item {
+            position: relative;
+        }
+
+        .role-segment-item input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .role-segment-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0.65rem 0.85rem;
+            border-radius: 10px;
+            font-size: 0.88rem;
             font-weight: 500;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            text-align: center;
+        }
+
+        .role-segment-btn:hover {
+            color: var(--text-dark);
+        }
+
+        .role-segment-item input[type="radio"]:checked + .role-segment-btn {
+            background: #ffffff;
+            color: var(--primary);
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(164, 99, 9, 0.15);
+        }
+
+        .role-segment-item input[type="radio"]:checked + .role-segment-btn i {
+            color: var(--primary);
+        }
+
+        /* 2-Column Grid for Form Inputs */
+        .form-grid-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 0.85rem;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field-label {
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.35rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper .input-icon {
+            position: absolute;
+            left: 0.9rem;
+            color: #94a3b8;
+            font-size: 0.95rem;
+            pointer-events: none;
             transition: color 0.2s ease;
         }
 
-        .footer-text a:hover {
-            color: var(--primary-btn-hover);
+        .text-input {
+            width: 100%;
+            padding: 0.72rem 0.85rem 0.72rem 2.5rem;
+            background: #ffffff;
+            border: 1.5px solid var(--border-light);
+            border-radius: 12px;
+            font-size: 0.92rem;
+            font-family: inherit;
+            color: var(--text-dark);
+            outline: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        }
+
+        .text-input:focus {
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 3.5px var(--focus-ring);
+        }
+
+        .input-wrapper:focus-within .input-icon {
+            color: var(--primary);
+        }
+
+        .text-input::placeholder {
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        /* Password Input with Eye */
+        .text-input.with-eye {
+            padding-right: 2.75rem;
+        }
+
+        .eye-toggle-btn {
+            position: absolute;
+            right: 0.45rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .eye-toggle-btn:hover {
+            color: var(--primary);
+            background: rgba(164, 99, 9, 0.08);
+        }
+
+        /* Phone validation note */
+        .field-error-text {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 3px;
+            display: none;
+        }
+
+        /* Submit Button */
+        .btn-submit-action {
+            width: 100%;
+            padding: 0.82rem 1.25rem;
+            background: var(--primary-gradient);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 8px 18px rgba(164, 99, 9, 0.25);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 0.5rem;
+        }
+
+        .btn-submit-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(164, 99, 9, 0.35);
+        }
+
+        .btn-submit-action:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(164, 99, 9, 0.2);
+        }
+
+        .btn-submit-action:disabled {
+            opacity: 0.75;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Footer Link */
+        .card-bottom-link {
+            text-align: center;
+            margin-top: 0.95rem;
+            font-size: 0.86rem;
+            color: var(--text-muted);
+        }
+
+        .card-bottom-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 4px;
+            transition: color 0.2s ease, text-decoration 0.2s ease;
+        }
+
+        .card-bottom-link a:hover {
+            color: var(--primary-hover);
             text-decoration: underline;
+        }
+
+        /* Custom SweetAlert radius */
+        .swal-custom-popup {
+            border-radius: 20px !important;
+            font-family: 'Prompt', sans-serif !important;
+        }
+
+        /* Responsive Mobile Adjustment */
+        @media (max-width: 580px) {
+            body {
+                padding: 1rem 0.75rem;
+                align-items: center;
+            }
+
+            .register-card {
+                padding: 1.65rem 1.15rem;
+                border-radius: 20px;
+            }
+
+            .form-grid-pair {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .card-header-compact h1 {
+                font-size: 1.4rem;
+            }
+
+            .role-segment-btn {
+                font-size: 0.82rem;
+                padding: 0.55rem 0.5rem;
+            }
         }
     </style>
 </head>
 <body>
 
-    <main class="register-container">
-        <header class="register-header">
-            <img src="assets/imagelogo.png" alt="โลโก้ Spacemate" class="logo">
-            <h1>สร้างบัญชีผู้ใช้</h1>
-        </header>
+    <!-- Ambient Glow Orbs -->
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
 
-        <form onsubmit="return handleRegisterSubmit(event)">
+    <!-- Registration Card Container -->
+    <main class="register-wrapper">
+        <div class="register-card">
             
-            <div class="role-section">
-                <span class="role-label-title">ลงทะเบียนในฐานะ :</span>
-                <div class="role-options">
-                    <div class="role-card">
-                        <input type="radio" id="role-customer" name="user_type" value="customer" checked>
-                        <label for="role-customer">
-                            <div class="role-icon">👤</div>
-                            <div>ผู้ใช้งานทั่วไป</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400; margin-top: 0.25rem;">ผู้เช่าค้นหาและจองพื้นที่</div>
-                        </label>
-                    </div>
-                    
-                    <div class="role-card">
-                        <input type="radio" id="role-owner" name="user_type" value="owner">
-                        <label for="role-owner">
-                            <div class="role-icon">🏪</div>
-                            <div>เจ้าของพื้นที่</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400; margin-top: 0.25rem;">ปล่อยเช่าพื้นที่ตลาด/อีเวนต์</div>
-                        </label>
-                    </div>
-                </div>
-            </div>
+            <!-- Compact Header with Logo -->
+            <header class="card-header-compact">
+                <img src="assets/imagelogo.png" alt="โลโก้ SpaceMate" class="brand-logo-img" onerror="this.src='images/logo.png'">
+                <h1>สร้างบัญชีผู้ใช้ใหม่</h1>
+                <p>กรอกข้อมูลสั้นๆ เพื่อเริ่มต้นใช้งาน SpaceMate ทันที</p>
+            </header>
 
-            <div class="form-row">
-                <div class="input-group">
-                    <label for="firstname">ชื่อ</label>
-                    <input type="text" id="firstname" name="firstname" placeholder="กรอกชื่อ" required>
-                </div>
-                <div class="input-group">
-                    <label for="lastname">นามสกุล</label>
-                    <input type="text" id="lastname" name="lastname" placeholder="กรอกนามสกุล" required>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <label for="phone">เบอร์โทรศัพท์</label>
-                <input type="tel" id="phone" name="phone" placeholder="กรอกเบอร์โทรศัพท์ 10 หลัก" required maxlength="10" inputmode="numeric" oninput="validateNumberOnly(this, 10)">
-                <div id="phone-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: none;">⚠️ กรุณากรอกเบอร์โทรศัพท์เป็นตัวเลข 10 หลัก</div>
-            </div>
-
-            <div class="input-group">
-                <label for="email">อีเมล</label>
-                <input type="email" id="email" name="email" placeholder="กรอกอีเมล" required>
-            </div>
-
-            <div class="form-row">
-                <div class="input-group">
-                    <label for="password">รหัสผ่าน</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="password" name="password" placeholder="••••••••" required>
-                        <button type="button" class="toggle-password" onclick="togglePassword('password', this)" title="แสดงรหัสผ่าน">👁️</button>
-                    </div>
-                </div>
+            <!-- Registration Form -->
+            <form id="register-form" onsubmit="return handleRegisterSubmit(event)">
                 
-                <div class="input-group">
-                    <label for="confirm-password">ยืนยันรหัสผ่าน</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="confirm-password" name="confirm-password" placeholder="••••••••" required>
-                        <button type="button" class="toggle-password" onclick="togglePassword('confirm-password', this)" title="แสดงรหัสผ่าน">👁️</button>
+                <!-- Role Segmented Toggle -->
+                <div class="role-switch-container">
+                    <span class="role-switch-label">เลือกประเภทบัญชีของคุณ :</span>
+                    <div class="role-segmented-bar">
+                        <div class="role-segment-item">
+                            <input type="radio" id="role-customer" name="user_type" value="customer" checked>
+                            <label for="role-customer" class="role-segment-btn">
+                                <i class="fa-solid fa-user"></i>
+                                <span>ผู้เช่าพื้นที่ / ทั่วไป</span>
+                            </label>
+                        </div>
+
+                        <div class="role-segment-item">
+                            <input type="radio" id="role-owner" name="user_type" value="owner">
+                            <label for="role-owner" class="role-segment-btn">
+                                <i class="fa-solid fa-store"></i>
+                                <span>เจ้าของพื้นที่ / ตลาด</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Row 1: First Name & Last Name -->
+                <div class="form-grid-pair">
+                    <div class="form-field">
+                        <label for="firstname" class="field-label">ชื่อ</label>
+                        <div class="input-wrapper">
+                            <i class="fa-regular fa-user input-icon"></i>
+                            <input 
+                                type="text" 
+                                id="firstname" 
+                                name="firstname" 
+                                class="text-input" 
+                                placeholder="กรอกชื่อจริง" 
+                                required 
+                                autocomplete="given-name"
+                                autofocus
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="lastname" class="field-label">นามสกุล</label>
+                        <div class="input-wrapper">
+                            <i class="fa-regular fa-user input-icon"></i>
+                            <input 
+                                type="text" 
+                                id="lastname" 
+                                name="lastname" 
+                                class="text-input" 
+                                placeholder="กรอกนามสกุล" 
+                                required 
+                                autocomplete="family-name"
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Phone & Email -->
+                <div class="form-grid-pair">
+                    <div class="form-field">
+                        <label for="phone" class="field-label">เบอร์โทรศัพท์ (10 หลัก)</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-phone input-icon"></i>
+                            <input 
+                                type="tel" 
+                                id="phone" 
+                                name="phone" 
+                                class="text-input" 
+                                placeholder="0812345678" 
+                                required 
+                                maxlength="10" 
+                                inputmode="numeric" 
+                                oninput="validateNumberOnly(this, 10)"
+                                autocomplete="tel"
+                            >
+                        </div>
+                        <div id="phone-err" class="field-error-text">
+                            <i class="fa-solid fa-circle-exclamation"></i> กรุณากรอกเบอร์มือถือ 10 หลัก
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="email" class="field-label">อีเมล</label>
+                        <div class="input-wrapper">
+                            <i class="fa-regular fa-envelope input-icon"></i>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                class="text-input" 
+                                placeholder="name@example.com" 
+                                required 
+                                autocomplete="email"
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 3: Password & Confirm Password -->
+                <div class="form-grid-pair">
+                    <div class="form-field">
+                        <label for="password" class="field-label">รหัสผ่าน</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password" 
+                                class="text-input with-eye" 
+                                placeholder="อย่างน้อย 6 ตัวอักษร" 
+                                required
+                                autocomplete="new-password"
+                            >
+                            <button 
+                                type="button" 
+                                class="eye-toggle-btn" 
+                                onclick="togglePasswordVisibility('password', this)" 
+                                title="แสดง/ซ่อนรหัสผ่าน"
+                                aria-label="แสดงหรือซ่อนรหัสผ่าน"
+                            >
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="confirm-password" class="field-label">ยืนยันรหัสผ่าน</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <input 
+                                type="password" 
+                                id="confirm-password" 
+                                name="confirm-password" 
+                                class="text-input with-eye" 
+                                placeholder="กรอกรหัสผ่านอีกครั้ง" 
+                                required
+                                autocomplete="new-password"
+                            >
+                            <button 
+                                type="button" 
+                                class="eye-toggle-btn" 
+                                onclick="togglePasswordVisibility('confirm-password', this)" 
+                                title="แสดง/ซ่อนรหัสผ่าน"
+                                aria-label="แสดงหรือซ่อนรหัสผ่าน"
+                            >
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit CTA Button -->
+                <button type="submit" class="btn-submit-action" id="register-button">
+                    <span id="btn-text">สร้างบัญชีผู้ใช้</span>
+                    <i class="fa-solid fa-arrow-right" id="btn-icon"></i>
+                </button>
+            </form>
+
+            <!-- Bottom Login Link -->
+            <div class="card-bottom-link">
+                มีบัญชีอยู่แล้ว? <a href="index.html">เข้าสู่ระบบทันที</a>
             </div>
 
-            <div class="register-btn-wrapper">
-                <button type="submit" class="register-btn" id="register-button">ลงทะเบียน</button>
-            </div>
-        </form>
-
-        <div class="footer-text">
-            มีบัญชีอยู่แล้ว? <a href="index.html">เข้าสู่ระบบ</a>
         </div>
     </main>
 
+    <!-- Supabase CDN and Client Script -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/supabase.js"></script>
+
     <script>
-        function togglePassword(inputId, btn) {
+        // Password Visibility Toggle
+        function togglePasswordVisibility(inputId, btn) {
             const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+
             if (input.type === 'password') {
                 input.type = 'text';
-                btn.textContent = '🙈';
-                btn.title = 'ซ่อนรหัสผ่าน';
+                icon.className = 'fa-regular fa-eye-slash';
             } else {
                 input.type = 'password';
-                btn.textContent = '👁️';
-                btn.title = 'แสดงรหัสผ่าน';
+                icon.className = 'fa-regular fa-eye';
             }
         }
 
+        // Live Numeric Phone Validation
         function validateNumberOnly(input, expectedLength) {
             input.value = input.value.replace(/[^0-9]/g, '');
             const errEl = document.getElementById(input.id + '-err');
@@ -382,6 +658,7 @@
             }
         }
 
+        // Registration Submission Handler
         async function handleRegisterSubmit(e) {
             e.preventDefault();
 
@@ -389,10 +666,21 @@
             const phoneErr = document.getElementById('phone-err');
             const phoneVal = phoneInput ? phoneInput.value.trim() : '';
 
-            // Phone validation
+            // Phone validation (10 digits)
             if (!/^\d{10}$/.test(phoneVal)) {
                 if (phoneErr) phoneErr.style.display = 'block';
-                if (phoneInput) { phoneInput.style.borderColor = '#ef4444'; phoneInput.focus(); }
+                if (phoneInput) { 
+                    phoneInput.style.borderColor = '#ef4444'; 
+                    phoneInput.focus(); 
+                }
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'เบอร์โทรศัพท์ไม่ถูกต้อง',
+                    text: 'กรุณากรอกเบอร์โทรศัพท์มือถือเป็นตัวเลข 10 หลักครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 return false;
             }
 
@@ -404,25 +692,43 @@
             const confirmPassword = document.getElementById('confirm-password').value;
             
             // Map 'customer' to 'user' for database enum compatibility
-            let rawRole = document.querySelector('input[name="user_type"]:checked').value;
+            const rawRole = document.querySelector('input[name="user_type"]:checked').value;
             const role = rawRole === 'customer' ? 'user' : 'owner';
 
             if (password !== confirmPassword) {
-                alert('รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'รหัสผ่านไม่ตรงกัน',
+                    text: 'รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน กรุณาตรวจสอบอีกครั้งครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 return false;
             }
 
             if (password.length < 6) {
-                alert('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'รหัสผ่านสั้นเกินไป',
+                    text: 'รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษรครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 return false;
             }
 
             const registerBtn = document.getElementById('register-button');
+            const btnText = document.getElementById('btn-text');
+            const btnIcon = document.getElementById('btn-icon');
+            
             registerBtn.disabled = true;
-            const originalText = registerBtn.textContent;
-            registerBtn.textContent = 'กำลังลงทะเบียน...';
+            btnText.textContent = 'กำลังสร้างบัญชี...';
+            btnIcon.className = 'fa-solid fa-circle-notch fa-spin';
 
             try {
+                // 1. Supabase Auth Sign Up
                 const { data, error } = await supabaseClient.auth.signUp({
                     email: email,
                     password: password,
@@ -441,7 +747,7 @@
                     throw error;
                 }
 
-                // Ensure profile record exists
+                // 2. Ensure profile record exists in profiles table
                 if (data && data.user) {
                     try {
                         await supabaseClient.from('profiles').upsert({
@@ -457,18 +763,49 @@
                     }
                 }
 
-                alert('ลงทะเบียนสำเร็จ! กรุณาเข้าสู่ระบบด้วยอีเมลและรหัสผ่านของคุณ');
-                window.location.href = 'index.html';
+                // Success Feedback
+                btnText.textContent = 'ลงทะเบียนสำเร็จ!';
+                btnIcon.className = 'fa-solid fa-check';
+                registerBtn.style.background = '#10b981';
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ลงทะเบียนสำเร็จ!',
+                    text: 'สร้างบัญชีผู้ใช้เรียบร้อยแล้ว กรุณาเข้าสู่ระบบด้วยอีเมลและรหัสผ่านของคุณครับ',
+                    confirmButtonText: 'ไปหน้าเข้าสู่ระบบ',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                }).then(() => {
+                    window.location.href = 'index.html';
+                });
                 
             } catch (err) {
                 console.error('Registration error:', err);
-                alert('ลงทะเบียนไม่สำเร็จ: ' + (err.message || 'เกิดข้อผิดพลาดบางอย่าง'));
-            } finally {
+                
+                let errorMsg = 'เกิดข้อผิดพลาดในการลงทะเบียน กรุณาลองใหม่อีกครั้ง';
+                if (err.message && err.message.includes('User already registered')) {
+                    errorMsg = 'อีเมลนี้ได้ลงทะเบียนไว้แล้ว กรุณาใช้เข้าสู่ระบบหรือใช้อีเมลอื่นครับ';
+                } else if (err.message) {
+                    errorMsg = err.message;
+                }
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ลงทะเบียนไม่สำเร็จ',
+                    text: errorMsg,
+                    confirmButtonText: 'ลองใหม่อีกครั้ง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
+
+                // Reset button state
                 registerBtn.disabled = false;
-                registerBtn.textContent = originalText;
+                registerBtn.style.background = '';
+                btnText.textContent = 'สร้างบัญชีผู้ใช้';
+                btnIcon.className = 'fa-solid fa-arrow-right';
             }
 
-            return false; // Prevent form default submission
+            return false;
         }
     </script>
 </body>

@@ -6,7 +6,12 @@
     <title>2D Map Builder - Spacemate Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        .swal-custom-popup {
+            border-radius: 20px !important;
+            font-family: 'Prompt', sans-serif !important;
+        }
         :root {
             --primary: #a46309;
             --primary-light: #fef3c7;
@@ -438,7 +443,14 @@
                 if (optGroupEvent.children.length > 0) select.appendChild(optGroupEvent);
             } catch (err) {
                 console.error(err);
-                alert('โหลดข้อมูลสถานที่ล้มเหลว');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'โหลดข้อมูลสถานที่ล้มเหลว',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
             }
         }
         init();
@@ -540,7 +552,15 @@
                 if (error) throw error;
                 
                 closeAddSpaceModal();
-                alert('เพิ่มล็อค/บูธสำเร็จ');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สำเร็จ',
+                    text: 'เพิ่มล็อค/บูธสำเร็จ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' },
+                    timer: 2000
+                });
                 
                 // Add the new space to the local array
                 if (data && data.length > 0) {
@@ -553,9 +573,23 @@
             } catch (err) {
                 console.error(err);
                 if (err.code === '23505') {
-                    alert('เกิดข้อผิดพลาด: ชื่อล็อค/บูธ นี้มีอยู่ในระบบแล้ว กรุณาใช้ชื่ออื่น');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'ชื่อซ้ำ',
+                        text: 'เกิดข้อผิดพลาด: ชื่อล็อค/บูธ นี้มีอยู่ในระบบแล้ว กรุณาใช้ชื่ออื่นครับ',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#a46309',
+                        customClass: { popup: 'swal-custom-popup' }
+                    });
                 } else {
-                    alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + err.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + err.message,
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#a46309',
+                        customClass: { popup: 'swal-custom-popup' }
+                    });
                 }
             } finally {
                 btn.disabled = false;
@@ -577,7 +611,14 @@
             const sizeDetails = document.getElementById('quickSize').value.trim() || null;
 
             if (start > end) {
-                alert('หมายเลขเริ่มต้นต้องน้อยกว่าหรือเท่ากับหมายเลขสิ้นสุด');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'หมายเลขไม่ถูกต้อง',
+                    text: 'หมายเลขเริ่มต้นต้องน้อยกว่าหรือเท่ากับหมายเลขสิ้นสุดครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-bolt"></i> สร้างหลายล็อคพร้อมกัน';
                 return;
@@ -601,7 +642,15 @@
                 if (error) throw error;
                 
                 closeAddSpaceModal();
-                alert(`สร้างสำเร็จ ${insertData.length} ล็อค`);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สร้างสำเร็จ',
+                    text: `สร้างสำเร็จ ${insertData.length} ล็อค`,
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' },
+                    timer: 2000
+                });
                 
                 if (data && data.length > 0) {
                     spaces.push(...data);
@@ -613,9 +662,23 @@
             } catch (err) {
                 console.error(err);
                 if (err.code === '23505') {
-                    alert('เกิดข้อผิดพลาด: มีบางล็อค/บูธ ที่มีชื่อซ้ำกับในระบบแล้ว กรุณาตรวจสอบชื่อล็อคอีกครั้ง');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'ชื่อซ้ำในระบบ',
+                        text: 'เกิดข้อผิดพลาด: มีบางล็อค/บูธ ที่มีชื่อซ้ำกับในระบบแล้ว กรุณาตรวจสอบชื่อล็อคอีกครั้งครับ',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#a46309',
+                        customClass: { popup: 'swal-custom-popup' }
+                    });
                 } else {
-                    alert('เกิดข้อผิดพลาดในการสร้างล็อค: ' + err.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'เกิดข้อผิดพลาดในการสร้างล็อค: ' + err.message,
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#a46309',
+                        customClass: { popup: 'swal-custom-popup' }
+                    });
                 }
             } finally {
                 btn.disabled = false;
@@ -1016,15 +1079,44 @@
                     }
                 }
                 
-                alert('บันทึกแผนผังสำเร็จ!');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'บันทึกสำเร็จ',
+                    text: 'บันทึกแผนผังสำเร็จเรียบร้อยแล้ว!',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' },
+                    timer: 2000
+                });
             } catch (err) {
                 console.error(err);
                 if (err.code === '23505') {
-                    alert('เกิดข้อผิดพลาด (409): พบชื่อล็อค/บูธซ้ำในระบบ โปรดตรวจสอบว่าไม่มีชื่อล็อคซ้ำกัน');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'พบชื่อซ้ำ (409)',
+                        text: 'เกิดข้อผิดพลาด (409): พบชื่อล็อค/บูธซ้ำในระบบ โปรดตรวจสอบว่าไม่มีชื่อล็อคซ้ำกัน',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#a46309',
+                        customClass: { popup: 'swal-custom-popup' }
+                    });
                 } else if (err.code === '409' || err.status === 409 || (err.message && err.message.includes('409'))) {
-                     alert('บันทึกสำเร็จบางส่วน: ข้อมูลบางส่วนอาจมีการอัปเดตซ้อนทับกัน กรุณารีเฟรชหน้าเพื่อดูข้อมูลล่าสุด (409 Conflict)');
+                     Swal.fire({
+                         icon: 'info',
+                         title: 'บันทึกสำเร็จบางส่วน',
+                         text: 'บันทึกสำเร็จบางส่วน: ข้อมูลบางส่วนอาจมีการอัปเดตซ้อนทับกัน กรุณารีเฟรชหน้าเพื่อดูข้อมูลล่าสุด (409 Conflict)',
+                         confirmButtonText: 'ตกลง',
+                         confirmButtonColor: '#a46309',
+                         customClass: { popup: 'swal-custom-popup' }
+                     });
                 } else {
-                    alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + err.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + err.message,
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#a46309',
+                        customClass: { popup: 'swal-custom-popup' }
+                    });
                 }
             } finally {
                 saveMapBtn.disabled = false;
@@ -1081,9 +1173,23 @@
             } catch (err) {
                 console.error(err);
                 if (err.code === '23505') {
-                    alert('เกิดข้อผิดพลาด: ป้ายข้อความนี้อาจจะมีชื่อซ้ำในระบบ');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'ชื่อซ้ำในระบบ',
+                        text: 'เกิดข้อผิดพลาด: ป้ายข้อความนี้อาจจะมีชื่อซ้ำในระบบครับ',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#a46309',
+                        customClass: { popup: 'swal-custom-popup' }
+                    });
                 } else {
-                    alert('เกิดข้อผิดพลาดในการเพิ่มป้ายชื่อ: ' + err.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'เกิดข้อผิดพลาดในการเพิ่มป้ายชื่อ: ' + err.message,
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#a46309',
+                        customClass: { popup: 'swal-custom-popup' }
+                    });
                 }
             } finally {
                 btn.disabled = false;
@@ -1152,7 +1258,14 @@
                 renderSidebarSpaces();
                 renderMapBoxes();
             } catch (err) {
-                alert('เกิดข้อผิดพลาด: ' + err.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'เกิดข้อผิดพลาด: ' + err.message,
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
             } finally {
                 btn.disabled = false;
             }
@@ -1160,7 +1273,18 @@
 
         async function deleteSpace(id, e) {
             e.stopPropagation();
-            if (!confirm('คุณแน่ใจหรือไม่ที่จะลบรายการนี้? (การลบจะไม่สามารถกู้คืนได้)')) return;
+            const res = await Swal.fire({
+                icon: 'warning',
+                title: 'ยืนยันการลบ?',
+                text: 'คุณแน่ใจหรือไม่ที่จะลบรายการนี้? (การลบจะไม่สามารถกู้คืนได้)',
+                showCancelButton: true,
+                confirmButtonText: 'ลบรายการ',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                customClass: { popup: 'swal-custom-popup' }
+            });
+            if (!res.isConfirmed) return;
             
             try {
                 const { data, error } = await supabaseClient.from('spaces').delete().eq('id', id).select();
@@ -1173,7 +1297,14 @@
                 
                 renderSidebarSpaces();
             } catch (err) {
-                alert('เกิดข้อผิดพลาดในการลบ: ' + err.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการลบ: ' + err.message,
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
             }
         }
 </script>

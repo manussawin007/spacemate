@@ -11,6 +11,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        .swal-custom-popup {
+            border-radius: 20px !important;
+            font-family: 'Prompt', sans-serif !important;
+        }
         :root {
             --bg-color: #ffffff;
             --primary-color: #a46309;
@@ -3005,7 +3009,7 @@
                         <div class="help-faq-content">
                             ไม่ต้องกังวลครับ คุณสามารถดำเนินการได้ดังนี้:
                             <ul>
-                                <li>ติดต่อเจ้าหน้าที่ผ่าน <strong>LINE Official (@spacemate)</strong> พร้อมแจ้ง <em>รหัสการจอง (Booking Ref)</em> และส่งรูปสลิปที่ถูกต้องเข้ามา</li>
+                                <li>ติดต่อเจ้าหน้าที่ผ่าน <strong><a href="https://line.me/R/ti/p/@049uytux" target="_blank" rel="noopener noreferrer" style="color: #06c755; text-decoration: underline;">LINE Official (@049uytux)</a></strong> พร้อมแจ้ง <em>รหัสการจอง (Booking Ref)</em> และส่งรูปสลิปที่ถูกต้องเข้ามา</li>
                                 <li>ทีมงานจะประสานงานกับเจ้าของพื้นที่เพื่ออัปเดตและยืนยันการชำระเงินให้คุณอย่างรวดเร็วครับ</li>
                             </ul>
                         </div>
@@ -3080,7 +3084,7 @@
                                 <li><strong>แจ้งล่วงหน้าอย่างน้อย 3-5 วัน:</strong> สามารถติดต่อประสานงานเพื่อขอเลื่อนรอบวัน หรือขอคืนเงินตามเงื่อนไขของตลาดนั้นๆ</li>
                                 <li><strong>กรณีตลาดเลื่อนหรืองดจัดงาน:</strong> (เช่น ฝนตกหนัก เหตุสุดวิสัย) ทางตลาดจะประสานงานโอนเงินคืนเต็มจำนวนเข้าบัญชีธนาคารเดิมของคุณภายใน 1-3 วันทำการ</li>
                             </ul>
-                            กรุณาติดต่อผ่าน LINE Official เพื่อส่งเรื่องขอประสานงานกับผู้ดูแลตลาดครับ
+                            กรุณาติดต่อผ่าน <strong><a href="https://line.me/R/ti/p/@049uytux" target="_blank" rel="noopener noreferrer" style="color: #06c755; text-decoration: underline;">LINE Official (@049uytux)</a></strong> เพื่อส่งเรื่องขอประสานงานกับผู้ดูแลตลาดครับ
                         </div>
                     </div>
                 </div>
@@ -3154,8 +3158,8 @@
                     <i class="fa-solid fa-headset" style="color: var(--primary-color);"></i> ช่องทางการติดต่อเจ้าหน้าที่
                 </div>
 
-                <!-- LINE Official Card (Ready for API Connection) -->
-                <div class="help-line-card" onclick="openLineSupport()" id="line-support-card">
+                <!-- LINE Official Card -->
+                <a href="https://line.me/R/ti/p/@049uytux" target="_blank" rel="noopener noreferrer" class="help-line-card" id="line-support-card">
                     <div class="help-line-card-icon">
                         <i class="fa-brands fa-line"></i>
                     </div>
@@ -3163,18 +3167,18 @@
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
                             <span style="font-weight: 700; font-size: 1.05rem; letter-spacing: 0.2px;">LINE Official</span>
                             <span style="background: rgba(255,255,255,0.22); padding: 2px 8px; border-radius: 50px; font-size: 0.72rem; font-weight: 500;">
-                                <i class="fa-solid fa-robot"></i> Chatbot
+                                <i class="fa-solid fa-user-plus"></i> แอดไลน์
                             </span>
                         </div>
                         <div style="font-size: 0.85rem; opacity: 0.95; line-height: 1.4;">
-                            @spacemate (แชทคุยกับบอทและเจ้าหน้าที่ 09:00 - 20:00 น.)
+                            @049uytux (คลิกเพื่อแอดไลน์และติดต่อสอบถามได้ทันที)
                         </div>
-                        <div style="font-size: 0.74rem; opacity: 0.8; margin-top: 4px;">
-                            <i class="fa-solid fa-bolt"></i> พร้อมเชื่อมต่อ LINE Messaging API
+                        <div style="font-size: 0.74rem; opacity: 0.85; margin-top: 4px;">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> เปิด LINE เพื่อเพิ่มเพื่อน @049uytux
                         </div>
                     </div>
                     <i class="fa-solid fa-chevron-right" style="font-size: 1.15rem; opacity: 0.85;"></i>
-                </div>
+                </a>
 
                 <!-- Grid for Phone & Email -->
                 <div class="help-contact-grid">
@@ -3655,8 +3659,18 @@
             }
 
             if (!currentUserId && viewId !== 'home') {
-                const wantLogin = confirm('ฟังก์ชันนี้สงวนไว้สำหรับสมาชิก กรุณาเข้าสู่ระบบก่อนใช้งาน\nคุณต้องการไปที่หน้าเข้าสู่ระบบหรือไม่?');
-                if (wantLogin) {
+                const res = await Swal.fire({
+                    icon: 'info',
+                    title: 'กรุณาเข้าสู่ระบบ',
+                    text: 'ฟังก์ชันนี้สงวนไว้สำหรับสมาชิก กรุณาเข้าสู่ระบบก่อนใช้งานครับ',
+                    showCancelButton: true,
+                    confirmButtonText: 'เข้าสู่ระบบ',
+                    cancelButtonText: 'ยกเลิก',
+                    confirmButtonColor: '#a46309',
+                    cancelButtonColor: '#64748b',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
+                if (res.isConfirmed) {
                     window.location.href = '../index.html';
                 }
                 return;
@@ -3804,8 +3818,16 @@
 
         async function saveUserProfile() {
             if (!currentUserId) {
-                alert('เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่');
-                window.location.replace('../index.html');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'เซสชันหมดอายุ',
+                    text: 'กรุณาเข้าสู่ระบบใหม่อีกครั้งครับ',
+                    confirmButtonText: 'เข้าสู่ระบบใหม่',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                }).then(() => {
+                    window.location.replace('../index.html');
+                });
                 return;
             }
 
@@ -3842,7 +3864,14 @@
             }
 
             if (!displayVal) {
-                alert('กรุณากรอกชื่อบัญชีผู้ใช้');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ข้อมูลไม่ครบถ้วน',
+                    text: 'กรุณากรอกชื่อบัญชีผู้ใช้ครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 return false;
             }
 
@@ -3869,7 +3898,16 @@
 
                 if (error) throw error;
                 
-                alert('บันทึกข้อมูลเรียบร้อยแล้ว');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'บันทึกสำเร็จ!',
+                    text: 'บันทึกข้อมูลส่วนตัวเรียบร้อยแล้ว',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' },
+                    timer: 2000,
+                    timerProgressBar: true
+                });
                 
                 // Update Local State
                 if (window.currentUserProfile) {
@@ -3886,7 +3924,14 @@
                 switchUserView('profile');
             } catch (err) {
                 console.error('Error saving profile:', err);
-                alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + err.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + err.message,
+                    confirmButtonText: 'ลองใหม่อีกครั้ง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
             } finally {
                 submitBtn.innerText = originalText;
                 submitBtn.disabled = false;
@@ -3900,7 +3945,14 @@
             if (!file) return;
 
             if (file.size > 5 * 1024 * 1024) {
-                alert('ขนาดไฟล์ต้องไม่เกิน 5 MB');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ไฟล์มีขนาดใหญ่เกินไป',
+                    text: 'ขนาดไฟล์ต้องไม่เกิน 5 MB กรุณาเลือกไฟล์ใหม่ครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 event.target.value = '';
                 return;
             }
@@ -4152,24 +4204,53 @@
 
         async function submitUserVerification() {
             if (!currentUserId) {
-                alert('เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่');
-                window.location.replace('../index.html');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'เซสชันหมดอายุ',
+                    text: 'กรุณาเข้าสู่ระบบใหม่อีกครั้งครับ',
+                    confirmButtonText: 'เข้าสู่ระบบใหม่',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                }).then(() => {
+                    window.location.replace('../index.html');
+                });
                 return;
             }
 
             const currentKycStatus = window.currentUserProfile?.kyc_status || (window.currentUserProfile?.is_verified ? 'approved' : 'unverified');
             if (currentKycStatus === 'approved') {
-                alert('บัญชีของคุณได้รับการยืนยันตัวตน (KYC) เรียบร้อยแล้ว ข้อมูลถูกล็อคและไม่สามารถแก้ไขได้');
+                Swal.fire({
+                    icon: 'info',
+                    title: 'ยืนยันตัวตนแล้ว',
+                    text: 'บัญชีของคุณได้รับการยืนยันตัวตน (KYC) เรียบร้อยแล้ว ข้อมูลถูกล็อคและไม่สามารถแก้ไขได้ครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 return false;
             }
             if (currentKycStatus === 'pending') {
-                alert('ข้อมูลของคุณอยู่ระหว่างรอเจ้าหน้าที่ตรวจสอบ ไม่สามารถแก้ไขได้ในขณะนี้');
+                Swal.fire({
+                    icon: 'info',
+                    title: 'อยู่ระหว่างตรวจสอบ',
+                    text: 'ข้อมูลของคุณอยู่ระหว่างรอเจ้าหน้าที่ตรวจสอบ ไม่สามารถแก้ไขได้ในขณะนี้ครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 return false;
             }
 
             const termsCheck = document.getElementById('user-kyc-terms');
             if (termsCheck && !termsCheck.checked) {
-                alert('กรุณากดยอมรับ พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA) ก่อนส่งข้อมูล');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณายอมรับเงื่อนไข',
+                    text: 'กรุณากดยอมรับ พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA) ก่อนส่งข้อมูลครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 return;
             }
 
@@ -4186,7 +4267,14 @@
             let hasError = false;
 
             if (!firstVal || !lastVal) {
-                alert('กรุณากรอกชื่อและนามสกุลให้ครบถ้วน');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ข้อมูลไม่ครบถ้วน',
+                    text: 'กรุณากรอกชื่อและนามสกุลให้ครบถ้วนครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 return false;
             }
 
@@ -4213,7 +4301,14 @@
             if (hasError) return false;
 
             if (!userUploadedFiles.idcard || !userUploadedFiles.selfie) {
-                alert('กรุณาอัปโหลดรูปถ่ายหน้าบัตรประชาชนและรูปเซลฟี่ให้ครบถ้วน');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ยังแนบรูปไม่ครบ',
+                    text: 'กรุณาอัปโหลดรูปถ่ายหน้าบัตรประชาชนและรูปเซลฟี่ให้ครบถ้วนครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 return false;
             }
 
@@ -4258,7 +4353,14 @@
                     await supabaseClient.from('profiles').update({ address: fullAddress }).eq('id', currentUserId);
                 }
                 
-                alert('ส่งข้อมูลยืนยันตัวตนเรียบร้อยแล้ว รอการตรวจสอบจากเจ้าหน้าที่');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ส่งข้อมูลเรียบร้อยแล้ว!',
+                    text: 'ระบบได้รับข้อมูลยืนยันตัวตนของคุณแล้ว อยู่ระหว่างรอการตรวจสอบจากเจ้าหน้าที่ครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 
                 if (window.currentUserProfile) {
                     window.currentUserProfile.kyc_status = 'pending';
@@ -4275,7 +4377,14 @@
 
             } catch (err) {
                 console.error('Error submitting KYC:', err);
-                alert('เกิดข้อผิดพลาดในการส่งข้อมูล: ' + err.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการส่งข้อมูล: ' + err.message,
+                    confirmButtonText: 'ลองใหม่อีกครั้ง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 submitBtn.innerText = originalText;
                 submitBtn.disabled = false;
             }
@@ -4379,8 +4488,8 @@
         // (เตรียมพร้อมสำหรับเชื่อมต่อ LINE Messaging API / LIFF URL)
         // ==========================================
         window.spacemateLineConfig = {
-            lineId: '@spacemate',
-            lineAddFriendUrl: 'https://line.me/R/ti/p/@spacemate',
+            lineId: '@049uytux',
+            lineAddFriendUrl: 'https://line.me/R/ti/p/@049uytux',
             // ใส่ Webhook / API Endpoint ของคุณที่นี่เมื่อต้องการเชื่อมต่อระบบ:
             apiEndpoint: null,
             channelAccessToken: null
@@ -4393,42 +4502,8 @@
                 return;
             }
 
-            // โหมดพร้อมเชื่อมต่อ (แสดงข้อมูลติดต่อ พร้อมรอรับ API)
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    title: '<div style="color: #06c755; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700;"><i class="fa-brands fa-line" style="font-size: 2.2rem;"></i> LINE Official</div>',
-                    html: `
-                        <div style="text-align: left; font-size: 0.95rem; line-height: 1.6; color: #334155;">
-                            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 14px; margin-bottom: 14px;">
-                                <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #166534; font-size: 1.05rem; margin-bottom: 4px;">
-                                    <i class="fa-solid fa-headset"></i> SpaceMate Support Bot
-                                </div>
-                                <div style="font-size: 0.9rem; color: #15803d;">
-                                    LINE ID: <strong>@spacemate</strong><br>
-                                    เวลาทำการ: <strong>09:00 - 20:00 น.</strong> (ทุกวัน)
-                                </div>
-                            </div>
-                            <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 12px; font-size: 0.82rem; color: #64748b;">
-                                <i class="fa-solid fa-code" style="color: #06c755;"></i> <strong>เตรียมพร้อมสำหรับ LINE Messaging API:</strong><br>
-                                คุณสามารถใส่ API Endpoint / Webhook ลงในตัวแปร <code>window.spacemateLineConfig.apiEndpoint</code> ได้ทันทีเมื่อพร้อมเชื่อมต่อครับ
-                            </div>
-                        </div>
-                    `,
-                    showCancelButton: true,
-                    confirmButtonText: '<i class="fa-brands fa-line"></i> แอดไลน์ @spacemate',
-                    confirmButtonColor: '#06c755',
-                    cancelButtonText: 'ปิดหน้าต่าง',
-                    cancelButtonColor: '#94a3b8',
-                    width: '420px',
-                    padding: '1.5rem'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.open(window.spacemateLineConfig.lineAddFriendUrl, '_blank');
-                    }
-                });
-            } else {
-                alert('LINE Official: @spacemate\nเวลาทำการ 09:00 - 20:00 น.\n(ระบบพร้อมเชื่อมต่อ LINE Messaging API เร็วๆ นี้)');
-            }
+            // นำทางไปเปิดแอดไลน์ @049uytux ทันที
+            window.open(window.spacemateLineConfig.lineAddFriendUrl, '_blank');
         }
 
         function initUserView() {
@@ -4665,8 +4740,21 @@
             if (e) e.preventDefault();
             const status = window.currentUserProfile?.kyc_status || (window.currentUserProfile?.is_verified ? 'approved' : 'unverified');
             if (status !== 'approved') {
-                alert('กรุณายืนยันตัวตน (KYC) ให้เสร็จสิ้นและรอการอนุมัติก่อนทำรายการนี้');
-                // Could switch to profile view if user has KYC button there, but currently user just gets an alert
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ต้องยืนยันตัวตนก่อน',
+                    text: 'กรุณายืนยันตัวตน (KYC) ให้เสร็จสิ้นและรอการอนุมัติก่อนทำรายการนี้ครับ',
+                    confirmButtonText: 'ไปหน้ายืนยันตัวตน',
+                    showCancelButton: true,
+                    cancelButtonText: 'ไว้ทีหลัง',
+                    confirmButtonColor: '#a46309',
+                    cancelButtonColor: '#64748b',
+                    customClass: { popup: 'swal-custom-popup' }
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        switchUserView('profile');
+                    }
+                });
                 return false;
             }
             if (url) window.location.href = url;
@@ -4950,7 +5038,20 @@
         }
 
         async function cancelBooking(bookingId) {
-            if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการจองนี้?')) return;
+            const result = await Swal.fire({
+                title: 'ยืนยันการยกเลิก?',
+                text: 'คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการจองนี้?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'ใช่, ยกเลิกการจอง',
+                cancelButtonText: 'ไม่ยกเลิก',
+                customClass: { popup: 'swal-custom-popup' }
+            });
+
+            if (!result.isConfirmed) return;
+
             try {
                 const { error } = await supabaseClient
                     .from('bookings')
@@ -4962,7 +5063,15 @@
                     throw error;
                 }
                 
-                alert('ยกเลิกการจองสำเร็จ');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ยกเลิกสำเร็จ',
+                    text: 'ยกเลิกการจองเรียบร้อยแล้วครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' },
+                    timer: 2000
+                });
 
                 // Refresh list
                 if (currentUserId) {
@@ -4970,7 +5079,14 @@
                 }
             } catch (err) {
                 console.error('Error cancelling booking:', err);
-                alert('เกิดข้อผิดพลาดในการยกเลิกการจอง');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถยกเลิกการจองได้ กรุณาลองใหม่อีกครั้งครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
             }
         }
 
@@ -5061,17 +5177,38 @@
             const confirmPassword = document.getElementById('change-password-confirm').value;
 
             if (!currentPassword || !newPassword || !confirmPassword) {
-                alert('กรุณากรอกข้อมูลให้ครบทุกช่อง');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ข้อมูลไม่ครบถ้วน',
+                    text: 'กรุณากรอกข้อมูลให้ครบทุกช่องครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 return;
             }
 
             if (newPassword !== confirmPassword) {
-                alert('รหัสผ่านใหม่และการยืนยันรหัสผ่านไม่ตรงกัน');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'รหัสผ่านไม่ตรงกัน',
+                    text: 'รหัสผ่านใหม่และการยืนยันรหัสผ่านไม่ตรงกันครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 return;
             }
 
             if (newPassword.length < 6) {
-                alert('รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'รหัสผ่านสั้นเกินไป',
+                    text: 'รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษรครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 return;
             }
 
@@ -5107,12 +5244,26 @@
                     throw updateError;
                 }
 
-                alert('เปลี่ยนรหัสผ่านเรียบร้อยแล้ว');
                 closeChangePasswordModal();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'เปลี่ยนรหัสผ่านสำเร็จ!',
+                    text: 'รหัสผ่านของคุณถูกเปลี่ยนเรียบร้อยแล้ว',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
 
             } catch (err) {
                 console.error('Error changing password:', err);
-                alert(err.message || 'เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: err.message || 'เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน',
+                    confirmButtonText: 'ลองใหม่อีกครั้ง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
             } finally {
                 btn.innerText = originalText;
                 btn.disabled = false;
@@ -5146,7 +5297,14 @@
             const password = document.getElementById('delete-account-password').value.trim();
             
             if (!email || !password) {
-                alert('กรุณากรอกอีเมลและรหัสผ่านให้ครบถ้วน');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ข้อมูลไม่ครบถ้วน',
+                    text: 'กรุณากรอกอีเมลและรหัสผ่านให้ครบถ้วนครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 return;
             }
 
@@ -5188,11 +5346,26 @@
                 }
                 
                 await supabaseClient.auth.signOut();
-                alert('บัญชีของคุณถูกลบเรียบร้อยแล้ว');
-                window.location.replace('../index.html');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ลบบัญชีเรียบร้อย',
+                    text: 'บัญชีของคุณถูกลบออกจากระบบแล้วครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                }).then(() => {
+                    window.location.replace('../index.html');
+                });
                 
             } catch (err) {
-                alert(err.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่สามารถลบบัญชีได้',
+                    text: err.message,
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
