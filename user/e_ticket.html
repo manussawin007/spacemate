@@ -3,308 +3,835 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spacemate - E-Ticket</title>
+    <title>SpaceMate - E-Ticket & ใบเสร็จรับเงินอิเล็กทรอนิกส์</title>
+    <link rel="icon" type="image/png" href="../images/logo.png">
+
+    <!-- Google Fonts: Prompt for Thai & Outfit for Numbers -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Libre+Barcode+39+Text&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- SweetAlert2 for modern alerts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- QRCode.js for generating verifiable QR Code -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- html2canvas for saving high-resolution PNG receipt image -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <style>
         :root {
-            --bg-color: #F1F4F8;
-            --primary-color: #a46309;
-            --card-bg: #FFFFFF;
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-            --success: #10b981;
+            --bg-color: #f1f5f9;
+            --primary: #a46309;
+            --primary-dark: #8c5407;
+            --primary-light: #fffbeb;
+            --primary-gradient: linear-gradient(135deg, #a46309 0%, #d97706 100%);
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --text-sub: #94a3b8;
+            --border-light: #e2e8f0;
+            --success: #059669;
+            --success-bg: #ecfdf5;
+            --warning: #d97706;
+            --warning-bg: #fffbeb;
+            --danger: #dc2626;
+            --danger-bg: #fef2f2;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        html, body { overflow-x: hidden; width: 100%; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
 
         body {
             font-family: 'Prompt', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             min-height: 100vh;
-            padding-bottom: 40px;
+            padding-bottom: 3rem;
+            position: relative;
         }
 
-        .header {
+        /* Top Header Navigation */
+        .app-header {
             position: sticky;
             top: 0;
-            background: var(--bg-color);
-            padding: 1rem 1.25rem;
+            background: rgba(241, 245, 249, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 0.85rem 1.25rem;
             display: flex;
             align-items: center;
+            justify-content: space-between;
             z-index: 100;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
         }
 
-        .back-btn {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid #e2e8f0;
-            color: #1e293b;
-            font-size: 1.1rem;
+        .header-btn {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            color: #334155;
+            font-size: 1rem;
             cursor: pointer;
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
+            border-radius: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             text-decoration: none;
-            margin-right: 1rem;
         }
-        .back-btn:hover {
-            background: #ffffff;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
-            color: var(--primary-color);
+
+        .header-btn:hover {
+            color: var(--primary);
             border-color: #cbd5e1;
-        }
-        .back-btn:active {
-            transform: translateY(0);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(164, 99, 9, 0.12);
         }
 
-        .header-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin: 0;
-            flex: 1;
+        .header-title-wrap {
             text-align: center;
-            margin-right: 2rem; /* visually center */
+            flex: 1;
+            margin: 0 0.75rem;
         }
 
-        .container {
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 0 1.25rem;
+        .header-title-wrap h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+
+        .header-title-wrap p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Layout Container */
+        .ticket-wrapper {
+            max-width: 460px;
+            margin: 1.25rem auto 0;
+            padding: 0 1rem;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.25rem;
         }
 
-        /* Ticket Styles */
-        .ticket {
+        /* MAIN TICKET & RECEIPT CARD */
+        .receipt-card {
             background: var(--card-bg);
-            border-radius: 1.25rem;
+            border-radius: 24px;
             position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
-            margin-top: 0.5rem;
+            box-shadow: 0 12px 35px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.03);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            overflow: hidden;
+            transition: transform 0.25s ease;
         }
 
-        .ticket-top {
-            padding: 2rem 1.5rem 1.5rem;
+        /* Card Top Brand Section */
+        .receipt-top-brand {
+            padding: 1.35rem 1.5rem 1rem;
+            background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .brand-meta-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-logo-img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            border-radius: 12px;
+            filter: drop-shadow(0 2px 6px rgba(164, 99, 9, 0.15));
+        }
+
+        .brand-texts h2 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.15;
+            letter-spacing: -0.01em;
+        }
+
+        .brand-texts p {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        .receipt-doc-badge {
+            background: #f8fafc;
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 4px 8px;
+            text-align: right;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .receipt-doc-badge:hover {
+            border-color: var(--primary);
+            background: #fffbeb;
+        }
+
+        .receipt-doc-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .receipt-doc-number {
+            font-family: 'Outfit', monospace;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            justify-content: flex-end;
+        }
+
+        /* Status Pill Banner */
+        .receipt-status-banner {
+            padding: 0.65rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-bottom: 1px dashed var(--border-light);
+        }
+
+        .receipt-status-banner.confirmed {
+            background: var(--success-bg);
+            color: var(--success);
+            border-color: rgba(5, 150, 105, 0.2);
+        }
+
+        .receipt-status-banner.pending {
+            background: var(--warning-bg);
+            color: var(--warning);
+            border-color: rgba(217, 119, 6, 0.2);
+        }
+
+        .receipt-status-banner.cancelled {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border-color: rgba(220, 38, 38, 0.2);
+        }
+
+        .status-banner-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-banner-time {
+            font-size: 0.72rem;
+            font-weight: 400;
+            opacity: 0.85;
+        }
+
+        /* Hero Venue & Stall Card Section */
+        .receipt-venue-section {
+            padding: 1.35rem 1.5rem;
             text-align: center;
+            position: relative;
         }
 
-        .status-badge {
+        .venue-type-tag {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            background: #d1fae5;
-            color: var(--success);
-            padding: 0.5rem 1rem;
-            border-radius: 2rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 1.25rem;
-        }
-
-        .market-name {
-            font-size: 1.5rem;
+            gap: 5px;
+            background: rgba(164, 99, 9, 0.08);
+            color: var(--primary);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
-            color: var(--text-main);
         }
 
-        .date-time {
+        .venue-title {
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.25;
+            margin-bottom: 0.35rem;
+        }
+
+        .venue-location {
+            font-size: 0.85rem;
             color: var(--text-muted);
-            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
-        .ticket-divider {
-            position: relative;
-            height: 2px;
-            background-image: linear-gradient(to right, #cbd5e1 50%, transparent 50%);
-            background-size: 12px 2px;
-            background-repeat: repeat-x;
-            margin: 0;
-            z-index: 0;
-        }
-
-        .ticket-divider::before, .ticket-divider::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: 32px;
-            height: 32px;
-            background-color: var(--bg-color);
-            border-radius: 50%;
-            transform: translateY(-50%);
-            z-index: 1;
-        }
-
-        .ticket-divider::before { left: -16px; }
-        .ticket-divider::after { right: -16px; }
-
-        .ticket-middle {
-            padding: 1.25rem 1.5rem;
-            text-align: center;
-        }
-
-        .ref-number {
-            font-family: monospace;
-            font-size: 1.15rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-            color: var(--primary-color);
-        }
-
-        .ticket-bottom {
-            padding: 1.5rem;
+        /* Stall & Space Hero Badge Grid */
+        .stall-hero-grid {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr 1fr;
+            gap: 8px;
+            margin-top: 1.15rem;
             background: #f8fafc;
-            border-radius: 0 0 1.25rem 1.25rem;
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 10px;
+        }
+
+        .stall-hero-box {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 8px 6px;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            align-items: center;
+            justify-content: center;
         }
 
-        .detail-row {
+        .stall-hero-box.highlight {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-color: #fde68a;
+        }
+
+        .stall-box-label {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .stall-box-value {
+            font-family: 'Outfit', 'Prompt', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .stall-box-value.amber {
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+
+        /* Perforation Tear Divider with side cutouts */
+        .ticket-tear-line {
+            position: relative;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0.25rem 0;
+        }
+
+        .tear-dashed-track {
+            width: 100%;
+            height: 2px;
+            background-image: linear-gradient(to right, #cbd5e1 50%, transparent 50%);
+            background-size: 14px 2px;
+            background-repeat: repeat-x;
+        }
+
+        .tear-cutout-left, .tear-cutout-right {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            background-color: var(--bg-color);
+            border-radius: 50%;
+            z-index: 2;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        .tear-cutout-left {
+            left: -12px;
+        }
+
+        .tear-cutout-right {
+            right: -12px;
+        }
+
+        /* Middle Detail Rows */
+        .receipt-details-block {
+            padding: 0.85rem 1.5rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .detail-row-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 0.88rem;
         }
 
-        .detail-label {
+        .detail-label-text {
             color: var(--text-muted);
-            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 400;
         }
 
-        .detail-value {
-            font-weight: 500;
+        .detail-value-text {
+            color: #0f172a;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .detail-value-text.calendar-dates {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.92rem;
+        }
+
+        /* Financial Breakdown Card inside receipt */
+        .receipt-financial-box {
+            background: #f8fafc;
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 12px 14px;
+            margin: 0.35rem 0 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .fee-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .fee-row.total {
+            margin-top: 6px;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
             font-size: 1rem;
-            color: var(--text-main);
+            font-weight: 700;
+            color: #0f172a;
+            align-items: baseline;
         }
 
-        .detail-value.highlight {
-            color: var(--primary-color);
+        .total-amount-large {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--success);
+        }
+
+        /* QR Code & Barcode Verification Footer */
+        .receipt-verification-stub {
+            background: linear-gradient(180deg, #ffffff 0%, #fbfbfc 100%);
+            border-top: 1px dashed var(--border-light);
+            padding: 1.35rem 1.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .qr-frame-box {
+            background: #ffffff;
+            padding: 10px;
+            border-radius: 16px;
+            border: 1.5px solid #e2e8f0;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+            margin-bottom: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 140px;
+            height: 140px;
+        }
+
+        .qr-frame-box canvas, .qr-frame-box img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .barcode-visual-wrap {
+            font-family: 'Libre Barcode 39 Text', cursive, monospace;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            color: #1e293b;
+            line-height: 1;
+            margin: 0.25rem 0;
+            user-select: none;
+        }
+
+        .verification-note {
+            font-size: 0.72rem;
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 4px;
+        }
+
+        /* Security Digital Stamp */
+        .digital-security-seal {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(5, 150, 105, 0.08);
+            border: 1px solid rgba(5, 150, 105, 0.25);
+            color: var(--success);
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.72rem;
             font-weight: 600;
-            font-size: 1.1rem;
+            margin-top: 0.75rem;
         }
 
-        .save-btn {
-            background: var(--primary-color);
-            color: white;
+        /* ACTION BUTTONS BAR */
+        .actions-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-download-receipt {
+            background: var(--primary-gradient);
+            color: #ffffff;
             border: none;
-            padding: 1rem;
-            border-radius: 2rem;
+            padding: 1.05rem 1.5rem;
+            border-radius: 18px;
             font-family: inherit;
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-size: 1.05rem;
+            font-weight: 700;
             cursor: pointer;
             width: 100%;
-            box-shadow: 0 4px 10px rgba(164, 99, 9, 0.2);
-            transition: transform 0.2s, background 0.2s;
             display: flex;
-            justify-content: center;
             align-items: center;
-            gap: 0.5rem;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 8px 24px rgba(164, 99, 9, 0.25);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .save-btn:active {
-            transform: scale(0.98);
+        .btn-download-receipt:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(164, 99, 9, 0.32);
+            filter: brightness(1.04);
         }
-        .save-btn:hover {
-            background: #8c5407;
+
+        .btn-download-receipt:active {
+            transform: translateY(0);
+        }
+
+        .btn-download-receipt i {
+            font-size: 1.25rem;
+        }
+
+        .secondary-actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn-secondary-action {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            color: #334155;
+            padding: 0.75rem 0.5rem;
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            text-decoration: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary-action:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary-action i {
+            font-size: 1.05rem;
+            color: var(--primary);
+        }
+
+        /* Loading Skeleton Animation */
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 6px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* PRINT STYLING */
+        @media print {
+            body {
+                background: #ffffff !important;
+                padding: 0 !important;
+            }
+            .app-header, .actions-container, .tear-cutout-left, .tear-cutout-right {
+                display: none !important;
+            }
+            .ticket-wrapper {
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .receipt-card {
+                box-shadow: none !important;
+                border: 1px solid #cbd5e1 !important;
+            }
         }
     </style>
 </head>
 <body>
 
-    <header class="header">
-        <button class="back-btn" onclick="goBack()">
+    <!-- Header Navigation -->
+    <header class="app-header">
+        <button class="header-btn" onclick="goBack()" title="กลับหน้าเดิม">
             <i class="fa-solid fa-arrow-left"></i>
         </button>
-        <h2 class="header-title">E-Ticket / ใบเสร็จ</h2>
+        <div class="header-title-wrap">
+            <h1>E-Ticket & ใบเสร็จรับเงิน</h1>
+            <p>ระบบบันทึกสิทธิ์และตรวจสอบการจอง</p>
+        </div>
+        <button class="header-btn" onclick="window.print()" title="พิมพ์ใบเสร็จ">
+            <i class="fa-solid fa-print"></i>
+        </button>
     </header>
 
-    <div class="container">
-        
-        <div class="ticket">
-            <div class="ticket-top">
-                <div class="status-badge" id="ticket-status-badge">
-                    <i class="fa-solid fa-clock"></i> รอตรวจสอบการชำระเงิน
+    <!-- Main Container -->
+    <main class="ticket-wrapper">
+
+        <!-- OFFICIAL RECEIPT & TICKET CARD -->
+        <article class="receipt-card" id="ticket-receipt-card">
+            
+            <!-- Top Brand Bar -->
+            <div class="receipt-top-brand">
+                <div class="brand-meta-left">
+                    <img src="../assets/imagelogo.png" alt="SpaceMate Logo" class="brand-logo-img" onerror="this.src='../images/logo.png'">
+                    <div class="brand-texts">
+                        <h2>SpaceMate</h2>
+                        <p>Official Electronic Receipt</p>
+                    </div>
                 </div>
-                <h3 class="market-name" id="ticket-market-name">กำลังโหลดข้อมูล...</h3>
-                <div class="date-time" id="ticket-date-time">-</div>
-            </div>
-
-            <!-- Upper Divider -->
-            <div class="ticket-divider"></div>
-
-            <div class="ticket-middle">
-                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.35rem;">รหัสการจอง (Booking Ref)</div>
-                <div class="ref-number" id="ticket-ref">BK-XXXX</div>
-            </div>
-
-            <!-- Lower Divider -->
-            <div class="ticket-divider"></div>
-
-            <div class="ticket-bottom">
-                <div class="detail-row">
-                    <span class="detail-label">ชื่อผู้จอง</span>
-                    <span class="detail-value" id="ticket-booker-name">-</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">โซน / ล็อค</span>
-                    <span class="detail-value" id="ticket-space-info">-</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">ยอดชำระสุทธิ</span>
-                    <span class="detail-value highlight" id="ticket-total-price">฿0</span>
+                <div class="receipt-doc-badge" onclick="copyRefCode()" title="แตะเพื่อคัดลอกรหัสอ้างอิง">
+                    <div class="receipt-doc-label">รหัสอ้างอิง (Ref ID)</div>
+                    <div class="receipt-doc-number" id="ticket-ref">
+                        <span id="ticket-ref-text">BK-LOADING</span>
+                        <i class="fa-regular fa-copy" style="font-size: 0.72rem;"></i>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <button class="save-btn" onclick="saveTicket()">
-            <i class="fa-solid fa-download"></i> บันทึกลงเครื่อง
-        </button>
+            <!-- Status Banner -->
+            <div class="receipt-status-banner pending" id="ticket-status-banner">
+                <div class="status-banner-left">
+                    <i class="fa-solid fa-clock" id="status-icon"></i>
+                    <span id="status-text">รอตรวจสอบการชำระเงิน</span>
+                </div>
+                <div class="status-banner-time" id="ticket-issue-date">กำลังโหลด...</div>
+            </div>
 
-    </div>
+            <!-- Venue & Event Info Section -->
+            <section class="receipt-venue-section">
+                <div class="venue-type-tag" id="venue-type-badge">
+                    <i class="fa-solid fa-store"></i> ตลาดสด / ตลาดนัด
+                </div>
+                <h3 class="venue-title" id="ticket-market-name">กำลังโหลดข้อมูลตลาด...</h3>
+                <div class="venue-location" id="ticket-location">
+                    <i class="fa-solid fa-location-dot" style="color: var(--primary);"></i>
+                    <span id="ticket-location-text">กำลังตรวจสอบพิกัด...</span>
+                </div>
+
+                <!-- Stall & Space Hero Grid -->
+                <div class="stall-hero-grid">
+                    <div class="stall-hero-box highlight">
+                        <div class="stall-box-label">หมายเลขล็อค</div>
+                        <div class="stall-box-value amber" id="ticket-stall-number">-</div>
+                    </div>
+                    <div class="stall-hero-box">
+                        <div class="stall-box-label">โซนพื้นที่</div>
+                        <div class="stall-box-value" id="ticket-zone-name">-</div>
+                    </div>
+                    <div class="stall-hero-box">
+                        <div class="stall-box-label">จำนวนวันที่จอง</div>
+                        <div class="stall-box-value" id="ticket-days-count">1 วัน</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tear Cutout Divider -->
+            <div class="ticket-tear-line">
+                <div class="tear-cutout-left"></div>
+                <div class="tear-dashed-track"></div>
+                <div class="tear-cutout-right"></div>
+            </div>
+
+            <!-- Booking Details Section -->
+            <section class="receipt-details-block">
+                <div class="detail-row-item">
+                    <div class="detail-label-text">
+                        <i class="fa-regular fa-calendar-days" style="color: var(--primary);"></i> ช่วงวันที่เข้าขาย
+                    </div>
+                    <div class="detail-value-text calendar-dates" id="ticket-date-time">-</div>
+                </div>
+
+                <div class="detail-row-item">
+                    <div class="detail-label-text">
+                        <i class="fa-solid fa-user" style="color: #64748b;"></i> ชื่อผู้ถือสิทธิ์ / ผู้เช่า
+                    </div>
+                    <div class="detail-value-text" id="ticket-booker-name">-</div>
+                </div>
+
+                <div class="detail-row-item">
+                    <div class="detail-label-text">
+                        <i class="fa-solid fa-phone" style="color: #64748b;"></i> เบอร์โทรศัพท์ติดต่อ
+                    </div>
+                    <div class="detail-value-text" id="ticket-booker-phone">-</div>
+                </div>
+
+                <div class="detail-row-item">
+                    <div class="detail-label-text">
+                        <i class="fa-solid fa-money-bill-transfer" style="color: #64748b;"></i> ช่องทางชำระเงิน
+                    </div>
+                    <div class="detail-value-text" id="ticket-payment-method">โอนผ่านระบบ / PromptPay</div>
+                </div>
+
+                <!-- Financial Calculation Breakdown Box -->
+                <div class="receipt-financial-box">
+                    <div class="fee-row">
+                        <span>ค่าเช่าพื้นที่ (<span id="calc-days-label">1 วัน</span>)</span>
+                        <span id="calc-subtotal-price">฿0</span>
+                    </div>
+                    <div class="fee-row">
+                        <span>ค่าธรรมเนียมแพลตฟอร์ม</span>
+                        <span style="color: var(--success); font-weight: 600;">฿0.00 (ฟรี)</span>
+                    </div>
+                    <div class="fee-row total">
+                        <span>ยอดชำระสุทธิ (Total Amount)</span>
+                        <span class="total-amount-large" id="ticket-total-price">฿0</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Verification Stub & QR Code -->
+            <section class="receipt-verification-stub">
+                <div class="qr-frame-box" id="qrcode" title="QR Code ตรวจสอบสิทธิ์การใช้งาน"></div>
+
+                <div class="barcode-visual-wrap" id="barcode-display">*BK-SPACEMATE*</div>
+                <div class="verification-note">
+                    <i class="fa-solid fa-shield-halved" style="color: var(--primary);"></i>
+                    แสดงใบเสร็จและ QR Code แก่เจ้าหน้าที่ตลาดเพื่อเข้าใช้งานพื้นที่
+                </div>
+
+                <div class="digital-security-seal">
+                    <i class="fa-solid fa-certificate"></i>
+                    <span>VERIFIED BY SPACEMATE SECURE TICKET ID</span>
+                </div>
+            </section>
+        </article>
+
+        <!-- ACTION BUTTONS -->
+        <section class="actions-container">
+            <!-- Main Download Image Button -->
+            <button class="btn-download-receipt" id="btn-save-ticket" onclick="downloadReceiptImage()">
+                <i class="fa-solid fa-file-arrow-down"></i>
+                <span id="btn-save-label">บันทึกรูปใบเสร็จลงเครื่อง (PNG)</span>
+            </button>
+
+            <!-- Secondary Actions -->
+            <div class="secondary-actions-grid">
+                <button class="btn-secondary-action" onclick="shareReceipt()" title="แชร์ใบเสร็จ">
+                    <i class="fa-solid fa-share-nodes"></i>
+                    <span>แชร์ใบเสร็จ</span>
+                </button>
+                <button class="btn-secondary-action" onclick="window.print()" title="พิมพ์หรือบันทึกเป็น PDF">
+                    <i class="fa-solid fa-print"></i>
+                    <span>พิมพ์ / PDF</span>
+                </button>
+                <button class="btn-secondary-action" onclick="goHome()" title="กลับหน้าแรก">
+                    <i class="fa-solid fa-house"></i>
+                    <span>หน้าหลัก</span>
+                </button>
+            </div>
+        </section>
+
+    </main>
 
     <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../assets/js/supabase.js"></script>
 
     <script>
+        let currentBookingData = null;
+        let qrCodeInstance = null;
+
         async function loadTicket() {
             const urlParams = new URLSearchParams(window.location.search);
-            const bookingId = urlParams.get('booking_id');
-
-            if (!bookingId) {
-                // Check if user has latest booking
-                const session = await getSession();
-                if (session) {
-                    const { data: latestBooking } = await supabaseClient
-                        .from('bookings')
-                        .select('id')
-                        .eq('user_id', session.user.id)
-                        .order('created_at', { ascending: false })
-                        .limit(1)
-                        .single();
-                    if (latestBooking) {
-                        window.location.replace(`e_ticket.html?booking_id=${latestBooking.id}`);
-                        return;
-                    }
-                }
-                document.getElementById('ticket-market-name').innerText = 'ไม่พบรหัสการจอง';
-                return;
-            }
+            let bookingId = urlParams.get('booking_id') || urlParams.get('id');
 
             try {
+                // If no bookingId provided, look up user's latest booking
+                if (!bookingId) {
+                    const session = await getSession();
+                    if (session) {
+                        const { data: latestBooking } = await supabaseClient
+                            .from('bookings')
+                            .select('id')
+                            .eq('user_id', session.user.id)
+                            .order('created_at', { ascending: false })
+                            .limit(1)
+                            .single();
+
+                        if (latestBooking) {
+                            window.location.replace(`e_ticket.html?booking_id=${latestBooking.id}`);
+                            return;
+                        }
+                    }
+                    showErrorState('ไม่พบรหัสการจอง', 'กรุณาเข้าสู่ระบบหรือเลือกการจองจากหน้าประวัติของคุณครับ');
+                    return;
+                }
+
+                // Query detailed booking info
                 const { data: booking, error } = await supabaseClient
                     .from('bookings')
                     .select(`
@@ -314,14 +841,18 @@
                         total_price,
                         status,
                         created_at,
+                        payment_slip_url,
                         spaces (
                             id,
                             space_number,
                             zone,
+                            price,
                             venues (
                                 id,
                                 name,
-                                location
+                                location,
+                                type,
+                                cover_image_url
                             )
                         ),
                         profiles (
@@ -334,92 +865,315 @@
                     .single();
 
                 if (error || !booking) {
-                    throw error || new Error('ไม่พบข้อมูลการจอง');
+                    throw error || new Error('ไม่พบข้อมูลการจองในระบบ');
                 }
 
-                // Render Ref
-                const refCode = 'BK-' + booking.id.substring(0, 8).toUpperCase();
-                document.getElementById('ticket-ref').innerText = refCode;
-
-                // Render Status
-                const badgeEl = document.getElementById('ticket-status-badge');
-                if (booking.status === 'confirmed') {
-                    badgeEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> ชำระเงินสำเร็จ / อนุมัติแล้ว';
-                    badgeEl.style.background = '#d1fae5';
-                    badgeEl.style.color = '#10b981';
-                } else if (booking.status === 'cancelled') {
-                    badgeEl.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> การจองถูกยกเลิก';
-                    badgeEl.style.background = '#fee2e2';
-                    badgeEl.style.color = '#ef4444';
-                } else {
-                    badgeEl.innerHTML = '<i class="fa-solid fa-clock"></i> รอเจ้าของตรวจสอบสลิป';
-                    badgeEl.style.background = '#fef3c7';
-                    badgeEl.style.color = '#d97706';
-                }
-
-                // Render Details
-                const venueName = booking.spaces?.venues?.name || 'พื้นที่จัดแสดง / ตลาด';
-                document.getElementById('ticket-market-name').innerText = venueName;
-
-                function formatTicketDate(dateStr) {
-                    if (!dateStr) return '-';
-                    const parts = dateStr.split('-');
-                    if (parts.length === 3) {
-                        const y = parseInt(parts[0], 10);
-                        const m = parts[1].padStart(2, '0');
-                        const d = parts[2].padStart(2, '0');
-                        const beYearShort = String(y + 543).slice(-2);
-                        return `${d}/${m}/${beYearShort}`;
-                    }
-                    const d = new Date(dateStr + 'T00:00:00');
-                    if (isNaN(d.getTime())) return dateStr;
-                    const day = String(d.getDate()).padStart(2, '0');
-                    const month = String(d.getMonth() + 1).padStart(2, '0');
-                    const beYearShort = String(d.getFullYear() + 543).slice(-2);
-                    return `${day}/${month}/${beYearShort}`;
-                }
-
-                const sFmt = formatTicketDate(booking.start_date);
-                const eFmt = formatTicketDate(booking.end_date);
-                const dateDisplay = (booking.start_date === booking.end_date || !booking.end_date)
-                    ? sFmt 
-                    : `${sFmt} ถึง ${eFmt}`;
-                document.getElementById('ticket-date-time').innerText = dateDisplay;
-
-                const bookerName = booking.profiles 
-                    ? `คุณ${booking.profiles.first_name || ''} ${booking.profiles.last_name || ''}` 
-                    : 'ผู้ใช้บริการ';
-                document.getElementById('ticket-booker-name').innerText = bookerName;
-
-                const zoneText = booking.spaces?.zone ? `โซน ${booking.spaces.zone} - ` : '';
-                const spaceInfo = `${zoneText}ล็อค ${booking.spaces?.space_number || '-'}`;
-                document.getElementById('ticket-space-info').innerText = spaceInfo;
-
-                document.getElementById('ticket-total-price').innerText = '฿' + Number(booking.total_price).toLocaleString();
+                currentBookingData = booking;
+                renderTicketDetails(booking);
 
             } catch (err) {
                 console.error('Error loading ticket:', err);
-                document.getElementById('ticket-market-name').innerText = 'เกิดข้อผิดพลาดในการโหลดตั๋ว';
+                showErrorState('เกิดข้อผิดพลาดในการโหลดตั๋ว', err.message || 'ไม่สามารถดึงข้อมูลการจองได้');
             }
         }
 
-        function saveTicket() {
-            const btn = document.querySelector('.save-btn');
-            const originalHtml = btn.innerHTML;
-            
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> กำลังบันทึก...';
-            btn.style.opacity = '0.8';
-            
-            setTimeout(() => {
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> บันทึกสำเร็จ';
-                btn.style.background = '#10b981';
-                btn.style.opacity = '1';
-                
-                setTimeout(() => {
-                    btn.innerHTML = originalHtml;
-                    btn.style.background = '';
-                }, 2500);
-            }, 1200);
+        function renderTicketDetails(booking) {
+            // 1. Ref Code
+            const shortId = booking.id.replace(/-/g, '').substring(0, 8).toUpperCase();
+            const refCode = `BK-${shortId}`;
+            document.getElementById('ticket-ref-text').innerText = refCode;
+            document.getElementById('barcode-display').innerText = `*${refCode}*`;
+
+            // 2. Status Banner
+            const statusBanner = document.getElementById('ticket-status-banner');
+            const statusIcon = document.getElementById('status-icon');
+            const statusText = document.getElementById('status-text');
+
+            if (booking.status === 'confirmed') {
+                statusBanner.className = 'receipt-status-banner confirmed';
+                statusIcon.className = 'fa-solid fa-circle-check';
+                statusText.innerText = 'ชำระเงินสำเร็จ / อนุมัติแล้ว (PAID)';
+            } else if (booking.status === 'cancelled') {
+                statusBanner.className = 'receipt-status-banner cancelled';
+                statusIcon.className = 'fa-solid fa-circle-xmark';
+                statusText.innerText = 'การจองถูกยกเลิก (CANCELLED)';
+            } else {
+                statusBanner.className = 'receipt-status-banner pending';
+                statusIcon.className = 'fa-solid fa-clock';
+                statusText.innerText = 'รอตรวจสอบการชำระเงิน (PENDING)';
+            }
+
+            // 3. Issue timestamp
+            const createdAt = booking.created_at ? new Date(booking.created_at) : new Date();
+            const issueDateStr = createdAt.toLocaleDateString('th-TH', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('ticket-issue-date').innerText = issueDateStr;
+
+            // 4. Venue & Type
+            const venue = booking.spaces?.venues;
+            const venueName = venue?.name || 'พื้นที่ค้าขาย SpaceMate';
+            document.getElementById('ticket-market-name').innerText = venueName;
+            document.getElementById('ticket-location-text').innerText = venue?.location || 'ไม่ได้ระบุสถานที่ตั้ง';
+
+            const typeBadge = document.getElementById('venue-type-badge');
+            if (venue?.type === 'event') {
+                typeBadge.innerHTML = '<i class="fa-solid fa-calendar-star"></i> งานอีเวนต์ / เทศกาล';
+            } else {
+                typeBadge.innerHTML = '<i class="fa-solid fa-store"></i> ตลาดสด / ตลาดนัด';
+            }
+
+            // 5. Stall, Zone, Days Calculation
+            const stallNum = booking.spaces?.space_number || '-';
+            const zoneName = booking.spaces?.zone ? `โซน ${booking.spaces.zone}` : 'โซนทั่วไป';
+            document.getElementById('ticket-stall-number').innerText = stallNum;
+            document.getElementById('ticket-zone-name').innerText = zoneName;
+
+            // Calculate duration in days
+            let daysCount = 1;
+            if (booking.start_date && booking.end_date) {
+                const sDate = new Date(booking.start_date + 'T00:00:00');
+                const eDate = new Date(booking.end_date + 'T00:00:00');
+                const diffTime = eDate.getTime() - sDate.getTime();
+                if (!isNaN(diffTime) && diffTime >= 0) {
+                    daysCount = Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                }
+            }
+            document.getElementById('ticket-days-count').innerText = `${daysCount} วัน`;
+            document.getElementById('calc-days-label').innerText = `${daysCount} วัน`;
+
+            // 6. Formatted Thai Date Range
+            function formatThaiDateFull(dateStr) {
+                if (!dateStr) return '-';
+                try {
+                    const parts = dateStr.split('-');
+                    if (parts.length === 3) {
+                        const y = parseInt(parts[0], 10);
+                        const m = parseInt(parts[1], 10) - 1;
+                        const d = parseInt(parts[2], 10);
+                        const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+                        return `${d} ${months[m]} ${y + 543}`;
+                    }
+                    const dt = new Date(dateStr);
+                    return dt.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+                } catch (e) {
+                    return dateStr;
+                }
+            }
+
+            const startFmt = formatThaiDateFull(booking.start_date);
+            const endFmt = formatThaiDateFull(booking.end_date || booking.start_date);
+            const dateRangeText = (booking.start_date === booking.end_date || !booking.end_date)
+                ? startFmt
+                : `${startFmt} - ${endFmt}`;
+            document.getElementById('ticket-date-time').innerText = dateRangeText;
+
+            // 7. Booker Information
+            const profile = booking.profiles;
+            const bookerName = profile ? `คุณ${profile.first_name || ''} ${profile.last_name || ''}`.trim() : 'ผู้ใช้บริการ';
+            document.getElementById('ticket-booker-name').innerText = bookerName;
+            document.getElementById('ticket-booker-phone').innerText = profile?.phone || '-';
+
+            // 8. Prices & Total
+            const totalNum = Number(booking.total_price || 0);
+            document.getElementById('calc-subtotal-price').innerText = `฿${totalNum.toLocaleString()}`;
+            document.getElementById('ticket-total-price').innerText = `฿${totalNum.toLocaleString()}`;
+
+            // 9. Generate QR Code
+            generateQrCode(refCode, venueName, stallNum, booking.start_date);
+        }
+
+        function generateQrCode(refCode, venueName, stallNum, startDate) {
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+
+            const verifyPayload = `SPACEMATE:REF=${refCode}:VENUE=${venueName}:STALL=${stallNum}:DATE=${startDate}`;
+
+            try {
+                qrCodeInstance = new QRCode(qrContainer, {
+                    text: verifyPayload,
+                    width: 120,
+                    height: 120,
+                    colorDark: '#0f172a',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            } catch (err) {
+                console.error('Error generating QR code:', err);
+                qrContainer.innerHTML = '<div style="font-size:0.75rem; color:#64748b;">[QR Code]</div>';
+            }
+        }
+
+        async function downloadReceiptImage() {
+            const ticketCard = document.getElementById('ticket-receipt-card');
+            const saveBtn = document.getElementById('btn-save-ticket');
+            const saveLabel = document.getElementById('btn-save-label');
+            const originalText = saveLabel.innerText;
+
+            if (!ticketCard) return;
+
+            try {
+                // UI Loading Feedback
+                saveBtn.disabled = true;
+                saveBtn.style.opacity = '0.85';
+                saveLabel.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกรูปภาพความคมชัดสูง...';
+
+                // Ensure all images are loaded
+                const images = ticketCard.querySelectorAll('img');
+                await Promise.all(Array.from(images).map(img => {
+                    if (img.complete) return Promise.resolve();
+                    return new Promise(resolve => {
+                        img.onload = resolve;
+                        img.onerror = resolve;
+                    });
+                }));
+
+                // Short delay for rendering stability
+                await new Promise(r => setTimeout(r, 200));
+
+                // Capture using html2canvas with scale: 3 for high DPI resolution
+                const canvas = await html2canvas(ticketCard, {
+                    scale: 3,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                    windowWidth: ticketCard.scrollWidth,
+                    windowHeight: ticketCard.scrollHeight
+                });
+
+                // Generate filename
+                const refCode = document.getElementById('ticket-ref-text').innerText.trim() || 'RECEIPT';
+                const fileName = `SpaceMate_Receipt_${refCode}.png`;
+
+                // Convert to blob and download
+                canvas.toBlob(blob => {
+                    if (!blob) {
+                        throw new Error('ไม่สามารถแปลงรูปภาพได้');
+                    }
+
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = fileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    setTimeout(() => URL.revokeObjectURL(url), 1500);
+
+                    // Success Feedback Modal
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'บันทึกรูปใบเสร็จสำเร็จ!',
+                        text: `ไฟล์ ${fileName} ถูกบันทึกลงในเครื่องของคุณเรียบร้อยแล้ว`,
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#a46309',
+                        customClass: { popup: 'swal-custom-popup' },
+                        timer: 3000
+                    });
+
+                }, 'image/png', 1.0);
+
+            } catch (err) {
+                console.error('Error saving receipt image:', err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาดในการบันทึกรูป',
+                    text: 'กรุณาลองใหม่อีกครั้ง หรือใช้วิธีจับภาพหน้าจอ (Screenshot) แทนครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309'
+                });
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.style.opacity = '1';
+                saveLabel.innerText = originalText;
+            }
+        }
+
+        async function shareReceipt() {
+            const refCode = document.getElementById('ticket-ref-text').innerText.trim() || 'BK-SPACEMATE';
+            const marketName = document.getElementById('ticket-market-name').innerText.trim() || 'ตลาด';
+            const stallNum = document.getElementById('ticket-stall-number').innerText.trim() || '-';
+            const total = document.getElementById('ticket-total-price').innerText.trim() || '฿0';
+
+            const shareText = `SpaceMate E-Ticket / ใบเสร็จรับเงิน\nสถานที่: ${marketName}\nล็อค: ${stallNum}\nรหัสอ้างอิง: ${refCode}\nยอดชำระ: ${total}\nตรวจสอบตั๋วออนไลน์: ${window.location.href}`;
+
+            // Try Web Share API with image file if possible
+            if (navigator.share) {
+                try {
+                    const ticketCard = document.getElementById('ticket-receipt-card');
+                    const canvas = await html2canvas(ticketCard, { scale: 2, useCORS: true, logging: false });
+                    
+                    canvas.toBlob(async (blob) => {
+                        const file = new File([blob], `SpaceMate_Receipt_${refCode}.png`, { type: 'image/png' });
+                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                            await navigator.share({
+                                title: `ใบเสร็จรับเงิน SpaceMate ${refCode}`,
+                                text: shareText,
+                                files: [file]
+                            });
+                        } else {
+                            await navigator.share({
+                                title: `ใบเสร็จรับเงิน SpaceMate ${refCode}`,
+                                text: shareText,
+                                url: window.location.href
+                            });
+                        }
+                    }, 'image/png');
+                    return;
+                } catch (e) {
+                    if (e.name !== 'AbortError') {
+                        console.log('Share fallback:', e);
+                    } else {
+                        return;
+                    }
+                }
+            }
+
+            // Fallback: Copy link & ref code to clipboard
+            copyRefCode(true);
+        }
+
+        function copyRefCode(isShareFallback = false) {
+            const refCode = document.getElementById('ticket-ref-text').innerText.trim();
+            if (!refCode || refCode === 'BK-LOADING') return;
+
+            navigator.clipboard.writeText(refCode).then(() => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'success',
+                    title: isShareFallback ? 'คัดลอกรหัสการจองและลิงก์แล้ว' : `คัดลอก ${refCode} เรียบร้อยแล้ว`,
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }).catch(() => {
+                // Ignore
+            });
+        }
+
+        function showErrorState(title, message) {
+            const card = document.getElementById('ticket-receipt-card');
+            if (card) {
+                card.innerHTML = `
+                    <div style="padding: 3rem 1.5rem; text-align: center;">
+                        <div style="width: 64px; height: 64px; border-radius: 50%; background: #fee2e2; color: #ef4444; display: inline-flex; align-items: center; justify-content: center; font-size: 1.75rem; margin-bottom: 1rem;">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <h3 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;">${title}</h3>
+                        <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 1.5rem;">${message}</p>
+                        <a href="main_user.html" style="display: inline-flex; align-items: center; gap: 8px; background: #a46309; color: #ffffff; padding: 0.75rem 1.5rem; border-radius: 12px; font-weight: 600; text-decoration: none;">
+                            <i class="fa-solid fa-house"></i> กลับสู่หน้าหลัก
+                        </a>
+                    </div>
+                `;
+            }
+            const saveBtn = document.getElementById('btn-save-ticket');
+            if (saveBtn) saveBtn.style.display = 'none';
         }
 
         function goBack() {
@@ -428,6 +1182,10 @@
             } else {
                 window.location.href = 'main_user.html?view=bookings';
             }
+        }
+
+        function goHome() {
+            window.location.href = 'main_user.html';
         }
 
         window.addEventListener('DOMContentLoaded', loadTicket);
