@@ -956,6 +956,37 @@
             return getLocalDateString(d);
         }
 
+        // Calculate end date based strictly on market operating days
+        function calculateMarketPeriodEndDate(startDateStr, periodType, count) {
+            if (!startDateStr) return startDateStr;
+            const num = parseInt(count) || 1;
+            const openDaysPerWeek = (marketSchedule && marketSchedule.countPerWeek) ? marketSchedule.countPerWeek : 7;
+            const openDayIndices = (marketSchedule && marketSchedule.openDayIndices) ? marketSchedule.openDayIndices : [0, 1, 2, 3, 4, 5, 6];
+
+            let targetOpenDays = num * openDaysPerWeek;
+            if (periodType === 'monthly') {
+                targetOpenDays = (num * 4) * openDaysPerWeek;
+            }
+
+            let openDaysFound = 0;
+            let curr = new Date(startDateStr + 'T00:00:00');
+            let lastOpenDateStr = startDateStr;
+
+            for (let i = 0; i < 365; i++) {
+                const dayIdx = curr.getDay();
+                if (openDayIndices.includes(dayIdx)) {
+                    openDaysFound++;
+                    lastOpenDateStr = getLocalDateString(curr);
+                    if (openDaysFound >= targetOpenDays) {
+                        break;
+                    }
+                }
+                curr.setDate(curr.getDate() + 1);
+            }
+
+            return lastOpenDateStr;
+        }
+
         // Parse venue description to find open days
         function parseMarketOpenDays(description) {
             if (!description) {
@@ -1173,27 +1204,27 @@
             } else if (radioWeekly.checked) {
                 selectedStartDate = dateStr;
                 const weeks = parseInt(weeklyCountSelect.value) || 1;
-                selectedEndDate = addDays(dateStr, (weeks * 7) - 1);
+                selectedEndDate = calculateMarketPeriodEndDate(dateStr, 'weekly', weeks);
             } else if (radioMonthly.checked) {
                 selectedStartDate = dateStr;
                 const months = parseInt(monthlyCountSelect.value) || 1;
-                const endD = new Date(dateStr + 'T00:00:00');
-                endD.setMonth(endD.getMonth() + months);
-                endD.setDate(endD.getDate() - 1);
-                selectedEndDate = getLocalDateString(endD);
+                selectedEndDate = calculateMarketPeriodEndDate(dateStr, 'monthly', months);
             }
 
-            // Validate that the selected date range does not collide with already booked dates
+            // Validate that the selected date range does not collide with already booked dates (only check on open market days)
             let hasCollision = false;
             let collidedDate = '';
             let checkDate = new Date(selectedStartDate + 'T00:00:00');
             const endLimit = new Date(selectedEndDate + 'T00:00:00');
             while (checkDate <= endLimit) {
                 const dStr = getLocalDateString(checkDate);
-                if (spaceBookedDates.has(dStr)) {
-                    hasCollision = true;
-                    collidedDate = dStr;
-                    break;
+                const dayIdx = checkDate.getDay();
+                if (marketSchedule.openDayIndices.includes(dayIdx)) {
+                    if (spaceBookedDates.has(dStr)) {
+                        hasCollision = true;
+                        collidedDate = dStr;
+                        break;
+                    }
                 }
                 checkDate.setDate(checkDate.getDate() + 1);
             }
@@ -1285,7 +1316,7 @@
 
                 if (isStart || isEnd) {
                     classes.push('is-selected');
-                } else if (isBetween) {
+                } else if (isBetween && isMarketOpen) {
                     classes.push('is-in-range');
                 }
 
@@ -1456,16 +1487,13 @@
                 weeklyControls.style.display = 'block';
                 monthlyControls.style.display = 'none';
                 const weeks = parseInt(weeklyCountSelect.value) || 1;
-                selectedEndDate = addDays(selectedStartDate, (weeks * 7) - 1);
+                selectedEndDate = calculateMarketPeriodEndDate(selectedStartDate, 'weekly', weeks);
             } else if (radioMonthly.checked) {
                 dailyControls.style.display = 'none';
                 weeklyControls.style.display = 'none';
                 monthlyControls.style.display = 'block';
                 const months = parseInt(monthlyCountSelect.value) || 1;
-                const endD = new Date(selectedStartDate + 'T00:00:00');
-                endD.setMonth(endD.getMonth() + months);
-                endD.setDate(endD.getDate() - 1);
-                selectedEndDate = getLocalDateString(endD);
+                selectedEndDate = calculateMarketPeriodEndDate(selectedStartDate, 'monthly', months);
             }
 
             startInput.value = selectedStartDate;
@@ -1522,13 +1550,13 @@
                 const weeks = parseInt(weeklyCountSelect.value) || 1;
                 chargedDays = weeks * marketSchedule.countPerWeek;
                 planDesc = `รายอาทิตย์ (${weeks} สัปดาห์)`;
-                chargedDaysDesc = `<span>${chargedDays} วันทำการ</span> <span class="calc-val-highlight-sub">(${weeks} สัปดาห์ × ${marketSchedule.countPerWeek} วันเปิดตลาด/สัปดาห์)</span>`;
+                chargedDaysDesc = `<span>${chargedDays} วันเปิดตลาด</span> <span class="calc-val-highlight-sub">(${weeks} สัปดาห์ × ${marketSchedule.countPerWeek} วันเปิดตลาด/สัปดาห์: ${marketSchedule.daysListText})</span>`;
             } else if (radioMonthly.checked) {
                 const months = parseInt(monthlyCountSelect.value) || 1;
                 const weeksInMonths = months * 4;
                 chargedDays = weeksInMonths * marketSchedule.countPerWeek;
                 planDesc = `รายเดือน (${months} เดือน / ${weeksInMonths} สัปดาห์)`;
-                chargedDaysDesc = `<span>${chargedDays} วันทำการ</span> <span class="calc-val-highlight-sub">(${weeksInMonths} สัปดาห์ × ${marketSchedule.countPerWeek} วันเปิด/สัปดาห์)</span>`;
+                chargedDaysDesc = `<span>${chargedDays} วันเปิดตลาด</span> <span class="calc-val-highlight-sub">(${weeksInMonths} สัปดาห์ × ${marketSchedule.countPerWeek} วันเปิด/สัปดาห์: ${marketSchedule.daysListText})</span>`;
             }
 
             const total = chargedDays * basePrice;
@@ -1563,16 +1591,19 @@
             const endLimit = new Date(endVal + 'T00:00:00');
             while (checkDate <= endLimit) {
                 const dStr = getLocalDateString(checkDate);
-                if (spaceBookedDates.has(dStr)) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'ล็อคนี้ไม่ว่าง',
-                        text: `ไม่สามารถทำรายการได้ เนื่องจากวันที่ ${formatThaiDateShort(dStr)} ล็อคนี้มีผู้จองแล้ว กรุณาเลือกวันอื่นครับ`,
-                        confirmButtonText: 'ตกลง',
-                        confirmButtonColor: '#a46309',
-                        customClass: { popup: 'swal-custom-popup' }
-                    });
-                    return;
+                const dayIdx = checkDate.getDay();
+                if (marketSchedule.openDayIndices.includes(dayIdx)) {
+                    if (spaceBookedDates.has(dStr)) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'ล็อคนี้ไม่ว่าง',
+                            text: `ไม่สามารถทำรายการได้ เนื่องจากวันที่ ${formatThaiDateShort(dStr)} ล็อคนี้มีผู้จองแล้ว กรุณาเลือกวันอื่นครับ`,
+                            confirmButtonText: 'ตกลง',
+                            confirmButtonColor: '#a46309',
+                            customClass: { popup: 'swal-custom-popup' }
+                        });
+                        return;
+                    }
                 }
                 checkDate.setDate(checkDate.getDate() + 1);
             }
