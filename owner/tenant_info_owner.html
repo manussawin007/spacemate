@@ -397,154 +397,316 @@
         /* Stall Grid Layouts */
         .stall-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.15rem;
             padding: 0 1.5rem 2rem 1.5rem;
         }
 
         .zone-stalls-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
-            gap: 0.85rem;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 1rem;
+        }
+
+        @media (max-width: 640px) {
+            .stall-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 0.85rem;
+                padding: 0 1rem 1.5rem 1rem;
+            }
+            .zone-stalls-grid {
+                grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+                gap: 0.85rem;
+            }
         }
 
         .stall-card {
             background-color: var(--card-bg);
-            border-radius: 14px;
-            padding: 0.9rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            border-radius: 16px;
+            padding: 1rem 1.1rem;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             border: 1px solid #e2e8f0;
             display: flex;
             flex-direction: column;
-            gap: 0.45rem;
+            justify-content: space-between;
+            min-height: 156px;
+            gap: 0.65rem;
             position: relative;
+            overflow: hidden;
         }
 
         .stall-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+            box-shadow: 0 10px 22px rgba(15, 23, 42, 0.09);
             border-color: #cbd5e1;
         }
 
         .stall-card.rented {
-            border-left: 4px solid var(--status-rented);
-            background: linear-gradient(to bottom, #ffffff, #fffdf8);
+            border-left: 5px solid #d97706;
+            background: linear-gradient(180deg, #ffffff 0%, #fffdfa 100%);
         }
 
         .stall-card.vacant {
-            border-left: 4px solid var(--status-vacant);
+            border-left: 5px solid #10b981;
+            background: linear-gradient(180deg, #ffffff 0%, #fafffc 100%);
+        }
+
+        .stall-card.has-upcoming {
+            border-left: 5px solid #0284c7;
+            background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 40%);
         }
 
         .stall-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.15rem;
+            gap: 8px;
+        }
+
+        .stall-id-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
         }
 
         .stall-id {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: #1e293b;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .stall-size-tag {
+            font-size: 0.7rem;
+            color: #64748b;
+            background: #f1f5f9;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+            white-space: nowrap;
         }
 
         .status-badge {
             font-size: 0.72rem;
-            padding: 2px 7px;
-            border-radius: 6px;
-            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-weight: 700;
+            white-space: nowrap;
+            letter-spacing: 0.01em;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
         
-        .status-vacant { background-color: #d1fae5; color: #065f46; }
-        .status-rented { background-color: #fef3c7; color: #92400e; }
+        .status-vacant { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .status-rented { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
         .status-upcoming { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
         .status-overdue { background-color: #fee2e2; color: var(--status-overdue); }
         .stall-status-pill.upcoming { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
-        .stall-card.has-upcoming { border-color: #7dd3fc; background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 25%); }
 
-        .tenant-badge-row {
-            font-size: 0.78rem;
-            color: #1e293b;
+        /* Tenant Details Box Inside Card */
+        .tenant-badge-box {
+            border-radius: 12px;
+            padding: 8px 10px;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 5px;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .tenant-badge-box.rented {
             background: #fffbeb;
             border: 1px solid #fef3c7;
-            padding: 4px 7px;
-            border-radius: 6px;
-            overflow: hidden;
-            white-space: nowrap;
         }
 
-        .tenant-badge-row.upcoming {
+        .tenant-badge-box.upcoming {
             background: #f0f9ff;
-            border-color: #bae6fd;
-            color: #0369a1;
+            border: 1px solid #bae6fd;
         }
 
-        .tenant-badge-left {
+        .tenant-badge-box.vacant {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            padding: 10px 8px;
+        }
+
+        .tenant-name-row {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
             min-width: 0;
             overflow: hidden;
-            text-overflow: ellipsis;
         }
 
-        .tenant-badge-left span {
+        .tenant-name-row i.tenant-icon {
+            font-size: 0.85rem;
+            color: #d97706;
+            flex-shrink: 0;
+        }
+
+        .tenant-badge-box.upcoming .tenant-name-row i.tenant-icon {
+            color: #0284c7;
+        }
+
+        .tenant-name-text {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #1e293b;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            font-weight: 600;
         }
 
-        .tenant-badge-phone {
+        .tenant-chips-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .tenant-phone-btn {
             font-size: 0.72rem;
-            color: #0284c7;
+            font-weight: 600;
+            color: #0369a1;
             background: #e0f2fe;
-            padding: 1px 5px;
-            border-radius: 4px;
+            border: 1px solid #bae6fd;
+            padding: 2px 7px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .tenant-phone-btn:hover {
+            background: #0284c7;
+            color: #ffffff;
+            border-color: #0284c7;
+        }
+
+        .tenant-no-phone {
+            font-size: 0.72rem;
+            color: #94a3b8;
             font-weight: 500;
             display: inline-flex;
             align-items: center;
-            gap: 3px;
-            flex-shrink: 0;
+            gap: 4px;
         }
 
-        .tenant-badge-row i {
-            color: #d97706;
-            font-size: 0.75rem;
-            flex-shrink: 0;
+        .tenant-date-pill {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #92400e;
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            padding: 2px 6px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
         }
 
-        .tenant-badge-row.upcoming i {
+        .tenant-date-pill.upcoming {
+            color: #0369a1;
+            background: #e0f2fe;
+            border-color: #bae6fd;
+        }
+
+        .upcoming-header-row {
+            font-size: 0.72rem;
+            font-weight: 700;
             color: #0284c7;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
         }
 
+        .vacant-content-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .vacant-pill-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #059669;
+        }
+
+        .vacant-pill-state i {
+            color: #10b981;
+            font-size: 0.95rem;
+        }
+
+        .vacant-hint-text {
+            font-size: 0.68rem;
+            color: #94a3b8;
+        }
+
+        /* Card Meta Footer */
         .stall-meta-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.78rem;
-            color: #64748b;
-            margin-top: 0.2rem;
+            gap: 8px;
+            padding-top: 5px;
+            border-top: 1px solid #f1f5f9;
         }
 
-        .stall-price {
-            font-weight: 700;
+        .stall-price-wrap {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 3px;
+            white-space: nowrap;
+        }
+
+        .stall-price-num {
+            font-size: 0.95rem;
+            font-weight: 800;
             color: var(--primary-color);
+            letter-spacing: -0.01em;
+        }
+
+        .stall-price-unit {
+            font-size: 0.72rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .stall-pills-wrap {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
         }
 
         .zone-pill-mini {
             background: #f1f5f9;
             color: #475569;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: 500;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border: 1px solid #e2e8f0;
         }
 
         /* Date Inspection Bar Styling */
@@ -2391,6 +2553,16 @@
             return `${day} ${months[monthIdx]} ${year}`;
         }
 
+        function formatThaiDateMini(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('T')[0].split('-');
+            if (parts.length !== 3) return dateStr;
+            const monthIdx = parseInt(parts[1], 10) - 1;
+            const day = parseInt(parts[2], 10);
+            const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+            return `${day} ${months[monthIdx]}`;
+        }
+
         function getLocalDateString(d) {
             const year = d.getFullYear();
             const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -2813,29 +2985,68 @@
                     
                     const merchantPhone = prof.phone ? prof.phone : '';
 
+                    let dateRangeStr = '';
+                    if (booking.start_date && booking.end_date) {
+                        if (booking.start_date === booking.end_date) {
+                            dateRangeStr = formatThaiDateMini(booking.start_date);
+                        } else {
+                            dateRangeStr = `${formatThaiDateMini(booking.start_date)} - ${formatThaiDateMini(booking.end_date)}`;
+                        }
+                    } else if (booking.start_date) {
+                        dateRangeStr = formatThaiDateMini(booking.start_date);
+                    }
+
                     tenantBadgeHtml = `
-                        <div class="tenant-badge-row" title="ผู้เช่า: ${merchantName} ${merchantPhone ? `(${merchantPhone})` : ''}">
-                            <div class="tenant-badge-left">
-                                <i class="fa-solid fa-user"></i>
-                                <span>${merchantName}</span>
+                        <div class="tenant-badge-box rented" title="ผู้เช่า: คุณ${merchantName} ${merchantPhone ? `(${merchantPhone})` : ''}">
+                            <div class="tenant-name-row">
+                                <i class="fa-solid fa-circle-user tenant-icon"></i>
+                                <span class="tenant-name-text">คุณ${merchantName}</span>
                             </div>
-                            ${merchantPhone ? `<span class="tenant-badge-phone"><i class="fa-solid fa-phone"></i> ${merchantPhone}</span>` : ''}
+                            <div class="tenant-chips-row">
+                                ${merchantPhone ? `
+                                    <a href="tel:${merchantPhone}" class="tenant-phone-btn" onclick="event.stopPropagation();" title="กดโทร ${merchantPhone}">
+                                        <i class="fa-solid fa-phone"></i> <span>${merchantPhone}</span>
+                                    </a>
+                                ` : `
+                                    <span class="tenant-no-phone"><i class="fa-solid fa-phone-slash"></i> ไม่ระบุเบอร์</span>
+                                `}
+                                ${dateRangeStr ? `
+                                    <span class="tenant-date-pill" title="ช่วงวันที่เช่า: ${dateRangeStr}">
+                                        <i class="fa-regular fa-calendar"></i> ${dateRangeStr}
+                                    </span>
+                                ` : ''}
+                            </div>
                         </div>
                     `;
                 } else if (space.map_data && (space.map_data.manual_tenant_name || space.map_data.manual_tenant_phone)) {
-                    const manualName = space.map_data.manual_tenant_name || 'ผู้เช่า';
+                    const manualName = space.map_data.manual_tenant_name || 'ผู้เช่า (หน้าร้าน)';
                     const manualPhone = space.map_data.manual_tenant_phone || '';
                     tenantBadgeHtml = `
-                        <div class="tenant-badge-row" title="ผู้เช่า: ${manualName} ${manualPhone ? `(${manualPhone})` : ''}">
-                            <div class="tenant-badge-left">
-                                <i class="fa-solid fa-user-tag"></i>
-                                <span>${manualName}</span>
+                        <div class="tenant-badge-box rented" title="ผู้เช่า: คุณ${manualName} ${manualPhone ? `(${manualPhone})` : ''}">
+                            <div class="tenant-name-row">
+                                <i class="fa-solid fa-user-tag tenant-icon"></i>
+                                <span class="tenant-name-text">คุณ${manualName}</span>
                             </div>
-                            ${manualPhone ? `<span class="tenant-badge-phone"><i class="fa-solid fa-phone"></i> ${manualPhone}</span>` : ''}
+                            <div class="tenant-chips-row">
+                                ${manualPhone ? `
+                                    <a href="tel:${manualPhone}" class="tenant-phone-btn" onclick="event.stopPropagation();" title="กดโทร ${manualPhone}">
+                                        <i class="fa-solid fa-phone"></i> <span>${manualPhone}</span>
+                                    </a>
+                                ` : `
+                                    <span class="tenant-no-phone"><i class="fa-solid fa-store"></i> หน้าร้าน (ออฟไลน์)</span>
+                                `}
+                            </div>
                         </div>
                     `;
                 } else {
-                    tenantBadgeHtml = `<div class="tenant-badge-row" title="เช่าแล้ว"><div class="tenant-badge-left"><i class="fa-solid fa-user-check"></i> <span>มีผู้เช่าแล้ว</span></div></div>`;
+                    tenantBadgeHtml = `
+                        <div class="tenant-badge-box rented" title="เช่าแล้ว">
+                            <div class="tenant-name-row">
+                                <i class="fa-solid fa-circle-user tenant-icon"></i>
+                                <span class="tenant-name-text">เช่าแล้ว (จองผ่านระบบ)</span>
+                            </div>
+                        </div>
+                    `;
                 }
             } else if (space._upcomingBooking) {
                 const upBooking = space._upcomingBooking;
@@ -2844,14 +3055,48 @@
                 if (!upName && upProf.last_name) upName = upProf.last_name;
                 if (!upName) upName = 'ผู้เช่า';
                 const upPhone = upProf.phone ? upProf.phone : '';
-                const sDateFmt = formatThaiDateShort(upBooking.start_date);
+                const sDateFmtMini = formatThaiDateMini(upBooking.start_date);
+                let upRangeStr = '';
+                if (upBooking.start_date && upBooking.end_date && upBooking.start_date !== upBooking.end_date) {
+                    upRangeStr = `${formatThaiDateMini(upBooking.start_date)} - ${formatThaiDateMini(upBooking.end_date)}`;
+                } else if (upBooking.start_date) {
+                    upRangeStr = sDateFmtMini;
+                }
+
                 tenantBadgeHtml = `
-                    <div class="tenant-badge-row upcoming" title="จองล่วงหน้าเริ่มวันที่ ${sDateFmt} โดย คุณ${upName} ${upPhone ? `(${upPhone})` : ''}">
-                        <div class="tenant-badge-left">
-                            <i class="fa-regular fa-calendar-check" style="color: #0284c7;"></i>
-                            <span style="color: #0284c7;">จองเริ่ม ${sDateFmt}: ${upName}</span>
+                    <div class="tenant-badge-box upcoming" title="จองล่วงหน้าเริ่มวันที่ ${sDateFmtMini} โดย คุณ${upName} ${upPhone ? `(${upPhone})` : ''}">
+                        <div class="upcoming-header-row">
+                            <i class="fa-regular fa-calendar-check"></i>
+                            <span>คิวถัดไปเริ่ม ${sDateFmtMini}</span>
                         </div>
-                        ${upPhone ? `<span class="tenant-badge-phone" style="background:#e0f2fe; color:#0369a1;"><i class="fa-solid fa-phone"></i> ${upPhone}</span>` : ''}
+                        <div class="tenant-name-row">
+                            <i class="fa-solid fa-user-clock tenant-icon"></i>
+                            <span class="tenant-name-text">คุณ${upName}</span>
+                        </div>
+                        <div class="tenant-chips-row">
+                            ${upPhone ? `
+                                <a href="tel:${upPhone}" class="tenant-phone-btn upcoming" onclick="event.stopPropagation();" title="กดโทร ${upPhone}">
+                                    <i class="fa-solid fa-phone"></i> <span>${upPhone}</span>
+                                </a>
+                            ` : ''}
+                            ${upRangeStr ? `
+                                <span class="tenant-date-pill upcoming" title="วันที่จอง: ${upRangeStr}">
+                                    <i class="fa-regular fa-calendar"></i> ${upRangeStr}
+                                </span>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            } else {
+                tenantBadgeHtml = `
+                    <div class="tenant-badge-box vacant">
+                        <div class="vacant-content-wrap">
+                            <div class="vacant-pill-state">
+                                <i class="fa-solid fa-circle-check"></i>
+                                <span>ว่าง • พร้อมรับจอง</span>
+                            </div>
+                            <span class="vacant-hint-text">คลิกเพื่อจัดการ / บันทึกเช่า</span>
+                        </div>
                     </div>
                 `;
             }
@@ -2861,13 +3106,21 @@
             return `
                 <div class="stall-card ${isVacant ? (hasUpcoming ? 'vacant has-upcoming' : 'vacant') : 'rented'}" onclick="openSpaceDetail('${space.id}')">
                     <div class="stall-header">
-                        <span class="stall-id">${space.space_number}</span>
+                        <div class="stall-id-group">
+                            <span class="stall-id">${space.space_number}</span>
+                            ${space.size_details ? `<span class="stall-size-tag">${space.size_details}</span>` : ''}
+                        </div>
                         <span class="status-badge ${statusClass}">${statusText}</span>
                     </div>
                     ${tenantBadgeHtml}
                     <div class="stall-meta-row">
-                        <span class="stall-price">฿${priceFmt}/วัน</span>
-                        <span class="zone-pill-mini"><i class="fa-solid fa-layer-group"></i> ${zoneName}</span>
+                        <span class="stall-price-wrap">
+                            <span class="stall-price-num">฿${priceFmt}</span>
+                            <span class="stall-price-unit">/วัน</span>
+                        </span>
+                        <div class="stall-pills-wrap">
+                            <span class="zone-pill-mini"><i class="fa-solid fa-layer-group"></i> ${zoneName}</span>
+                        </div>
                     </div>
                 </div>
             `;
