@@ -177,10 +177,36 @@
         }
 
         .brand-logo-hero img {
-            height: 52px;
+            height: 86px;
             width: auto;
+            max-width: 280px;
             object-fit: contain;
-            filter: drop-shadow(0 4px 12px rgba(164, 99, 9, 0.15));
+            filter: drop-shadow(0 6px 18px rgba(164, 99, 9, 0.18));
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .brand-logo-hero img:hover {
+            transform: scale(1.04);
+        }
+
+        .mobile-brand-header {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .mobile-brand-header img {
+            height: 84px;
+            width: auto;
+            max-width: 270px;
+            object-fit: contain;
+            filter: drop-shadow(0 6px 18px rgba(164, 99, 9, 0.2));
+            transition: transform 0.25s ease;
+        }
+
+        .mobile-brand-header img:hover {
+            transform: scale(1.04);
         }
 
         .brand-title-wrap h1 {
@@ -720,6 +746,10 @@
                 padding: 0.85rem;
             }
 
+            .mobile-brand-header img {
+                height: 76px;
+            }
+
             .login-glass-card {
                 padding: 1.75rem 1.25rem;
                 border-radius: 22px;
@@ -820,8 +850,8 @@
                     
                     <header class="card-header-block">
                         <!-- Mobile Brand Logo (Visible only on mobile/app view) -->
-                        <div class="mobile-brand-header" style="display: none; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
-                            <img src="assets/imagelogo.png" alt="โลโก้ SpaceMate" onerror="this.src='images/logo.png'" style="height: 48px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(164, 99, 9, 0.15));">
+                        <div class="mobile-brand-header">
+                            <img src="assets/imagelogo.png" alt="โลโก้ SpaceMate" onerror="this.src='images/logo.png'">
                         </div>
                         <div class="card-header-icon">
                             <i class="fa-solid fa-right-to-bracket"></i>
