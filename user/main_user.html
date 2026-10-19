@@ -2338,7 +2338,7 @@
         <!-- Premium Stats -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 0 1.5rem 2rem;">
             <!-- Bookings Stat -->
-            <div style="background: linear-gradient(135deg, #ffffff, #f8fafc); border: 1px solid #e2e8f0; border-radius: 20px; padding: 1rem; display: flex; align-items: center; gap: 0.85rem; box-shadow: 0 4px 15px rgba(0,0,0,0.04);">
+            <div onclick="switchUserView('bookings')" style="background: linear-gradient(135deg, #ffffff, #f8fafc); border: 1px solid #e2e8f0; border-radius: 20px; padding: 1rem; display: flex; align-items: center; gap: 0.85rem; box-shadow: 0 4px 15px rgba(0,0,0,0.04); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.08)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.04)';" title="แตะเพื่อดูรายการการจองทั้งหมด">
                 <div style="width: 44px; height: 44px; border-radius: 14px; background: #eff6ff; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
                     <i class="fa-solid fa-calendar-check"></i>
                 </div>
@@ -3719,7 +3719,12 @@
                 let targetId = 'user-' + viewId;
                 if (viewId === 'notif') targetId = 'user-notifications';
                 if (viewId === 'bookings') targetId = 'user-booking';
-                if (viewId === 'profile') targetId = 'user-profile';
+                if (viewId === 'profile') {
+                    targetId = 'user-profile';
+                    if (currentUserId && typeof updateUserProfileStats === 'function') {
+                        updateUserProfileStats(currentUserId);
+                    }
+                }
 
                 const targetPage = document.getElementById(targetId);
                 if (targetPage) {
@@ -4623,6 +4628,9 @@
                     }
 
                     // 3. Update DOM with user data
+                    if (currentUserId && typeof updateUserProfileStats === 'function') {
+                        updateUserProfileStats(currentUserId);
+                    }
                     const nameEl = document.getElementById('user-profile-name');
                     const roleEl = document.getElementById('user-profile-role');
                     
@@ -4889,9 +4897,61 @@
             return `${day}/${month}/${beYearShort}`;
         }
 
+        async function updateUserProfileStats(userId) {
+            const totalBookingsEl = document.getElementById('user-profile-total-bookings');
+            const totalPointsEl = document.getElementById('user-profile-total-points');
+            if (!totalBookingsEl) return;
+
+            if (!userId) {
+                totalBookingsEl.textContent = '0';
+                if (totalPointsEl) totalPointsEl.textContent = '0';
+                return;
+            }
+
+            try {
+                const { data: bookings, error, count } = await supabaseClient
+                    .from('bookings')
+                    .select('id, status', { count: 'exact' })
+                    .eq('user_id', userId);
+
+                if (!error && bookings) {
+                    const totalCount = (count !== null && count !== undefined) ? count : bookings.length;
+                    totalBookingsEl.textContent = totalCount.toLocaleString();
+
+                    if (totalPointsEl) {
+                        const p = window.currentUserProfile;
+                        if (p && p.points !== undefined && p.points !== null) {
+                            totalPointsEl.textContent = Number(p.points).toLocaleString();
+                        } else {
+                            const confirmedCount = bookings.filter(b => b.status === 'confirmed').length;
+                            totalPointsEl.textContent = (confirmedCount * 50).toLocaleString();
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Error updating user profile stats:', err);
+            }
+        }
+
         async function fetchUserBookings(userId) {
             const bookingList = document.querySelector('#user-booking .booking-list');
-            if (!bookingList) return;
+            const totalBookingsEl = document.getElementById('user-profile-total-bookings');
+            const totalPointsEl = document.getElementById('user-profile-total-points');
+
+            if (!userId) {
+                if (totalBookingsEl) totalBookingsEl.textContent = '0';
+                if (totalPointsEl) totalPointsEl.textContent = '0';
+                if (bookingList) {
+                    bookingList.innerHTML = `
+                        <div class="empty-state" id="booking-empty" style="padding: 3rem 1rem; text-align: center; color: var(--text-muted);">
+                            <i class="fa-regular fa-calendar-xmark" style="font-size: 2.5rem; margin-bottom: 0.75rem; color: #cbd5e1;"></i>
+                            <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.25rem;">ยังไม่มีประวัติการจอง</h3>
+                            <p style="font-size: 0.9rem;">กรุณาเข้าสู่ระบบเพื่อดูประวัติการจองของคุณ</p>
+                        </div>
+                    `;
+                }
+                return;
+            }
 
             try {
                 const { data: bookings, error } = await supabaseClient
@@ -4919,14 +4979,31 @@
                     .eq('user_id', userId)
                     .order('created_at', { ascending: false });
 
+                // Update Profile Total Bookings and Points stats in Real Time
+                const totalBookingsCount = (!error && bookings) ? bookings.length : 0;
+                if (totalBookingsEl) {
+                    totalBookingsEl.textContent = totalBookingsCount.toLocaleString();
+                }
+                if (totalPointsEl) {
+                    const p = window.currentUserProfile;
+                    if (p && p.points !== undefined && p.points !== null) {
+                        totalPointsEl.textContent = Number(p.points).toLocaleString();
+                    } else if (bookings) {
+                        const confirmedCount = bookings.filter(b => b.status === 'confirmed').length;
+                        totalPointsEl.textContent = (confirmedCount * 50).toLocaleString();
+                    }
+                }
+
                 if (error || !bookings || bookings.length === 0) {
-                    bookingList.innerHTML = `
-                        <div class="empty-state" id="booking-empty" style="padding: 3rem 1rem; text-align: center; color: var(--text-muted);">
-                            <i class="fa-regular fa-calendar-xmark" style="font-size: 2.5rem; margin-bottom: 0.75rem; color: #cbd5e1;"></i>
-                            <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.25rem;">ยังไม่มีประวัติการจอง</h3>
-                            <p style="font-size: 0.9rem;">เมื่อคุณทำการจองพื้นที่ รายการจะปรากฏที่นี่</p>
-                        </div>
-                    `;
+                    if (bookingList) {
+                        bookingList.innerHTML = `
+                            <div class="empty-state" id="booking-empty" style="padding: 3rem 1rem; text-align: center; color: var(--text-muted);">
+                                <i class="fa-regular fa-calendar-xmark" style="font-size: 2.5rem; margin-bottom: 0.75rem; color: #cbd5e1;"></i>
+                                <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.25rem;">ยังไม่มีประวัติการจอง</h3>
+                                <p style="font-size: 0.9rem;">เมื่อคุณทำการจองพื้นที่ รายการจะปรากฏที่นี่</p>
+                            </div>
+                        `;
+                    }
                     return;
                 }
 
