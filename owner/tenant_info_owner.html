@@ -466,20 +466,59 @@
             color: #1e293b;
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 5px;
             background: #fffbeb;
             border: 1px solid #fef3c7;
             padding: 4px 7px;
             border-radius: 6px;
             overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .tenant-badge-row.upcoming {
+            background: #f0f9ff;
+            border-color: #bae6fd;
+            color: #0369a1;
+        }
+
+        .tenant-badge-left {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tenant-badge-left span {
+            overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            font-weight: 600;
+        }
+
+        .tenant-badge-phone {
+            font-size: 0.72rem;
+            color: #0284c7;
+            background: #e0f2fe;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            flex-shrink: 0;
         }
 
         .tenant-badge-row i {
             color: #d97706;
             font-size: 0.75rem;
             flex-shrink: 0;
+        }
+
+        .tenant-badge-row.upcoming i {
+            color: #0284c7;
         }
 
         .stall-meta-row {
@@ -1622,6 +1661,12 @@
                     <span class="vacant-chip"><i class="fa-solid fa-layer-group"></i> <span id="modal-stall-zone-val">ไม่ระบุโซน</span></span>
                     <span class="vacant-chip"><i class="fa-solid fa-ruler-combined"></i> <span id="modal-stall-size-val">ไม่ระบุขนาด</span></span>
                 </div>
+                <div id="modal-upcoming-booking-notice" style="display:none; margin-top:12px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:10px 14px; text-align:left;">
+                    <div style="font-weight:600; color:#0369a1; font-size:0.85rem; display:flex; align-items:center; gap:6px;">
+                        <i class="fa-regular fa-calendar-check"></i> มีคิวจองล่วงหน้า
+                    </div>
+                    <div style="font-size:0.82rem; color:#0c4a6e; margin-top:4px;" id="modal-upcoming-booking-desc">-</div>
+                </div>
             </div>
 
             <!-- If Rented View -->
@@ -1759,6 +1804,21 @@
                                     <div class="status-text-desc">มีผู้เช่าแล้ว หรือปิดจองหน้าร้าน</div>
                                 </div>
                             </label>
+                        </div>
+                        <div id="manual-tenant-fields" style="display: none; margin-top: 10px; background: #fffbeb; border: 1px dashed #fcd34d; border-radius: 10px; padding: 12px;">
+                            <div style="font-size: 0.82rem; font-weight: 600; color: #92400e; margin-bottom: 8px;">
+                                <i class="fa-solid fa-user-pen"></i> ข้อมูลผู้เช่าหน้าร้าน / นอกระบบ (ไม่บังคับ)
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <div>
+                                    <label style="font-size: 0.75rem; color: #78350f; display: block; margin-bottom: 3px;">ชื่อพ่อค้าแม่ค้า</label>
+                                    <input type="text" id="editManualTenantName" placeholder="เช่น พี่นิด ผักสด" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; box-sizing: border-box;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.75rem; color: #78350f; display: block; margin-bottom: 3px;">เบอร์โทรศัพท์</label>
+                                    <input type="tel" id="editManualTenantPhone" placeholder="เช่น 0812345678" maxlength="10" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; box-sizing: border-box;">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2092,7 +2152,26 @@
             }
         }
 
-        // 3. Load Spaces & Active Bookings
+        // Thai Date Helper
+        function formatThaiDateShort(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('T')[0].split('-');
+            if (parts.length !== 3) return dateStr;
+            const year = parseInt(parts[0], 10) + 543;
+            const monthIdx = parseInt(parts[1], 10) - 1;
+            const day = parseInt(parts[2], 10);
+            const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+            return `${day} ${months[monthIdx]} ${year}`;
+        }
+
+        function getLocalDateString(d) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // 3. Load Spaces & Active Bookings (with Expiration Auto-revert to Green)
         async function loadSpaces() {
             try {
                 const { data, error } = await supabaseClient
@@ -2104,21 +2183,115 @@
                 if (error) throw error;
                 globalSpaces = data || [];
 
+                const todayStr = getLocalDateString(new Date());
+
                 // Fetch active bookings for real tenant info
                 activeBookings = [];
                 const spaceIds = globalSpaces.map(s => s.id);
                 if (spaceIds.length > 0) {
                     try {
-                        const { data: bookingsData } = await supabaseClient
-                            .from('bookings')
-                            .select('id, space_id, status, created_at, profiles(first_name, last_name, phone)')
-                            .in('space_id', spaceIds)
-                            .in('status', ['confirmed', 'approved', 'pending'])
-                            .order('created_at', { ascending: false });
+                        let allBookings = [];
+                        const chunkSize = 50;
+                        for (let i = 0; i < spaceIds.length; i += chunkSize) {
+                            const chunk = spaceIds.slice(i, i + chunkSize);
+                            const { data: bData, error: bErr } = await supabaseClient
+                                .from('bookings')
+                                .select('id, space_id, user_id, status, start_date, end_date, total_price, payment_slip_url, created_at, profiles(first_name, last_name, display_name, phone)')
+                                .in('space_id', chunk)
+                                .in('status', ['confirmed', 'approved', 'pending'])
+                                .order('created_at', { ascending: false });
 
-                        if (bookingsData) {
-                            activeBookings = bookingsData;
+                            if (!bErr && bData) {
+                                allBookings = allBookings.concat(bData);
+                            }
                         }
+
+                        // Robust fallback: If PostgREST didn't embed profile or profile fields are blank, query profiles directly
+                        const missingUserIds = [...new Set(allBookings.filter(b => (!b.profiles || (!b.profiles.first_name && !b.profiles.display_name && !b.profiles.phone)) && b.user_id).map(b => b.user_id))];
+                        if (missingUserIds.length > 0) {
+                            try {
+                                const { data: pData } = await supabaseClient
+                                    .from('profiles')
+                                    .select('id, first_name, last_name, display_name, phone')
+                                    .in('id', missingUserIds);
+                                if (pData && pData.length > 0) {
+                                    const pMap = new Map(pData.map(p => [p.id, p]));
+                                    allBookings.forEach(b => {
+                                        if (pMap.has(b.user_id)) {
+                                            const fetchedProfile = pMap.get(b.user_id);
+                                            b.profiles = Object.assign({}, b.profiles || {}, fetchedProfile);
+                                        }
+                                    });
+                                }
+                            } catch (pErr) {
+                                console.warn("Fallback profiles lookup warning:", pErr);
+                            }
+                        }
+
+                        activeBookings = allBookings;
+
+                        // Check expiration & self-heal spaces status
+                        const spacesToRevertToAvailable = [];
+                        const spacesToMarkBooked = [];
+
+                        globalSpaces.forEach(space => {
+                            if (space.status === 'label' || (space.map_data && space.map_data.isLabel)) return;
+
+                            // Find all valid bookings for this space
+                            const bList = activeBookings.filter(b => b.space_id === space.id);
+
+                            // Active booking covering today: start_date <= todayStr <= end_date
+                            const activeTodayBooking = bList.find(b => {
+                                const s = b.start_date || '';
+                                const e = b.end_date || s;
+                                return s <= todayStr && e >= todayStr;
+                            });
+
+                            // Future upcoming booking: start_date > todayStr
+                            const upcomingBooking = bList.find(b => {
+                                const s = b.start_date || '';
+                                return s > todayStr;
+                            });
+
+                            space._activeBooking = activeTodayBooking || null;
+                            space._upcomingBooking = upcomingBooking || null;
+
+                            const isManuallyClosed = space.status === 'closed' || space.status === 'maintenance';
+
+                            if (!isManuallyClosed) {
+                                if (activeTodayBooking) {
+                                    // Space has active booking today -> should be rented (red)
+                                    if (space.status !== 'booked') {
+                                        space.status = 'booked';
+                                        spacesToMarkBooked.push(space.id);
+                                    }
+                                } else {
+                                    // No active booking today -> should be available (green)!
+                                    // Even if it was booked yesterday, it is NOW EXPIRED!
+                                    if (space.status === 'booked' || space.status === 'rented') {
+                                        space.status = 'available';
+                                        spacesToRevertToAvailable.push(space.id);
+                                    }
+                                }
+                            }
+                        });
+
+                        // Sync status updates back to DB in background
+                        if (spacesToRevertToAvailable.length > 0) {
+                            supabaseClient
+                                .from('spaces')
+                                .update({ status: 'available' })
+                                .in('id', spacesToRevertToAvailable)
+                                .then(() => console.log('Reverted expired spaces to available:', spacesToRevertToAvailable));
+                        }
+                        if (spacesToMarkBooked.length > 0) {
+                            supabaseClient
+                                .from('spaces')
+                                .update({ status: 'booked' })
+                                .in('id', spacesToMarkBooked)
+                                .then(() => console.log('Marked active spaces as booked:', spacesToMarkBooked));
+                        }
+
                     } catch (bErr) {
                         console.warn("Could not fetch active bookings:", bErr);
                     }
@@ -2203,13 +2376,52 @@
 
             let tenantBadgeHtml = '';
             if (!isVacant) {
-                const booking = activeBookings.find(b => b.space_id === space.id);
-                if (booking && booking.profiles) {
-                    const fullName = `${booking.profiles.first_name || ''} ${booking.profiles.last_name || ''}`.trim() || 'ผู้เช่า';
-                    tenantBadgeHtml = `<div class="tenant-badge-row" title="ผู้เช่า: ${fullName}"><i class="fa-solid fa-user"></i> <span>${fullName}</span></div>`;
+                const booking = space._activeBooking || activeBookings.find(b => b.space_id === space.id);
+                if (booking) {
+                    const prof = booking.profiles || {};
+                    let merchantName = prof.first_name ? `${prof.first_name} ${prof.last_name || ''}`.trim() : (prof.display_name || '');
+                    if (!merchantName && prof.last_name) merchantName = prof.last_name;
+                    if (!merchantName) merchantName = 'ผู้เช่า';
+                    
+                    const merchantPhone = prof.phone ? prof.phone : '';
+
+                    tenantBadgeHtml = `
+                        <div class="tenant-badge-row" title="ผู้เช่า: ${merchantName} ${merchantPhone ? `(${merchantPhone})` : ''}">
+                            <div class="tenant-badge-left">
+                                <i class="fa-solid fa-user"></i>
+                                <span>${merchantName}</span>
+                            </div>
+                            ${merchantPhone ? `<span class="tenant-badge-phone"><i class="fa-solid fa-phone"></i> ${merchantPhone}</span>` : ''}
+                        </div>
+                    `;
+                } else if (space.map_data && (space.map_data.manual_tenant_name || space.map_data.manual_tenant_phone)) {
+                    const manualName = space.map_data.manual_tenant_name || 'ผู้เช่า';
+                    const manualPhone = space.map_data.manual_tenant_phone || '';
+                    tenantBadgeHtml = `
+                        <div class="tenant-badge-row" title="ผู้เช่า: ${manualName} ${manualPhone ? `(${manualPhone})` : ''}">
+                            <div class="tenant-badge-left">
+                                <i class="fa-solid fa-user-tag"></i>
+                                <span>${manualName}</span>
+                            </div>
+                            ${manualPhone ? `<span class="tenant-badge-phone"><i class="fa-solid fa-phone"></i> ${manualPhone}</span>` : ''}
+                        </div>
+                    `;
                 } else {
-                    tenantBadgeHtml = `<div class="tenant-badge-row" title="เช่าแล้ว"><i class="fa-solid fa-user-check"></i> <span>มีผู้เช่าแล้ว</span></div>`;
+                    tenantBadgeHtml = `<div class="tenant-badge-row" title="เช่าแล้ว"><div class="tenant-badge-left"><i class="fa-solid fa-user-check"></i> <span>มีผู้เช่าแล้ว</span></div></div>`;
                 }
+            } else if (space._upcomingBooking) {
+                const upBooking = space._upcomingBooking;
+                const upProf = upBooking.profiles || {};
+                const upName = upProf.first_name ? `${upProf.first_name}` : (upProf.display_name || 'ผู้เช่า');
+                const sDateFmt = formatThaiDateShort(upBooking.start_date);
+                tenantBadgeHtml = `
+                    <div class="tenant-badge-row upcoming" title="จองล่วงหน้าเริ่มวันที่ ${sDateFmt} โดย คุณ${upName}">
+                        <div class="tenant-badge-left">
+                            <i class="fa-regular fa-calendar-check" style="color: #0284c7;"></i>
+                            <span style="color: #0284c7;">จองเริ่ม ${sDateFmt} (${upName})</span>
+                        </div>
+                    </div>
+                `;
             }
 
             const zoneName = space.zone ? space.zone : 'ไม่ระบุโซน';
@@ -2682,11 +2894,26 @@
                 if (priceEl) priceEl.innerText = `฿${(Number(space.price) || 0).toLocaleString()} / วัน`;
                 if (zoneEl) zoneEl.innerText = space.zone ? `โซน: ${space.zone}` : 'ไม่ระบุโซน';
                 if (sizeEl) sizeEl.innerText = space.size_details ? `ขนาด: ${space.size_details}` : 'ไม่ระบุขนาด';
+
+                // Upcoming reservation display if any
+                const upcomingNotice = document.getElementById('modal-upcoming-booking-notice');
+                const upcomingDesc = document.getElementById('modal-upcoming-booking-desc');
+                if (space._upcomingBooking && upcomingNotice && upcomingDesc) {
+                    const ub = space._upcomingBooking;
+                    const uProf = ub.profiles || {};
+                    const uName = uProf.first_name ? `${uProf.first_name} ${uProf.last_name || ''}`.trim() : (uProf.display_name || 'ผู้เช่า');
+                    const uPhone = uProf.phone ? ` (โทร: ${uProf.phone})` : '';
+                    const uRange = (ub.start_date && ub.end_date) ? `${formatThaiDateShort(ub.start_date)} ถึง ${formatThaiDateShort(ub.end_date)}` : formatThaiDateShort(ub.start_date);
+                    upcomingDesc.innerText = `ผู้จอง: คุณ${uName}${uPhone} • ช่วงวันที่ ${uRange}`;
+                    upcomingNotice.style.display = 'block';
+                } else if (upcomingNotice) {
+                    upcomingNotice.style.display = 'none';
+                }
             } else {
                 if (vacantView) vacantView.style.display = 'none';
                 if (rentedView) rentedView.style.display = 'block';
 
-                const booking = activeBookings.find(b => b.space_id === space.id);
+                const booking = space._activeBooking || activeBookings.find(b => b.space_id === space.id);
                 const nameEl = document.getElementById('modal-tenant-name');
                 const phoneLink = document.getElementById('modal-tenant-phone-link');
                 const dateEl = document.getElementById('modal-booking-date');
@@ -2694,20 +2921,57 @@
                 const zoneEl = document.getElementById('modal-booking-zone');
                 const sizeEl = document.getElementById('modal-booking-size');
 
-                if (booking && booking.profiles) {
-                    const fullName = `${booking.profiles.first_name || ''} ${booking.profiles.last_name || ''}`.trim() || 'ผู้เช่า';
-                    const phone = booking.profiles.phone || 'ไม่ระบุเบอร์โทร';
+                if (booking) {
+                    const prof = booking.profiles || {};
+                    let fullName = prof.first_name ? `${prof.first_name} ${prof.last_name || ''}`.trim() : (prof.display_name || '');
+                    if (!fullName && prof.last_name) fullName = prof.last_name;
+                    if (!fullName) fullName = 'คุณพ่อค้าแม่ค้า (ผู้เช่า)';
+
+                    const phone = prof.phone ? prof.phone : '';
                     if (nameEl) nameEl.innerText = fullName;
                     if (phoneLink) {
-                        phoneLink.href = `tel:${phone}`;
-                        phoneLink.querySelector('span').innerText = phone;
+                        if (phone) {
+                            phoneLink.href = `tel:${phone}`;
+                            phoneLink.style.display = 'inline-flex';
+                            phoneLink.querySelector('span').innerText = phone;
+                        } else {
+                            phoneLink.href = '#';
+                            phoneLink.style.display = 'inline-flex';
+                            phoneLink.querySelector('span').innerText = 'ไม่ระบุเบอร์โทร';
+                        }
                     }
-                    const bookedDate = booking.created_at ? new Date(booking.created_at).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }) : '-';
-                    if (dateEl) dateEl.innerText = bookedDate;
+
+                    // Format date range nicely
+                    let dateText = '-';
+                    if (booking.start_date && booking.end_date) {
+                        dateText = `${formatThaiDateShort(booking.start_date)} - ${formatThaiDateShort(booking.end_date)}`;
+                    } else if (booking.start_date) {
+                        dateText = formatThaiDateShort(booking.start_date);
+                    } else if (booking.created_at) {
+                        dateText = new Date(booking.created_at).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+                    }
+                    if (dateEl) dateEl.innerText = dateText;
+                } else if (space.map_data && (space.map_data.manual_tenant_name || space.map_data.manual_tenant_phone)) {
+                    const manualName = space.map_data.manual_tenant_name || 'ผู้เช่า (จองหน้าร้าน)';
+                    const manualPhone = space.map_data.manual_tenant_phone || '';
+                    if (nameEl) nameEl.innerText = manualName;
+                    if (phoneLink) {
+                        if (manualPhone) {
+                            phoneLink.href = `tel:${manualPhone}`;
+                            phoneLink.style.display = 'inline-flex';
+                            phoneLink.querySelector('span').innerText = manualPhone;
+                        } else {
+                            phoneLink.href = '#';
+                            phoneLink.style.display = 'inline-flex';
+                            phoneLink.querySelector('span').innerText = 'ไม่ระบุเบอร์โทร';
+                        }
+                    }
+                    if (dateEl) dateEl.innerText = 'เช่าหน้าร้าน (ออฟไลน์)';
                 } else {
                     if (nameEl) nameEl.innerText = 'เช่าแล้ว (จองผ่านระบบ / นอกระบบ)';
                     if (phoneLink) {
                         phoneLink.href = '#';
+                        phoneLink.style.display = 'inline-flex';
                         phoneLink.querySelector('span').innerText = 'ไม่ระบุเบอร์โทร';
                     }
                     if (dateEl) dateEl.innerText = '-';
@@ -2732,14 +2996,18 @@
             const radioBooked = document.getElementById('status-radio-booked');
             const labelAvail = document.getElementById('label-status-available');
             const labelBooked = document.getElementById('label-status-booked');
+            const manualFields = document.getElementById('manual-tenant-fields');
+
             if (val === 'available') {
                 if (radioAvail) radioAvail.checked = true;
                 if (labelAvail) labelAvail.classList.add('active-available');
                 if (labelBooked) labelBooked.classList.remove('active-booked');
+                if (manualFields) manualFields.style.display = 'none';
             } else {
                 if (radioBooked) radioBooked.checked = true;
                 if (labelBooked) labelBooked.classList.add('active-booked');
                 if (labelAvail) labelAvail.classList.remove('active-available');
+                if (manualFields) manualFields.style.display = 'block';
             }
         }
 
@@ -2786,6 +3054,12 @@
             selectStatusRadio(isAvail ? 'available' : 'booked');
             updatePriceEstimate(space.price || 0);
 
+            // Populate manual tenant name and phone if present
+            const manualNameInput = document.getElementById('editManualTenantName');
+            const manualPhoneInput = document.getElementById('editManualTenantPhone');
+            if (manualNameInput) manualNameInput.value = (space.map_data && space.map_data.manual_tenant_name) ? space.map_data.manual_tenant_name : '';
+            if (manualPhoneInput) manualPhoneInput.value = (space.map_data && space.map_data.manual_tenant_phone) ? space.map_data.manual_tenant_phone : '';
+
             // Populate dynamic zone suggestion chips
             const uniqueZones = [...new Set(globalSpaces.map(s => s.zone).filter(Boolean))];
             const chipsEl = document.getElementById('edit-zone-suggestions');
@@ -2821,15 +3095,31 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
             
             const spaceId = document.getElementById('editSpaceId').value;
+            const space = globalSpaces.find(s => s.id === spaceId);
             const selectedRadio = document.querySelector('input[name="editSpaceStatusRadio"]:checked');
             const selectedStatus = selectedRadio ? selectedRadio.value : 'available';
+
+            const manualName = document.getElementById('editManualTenantName') ? document.getElementById('editManualTenantName').value.trim() : '';
+            const manualPhone = document.getElementById('editManualTenantPhone') ? document.getElementById('editManualTenantPhone').value.trim() : '';
+
+            const currentMapData = (space && space.map_data) ? { ...space.map_data } : {};
+            if (selectedStatus === 'booked') {
+                if (manualName) currentMapData.manual_tenant_name = manualName;
+                else delete currentMapData.manual_tenant_name;
+                if (manualPhone) currentMapData.manual_tenant_phone = manualPhone;
+                else delete currentMapData.manual_tenant_phone;
+            } else {
+                delete currentMapData.manual_tenant_name;
+                delete currentMapData.manual_tenant_phone;
+            }
 
             const updateData = {
                 space_number: document.getElementById('editSpaceNumber').value.trim(),
                 zone: document.getElementById('editSpaceZone').value.trim() || null,
                 price: parseFloat(document.getElementById('editSpacePrice').value) || 0,
                 size_details: document.getElementById('editSpaceSize').value.trim() || null,
-                status: selectedStatus
+                status: selectedStatus,
+                map_data: currentMapData
             };
             
             try {
