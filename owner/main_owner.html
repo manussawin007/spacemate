@@ -3081,9 +3081,10 @@
 
         <!-- Main Feed List -->
         <div class="notif-feed-container" id="notifications-list">
-            <div style="text-align: center; padding: 3rem 1rem; color: #64748b;">
-                <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2.2rem; margin-bottom: 1rem; color: #a46309;"></i>
-                <p style="font-weight: 600;">กำลังโหลดคำขอจองและการแจ้งเตือน...</p>
+            <div style="text-align: center; padding: 2.5rem 1rem; color: #64748b;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; border: 3px solid #fde68a; border-top-color: #a46309; animation: spin 0.8s linear infinite; margin: 0 auto 12px;"></div>
+                <div style="font-weight: 600; color: #475569; font-size: 0.95rem;">กำลังจัดเตรียมรายการคำขอ...</div>
+                <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 4px;">ระบบกำลังซิงค์ข้อมูลกับตลาดของคุณ</div>
             </div>
         </div>
     </div>
@@ -5144,17 +5145,64 @@
             }
         }
 
-        function markAllNotificationsAsRead() {
-            const unreadCards = document.querySelectorAll('#app-notif .notif-card.unread, #app-notif .booking-req-card.unread');
+        async function markAllNotificationsAsRead() {
+            // 1. Save timestamp in localStorage so unread badges stay cleared even after refresh or future fetches
+            const now = Date.now();
+            localStorage.setItem('owner_notifs_read_all_time', now.toString());
+
+            // 2. Hide all red badges across header and bottom navigation immediately
+            document.querySelectorAll('.nav-badge').forEach(badge => {
+                badge.style.display = 'none';
+            });
+
+            // 3. Clear unread classes & dots from DOM cards inside #notifications-list
+            const unreadCards = document.querySelectorAll('#app-notif .notif-card.unread, #app-notif .booking-req-card.unread, #app-notif .system-notif-card.unread');
             unreadCards.forEach(card => {
                 card.classList.remove('unread');
                 const dot = card.querySelector('.notif-unread-dot');
                 if (dot) dot.style.display = 'none';
+                const pulseDot = card.querySelector('.pulse-dot');
+                if (pulseDot) pulseDot.style.display = 'none';
             });
             document.querySelectorAll('#app-notif .notif-unread-dot').forEach(dot => dot.style.display = 'none');
-            document.querySelectorAll('.nav-badge').forEach(badge => {
-                badge.style.display = 'none';
-            });
+            document.querySelectorAll('#app-notif .pulse-dot').forEach(dot => dot.style.display = 'none');
+
+            // 4. Update in-memory history notifications cache
+            if (typeof historyNotifsCache !== 'undefined' && Array.isArray(historyNotifsCache)) {
+                historyNotifsCache.forEach(n => n.is_read = true);
+            }
+
+            // 5. Update database notifications table in background
+            try {
+                const session = await getSession();
+                if (session && session.user) {
+                    await supabaseClient
+                        .from('notifications')
+                        .update({ is_read: true })
+                        .eq('user_id', session.user.id)
+                        .eq('is_read', false);
+                }
+            } catch (err) {
+                console.warn('Could not sync mark all as read to DB:', err);
+            }
+
+            // 6. Update KPI tab counts & badge visibility
+            if (typeof updateNotifKPIs === 'function') {
+                updateNotifKPIs();
+            }
+
+            // 7. Show confirmation toast
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'อ่านทั้งหมดแล้ว',
+                    text: 'เคลียร์การแจ้งเตือนและจุดสีแดงเรียบร้อยครับ',
+                    timer: 1600,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
+            }
         }
 
         function markNotificationAsRead(element) {
@@ -5162,8 +5210,10 @@
                 element.classList.remove('unread');
                 const dot = element.querySelector('.notif-unread-dot');
                 if (dot) dot.style.display = 'none';
+                const pulseDot = element.querySelector('.pulse-dot');
+                if (pulseDot) pulseDot.style.display = 'none';
 
-                const remainingUnread = document.querySelectorAll('#app-notif .notif-card.unread, #app-notif .booking-req-card.unread');
+                const remainingUnread = document.querySelectorAll('#app-notif .notif-card.unread, #app-notif .booking-req-card.unread, #app-notif .system-notif-card.unread');
                 if (remainingUnread.length === 0) {
                     document.querySelectorAll('.nav-badge').forEach(badge => {
                         badge.style.display = 'none';
@@ -5830,19 +5880,26 @@
                 let allOwnerBookings = [];
 
                 if (allSpaceIds.length > 0) {
-                    const chunkSize = 30;
+                    const chunkSize = 50;
+                    const chunks = [];
                     for (let i = 0; i < allSpaceIds.length; i += chunkSize) {
-                        const chunk = allSpaceIds.slice(i, i + chunkSize);
-                        const { data: bData, error: bErr } = await supabaseClient
-                            .from('bookings')
-                            .select('*, profiles(first_name, last_name, phone)')
-                            .in('space_id', chunk)
-                            .neq('status', 'cancelled')
-                            .order('start_date', { ascending: true });
+                        chunks.push(allSpaceIds.slice(i, i + chunkSize));
+                    }
+                    const results = await Promise.all(
+                        chunks.map(chunk => 
+                            supabaseClient
+                                .from('bookings')
+                                .select('*, profiles(first_name, last_name, phone)')
+                                .in('space_id', chunk)
+                                .neq('status', 'cancelled')
+                                .order('start_date', { ascending: true })
+                        )
+                    );
+                    results.forEach(({ data: bData, error: bErr }) => {
                         if (!bErr && bData) {
                             allOwnerBookings = allOwnerBookings.concat(bData);
                         }
-                    }
+                    });
                 }
 
                 // Map bookings by space_id and venue_id
@@ -6061,6 +6118,16 @@
 
                 marketsEmpty.style.display = marketCount === 0 ? 'block' : 'none';
                 eventsEmpty.style.display = eventCount === 0 ? 'block' : 'none';
+
+                // Cache owner venues, spaces and bookings in memory to eliminate duplicate network traffic
+                window.cachedOwnerVenues = venues;
+                window.cachedOwnerSpaces = allSpaces;
+                window.cachedOwnerBookings = allOwnerBookings;
+
+                // Sync immediately to Notification & Profile stats caches with 0 latency
+                if (typeof syncOwnerBookingsToNotifCache === 'function') {
+                    syncOwnerBookingsToNotifCache(venues, allSpaces, allOwnerBookings);
+                }
                 
             } catch (err) {
                 console.error("Error fetching venues:", err);
@@ -6542,6 +6609,8 @@
         }
 
         function updateNotifKPIs() {
+            const allReadTime = parseInt(localStorage.getItem('owner_notifs_read_all_time') || '0', 10);
+
             const pendingCount = pendingBookingsCache.length;
             const upcomingCount = upcomingBookingsCache.length;
             const historyCount = historyNotifsCache.length;
@@ -6572,13 +6641,31 @@
             const tabHis = document.getElementById('tab-count-history');
             if (tabHis) tabHis.textContent = historyCount;
 
-            // Header & Nav Badges
+            // Compute UNREAD alerts for the red notification badges (header bell & bottom nav)
+            // A pending booking or notification is only considered UNREAD if it was created AFTER allReadTime
+            const unreadPending = pendingBookingsCache.filter(b => {
+                const t = new Date(b.created_at).getTime();
+                return t > allReadTime;
+            }).length;
+
+            const unreadNotifs = historyNotifsCache.filter(n => {
+                if (n.is_read) return false;
+                const t = new Date(n.created_at).getTime();
+                return t > allReadTime;
+            }).length;
+
+            const totalUnreadAlerts = unreadPending + unreadNotifs;
+
+            // Header & Nav Badges: If user marked all as read, this will be 0 and remain completely hidden
             document.querySelectorAll('.nav-badge').forEach(b => {
-                b.style.display = pendingCount > 0 ? 'block' : 'none';
+                b.style.display = totalUnreadAlerts > 0 ? 'block' : 'none';
             });
         }
 
         function buildPendingCardHtml(booking) {
+            const allReadTime = parseInt(localStorage.getItem('owner_notifs_read_all_time') || '0', 10);
+            const isUnread = new Date(booking.created_at).getTime() > allReadTime;
+
             const timeAgo = new Date(booking.created_at).toLocaleDateString('th-TH', { hour: '2-digit', minute: '2-digit' });
             const dateRange = `${formatThaiDateShort(booking.start_date)} - ${formatThaiDateShort(booking.end_date || booking.start_date)}`;
             const initials = (booking.bookerName || 'ผ')[0].toUpperCase();
@@ -6601,7 +6688,7 @@
             const hasSlip = !!booking.payment_slip_url;
 
             return `
-                <div class="booking-req-card unread" onclick="openBookingModal('${bookingData}', this)">
+                <div class="booking-req-card ${isUnread ? 'unread' : ''}" onclick="openBookingModal('${bookingData}', this)">
                     <div class="booking-req-top">
                         <div class="booking-req-merchant">
                             <div class="merchant-avatar-circle">${initials}</div>
@@ -6610,8 +6697,8 @@
                                 <span class="merchant-time-text"><i class="fa-regular fa-clock"></i> ส่งคำขอเมื่อ ${timeAgo}</span>
                             </div>
                         </div>
-                        <div class="booking-status-tag pending">
-                            <span class="pulse-dot"></span> รอตรวจสอบสลิป
+                        <div class="booking-status-tag pending" style="${isUnread ? '' : 'background:#fef3c7; color:#92400e;'}">
+                            ${isUnread ? '<span class="pulse-dot"></span> รอตรวจสอบสลิป' : '<i class="fa-solid fa-clock" style="font-size:0.75rem;"></i> รอตรวจสอบ'}
                         </div>
                     </div>
 
@@ -6728,18 +6815,24 @@
         }
 
         function buildHistoryCardHtml(n) {
+            const allReadTime = parseInt(localStorage.getItem('owner_notifs_read_all_time') || '0', 10);
+            const isUnread = !n.is_read && (new Date(n.created_at).getTime() > allReadTime);
+
             const iconClass = n.type === 'success' ? 'fa-check' : (n.type === 'warning' ? 'fa-triangle-exclamation' : 'fa-bell');
             const iconBg = n.type === 'success' ? '#dcfce7' : (n.type === 'warning' ? '#fee2e2' : '#e0f2fe');
             const iconColor = n.type === 'success' ? '#16a34a' : (n.type === 'warning' ? '#dc2626' : '#0284c7');
             const timeStr = new Date(n.created_at).toLocaleDateString('th-TH', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' });
 
             return `
-                <div class="system-notif-card">
+                <div class="system-notif-card ${isUnread ? 'unread' : ''}">
                     <div class="system-notif-icon" style="background:${iconBg}; color:${iconColor};">
                         <i class="fa-solid ${iconClass}"></i>
                     </div>
                     <div class="system-notif-content">
-                        <div class="system-notif-title">${n.title || 'การแจ้งเตือนจากระบบ'}</div>
+                        <div class="system-notif-title" style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>${n.title || 'การแจ้งเตือนจากระบบ'}</span>
+                            ${isUnread ? '<span class="notif-unread-dot" style="display:inline-block;"></span>' : ''}
+                        </div>
                         <div class="system-notif-msg">${n.message || ''}</div>
                         <div class="system-notif-time"><i class="fa-regular fa-clock"></i> ${timeStr}</div>
                     </div>
@@ -6871,10 +6964,71 @@
             feedContainer.innerHTML = html;
         }
 
-        async function fetchPendingBookings() {
+        function syncOwnerBookingsToNotifCache(venues, spaces, allBookings) {
+            if (!venues || !spaces || !allBookings) return;
+            const venueMap = {};
+            venues.forEach(v => venueMap[v.id] = v.name);
+
+            const spaceMap = {};
+            spaces.forEach(s => {
+                spaceMap[s.id] = {
+                    number: s.space_number,
+                    venueName: venueMap[s.venue_id] || '-',
+                    venueId: s.venue_id
+                };
+            });
+
+            const todayStr = getLocalDateString(new Date());
+
+            // Pending bookings
+            pendingBookingsCache = allBookings.filter(b => b.status === 'pending').map(b => {
+                const sp = spaceMap[b.space_id] || { number: '-', venueName: '-', venueId: '' };
+                const bName = b.profiles ? `${b.profiles.first_name || ''} ${b.profiles.last_name || ''}`.trim() || 'ผู้ใช้' : 'ผู้ใช้';
+                return {
+                    ...b,
+                    spaceNumber: sp.number,
+                    venueName: sp.venueName,
+                    venueId: sp.venueId,
+                    bookerName: bName,
+                    bookerPhone: b.profiles?.phone || ''
+                };
+            });
+
+            // Upcoming bookings
+            upcomingBookingsCache = allBookings.filter(b => b.start_date > todayStr).map(b => {
+                const sp = spaceMap[b.space_id] || { number: '-', venueName: '-', venueId: '' };
+                const bName = b.profiles ? `${b.profiles.first_name || ''} ${b.profiles.last_name || ''}`.trim() || 'พ่อค้าแม่ค้า' : 'พ่อค้าแม่ค้า';
+                return {
+                    ...b,
+                    spaceNumber: sp.number,
+                    venueName: sp.venueName,
+                    venueId: sp.venueId,
+                    bookerName: bName,
+                    bookerPhone: b.profiles?.phone || ''
+                };
+            });
+            upcomingBookingsCache.sort((a, b) => (a.start_date > b.start_date ? 1 : -1));
+
+            updateNotifKPIs();
+            renderNotificationsFeed();
+        }
+
+        async function fetchPendingBookings(forceRefresh = false) {
             try {
                 const session = await getSession();
                 if (!session) return;
+
+                // If cached data is available and not forcing refresh, sync immediately with 0 network latency!
+                if (!forceRefresh && window.cachedOwnerVenues && window.cachedOwnerSpaces && window.cachedOwnerBookings) {
+                    syncOwnerBookingsToNotifCache(window.cachedOwnerVenues, window.cachedOwnerSpaces, window.cachedOwnerBookings);
+                    if (historyNotifsCache.length === 0) {
+                        fetchHistoryNotificationsData(session.user.id).then(() => {
+                            updateNotifKPIs();
+                            renderNotificationsFeed();
+                        });
+                    }
+                    return;
+                }
 
                 // 1. Get all venues owned by this user
                 const { data: venues, error: vErr } = await supabaseClient
@@ -6909,64 +7063,34 @@
                 }
 
                 const spaceIds = spaces.map(s => s.id);
-                const venueMap = {};
-                venues.forEach(v => venueMap[v.id] = v.name);
-
-                const spaceMap = {};
-                spaces.forEach(s => {
-                    spaceMap[s.id] = {
-                        number: s.space_number,
-                        venueName: venueMap[s.venue_id] || '-',
-                        venueId: s.venue_id
-                    };
-                });
-
                 let allBookings = [];
-                const chunkSize = 20;
+                const chunkSize = 50;
+                const chunks = [];
                 for (let i = 0; i < spaceIds.length; i += chunkSize) {
-                    const chunk = spaceIds.slice(i, i + chunkSize);
-                    const { data: bData, error: chunkErr } = await supabaseClient
-                        .from('bookings')
-                        .select('*, profiles(first_name, last_name, phone)')
-                        .in('space_id', chunk)
-                        .neq('status', 'cancelled')
-                        .order('created_at', { ascending: false });
-
-                    if (chunkErr) break;
-                    if (bData) allBookings = allBookings.concat(bData);
+                    chunks.push(spaceIds.slice(i, i + chunkSize));
                 }
 
-                const todayStr = getLocalDateString(new Date());
+                const results = await Promise.all(
+                    chunks.map(chunk =>
+                        supabaseClient
+                            .from('bookings')
+                            .select('*, profiles(first_name, last_name, phone)')
+                            .in('space_id', chunk)
+                            .neq('status', 'cancelled')
+                            .order('created_at', { ascending: false })
+                    )
+                );
 
-                // Pending payments to review (waiting for verification)
-                pendingBookingsCache = allBookings.filter(b => b.status === 'pending').map(b => {
-                    const sp = spaceMap[b.space_id] || { number: '-', venueName: '-', venueId: '' };
-                    const bName = b.profiles ? `${b.profiles.first_name || ''} ${b.profiles.last_name || ''}`.trim() || 'ผู้ใช้' : 'ผู้ใช้';
-                    return {
-                        ...b,
-                        spaceNumber: sp.number,
-                        venueName: sp.venueName,
-                        venueId: sp.venueId,
-                        bookerName: bName,
-                        bookerPhone: b.profiles?.phone || ''
-                    };
+                results.forEach(({ data: bData, error: chunkErr }) => {
+                    if (!chunkErr && bData) allBookings = allBookings.concat(bData);
                 });
 
-                // Upcoming bookings (future start date)
-                upcomingBookingsCache = allBookings.filter(b => b.start_date > todayStr).map(b => {
-                    const sp = spaceMap[b.space_id] || { number: '-', venueName: '-', venueId: '' };
-                    const bName = b.profiles ? `${b.profiles.first_name || ''} ${b.profiles.last_name || ''}`.trim() || 'พ่อค้าแม่ค้า' : 'พ่อค้าแม่ค้า';
-                    return {
-                        ...b,
-                        spaceNumber: sp.number,
-                        venueName: sp.venueName,
-                        venueId: sp.venueId,
-                        bookerName: bName,
-                        bookerPhone: b.profiles?.phone || ''
-                    };
-                });
-                upcomingBookingsCache.sort((a, b) => (a.start_date > b.start_date ? 1 : -1));
+                // Update memory caches
+                window.cachedOwnerVenues = venues;
+                window.cachedOwnerSpaces = spaces;
+                window.cachedOwnerBookings = allBookings;
 
+                syncOwnerBookingsToNotifCache(venues, spaces, allBookings);
                 await fetchHistoryNotificationsData(session.user.id);
                 updateNotifKPIs();
                 renderNotificationsFeed();
@@ -6975,7 +7099,7 @@
                 console.error("Error fetching pending bookings:", err);
                 const notifList = document.getElementById('notifications-list');
                 if (notifList) {
-                    notifList.innerHTML = '<div class="notif-empty-state"><div class="empty-icon-ring" style="color:#ef4444; border-color:#fca5a5;"><i class="fa-solid fa-triangle-exclamation"></i></div><h3 class="empty-title">เกิดข้อผิดพลาดในการโหลดข้อมูล</h3><p class="empty-desc">ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณากดปุ่มรีเฟรชเพื่อลองใหม่อีกครั้ง</p><button class="notif-action-pill" onclick="fetchPendingBookings()" style="margin-top:14px;"><i class="fa-solid fa-arrows-rotate"></i> ลองใหม่</button></div>';
+                    notifList.innerHTML = '<div class="notif-empty-state"><div class="empty-icon-ring" style="color:#ef4444; border-color:#fca5a5;"><i class="fa-solid fa-triangle-exclamation"></i></div><h3 class="empty-title">เกิดข้อผิดพลาดในการโหลดข้อมูล</h3><p class="empty-desc">ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณากดปุ่มรีเฟรชเพื่อลองใหม่อีกครั้ง</p><button class="notif-action-pill" onclick="fetchPendingBookings(true)" style="margin-top:14px;"><i class="fa-solid fa-arrows-rotate"></i> ลองใหม่</button></div>';
                 }
             }
         }
