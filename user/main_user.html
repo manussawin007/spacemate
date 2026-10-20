@@ -1266,14 +1266,24 @@
 
         .nav-badge {
             position: absolute;
-            top: -4px;
-            right: -6px;
-            width: 8px;
-            height: 8px;
+            top: -5px;
+            right: -8px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 4px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            line-height: 1;
+            color: #ffffff;
             background-color: #ef4444;
-            border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.9);
+            border-radius: 9999px;
+            border: 2px solid #ffffff;
             display: none;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            box-shadow: 0 2px 5px rgba(239, 68, 68, 0.35);
+            z-index: 2;
         }
 
         /* Page Containers */
@@ -2733,6 +2743,34 @@
             color: #ffffff;
         }
 
+        .sidebar-menu-link .nav-badge {
+            position: static !important;
+            margin-left: auto;
+            min-width: 22px;
+            height: 22px;
+            padding: 0 6px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            line-height: 1;
+            border-radius: 9999px;
+            background-color: #ef4444;
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-menu-link.active .nav-badge {
+            background-color: #ffffff;
+            color: #a46309;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            font-weight: 800;
+        }
+
         .sidebar-bottom {
             padding: 1.25rem;
             display: flex;
@@ -3241,8 +3279,9 @@
                 </li>
                 <li class="sidebar-menu-item">
                     <a class="sidebar-menu-link" onclick="switchUserView('notif', this)">
-                        <i class="fa-solid fa-bell"></i> การแจ้งเตือน
-                        <span class="nav-badge" style="position: static; margin-left: auto; width: 10px; height: 10px; display: none;"></span>
+                        <i class="fa-solid fa-bell"></i>
+                        <span style="flex: 1;">การแจ้งเตือน</span>
+                        <span class="nav-badge" style="display: none;"></span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
@@ -5260,41 +5299,7 @@
             }
         }
 
-        function markAllNotificationsAsRead() {
-            if (typeof handleMarkAllNotificationsAsRead === 'function') {
-                handleMarkAllNotificationsAsRead();
-                return;
-            }
-            const unreadItems = document.querySelectorAll('#user-notifications .notif-item.unread');
-            unreadItems.forEach(item => {
-                item.classList.remove('unread');
-                const dot = item.querySelector('.unread-dot');
-                if (dot) dot.style.display = 'none';
-            });
-            document.querySelectorAll('#user-notifications .unread-dot').forEach(dot => dot.style.display = 'none');
-            document.querySelectorAll('.nav-badge').forEach(badge => {
-                badge.style.display = 'none';
-            });
-        }
 
-        function markNotificationAsRead(element, notifId) {
-            if (notifId && typeof handleMarkSingleNotificationAsRead === 'function') {
-                handleMarkSingleNotificationAsRead(notifId);
-                return;
-            }
-            if (element && element.classList.contains('unread')) {
-                element.classList.remove('unread');
-                const dot = element.querySelector('.unread-dot');
-                if (dot) dot.style.display = 'none';
-
-                const remainingUnread = document.querySelectorAll('#user-notifications .notif-item.unread');
-                if (remainingUnread.length === 0) {
-                    document.querySelectorAll('.nav-badge').forEach(badge => {
-                        badge.style.display = 'none';
-                    });
-                }
-            }
-        }
 
         function validateNumberOnly(input, expectedLength) {
             input.value = input.value.replace(/[^0-9]/g, '');
@@ -6883,6 +6888,23 @@
                     });
                 }
 
+                // Check localStorage persistence for Read All timestamp & individual read IDs
+                const userKey = userId || currentUserId || 'guest';
+                const allReadTime = parseInt(localStorage.getItem('user_notifs_read_all_time_' + userKey) || '0', 10);
+                let readIds = [];
+                try {
+                    readIds = JSON.parse(localStorage.getItem('user_read_notif_ids_' + userKey) || '[]');
+                } catch (e) {
+                    readIds = [];
+                }
+
+                combined.forEach(item => {
+                    const itemTime = new Date(item.created_at).getTime();
+                    if (item.is_read || readIds.includes(item.id) || (allReadTime > 0 && itemTime <= allReadTime)) {
+                        item.is_read = true;
+                    }
+                });
+
                 combined.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                 userNotifItems = combined;
 
@@ -6933,8 +6955,13 @@
             if (elSystem) elSystem.textContent = systemCount;
 
             document.querySelectorAll('.nav-badge').forEach(b => {
-                b.textContent = unreadCount > 99 ? '99+' : unreadCount;
-                b.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+                if (unreadCount > 0) {
+                    b.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                    b.style.display = 'inline-flex';
+                } else {
+                    b.textContent = '';
+                    b.style.display = 'none';
+                }
             });
         }
 
@@ -7069,6 +7096,18 @@
                 item.is_read = true;
             }
 
+            // Persist individual ID to localStorage
+            const userKey = currentUserId || 'guest';
+            try {
+                let readIds = JSON.parse(localStorage.getItem('user_read_notif_ids_' + userKey) || '[]');
+                if (notifId && !readIds.includes(notifId)) {
+                    readIds.push(notifId);
+                    localStorage.setItem('user_read_notif_ids_' + userKey, JSON.stringify(readIds));
+                }
+            } catch (e) {
+                console.warn('localStorage read_ids note:', e);
+            }
+
             if (notifId && !notifId.startsWith('booking-') && notifId !== 'welcome-system-notif') {
                 try {
                     await supabaseClient
@@ -7100,21 +7139,47 @@
                 return;
             }
 
+            // 1. Mark in memory
             userNotifItems.forEach(n => n.is_read = true);
 
+            // 2. Persist in localStorage so it STAYS READ even after page refresh or refetch
+            const userKey = currentUserId || 'guest';
+            const now = Date.now();
+            localStorage.setItem('user_notifs_read_all_time_' + userKey, now.toString());
+
+            // 3. Save all current IDs into user_read_notif_ids
+            try {
+                let readIds = JSON.parse(localStorage.getItem('user_read_notif_ids_' + userKey) || '[]');
+                userNotifItems.forEach(n => {
+                    if (n.id && !readIds.includes(n.id)) readIds.push(n.id);
+                });
+                localStorage.setItem('user_read_notif_ids_' + userKey, JSON.stringify(readIds));
+            } catch (e) {
+                console.warn('localStorage read_ids note:', e);
+            }
+
+            // 4. Update Supabase notifications table
             if (currentUserId) {
                 try {
                     await supabaseClient
                         .from('notifications')
                         .update({ is_read: true })
-                        .eq('user_id', currentUserId);
+                        .eq('user_id', currentUserId)
+                        .eq('is_read', false);
                 } catch (e) {
                     console.warn('Mark all notifs DB note:', e);
                 }
             }
 
+            // 5. Update UI & Badges immediately
             updateUserNotifCounters();
             renderUserNotifications();
+
+            // 6. Explicitly ensure all badges are hidden & cleared
+            document.querySelectorAll('.nav-badge').forEach(b => {
+                b.style.display = 'none';
+                b.textContent = '';
+            });
 
             Swal.fire({
                 toast: true,
