@@ -2873,7 +2873,7 @@
         
         <!-- Horizon Design Advertising Poster Carousel -->
         <section class="horizon-carousel-container" aria-label="โฆษณาและข่าวสารแนะนำ">
-            <div class="horizon-carousel-viewport" id="horizon-poster-viewport" onmouseenter="pauseHorizonAutoplay()" onmouseleave="resumeHorizonAutoplay()">
+            <div class="horizon-carousel-viewport" id="horizon-poster-viewport" onmouseenter="if(typeof pauseHorizonAutoplay==='function')pauseHorizonAutoplay()" onmouseleave="if(typeof resumeHorizonAutoplay==='function')resumeHorizonAutoplay()">
                 
                 <!-- Floating Horizon Badge Pill -->
                 <div class="horizon-floating-badge" id="horizon-badge" onclick="handleHorizonAction(event)" style="cursor: pointer;" title="แตะเพื่อดูรายละเอียด">
@@ -4540,18 +4540,22 @@
         });
 
         function filterItems() {
-            const selectedLocation = currentDetectedLocation;
-            const searchText = document.getElementById('search-input').value.toLowerCase().trim();
+            const selectedLocation = currentDetectedLocation || 'ทั้งหมด';
+            const searchInput = document.getElementById('search-input');
+            const searchText = searchInput ? searchInput.value.toLowerCase().trim() : '';
             
-            // Filter Markets
-            const marketCards = document.querySelectorAll('#markets-view .listing-card');
+            // Filter Markets (ignore skeleton cards)
+            const marketCards = document.querySelectorAll('#markets-view .listing-card:not(.skeleton-card)');
             const totalMarkets = marketCards.length;
             let marketsCount = 0;
             marketCards.forEach(card => {
-                const title = card.querySelector('.card-title').textContent.toLowerCase();
+                const titleEl = card.querySelector('.card-title');
+                if (!titleEl) return;
+                const title = titleEl.textContent.toLowerCase();
                 const cardProvince = card.dataset.province || '';
-                const locationMatch = (selectedLocation === 'ทั้งหมด' || cardProvince === selectedLocation || card.dataset.location.includes(selectedLocation));
-                const textMatch = (searchText === '' || title.includes(searchText) || card.dataset.location.toLowerCase().includes(searchText));
+                const cardLocation = (card.dataset.location || '').toLowerCase();
+                const locationMatch = (selectedLocation === 'ทั้งหมด' || cardProvince === selectedLocation || cardLocation.includes(selectedLocation.toLowerCase()));
+                const textMatch = (searchText === '' || title.includes(searchText) || cardLocation.includes(searchText));
                 
                 const cardPrice = getCardPrice(card);
                 const priceMatch = (currentMaxPrice >= 3000) ? true : (cardPrice <= currentMaxPrice);
@@ -4577,15 +4581,18 @@
                 }
             }
 
-            // Filter Events
-            const eventCards = document.querySelectorAll('#events-view .listing-card');
+            // Filter Events (ignore skeleton cards)
+            const eventCards = document.querySelectorAll('#events-view .listing-card:not(.skeleton-card)');
             const totalEvents = eventCards.length;
             let eventsCount = 0;
             eventCards.forEach(card => {
-                const title = card.querySelector('.card-title').textContent.toLowerCase();
+                const titleEl = card.querySelector('.card-title');
+                if (!titleEl) return;
+                const title = titleEl.textContent.toLowerCase();
                 const cardProvince = card.dataset.province || '';
-                const locationMatch = (selectedLocation === 'ทั้งหมด' || cardProvince === selectedLocation || card.dataset.location.includes(selectedLocation));
-                const textMatch = (searchText === '' || title.includes(searchText) || card.dataset.location.toLowerCase().includes(searchText));
+                const cardLocation = (card.dataset.location || '').toLowerCase();
+                const locationMatch = (selectedLocation === 'ทั้งหมด' || cardProvince === selectedLocation || cardLocation.includes(selectedLocation.toLowerCase()));
+                const textMatch = (searchText === '' || title.includes(searchText) || cardLocation.includes(searchText));
 
                 const cardPrice = getCardPrice(card);
                 const priceMatch = (currentMaxPrice >= 3000) ? true : (cardPrice <= currentMaxPrice);
@@ -5903,16 +5910,15 @@
             if (isFetchingRealVenues) return;
             isFetchingRealVenues = true;
             try {
-                // Lean select without unnecessary heavy columns
+                // Lean select without non-existent columns
                 const { data: venues, error } = await supabaseClient
                     .from('venues')
-                    .select('id, name, type, location, province, latitude, longitude, cover_image_url, map_image_url, description, is_active, spaces(price)')
+                    .select('id, name, type, location, province, cover_image_url, map_image_url, description, is_active, spaces(price)')
                     .eq('is_active', true)
                     .order('created_at', { ascending: false });
 
                 if (error) {
                     console.error('Error fetching venues:', error);
-                    filterItems();
                     return;
                 }
 
@@ -5928,9 +5934,9 @@
 
             } catch (err) {
                 console.error('Error fetching venues:', err);
-                filterItems();
             } finally {
                 isFetchingRealVenues = false;
+                filterItems();
             }
         }
 
