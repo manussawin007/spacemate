@@ -568,6 +568,374 @@
             margin: 0 auto;
         }
 
+        /* ==========================================================
+           HORIZON DESIGN - ADVERTISING POSTER CAROUSEL
+           ========================================================== */
+        .horizon-carousel-container {
+            position: relative;
+            width: 100%;
+            margin-bottom: 2rem;
+            user-select: none;
+        }
+
+        .horizon-carousel-viewport {
+            position: relative;
+            width: 100%;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 16px 40px -12px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(226, 232, 240, 0.8);
+            background: #0f172a;
+            height: 240px;
+            cursor: grab;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .horizon-carousel-viewport:active {
+            cursor: grabbing;
+        }
+
+        .horizon-carousel-viewport:hover {
+            box-shadow: 0 25px 55px -12px rgba(164, 99, 9, 0.18), 0 8px 24px -4px rgba(15, 23, 42, 0.08);
+        }
+
+        @media (min-width: 480px) {
+            .horizon-carousel-viewport {
+                height: 280px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .horizon-carousel-viewport {
+                border-radius: 28px;
+                height: 360px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .horizon-carousel-viewport {
+                height: 400px;
+            }
+        }
+
+        .horizon-carousel-track {
+            display: flex;
+            height: 100%;
+            width: 100%;
+            transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform;
+        }
+
+        .horizon-slide {
+            flex: 0 0 100%;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Ambient blurred background for posters */
+        .horizon-slide-backdrop {
+            position: absolute;
+            inset: -20px;
+            width: calc(100% + 40px);
+            height: calc(100% + 40px);
+            object-fit: cover;
+            filter: blur(24px) brightness(0.55);
+            opacity: 0.85;
+            pointer-events: none;
+            transform: scale(1.1);
+        }
+
+        /* Main crisp poster image */
+        .horizon-slide-img {
+            position: relative;
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+            display: block;
+            z-index: 2;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+        }
+
+        .horizon-carousel-viewport:hover .horizon-slide-img {
+            transform: scale(1.015);
+        }
+
+        /* Horizon Gradient Overlay */
+        .horizon-slide-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.45) 0%, transparent 35%, transparent 60%, rgba(15, 23, 42, 0.75) 100%);
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        /* Floating Badge Chip (Horizon Pill) */
+        .horizon-floating-badge {
+            position: absolute;
+            top: 1.25rem;
+            left: 1.25rem;
+            z-index: 5;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            padding: 0.45rem 1rem;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #1e293b;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            letter-spacing: 0.02em;
+            transition: all 0.35s ease;
+        }
+
+        .horizon-badge-pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #eab308;
+            box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7);
+            animation: horizonPulse 2s infinite;
+        }
+
+        @keyframes horizonPulse {
+            0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(234, 179, 8, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+        }
+
+        /* Slide Counter Chip */
+        .horizon-floating-counter {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            z-index: 5;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            color: #ffffff;
+            padding: 0.4rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .horizon-floating-counter strong {
+            color: #fde047;
+            font-weight: 700;
+        }
+
+        /* Bottom Floating Bar / Caption */
+        .horizon-slide-caption {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            right: 1.5rem;
+            z-index: 5;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+
+        .horizon-caption-text {
+            color: #ffffff;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
+            max-width: 65%;
+            pointer-events: auto;
+        }
+
+        .horizon-caption-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .horizon-caption-desc {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.88);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .horizon-caption-btn {
+            pointer-events: auto;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid #ffffff;
+            color: #a46309;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 0.55rem 1.15rem;
+            border-radius: 999px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            white-space: nowrap;
+        }
+
+        .horizon-caption-btn:hover {
+            background: #ffffff;
+            transform: translateY(-2px) scale(1.04);
+            box-shadow: 0 10px 25px rgba(164, 99, 9, 0.25);
+            color: #854d0e;
+        }
+
+        @media (max-width: 640px) {
+            .horizon-caption-text {
+                display: none;
+            }
+            .horizon-slide-caption {
+                justify-content: flex-end;
+                bottom: 1.25rem;
+                right: 1.25rem;
+            }
+            .horizon-caption-btn {
+                font-size: 0.78rem;
+                padding: 0.4rem 0.9rem;
+            }
+        }
+
+        /* Navigation Arrows (Prev / Next) */
+        .horizon-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 6;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            color: #1e293b;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            opacity: 0.85;
+        }
+
+        .horizon-nav-btn:hover {
+            opacity: 1;
+            transform: translateY(-50%) scale(1.12);
+            background: #ffffff;
+            color: #a46309;
+            box-shadow: 0 10px 30px rgba(164, 99, 9, 0.25);
+        }
+
+        .horizon-nav-btn:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        .horizon-nav-btn.prev {
+            left: 1rem;
+        }
+
+        .horizon-nav-btn.next {
+            right: 1rem;
+        }
+
+        @media (max-width: 640px) {
+            .horizon-nav-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 0.8rem;
+            }
+            .horizon-nav-btn.prev { left: 0.5rem; }
+            .horizon-nav-btn.next { right: 0.5rem; }
+        }
+
+        /* Horizon Pill Pagination */
+        .horizon-pagination-dock {
+            position: absolute;
+            bottom: 1.25rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 6;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            padding: 0.35rem 0.65rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .horizon-pill-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            border: none;
+            padding: 0;
+        }
+
+        .horizon-pill-dot:hover {
+            background: rgba(255, 255, 255, 0.75);
+            transform: scale(1.15);
+        }
+
+        .horizon-pill-dot.active {
+            width: 26px;
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.7);
+        }
+
+        /* Autoplay Progress Bar at bottom of viewport */
+        .horizon-progress-track {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3.5px;
+            background: rgba(255, 255, 255, 0.15);
+            z-index: 7;
+            overflow: hidden;
+        }
+
+        .horizon-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #a46309, #f59e0b, #fbbf24);
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
+            transition: width 0.05s linear;
+        }
+
         /* Tabs Selection */
         .tabs-container {
             display: grid;
@@ -2503,6 +2871,87 @@
     <!-- Main Content -->
     <main class="main-content" style="padding-bottom: 6rem;">
         
+        <!-- Horizon Design Advertising Poster Carousel -->
+        <section class="horizon-carousel-container" aria-label="โฆษณาและข่าวสารแนะนำ">
+            <div class="horizon-carousel-viewport" id="horizon-poster-viewport" onmouseenter="pauseHorizonAutoplay()" onmouseleave="resumeHorizonAutoplay()">
+                
+                <!-- Floating Horizon Badge Pill -->
+                <div class="horizon-floating-badge" id="horizon-badge" onclick="handleHorizonAction(event)" style="cursor: pointer;" title="แตะเพื่อดูรายละเอียด">
+                    <span class="horizon-badge-pulse-dot"></span>
+                    <i id="horizon-badge-icon" class="fa-solid fa-star" style="color: #f59e0b;"></i>
+                    <span id="horizon-badge-text">ยินดีต้อนรับสู่ SpaceMate</span>
+                </div>
+
+                <!-- Slide Counter Chip -->
+                <div class="horizon-floating-counter">
+                    <strong id="horizon-curr-num">01</strong> / 04
+                </div>
+
+                <!-- Carousel Track -->
+                <div class="horizon-carousel-track" id="horizon-track">
+                    <!-- Slide 1: Welcome to SpaceMate (P1.png) -->
+                    <div class="horizon-slide" onclick="openHorizonLightbox(0)" title="แตะเพื่อดูภาพขยาย">
+                        <img src="../assets/images/P1.png" alt="Welcome to SpaceMate" class="horizon-slide-backdrop" loading="eager">
+                        <img src="../assets/images/P1.png" alt="Welcome to SpaceMate" class="horizon-slide-img" loading="eager">
+                        <div class="horizon-slide-overlay"></div>
+                    </div>
+
+                    <!-- Slide 2: Floor Plan / Booth Layout (P2.png) -->
+                    <div class="horizon-slide" onclick="openHorizonLightbox(1)" title="แตะเพื่อดูภาพขยาย">
+                        <img src="../assets/images/P2.png" alt="ผังพื้นที่ SpaceMate" class="horizon-slide-backdrop" loading="lazy">
+                        <img src="../assets/images/P2.png" alt="ผังพื้นที่ SpaceMate" class="horizon-slide-img" loading="lazy">
+                        <div class="horizon-slide-overlay"></div>
+                    </div>
+
+                    <!-- Slide 3: ตลาดใบบัว วงศ์สว่าง (P3.png) -->
+                    <div class="horizon-slide" onclick="openHorizonLightbox(2)" title="แตะเพื่อดูภาพขยาย">
+                        <img src="../assets/images/P3.png" alt="ตลาดใบบัว วงศ์สว่าง" class="horizon-slide-backdrop" loading="lazy">
+                        <img src="../assets/images/P3.png" alt="ตลาดใบบัว วงศ์สว่าง" class="horizon-slide-img" loading="lazy">
+                        <div class="horizon-slide-overlay"></div>
+                    </div>
+
+                    <!-- Slide 4: ตลาดต้นไทร แบริ่ง (P4.png) -->
+                    <div class="horizon-slide" onclick="openHorizonLightbox(3)" title="แตะเพื่อดูภาพขยาย">
+                        <img src="../assets/images/P4.png" alt="ตลาดต้นไทร แบริ่ง" class="horizon-slide-backdrop" loading="lazy">
+                        <img src="../assets/images/P4.png" alt="ตลาดต้นไทร แบริ่ง" class="horizon-slide-img" loading="lazy">
+                        <div class="horizon-slide-overlay"></div>
+                    </div>
+                </div>
+
+                <!-- Navigation Arrow Buttons -->
+                <button class="horizon-nav-btn prev" onclick="prevHorizonSlide(event)" aria-label="สไลด์ก่อนหน้า" title="ก่อนหน้า">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <button class="horizon-nav-btn next" onclick="nextHorizonSlide(event)" aria-label="สไลด์ถัดไป" title="ถัดไป">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+
+                <!-- Floating Caption & Action Pill -->
+                <div class="horizon-slide-caption">
+                    <div class="horizon-caption-text">
+                        <div class="horizon-caption-title" id="horizon-caption-title">Welcome to SpaceMate</div>
+                        <div class="horizon-caption-desc" id="horizon-caption-desc">ศูนย์รวมตลาดนัดและงานอีเวนต์ จองล็อคง่าย อนุมัติไว</div>
+                    </div>
+                    <button class="horizon-caption-btn" id="horizon-caption-btn" onclick="handleHorizonAction(event)">
+                        สำรวจพื้นที่ <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+
+                <!-- Horizon Pill Pagination Dock -->
+                <div class="horizon-pagination-dock" id="horizon-pagination">
+                    <button class="horizon-pill-dot active" onclick="goToHorizonSlide(0)" aria-label="สไลด์ที่ 1"></button>
+                    <button class="horizon-pill-dot" onclick="goToHorizonSlide(1)" aria-label="สไลด์ที่ 2"></button>
+                    <button class="horizon-pill-dot" onclick="goToHorizonSlide(2)" aria-label="สไลด์ที่ 3"></button>
+                    <button class="horizon-pill-dot" onclick="goToHorizonSlide(3)" aria-label="สไลด์ที่ 4"></button>
+                </div>
+
+                <!-- Autoplay Progress Bar -->
+                <div class="horizon-progress-track">
+                    <div class="horizon-progress-bar" id="horizon-progress"></div>
+                </div>
+            </div>
+        </section>
+
         <!-- Tab Toggles -->
         <div class="tabs-container">
             <button class="tab-btn active" onclick="switchTab('markets', this)">ตลาด</button>
@@ -3720,6 +4169,20 @@
         </div>
     </div>
     
+    <!-- Horizon Poster Lightbox Modal -->
+    <div id="horizon-lightbox-modal" class="horizon-lightbox-modal" onclick="closeHorizonLightbox(event)">
+        <div class="horizon-lightbox-content" onclick="event.stopPropagation()">
+            <button class="horizon-lightbox-close" onclick="closeHorizonLightbox()" aria-label="ปิดภาพขยาย" title="ปิด">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <img id="horizon-lightbox-img" src="" alt="ขยายรูปภาพโฆษณา" class="horizon-lightbox-img">
+            <div class="horizon-lightbox-footer">
+                <div id="horizon-lightbox-title" style="font-weight: 700; font-size: 1.05rem; color: #fff;"></div>
+                <div id="horizon-lightbox-desc" style="font-size: 0.85rem; color: #cbd5e1; margin-top: 0.25rem;"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Fixed Bottom Navbar -->
     <nav class="bottom-nav">
         <div class="nav-indicator"></div>
@@ -6140,6 +6603,277 @@
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
+        }
+
+        /* ==========================================================
+           HORIZON DESIGN - ADVERTISING POSTER CAROUSEL LOGIC
+           ========================================================== */
+        const horizonSlidesData = [
+            {
+                img: '../assets/images/P1.png',
+                badgeText: 'ยินดีต้อนรับสู่ SpaceMate',
+                badgeIcon: 'fa-solid fa-star',
+                badgeColor: '#f59e0b',
+                title: 'Welcome to SpaceMate',
+                desc: 'ศูนย์รวมตลาดนัดและงานอีเวนต์ จองล็อคง่าย อนุมัติไว',
+                btnText: 'สำรวจพื้นที่ <i class="fa-solid fa-arrow-right"></i>',
+                action: () => {
+                    const tabsEl = document.querySelector('.tabs-container');
+                    if (tabsEl) {
+                        const yOffset = tabsEl.getBoundingClientRect().top + window.pageYOffset - 80;
+                        window.scrollTo({ top: yOffset, behavior: 'smooth' });
+                    }
+                }
+            },
+            {
+                img: '../assets/images/P2.png',
+                badgeText: 'ผังพื้นที่ & บูธมาตรฐาน 2D',
+                badgeIcon: 'fa-solid fa-layer-group',
+                badgeColor: '#3b82f6',
+                title: 'เลือกจองล็อคผ่านแผนผัง 2D',
+                desc: 'ดูตำแหน่งจริง ล็อคว่าง-เต็ม อัปเดตแบบเรียลไทม์',
+                btnText: 'ดูตลาดทั้งหมด <i class="fa-solid fa-arrow-right"></i>',
+                action: () => {
+                    const mTab = document.querySelectorAll('.tab-btn')[0];
+                    if (mTab) mTab.click();
+                    const tabsEl = document.querySelector('.tabs-container');
+                    if (tabsEl) {
+                        const yOffset = tabsEl.getBoundingClientRect().top + window.pageYOffset - 80;
+                        window.scrollTo({ top: yOffset, behavior: 'smooth' });
+                    }
+                }
+            },
+            {
+                img: '../assets/images/P3.png',
+                badgeText: 'ตลาดแนะนำ • วงศ์สว่าง',
+                badgeIcon: 'fa-solid fa-fire',
+                badgeColor: '#ef4444',
+                title: 'ตลาดใบบัว จุดเช็คอินใหม่วงศ์สว่าง',
+                desc: 'รวมร้านเด็ด ร้านดัง อร่อยเพลิน ช้อปสนุก เดินได้ทุกวัน',
+                btnText: 'ค้นหาตลาดใบบัว <i class="fa-solid fa-arrow-right"></i>',
+                action: () => {
+                    const searchInput = document.getElementById('search-input');
+                    if (searchInput) {
+                        searchInput.value = 'ใบบัว';
+                        searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            },
+            {
+                img: '../assets/images/P4.png',
+                badgeText: 'ทำเลทอง • ติด BTS แบริ่ง',
+                badgeIcon: 'fa-solid fa-train-subway',
+                badgeColor: '#10b981',
+                title: 'ตลาดต้นไทร แบริ่ง',
+                desc: 'แหล่งช้อปสุดคึกคัก เดินทางสะดวก ติดสถานีรถไฟฟ้า BTS',
+                btnText: 'ค้นหาตลาดต้นไทร <i class="fa-solid fa-arrow-right"></i>',
+                action: () => {
+                    const searchInput = document.getElementById('search-input');
+                    if (searchInput) {
+                        searchInput.value = 'ต้นไทร';
+                        searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            }
+        ];
+
+        let horizonCurrentIndex = 0;
+        let horizonProgressInterval = null;
+        let horizonProgressVal = 0;
+        const HORIZON_DURATION = 5000;
+        const HORIZON_STEP = 50;
+        let horizonIsPaused = false;
+
+        function updateHorizonSlideUI(index) {
+            const track = document.getElementById('horizon-track');
+            const dots = document.querySelectorAll('.horizon-pill-dot');
+            const numEl = document.getElementById('horizon-curr-num');
+            const badgeTextEl = document.getElementById('horizon-badge-text');
+            const badgeIconEl = document.getElementById('horizon-badge-icon');
+            const captionTitle = document.getElementById('horizon-caption-title');
+            const captionDesc = document.getElementById('horizon-caption-desc');
+            const captionBtn = document.getElementById('horizon-caption-btn');
+
+            if (!track) return;
+
+            // Slide track transform
+            track.style.transform = `translateX(-${index * 100}%)`;
+
+            // Active pill dot
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+
+            // Slide number
+            if (numEl) {
+                numEl.textContent = `0${index + 1}`;
+            }
+
+            const data = horizonSlidesData[index];
+            if (data) {
+                if (badgeTextEl) badgeTextEl.textContent = data.badgeText;
+                if (badgeIconEl) {
+                    badgeIconEl.className = data.badgeIcon;
+                    badgeIconEl.style.color = data.badgeColor;
+                }
+                if (captionTitle) captionTitle.textContent = data.title;
+                if (captionDesc) captionDesc.textContent = data.desc;
+                if (captionBtn) captionBtn.innerHTML = data.btnText;
+            }
+
+            resetHorizonProgress();
+        }
+
+        function goToHorizonSlide(index) {
+            horizonCurrentIndex = (index + horizonSlidesData.length) % horizonSlidesData.length;
+            updateHorizonSlideUI(horizonCurrentIndex);
+        }
+
+        function nextHorizonSlide(e) {
+            if (e) e.stopPropagation();
+            goToHorizonSlide(horizonCurrentIndex + 1);
+        }
+
+        function prevHorizonSlide(e) {
+            if (e) e.stopPropagation();
+            goToHorizonSlide(horizonCurrentIndex - 1);
+        }
+
+        function resetHorizonProgress() {
+            horizonProgressVal = 0;
+            const bar = document.getElementById('horizon-progress');
+            if (bar) bar.style.width = '0%';
+        }
+
+        function startHorizonAutoplay() {
+            stopHorizonAutoplay();
+            horizonProgressInterval = setInterval(() => {
+                if (!horizonIsPaused) {
+                    horizonProgressVal += (HORIZON_STEP / HORIZON_DURATION) * 100;
+                    const bar = document.getElementById('horizon-progress');
+                    if (bar) bar.style.width = `${Math.min(horizonProgressVal, 100)}%`;
+
+                    if (horizonProgressVal >= 100) {
+                        nextHorizonSlide();
+                    }
+                }
+            }, HORIZON_STEP);
+        }
+
+        function stopHorizonAutoplay() {
+            if (horizonProgressInterval) {
+                clearInterval(horizonProgressInterval);
+                horizonProgressInterval = null;
+            }
+        }
+
+        function pauseHorizonAutoplay() {
+            horizonIsPaused = true;
+        }
+
+        function resumeHorizonAutoplay() {
+            horizonIsPaused = false;
+        }
+
+        function handleHorizonAction(e) {
+            if (e) e.stopPropagation();
+            const data = horizonSlidesData[horizonCurrentIndex];
+            if (data && typeof data.action === 'function') {
+                data.action();
+            }
+        }
+
+        // Lightbox Zoom Functions
+        function openHorizonLightbox(index) {
+            const data = horizonSlidesData[index];
+            if (!data) return;
+            const modal = document.getElementById('horizon-lightbox-modal');
+            const img = document.getElementById('horizon-lightbox-img');
+            const title = document.getElementById('horizon-lightbox-title');
+            const desc = document.getElementById('horizon-lightbox-desc');
+
+            if (img) img.src = data.img;
+            if (title) title.textContent = data.title;
+            if (desc) desc.textContent = data.desc;
+
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            pauseHorizonAutoplay();
+        }
+
+        function closeHorizonLightbox(e) {
+            if (e && e.target && e.target.closest && e.target.closest('.horizon-lightbox-content') && !e.target.closest('.horizon-lightbox-close')) {
+                return;
+            }
+            const modal = document.getElementById('horizon-lightbox-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            resumeHorizonAutoplay();
+        }
+
+        // Touch Swipe Navigation
+        (function setupHorizonTouch() {
+            const viewport = document.getElementById('horizon-poster-viewport');
+            if (!viewport) return;
+
+            let touchStartX = 0;
+            let touchEndX = 0;
+            let touchStartY = 0;
+            let touchEndY = 0;
+
+            viewport.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+                touchStartY = e.changedTouches[0].screenY;
+                pauseHorizonAutoplay();
+            }, { passive: true });
+
+            viewport.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                touchEndY = e.changedTouches[0].screenY;
+                resumeHorizonAutoplay();
+
+                const deltaX = touchEndX - touchStartX;
+                const deltaY = touchEndY - touchStartY;
+
+                if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                    if (deltaX < 0) {
+                        nextHorizonSlide();
+                    } else {
+                        prevHorizonSlide();
+                    }
+                }
+            }, { passive: true });
+        })();
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            const modal = document.getElementById('horizon-lightbox-modal');
+            if (modal && modal.classList.contains('active')) {
+                if (e.key === 'Escape') closeHorizonLightbox();
+                return;
+            }
+            if (e.key === 'ArrowLeft') {
+                prevHorizonSlide();
+            } else if (e.key === 'ArrowRight') {
+                nextHorizonSlide();
+            }
+        });
+
+        // Initialize Carousel
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                updateHorizonSlideUI(0);
+                startHorizonAutoplay();
+            });
+        } else {
+            updateHorizonSlideUI(0);
+            startHorizonAutoplay();
         }
 
         // Handle Logout
