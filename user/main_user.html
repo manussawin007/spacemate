@@ -3516,7 +3516,7 @@
         </div>
     </div>
 
-    <!-- User Notifications View (Redesigned Modern Center) -->
+    <!-- User Notifications View (Clean & Friendly Notification Feed) -->
     <div id="user-notifications" class="user-page" style="display: none;">
         <!-- Sticky Header with frosted glass effect -->
         <header class="user-notif-header">
@@ -3526,8 +3526,8 @@
                         <i class="fa-solid fa-bell"></i>
                     </div>
                     <div>
-                        <h1 class="notif-redesign-title">ศูนย์การแจ้งเตือน</h1>
-                        <p class="notif-redesign-subtitle">ติดตามความคืบหน้าการจอง บัตร E-Ticket และข่าวสารสำคัญ</p>
+                        <h1 class="notif-redesign-title">การแจ้งเตือน</h1>
+                        <p class="notif-redesign-subtitle">ข้อความและข่าวสารอัปเดตทั้งหมดของคุณ</p>
                     </div>
                 </div>
                 <div class="notif-header-actions">
@@ -3540,60 +3540,17 @@
                 </div>
             </div>
 
-            <!-- KPI Dashboard Summary Strip -->
-            <div class="notif-kpi-grid">
-                <div class="notif-kpi-card kpi-confirmed" onclick="setUserNotifFilter('booking')">
-                    <div class="kpi-icon-bubble"><i class="fa-solid fa-ticket"></i></div>
-                    <div class="kpi-info">
-                        <span class="kpi-label">อนุมัติแล้ว / E-Ticket</span>
-                        <div class="kpi-val-row">
-                            <span class="kpi-number" id="user-kpi-confirmed-count">0</span>
-                            <span class="kpi-badge success">พร้อมใช้</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="notif-kpi-card kpi-pending" onclick="setUserNotifFilter('pending')">
-                    <div class="kpi-icon-bubble"><i class="fa-solid fa-hourglass-half"></i></div>
-                    <div class="kpi-info">
-                        <span class="kpi-label">รอตรวจสอบ / ชำระ</span>
-                        <div class="kpi-val-row">
-                            <span class="kpi-number" id="user-kpi-pending-count">0</span>
-                            <span class="kpi-badge warning">รอดำเนินการ</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="notif-kpi-card kpi-system" onclick="setUserNotifFilter('system')">
-                    <div class="kpi-icon-bubble"><i class="fa-solid fa-shield-halved"></i></div>
-                    <div class="kpi-info">
-                        <span class="kpi-label">ระบบ & ความปลอดภัย</span>
-                        <div class="kpi-val-row">
-                            <span class="kpi-number" id="user-kpi-system-count">0</span>
-                            <span class="kpi-badge info">อัปเดต</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Controls Bar: Search & Segmented Filter Tabs -->
+            <!-- Segmented Filter Tabs -->
             <div class="notif-controls-bar">
-                <div class="notif-search-input-box">
-                    <i class="fa-solid fa-magnifying-glass search-ico"></i>
-                    <input type="text" id="user-notif-search-input" placeholder="ค้นหาชื่อตลาด, เลขล็อค, รหัสจอง หรือเนื้อหาการแจ้งเตือน..." oninput="handleUserNotifSearch(this.value)">
-                    <button type="button" id="user-notif-search-clear" onclick="clearUserNotifSearch()" style="display:none;"><i class="fa-solid fa-times"></i></button>
-                </div>
-
                 <div class="notif-segmented-tabs">
                     <button type="button" class="notif-tab-btn active" data-filter="all" onclick="setUserNotifFilter('all', this)">
                         <i class="fa-solid fa-layer-group"></i> ทั้งหมด <span class="tab-count-badge" id="user-tab-count-all">0</span>
                     </button>
                     <button type="button" class="notif-tab-btn" data-filter="booking" onclick="setUserNotifFilter('booking', this)">
-                        <i class="fa-solid fa-ticket"></i> การจอง & E-Ticket <span class="tab-count-badge" id="user-tab-count-booking">0</span>
-                    </button>
-                    <button type="button" class="notif-tab-btn" data-filter="pending" onclick="setUserNotifFilter('pending', this)">
-                        <i class="fa-solid fa-clock"></i> รอตรวจสอบ <span class="tab-count-badge warning" id="user-tab-count-pending">0</span>
+                        <i class="fa-solid fa-ticket"></i> การจอง <span class="tab-count-badge" id="user-tab-count-booking">0</span>
                     </button>
                     <button type="button" class="notif-tab-btn" data-filter="system" onclick="setUserNotifFilter('system', this)">
-                        <i class="fa-solid fa-bullhorn"></i> ระบบ & ข่าวสาร <span class="tab-count-badge" id="user-tab-count-system">0</span>
+                        <i class="fa-solid fa-bullhorn"></i> ข่าวสาร & ระบบ <span class="tab-count-badge" id="user-tab-count-system">0</span>
                     </button>
                 </div>
             </div>
@@ -3604,7 +3561,6 @@
             <div style="text-align: center; padding: 3rem 1rem; color: #64748b;">
                 <div style="width: 38px; height: 38px; border-radius: 50%; border: 3px solid #fde68a; border-top-color: #a46309; animation: spin 0.8s linear infinite; margin: 0 auto 12px;"></div>
                 <div style="font-weight: 600; color: #475569; font-size: 0.95rem;">กำลังโหลดการแจ้งเตือนของคุณ...</div>
-                <div style="font-size: 0.82rem; color: #94a3b8; margin-top: 4px;">ระบบกำลังซิงค์สถานะการจองและข่าวสารล่าสุด</div>
             </div>
         </div>
     </div>
@@ -6840,57 +6796,395 @@
             }
         }
 
-        async function fetchUserNotifications(userId) {
-            const notifList = document.querySelector('#user-notifications .notif-list');
-            if (!notifList) return;
+        // -------------------------------------------------------------
+        // USER NOTIFICATIONS ENGINE (Clean, Modern & User-Friendly)
+        // -------------------------------------------------------------
+        let currentUserNotifFilter = 'all';
+        let userNotifItems = [];
+
+        async function fetchUserNotifications(userId, showToast = false) {
+            const feedContainer = document.getElementById('user-notif-feed') || document.querySelector('#user-notifications .notif-list');
+            if (!feedContainer) return;
 
             try {
-                const { data: notifs, error } = await supabaseClient
-                    .from('notifications')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .order('created_at', { ascending: false });
-
-                if (error || !notifs || notifs.length === 0) {
-                    notifList.innerHTML = `
-                        <div class="empty-state" id="notif-empty" style="padding: 3.5rem 1rem; text-align: center; color: var(--text-muted);">
-                            <i class="fa-regular fa-bell-slash" style="font-size: 2.5rem; margin-bottom: 0.75rem; color: #cbd5e1;"></i>
-                            <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.25rem;">ไม่มีการแจ้งเตือน</h3>
-                            <p style="font-size: 0.9rem;">เมื่อมีอัปเดตการจองหรือข่าวสาร จะแสดงที่นี่</p>
-                        </div>
-                    `;
-                    document.querySelectorAll('.nav-badge').forEach(b => b.style.display = 'none');
-                    return;
+                // 1. Fetch direct notifications from notifications table
+                let directNotifs = [];
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('notifications')
+                        .select('*')
+                        .eq('user_id', userId)
+                        .order('created_at', { ascending: false })
+                        .limit(30);
+                    if (!error && data) directNotifs = data;
+                } catch (e) {
+                    console.warn('Notifications table fetch note:', e);
                 }
 
-                notifList.innerHTML = '';
-                let unreadCount = 0;
-                notifs.forEach(n => {
-                    if (!n.is_read) unreadCount++;
-                    const iconClass = n.type === 'success' ? 'fa-check' : (n.type === 'warning' ? 'fa-wallet' : 'fa-bullhorn');
-                    const iconWrapClass = n.type === 'success' ? 'icon-green' : (n.type === 'warning' ? 'icon-orange' : 'icon-blue');
-                    const timeStr = new Date(n.created_at).toLocaleDateString('th-TH', { hour: '2-digit', minute: '2-digit' });
+                // 2. Fetch user bookings to synthesize status updates if notifications are empty
+                let bookingNotifs = [];
+                try {
+                    const { data: bData, error: bErr } = await supabaseClient
+                        .from('bookings')
+                        .select('id, space_id, stall_id, created_at, status, total_price, spaces(id, name, location, image_url), stalls(id, stall_number, name)')
+                        .eq('user_id', userId)
+                        .order('created_at', { ascending: false })
+                        .limit(20);
 
-                    notifList.innerHTML += `
-                        <a href="javascript:void(0)" class="notif-item ${!n.is_read ? 'unread' : ''}" onclick="markNotificationAsRead(this, '${n.id}')">
-                            ${!n.is_read ? '<div class="unread-dot"></div>' : ''}
-                            <div class="notif-icon-wrapper ${iconWrapClass}">
-                                <i class="fa-solid ${iconClass}"></i>
-                            </div>
-                            <div class="notif-content">
-                                <div class="notif-title">${n.title || 'การแจ้งเตือน'}</div>
-                                <div class="notif-desc">${n.message || ''}</div>
-                                <div class="notif-time">${timeStr}</div>
-                            </div>
-                        </a>
-                    `;
+                    if (!bErr && bData) {
+                        bookingNotifs = bData.map(b => {
+                            const marketName = b.spaces?.name || 'ตลาด';
+                            const stallName = b.stalls?.name || b.stalls?.stall_number || 'ล็อคค้าขาย';
+                            const isConfirmed = b.status === 'confirmed';
+                            const isPending = b.status === 'pending';
+                            const isCancelled = b.status === 'cancelled' || b.status === 'rejected';
+
+                            let title = 'อัปเดตการจองล็อค';
+                            let message = `คุณได้ทำการจอง ${stallName} ที่ ${marketName}`;
+                            let type = 'info';
+                            let statusBadge = 'การจอง';
+                            let actionUrl = `javascript:switchUserPage('user-bookings')`;
+                            let actionLabel = 'ดูการจอง';
+                            let actionIcon = 'fa-solid fa-list-check';
+
+                            if (isConfirmed) {
+                                title = `จองสำเร็จแล้ว! ${stallName} (${marketName})`;
+                                message = `การจองของคุณได้รับการยืนยันเรียบร้อยแล้ว บัตร E-Ticket พร้อมใช้งาน`;
+                                type = 'success';
+                                statusBadge = 'อนุมัติแล้ว';
+                                actionUrl = `e_ticket.html?booking_id=${b.id}`;
+                                actionLabel = 'ดู E-Ticket';
+                                actionIcon = 'fa-solid fa-ticket';
+                            } else if (isPending) {
+                                title = `รอการตรวจสอบการจอง - ${stallName}`;
+                                message = `ระบบได้รับคำขอจอง ${marketName} แล้ว อยู่ระหว่างตรวจสอบหลักฐานการชำระเงิน`;
+                                type = 'warning';
+                                statusBadge = 'รอดำเนินการ';
+                                actionUrl = `javascript:switchUserPage('user-bookings')`;
+                                actionLabel = 'ติดตามสถานะ';
+                                actionIcon = 'fa-solid fa-hourglass-half';
+                            } else if (isCancelled) {
+                                title = `การจองถูกยกเลิก - ${stallName}`;
+                                message = `รายการจองที่ ${marketName} ได้สิ้นสุดหรือถูกยกเลิกแล้ว`;
+                                type = 'danger';
+                                statusBadge = 'ยกเลิกแล้ว';
+                                actionUrl = `javascript:switchUserPage('user-bookings')`;
+                                actionLabel = 'ประวัติการจอง';
+                                actionIcon = 'fa-solid fa-rotate-left';
+                            }
+
+                            return {
+                                id: 'booking-' + b.id,
+                                user_id: userId,
+                                category: 'booking',
+                                type: type,
+                                title: title,
+                                message: message,
+                                status_badge: statusBadge,
+                                action_url: actionUrl,
+                                action_label: actionLabel,
+                                action_icon: actionIcon,
+                                is_read: false,
+                                created_at: b.created_at,
+                                source: 'booking'
+                            };
+                        });
+                    }
+                } catch (e) {
+                    console.warn('Booking notifs synthesis note:', e);
+                }
+
+                // 3. Merge and deduplicate items
+                const combined = [];
+                directNotifs.forEach(n => {
+                    combined.push({
+                        id: n.id,
+                        user_id: n.user_id,
+                        category: n.category || (n.title?.includes('จอง') || n.message?.includes('จอง') ? 'booking' : 'system'),
+                        type: n.type || 'info',
+                        title: n.title || 'การแจ้งเตือน',
+                        message: n.message || '',
+                        status_badge: n.category === 'booking' ? 'การจอง' : 'ระบบ',
+                        action_url: n.link || '',
+                        action_label: n.link ? 'ดูรายละเอียด' : '',
+                        action_icon: 'fa-solid fa-arrow-right',
+                        is_read: !!n.is_read,
+                        created_at: n.created_at || new Date().toISOString(),
+                        source: 'notifications'
+                    });
                 });
 
-                document.querySelectorAll('.nav-badge').forEach(b => {
-                    b.style.display = unreadCount > 0 ? 'block' : 'none';
+                bookingNotifs.forEach(bn => {
+                    const exists = combined.some(c => c.message.includes(bn.id.replace('booking-', '')) || (c.title === bn.title && Math.abs(new Date(c.created_at) - new Date(bn.created_at)) < 3600000));
+                    if (!exists) {
+                        combined.push(bn);
+                    }
                 });
+
+                if (combined.length === 0) {
+                    combined.push({
+                        id: 'welcome-system-notif',
+                        user_id: userId,
+                        category: 'system',
+                        type: 'info',
+                        title: 'ยินดีต้อนรับสู่ SpaceMate!',
+                        message: 'เริ่มต้นค้นหาตลาดทำเลทอง เลือกล็อคที่ถูกใจ และทำการจองออนไลน์ได้สะดวกรวดเร็วทันที',
+                        status_badge: 'เริ่มต้นใช้งาน',
+                        action_url: 'javascript:switchUserPage("user-home")',
+                        action_label: 'ค้นหาตลาด',
+                        action_icon: 'fa-solid fa-store',
+                        is_read: false,
+                        created_at: new Date().toISOString(),
+                        source: 'system'
+                    });
+                }
+
+                combined.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                userNotifItems = combined;
+
+                updateUserNotifCounters();
+                renderUserNotifications();
+
+                if (showToast) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'รีเฟรชการแจ้งเตือนเรียบร้อยแล้ว',
+                        showConfirmButton: false,
+                        timer: 1600,
+                        timerProgressBar: true
+                    });
+                }
             } catch (err) {
                 console.error('Error fetching notifications:', err);
+                const target = document.getElementById('user-notif-feed') || document.querySelector('#user-notifications .notif-list');
+                if (target) {
+                    target.innerHTML = `
+                        <div class="empty-state" style="padding: 3.5rem 1rem; text-align: center; color: var(--text-muted);">
+                            <i class="fa-solid fa-triangle-exclamation" style="font-size: 2.2rem; color: #f59e0b; margin-bottom: 0.75rem;"></i>
+                            <h3 style="font-size: 1.05rem; color: #1e293b; margin-bottom: 0.25rem;">ไม่สามารถโหลดการแจ้งเตือนได้</h3>
+                            <p style="font-size: 0.88rem; color: #64748b; margin-bottom: 1rem;">เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง</p>
+                            <button class="notif-action-pill" onclick="refreshUserNotifications(true)" style="margin: 0 auto; display: inline-flex;">
+                                <i class="fa-solid fa-arrows-rotate"></i> ลองใหม่
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function updateUserNotifCounters() {
+            const totalCount = userNotifItems.length;
+            const bookingCount = userNotifItems.filter(n => n.category === 'booking').length;
+            const systemCount = userNotifItems.filter(n => n.category === 'system').length;
+            const unreadCount = userNotifItems.filter(n => !n.is_read).length;
+
+            const elAll = document.getElementById('user-tab-count-all');
+            const elBooking = document.getElementById('user-tab-count-booking');
+            const elSystem = document.getElementById('user-tab-count-system');
+
+            if (elAll) elAll.textContent = totalCount;
+            if (elBooking) elBooking.textContent = bookingCount;
+            if (elSystem) elSystem.textContent = systemCount;
+
+            document.querySelectorAll('.nav-badge').forEach(b => {
+                b.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                b.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+            });
+        }
+
+        function setUserNotifFilter(filter, btn) {
+            currentUserNotifFilter = filter;
+            if (btn) {
+                document.querySelectorAll('.notif-segmented-tabs .notif-tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+            renderUserNotifications();
+        }
+
+        function renderUserNotifications() {
+            const feedContainer = document.getElementById('user-notif-feed') || document.querySelector('#user-notifications .notif-list');
+            if (!feedContainer) return;
+
+            let filtered = userNotifItems;
+            if (currentUserNotifFilter !== 'all') {
+                filtered = userNotifItems.filter(n => n.category === currentUserNotifFilter);
+            }
+
+            if (filtered.length === 0) {
+                let emptyTitle = 'ไม่มีการแจ้งเตือน';
+                let emptyDesc = 'เมื่อมีอัปเดตใหม่ รายการจะแสดงที่นี่';
+                let emptyIcon = 'fa-bell-slash';
+
+                if (currentUserNotifFilter === 'booking') {
+                    emptyTitle = 'ไม่มีการแจ้งเตือนการจอง';
+                    emptyDesc = 'ยังไม่มีความเคลื่อนไหวเกี่ยวกับการจองล็อคในขณะนี้';
+                    emptyIcon = 'fa-ticket';
+                } else if (currentUserNotifFilter === 'system') {
+                    emptyTitle = 'ไม่มีข่าวสารระบบ';
+                    emptyDesc = 'ไม่มีประกาศหรือข่าวสารระบบใหม่ในขณะนี้';
+                    emptyIcon = 'fa-bullhorn';
+                }
+
+                feedContainer.innerHTML = `
+                    <div class="empty-state" style="padding: 4rem 1.5rem; text-align: center; color: var(--text-muted); background: #ffffff; border-radius: 18px; border: 1px dashed #e2e8f0; margin-top: 1rem;">
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: #f8fafc; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; border: 1px solid #f1f5f9;">
+                            <i class="fa-solid ${emptyIcon}" style="font-size: 1.6rem; color: #94a3b8;"></i>
+                        </div>
+                        <h3 style="font-size: 1.1rem; color: #1e293b; font-weight: 700; margin-bottom: 0.35rem;">${emptyTitle}</h3>
+                        <p style="font-size: 0.9rem; color: #64748b; max-width: 380px; margin: 0 auto;">${emptyDesc}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(n => {
+                const isUnread = !n.is_read;
+                let iconClass = 'fa-bullhorn';
+                let iconWrapClass = 'icon-wrap-blue';
+                let pillClass = 'pill-info';
+
+                if (n.type === 'success') {
+                    iconClass = 'fa-check';
+                    iconWrapClass = 'icon-wrap-green';
+                    pillClass = 'pill-success';
+                } else if (n.type === 'warning') {
+                    iconClass = 'fa-clock';
+                    iconWrapClass = 'icon-wrap-orange';
+                    pillClass = 'pill-warning';
+                } else if (n.type === 'danger') {
+                    iconClass = 'fa-circle-xmark';
+                    iconWrapClass = 'icon-wrap-red';
+                    pillClass = 'pill-danger';
+                }
+
+                if (n.category === 'booking' && n.type === 'success') {
+                    iconClass = 'fa-ticket';
+                }
+
+                let timeStr = '';
+                try {
+                    const dateObj = new Date(n.created_at);
+                    const now = new Date();
+                    const diffSec = Math.floor((now - dateObj) / 1000);
+                    if (diffSec < 60) timeStr = 'เมื่อสักครู่';
+                    else if (diffSec < 3600) timeStr = `${Math.floor(diffSec / 60)} นาทีที่แล้ว`;
+                    else if (diffSec < 86400) timeStr = `${Math.floor(diffSec / 3600)} ชั่วโมงที่แล้ว`;
+                    else timeStr = dateObj.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit' }) + ' น.';
+                } catch (e) {
+                    timeStr = '';
+                }
+
+                const actionHtml = n.action_url ? `
+                    <div class="user-notif-action-row">
+                        <a href="${n.action_url}" class="user-notif-btn-link" onclick="markNotificationAsRead(null, '${n.id}')">
+                            <i class="${n.action_icon || 'fa-solid fa-arrow-right'}"></i> <span>${n.action_label || 'ดูรายละเอียด'}</span>
+                        </a>
+                    </div>
+                ` : '';
+
+                html += `
+                    <div class="user-notif-card ${isUnread ? 'is-unread' : ''}" data-id="${n.id}">
+                        <div class="notif-card-icon-area">
+                            <div class="user-notif-icon-circle ${iconWrapClass}">
+                                <i class="fa-solid ${iconClass}"></i>
+                            </div>
+                        </div>
+                        <div class="user-notif-content-area">
+                            <div class="user-notif-top-row">
+                                <span class="user-notif-badge-pill ${pillClass}">
+                                    ${n.status_badge || (n.category === 'booking' ? 'การจอง' : 'ระบบ')}
+                                </span>
+                                <span class="user-notif-time-ago">
+                                    <i class="fa-regular fa-clock"></i> ${timeStr}
+                                </span>
+                            </div>
+                            <h3 class="user-notif-card-title">${n.title || 'การแจ้งเตือน'}</h3>
+                            <p class="user-notif-card-text">${n.message || ''}</p>
+                            ${actionHtml}
+                        </div>
+                        <div class="user-notif-trailing-area">
+                            ${isUnread ? `
+                                <button type="button" class="user-notif-dismiss-btn" title="ทำเครื่องหมายว่าอ่านแล้ว" onclick="markNotificationAsRead(this, '${n.id}')">
+                                    <i class="fa-solid fa-check"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            feedContainer.innerHTML = html;
+        }
+
+        async function markNotificationAsRead(btnOrElement, notifId) {
+            const item = userNotifItems.find(n => n.id === notifId);
+            if (item) {
+                item.is_read = true;
+            }
+
+            if (notifId && !notifId.startsWith('booking-') && notifId !== 'welcome-system-notif') {
+                try {
+                    await supabaseClient
+                        .from('notifications')
+                        .update({ is_read: true })
+                        .eq('id', notifId);
+                } catch (e) {
+                    console.warn('Update notification DB note:', e);
+                }
+            }
+
+            updateUserNotifCounters();
+            renderUserNotifications();
+        }
+
+        async function markAllNotificationsAsRead() {
+            if (userNotifItems.length === 0) return;
+
+            const hasUnread = userNotifItems.some(n => !n.is_read);
+            if (!hasUnread) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'info',
+                    title: 'อ่านการแจ้งเตือนทั้งหมดแล้ว',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                return;
+            }
+
+            userNotifItems.forEach(n => n.is_read = true);
+
+            if (currentUserId) {
+                try {
+                    await supabaseClient
+                        .from('notifications')
+                        .update({ is_read: true })
+                        .eq('user_id', currentUserId);
+                } catch (e) {
+                    console.warn('Mark all notifs DB note:', e);
+                }
+            }
+
+            updateUserNotifCounters();
+            renderUserNotifications();
+
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'ทำเครื่องหมายว่าอ่านทั้งหมดแล้ว',
+                showConfirmButton: false,
+                timer: 1600
+            });
+        }
+
+        function refreshUserNotifications(isManual = false) {
+            if (currentUserId) {
+                fetchUserNotifications(currentUserId, isManual);
             }
         }
 
