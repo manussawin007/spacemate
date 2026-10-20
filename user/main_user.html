@@ -2346,6 +2346,33 @@
             font-size: 1.15rem;
             flex-shrink: 0;
         }
+
+        /* Shimmer Skeleton for Instant Fluid UX */
+        .skeleton-shimmer {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmerSkeleton 1.5s infinite;
+            border-radius: 10px;
+        }
+        @keyframes shimmerSkeleton {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .skeleton-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            background: #fff;
+            overflow: hidden;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+        .listing-card.fade-in {
+            animation: cardFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes cardFadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -5070,6 +5097,155 @@
         window.authResolved = false;
         window.checkAuthPromise = null;
 
+        // 1. Render User Profile in DOM
+        function renderUserProfileUI(profile, email = '') {
+            if (!profile) return;
+            window.currentUserProfile = profile;
+            
+            const nameEl = document.getElementById('user-profile-name');
+            const roleEl = document.getElementById('user-profile-role');
+            const sidebarNameEl = document.getElementById('sidebar-user-name');
+            
+            let displayName = profile.display_name || 'ผู้ใช้ที่ไม่ได้ตั้งชื่อ';
+            displayName = displayName.replace(/-/g, ' ').trim();
+            if (displayName.startsWith('คุณ')) {
+                displayName = displayName.substring(3).trim();
+            }
+
+            const avatarUrl = profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`;
+            
+            if (nameEl) nameEl.textContent = displayName;
+            if (sidebarNameEl) sidebarNameEl.textContent = displayName;
+
+            const sidebarAvatarImg = document.getElementById('sidebar-user-avatar-img');
+            if (sidebarAvatarImg) sidebarAvatarImg.src = avatarUrl;
+            
+            const profilePageAvatarImg = document.getElementById('profile-page-avatar-img');
+            if (profilePageAvatarImg) profilePageAvatarImg.src = avatarUrl;
+            
+            const editProfileAvatarImg = document.getElementById('edit-profile-avatar-img');
+            if (editProfileAvatarImg) editProfileAvatarImg.src = avatarUrl;
+            
+            if (roleEl) {
+                roleEl.innerHTML = '<i class="fa-solid fa-crown" style="color: #a46309;"></i> ' + 
+                    (profile.role === 'owner' ? 'เจ้าของพื้นที่' : 'ผู้เช่าพื้นที่');
+            }
+
+            // Populate Edit Profile
+            const editDisplayName = document.getElementById('user-edit-displayname');
+            if (editDisplayName) editDisplayName.value = profile.display_name || '';
+            const editPhone = document.getElementById('user-edit-phone');
+            if (editPhone) editPhone.value = profile.phone || '';
+            const editIdCard = document.getElementById('user-edit-idcard');
+            if (editIdCard) editIdCard.value = profile.id_card_number || '';
+            const editAddress = document.getElementById('user-edit-address');
+            if (editAddress) editAddress.value = profile.address || '';
+            
+            const editEmail = document.getElementById('user-edit-email');
+            if (editEmail && email) {
+                editEmail.value = email;
+            }
+
+            // Populate KYC Form
+            const kycFirst = document.getElementById('user-kyc-firstname');
+            if (kycFirst) kycFirst.value = profile.first_name || '';
+            const kycLast = document.getElementById('user-kyc-lastname');
+            if (kycLast) kycLast.value = profile.last_name || '';
+            const kycIdCard = document.getElementById('user-kyc-idcard');
+            if (kycIdCard) kycIdCard.value = profile.id_card_number || '';
+            const kycPhone = document.getElementById('user-kyc-phone');
+            if (kycPhone) kycPhone.value = profile.phone || '';
+
+            if (profile.address) {
+                const parts = profile.address.split(' ');
+                if (parts.length >= 5 && profile.address.includes('ต.') && profile.address.includes('อ.') && profile.address.includes('จ.')) {
+                    if (document.getElementById('user-kyc-addr-no')) document.getElementById('user-kyc-addr-no').value = parts[0] || '';
+                    if (document.getElementById('user-kyc-addr-subdistrict')) document.getElementById('user-kyc-addr-subdistrict').value = (parts[1] || '').replace('ต.', '');
+                    if (document.getElementById('user-kyc-addr-district')) document.getElementById('user-kyc-addr-district').value = (parts[2] || '').replace('อ.', '');
+                    if (document.getElementById('user-kyc-addr-province')) document.getElementById('user-kyc-addr-province').value = (parts[3] || '').replace('จ.', '');
+                    if (document.getElementById('user-kyc-addr-zip')) document.getElementById('user-kyc-addr-zip').value = parts[4] || '';
+                } else {
+                    if (document.getElementById('user-kyc-addr-no')) document.getElementById('user-kyc-addr-no').value = profile.address;
+                }
+            }
+
+            if (profile.id_card_image_url && typeof renderUserFilePreview === 'function') {
+                userUploadedFiles.idcard = profile.id_card_image_url;
+                renderUserFilePreview('idcard', profile.id_card_image_url, 'บัตรประชาชนที่บันทึกไว้');
+            }
+            if (profile.selfie_image_url && typeof renderUserFilePreview === 'function') {
+                userUploadedFiles.selfie = profile.selfie_image_url;
+                renderUserFilePreview('selfie', profile.selfie_image_url, 'ภาพถ่ายเซลฟี่ที่บันทึกไว้');
+            }
+
+            // Set KYC UI State
+            if (typeof renderUserKycStatusUI === 'function') {
+                renderUserKycStatusUI(profile.kyc_status || (profile.is_verified ? 'approved' : 'unverified'));
+            }
+
+            const verifiedBadge = document.getElementById('avatar-verified-badge');
+            if (verifiedBadge) {
+                const status = profile.kyc_status || (profile.is_verified ? 'approved' : null);
+                if (status === 'approved') {
+                    verifiedBadge.style.background = '#10b981';
+                    verifiedBadge.innerHTML = '<i class="fa-solid fa-check"></i>';
+                } else if (status === 'pending') {
+                    verifiedBadge.style.background = '#eab308';
+                    verifiedBadge.innerHTML = '<i class="fa-solid fa-clock"></i>';
+                } else {
+                    verifiedBadge.style.background = '#ef4444';
+                    verifiedBadge.innerHTML = '<i class="fa-solid fa-exclamation"></i>';
+                }
+            }
+        }
+
+        // 2. Render Skeleton Shimmer Loaders (shown if cache is absent)
+        function renderSkeletonUserVenues() {
+            const marketsView = document.getElementById('markets-view');
+            const eventsView = document.getElementById('events-view');
+
+            const makeSkeletonCard = () => `
+                <div class="listing-card skeleton-card">
+                    <div class="skeleton-shimmer" style="height: 180px; width: 100%;"></div>
+                    <div class="card-body" style="padding: 1.25rem;">
+                        <div class="skeleton-shimmer" style="height: 24px; width: 70%; margin-bottom: 12px;"></div>
+                        <div class="skeleton-shimmer" style="height: 16px; width: 50%; margin-bottom: 16px;"></div>
+                        <div class="skeleton-shimmer" style="height: 42px; width: 100%; border-radius: 10px;"></div>
+                    </div>
+                </div>
+            `;
+
+            if (marketsView && marketsView.querySelectorAll('.listing-card').length === 0) {
+                marketsView.insertAdjacentHTML('beforeend', makeSkeletonCard() + makeSkeletonCard());
+            }
+            if (eventsView && eventsView.querySelectorAll('.listing-card').length === 0) {
+                eventsView.insertAdjacentHTML('beforeend', makeSkeletonCard());
+            }
+        }
+
+        // 3. Stale-While-Revalidate: Instant paint from localStorage (0ms!)
+        function loadUserFromLocalCache() {
+            try {
+                const cachedProfile = JSON.parse(localStorage.getItem('spacemate_user_profile') || 'null');
+                if (cachedProfile) {
+                    renderUserProfileUI(cachedProfile);
+                }
+
+                const cachedVenues = JSON.parse(localStorage.getItem('spacemate_user_venues_cache') || 'null');
+                if (cachedVenues && cachedVenues.length > 0) {
+                    renderUserVenuesCards(cachedVenues);
+                } else {
+                    renderSkeletonUserVenues();
+                }
+            } catch (e) {
+                console.warn("Local cache read error:", e);
+                renderSkeletonUserVenues();
+            }
+        }
+
+        // Run local cache render immediately
+        loadUserFromLocalCache();
+
         async function checkAuth() {
             try {
                 // 1. Check if user is logged in
@@ -5100,17 +5276,20 @@
                 currentUserId = session.user.id;
                 window.authResolved = true;
 
-                // 2. Fetch profile data
-                const { data: profile, error } = await supabaseClient
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', session.user.id)
-                    .single();
+                // 2. Fetch Profile, Venues, Bookings, and Notifications in PARALLEL (Eliminates sequential latency!)
+                const [profileResult] = await Promise.all([
+                    supabaseClient
+                        .from('profiles')
+                        .select('*')
+                        .eq('id', session.user.id)
+                        .single(),
+                    fetchRealVenues(),
+                    fetchUserBookings(currentUserId),
+                    fetchUserNotifications(currentUserId)
+                ]);
 
-                let userProfile = profile;
-                if (error || !profile) {
-                    console.error('Error fetching profile or profile missing:', error);
-                    // Provide a default fallback profile so the UI doesn't break
+                let userProfile = profileResult?.data;
+                if (!userProfile) {
                     userProfile = {
                         id: session.user.id,
                         role: 'user',
@@ -5120,124 +5299,17 @@
 
                 if (userProfile) {
                     window.currentUserProfile = userProfile;
+                    try {
+                        localStorage.setItem('spacemate_user_profile', JSON.stringify(userProfile));
+                    } catch (e) {}
+
                     if (userProfile.role === 'admin') {
                         window.location.replace('../admin/main_admin.html');
                         return;
                     }
 
-                    // 3. Update DOM with user data
-                    if (currentUserId && typeof updateUserProfileStats === 'function') {
-                        updateUserProfileStats(currentUserId);
-                    }
-                    const nameEl = document.getElementById('user-profile-name');
-                    const roleEl = document.getElementById('user-profile-role');
-                    
-                    const sidebarNameEl = document.getElementById('sidebar-user-name');
-                    
-                    let displayName = profile.display_name || 'ผู้ใช้ที่ไม่ได้ตั้งชื่อ';
-                    // Remove hyphens and trim
-                    displayName = displayName.replace(/-/g, ' ').trim();
-                    // Remove "คุณ" prefix if user doesn't want it
-                    if (displayName.startsWith('คุณ')) {
-                        displayName = displayName.substring(3).trim();
-                    }
-
-                    const avatarUrl = profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`;
-                    
-                    if (nameEl) {
-                        nameEl.textContent = displayName;
-                    }
-                    if (sidebarNameEl) {
-                        sidebarNameEl.textContent = displayName;
-                    }
-
-                    const sidebarAvatarImg = document.getElementById('sidebar-user-avatar-img');
-                    if (sidebarAvatarImg) sidebarAvatarImg.src = avatarUrl;
-                    
-                    const profilePageAvatarImg = document.getElementById('profile-page-avatar-img');
-                    if (profilePageAvatarImg) profilePageAvatarImg.src = avatarUrl;
-                    
-                    const editProfileAvatarImg = document.getElementById('edit-profile-avatar-img');
-                    if (editProfileAvatarImg) editProfileAvatarImg.src = avatarUrl;
-                    
-                    if (roleEl) {
-                        roleEl.innerHTML = '<i class="fa-solid fa-crown" style="color: #a46309;"></i> ' + 
-                            (profile.role === 'owner' ? 'เจ้าของพื้นที่' : 'ผู้เช่าพื้นที่');
-                    }
-
-                    // Populate Edit Profile
-                    const editDisplayName = document.getElementById('user-edit-displayname');
-                    if (editDisplayName) editDisplayName.value = profile.display_name || '';
-                    const editPhone = document.getElementById('user-edit-phone');
-                    if (editPhone) editPhone.value = profile.phone || '';
-                    const editIdCard = document.getElementById('user-edit-idcard');
-                    if (editIdCard) editIdCard.value = profile.id_card_number || '';
-                    const editAddress = document.getElementById('user-edit-address');
-                    if (editAddress) editAddress.value = profile.address || '';
-                    
-                    const editEmail = document.getElementById('user-edit-email');
-                    if (editEmail) {
-                        const { data: authData } = await supabaseClient.auth.getSession();
-                        if (authData?.session?.user?.email) {
-                            editEmail.value = authData.session.user.email;
-                        }
-                    }
-
-                    // Populate KYC Form
-                    const kycFirst = document.getElementById('user-kyc-firstname');
-                    if (kycFirst) kycFirst.value = profile.first_name || '';
-                    const kycLast = document.getElementById('user-kyc-lastname');
-                    if (kycLast) kycLast.value = profile.last_name || '';
-                    const kycIdCard = document.getElementById('user-kyc-idcard');
-                    if (kycIdCard) kycIdCard.value = profile.id_card_number || '';
-                    const kycPhone = document.getElementById('user-kyc-phone');
-                    if (kycPhone) kycPhone.value = profile.phone || '';
-
-                    if (profile.address) {
-                        const parts = profile.address.split(' ');
-                        if (parts.length >= 5 && profile.address.includes('ต.') && profile.address.includes('อ.') && profile.address.includes('จ.')) {
-                            if (document.getElementById('user-kyc-addr-no')) document.getElementById('user-kyc-addr-no').value = parts[0] || '';
-                            if (document.getElementById('user-kyc-addr-subdistrict')) document.getElementById('user-kyc-addr-subdistrict').value = (parts[1] || '').replace('ต.', '');
-                            if (document.getElementById('user-kyc-addr-district')) document.getElementById('user-kyc-addr-district').value = (parts[2] || '').replace('อ.', '');
-                            if (document.getElementById('user-kyc-addr-province')) document.getElementById('user-kyc-addr-province').value = (parts[3] || '').replace('จ.', '');
-                            if (document.getElementById('user-kyc-addr-zip')) document.getElementById('user-kyc-addr-zip').value = parts[4] || '';
-                        } else {
-                            if (document.getElementById('user-kyc-addr-no')) document.getElementById('user-kyc-addr-no').value = profile.address;
-                        }
-                    }
-
-                    if (profile.id_card_image_url) {
-                        userUploadedFiles.idcard = profile.id_card_image_url;
-                        renderUserFilePreview('idcard', profile.id_card_image_url, 'บัตรประชาชนที่บันทึกไว้');
-                    }
-                    if (profile.selfie_image_url) {
-                        userUploadedFiles.selfie = profile.selfie_image_url;
-                        renderUserFilePreview('selfie', profile.selfie_image_url, 'ภาพถ่ายเซลฟี่ที่บันทึกไว้');
-                    }
-
-                    // Set KYC UI State
-                    renderUserKycStatusUI(profile.kyc_status || (profile.is_verified ? 'approved' : 'unverified'));
-
-                    const verifiedBadge = document.getElementById('avatar-verified-badge');
-                    if (verifiedBadge) {
-                        const status = profile.kyc_status || (profile.is_verified ? 'approved' : null);
-                        if (status === 'approved') {
-                            verifiedBadge.style.background = '#10b981';
-                            verifiedBadge.innerHTML = '<i class="fa-solid fa-check"></i>';
-                        } else if (status === 'pending') {
-                            verifiedBadge.style.background = '#eab308';
-                            verifiedBadge.innerHTML = '<i class="fa-solid fa-clock"></i>';
-                        } else {
-                            verifiedBadge.style.background = '#ef4444';
-                            verifiedBadge.innerHTML = '<i class="fa-solid fa-exclamation"></i>';
-                        }
-                    }
+                    renderUserProfileUI(userProfile, session.user.email);
                 }
-
-                // 4. Fetch real data from DB
-                await fetchRealVenues();
-                await fetchUserBookings(currentUserId);
-                await fetchUserNotifications(currentUserId);
 
             } catch (err) {
                 console.error('Auth check error:', err);
@@ -5269,20 +5341,111 @@
             return true;
         }
 
-        async function fetchRealVenues() {
+        // 4. Render Venue Cards with Smooth Animation
+        function renderUserVenuesCards(venues) {
             const marketsView = document.getElementById('markets-view');
             const eventsView = document.getElementById('events-view');
 
+            if (!marketsView || !eventsView) return;
+
+            // Remove existing dynamic listing cards and skeleton cards
+            marketsView.querySelectorAll('.listing-card').forEach(el => el.remove());
+            eventsView.querySelectorAll('.listing-card').forEach(el => el.remove());
+
+            if (!venues || venues.length === 0) {
+                filterItems();
+                return;
+            }
+
+            let marketCardsHtml = '';
+            let eventCardsHtml = '';
+
+            venues.forEach(venue => {
+                const defaultImg = venue.type === 'market' 
+                    ? 'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&q=80&w=800'
+                    : 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&q=80&w=800';
+                const coverImg = venue.cover_image_url || venue.map_image_url || defaultImg;
+                const bookPage = venue.type === 'market' ? 'map_space.html' : 'map_booth.html';
+
+                // Determine min price
+                let minPrice = 0;
+                if (venue.spaces && venue.spaces.length > 0) {
+                    const prices = venue.spaces.map(s => Number(s.price || 0)).filter(p => p > 0);
+                    if (prices.length > 0) minPrice = Math.min(...prices);
+                }
+                if (!minPrice && venue.description) {
+                    const priceMatch = venue.description.match(/(\d+[\d,]*)\s*(?:บาท|฿)/);
+                    if (priceMatch) {
+                        minPrice = parseInt(priceMatch[1].replace(/,/g, ''), 10);
+                    }
+                }
+                if (!minPrice) minPrice = venue.type === 'market' ? 350 : 800;
+
+                const priceText = minPrice > 0 ? `฿${minPrice.toLocaleString()} <span>/ วัน</span>` : 'เปิดให้จอง';
+
+                const badgeText = venue.province && venue.province.trim() ? venue.province.trim() : (venue.location || 'ทั่วไป');
+                const fullAddress = venue.location || venue.province || 'ทั่วไป';
+
+                const cardHtml = `
+                    <div class="listing-card fade-in" data-location="${venue.location || 'ทั่วไป'}" data-province="${venue.province || ''}" data-price="${minPrice}" data-lat="${venue.latitude || ''}" data-lon="${venue.longitude || ''}">
+                        <div class="card-image-container">
+                            <img src="${coverImg}" alt="${venue.name}" class="card-image" loading="lazy">
+                            <span class="location-badge" title="${fullAddress}">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <span>${badgeText}</span>
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">${venue.name}</h3>
+                            <div class="card-location" title="${fullAddress}">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <span class="card-location-text">${fullAddress}</span>
+                            </div>
+                            <div class="card-info">
+                                <span>${venue.type === 'market' ? '🏪' : '🎪'}</span>
+                                <span>${venue.type === 'market' ? 'ตลาดนัด' : 'งานอีเวนต์'}</span>
+                                <span class="distance-text" style="color: #16a34a; font-weight: 600; font-size: 0.85rem; margin-left: auto;"></span>
+                            </div>
+                            <div class="card-footer">
+                                <span class="card-price">${priceText}</span>
+                                <button class="book-btn" onclick="requireUserKYC(event, '${bookPage}?venue_id=${venue.id}')">
+                                    ${venue.type === 'market' ? 'จองพื้นที่' : 'จองบูธ'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                if (venue.type === 'market') {
+                    marketCardsHtml += cardHtml;
+                } else {
+                    eventCardsHtml += cardHtml;
+                }
+            });
+
+            if (marketCardsHtml && marketsView) {
+                marketsView.insertAdjacentHTML('beforeend', marketCardsHtml);
+            }
+
+            if (eventCardsHtml && eventsView) {
+                eventsView.insertAdjacentHTML('beforeend', eventCardsHtml);
+            }
+
+            filterItems();
+        }
+
+        // 5. Optimized fetchRealVenues with Lean Columns & Cache Persistence
+        let isFetchingRealVenues = false;
+        async function fetchRealVenues() {
+            if (isFetchingRealVenues) return;
+            isFetchingRealVenues = true;
             try {
+                // Lean select without unnecessary heavy columns
                 const { data: venues, error } = await supabaseClient
                     .from('venues')
-                    .select('*, spaces(price)')
+                    .select('id, name, type, location, province, latitude, longitude, cover_image_url, map_image_url, description, is_active, spaces(price)')
                     .eq('is_active', true)
                     .order('created_at', { ascending: false });
-
-                // Remove existing dynamic listing cards
-                if (marketsView) marketsView.querySelectorAll('.listing-card').forEach(el => el.remove());
-                if (eventsView) eventsView.querySelectorAll('.listing-card').forEach(el => el.remove());
 
                 if (error) {
                     console.error('Error fetching venues:', error);
@@ -5290,90 +5453,21 @@
                     return;
                 }
 
-                if (!venues || venues.length === 0) {
-                    filterItems();
-                    return;
+                // Render into DOM
+                renderUserVenuesCards(venues);
+
+                // Save to localStorage for instant load next time
+                try {
+                    localStorage.setItem('spacemate_user_venues_cache', JSON.stringify(venues));
+                } catch (e) {
+                    console.warn("Could not save venues to localStorage:", e);
                 }
-
-                let marketCardsHtml = '';
-                let eventCardsHtml = '';
-
-                venues.forEach(venue => {
-                    const defaultImg = venue.type === 'market' 
-                        ? 'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&q=80&w=800'
-                        : 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&q=80&w=800';
-                    const coverImg = venue.cover_image_url || venue.map_image_url || defaultImg;
-                    const bookPage = venue.type === 'market' ? 'map_space.html' : 'map_booth.html';
-
-                    // Determine min price
-                    let minPrice = 0;
-                    if (venue.spaces && venue.spaces.length > 0) {
-                        const prices = venue.spaces.map(s => Number(s.price || 0)).filter(p => p > 0);
-                        if (prices.length > 0) minPrice = Math.min(...prices);
-                    }
-                    if (!minPrice && venue.description) {
-                        const priceMatch = venue.description.match(/(\d+[\d,]*)\s*(?:บาท|฿)/);
-                        if (priceMatch) {
-                            minPrice = parseInt(priceMatch[1].replace(/,/g, ''), 10);
-                        }
-                    }
-                    if (!minPrice) minPrice = venue.type === 'market' ? 350 : 800;
-
-                    const priceText = minPrice > 0 ? `฿${minPrice.toLocaleString()} <span>/ วัน</span>` : 'เปิดให้จอง';
-
-                    const badgeText = venue.province && venue.province.trim() ? venue.province.trim() : (venue.location || 'ทั่วไป');
-                    const fullAddress = venue.location || venue.province || 'ทั่วไป';
-
-                    const cardHtml = `
-                        <div class="listing-card" data-location="${venue.location || 'ทั่วไป'}" data-province="${venue.province || ''}" data-price="${minPrice}" data-lat="${venue.latitude || ''}" data-lon="${venue.longitude || ''}">
-                            <div class="card-image-container">
-                                <img src="${coverImg}" alt="${venue.name}" class="card-image">
-                                <span class="location-badge" title="${fullAddress}">
-                                    <i class="fa-solid fa-location-dot"></i>
-                                    <span>${badgeText}</span>
-                                </span>
-                            </div>
-                            <div class="card-body">
-                                <h3 class="card-title">${venue.name}</h3>
-                                <div class="card-location" title="${fullAddress}">
-                                    <i class="fa-solid fa-location-dot"></i>
-                                    <span class="card-location-text">${fullAddress}</span>
-                                </div>
-                                <div class="card-info">
-                                    <span>${venue.type === 'market' ? '🏪' : '🎪'}</span>
-                                    <span>${venue.type === 'market' ? 'ตลาดนัด' : 'งานอีเวนต์'}</span>
-                                    <span class="distance-text" style="color: #16a34a; font-weight: 600; font-size: 0.85rem; margin-left: auto;"></span>
-                                </div>
-                                <div class="card-footer">
-                                    <span class="card-price">${priceText}</span>
-                                    <button class="book-btn" onclick="requireUserKYC(event, '${bookPage}?venue_id=${venue.id}')">
-                                        ${venue.type === 'market' ? 'จองพื้นที่' : 'จองบูธ'}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-
-                    if (venue.type === 'market') {
-                        marketCardsHtml += cardHtml;
-                    } else {
-                        eventCardsHtml += cardHtml;
-                    }
-                });
-
-                if (marketCardsHtml && marketsView) {
-                    marketsView.insertAdjacentHTML('beforeend', marketCardsHtml);
-                }
-
-                if (eventCardsHtml && eventsView) {
-                    eventsView.insertAdjacentHTML('beforeend', eventCardsHtml);
-                }
-
-                filterItems();
 
             } catch (err) {
                 console.error('Error fetching venues:', err);
                 filterItems();
+            } finally {
+                isFetchingRealVenues = false;
             }
         }
 

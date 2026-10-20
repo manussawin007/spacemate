@@ -2896,6 +2896,33 @@
                 gap: 25px;
             }
         }
+
+        /* Shimmer Skeleton for Instant Fluid UX */
+        .skeleton-shimmer {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmerSkeleton 1.5s infinite;
+            border-radius: 10px;
+        }
+        @keyframes shimmerSkeleton {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .skeleton-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            background: #fff;
+            overflow: hidden;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+        .listing-card.fade-in {
+            animation: cardFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes cardFadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -5525,293 +5552,340 @@
         flatpickr("#edit-venue-time-start", { enableTime: true, noCalendar: true, dateFormat: "H:i", time_24hr: true });
         flatpickr("#edit-venue-time-end", { enableTime: true, noCalendar: true, dateFormat: "H:i", time_24hr: true });
 
+        // 1. Render Owner Profile in DOM
+        function renderOwnerProfileUI(profile, email = '') {
+            if (!profile) return;
+            const nameEl = document.getElementById('owner-profile-name');
+            const roleEl = document.getElementById('owner-profile-role');
+            
+            let displayName = profile.display_name || 'ผู้ใช้ที่ไม่ได้ตั้งชื่อ';
+            displayName = displayName.replace(/-/g, ' ').trim();
+            if (displayName.startsWith('คุณ')) {
+                displayName = displayName.substring(3).trim();
+            }
+
+            if (nameEl) nameEl.textContent = displayName;
+            
+            const sidebarNameEl = document.getElementById('sidebar-owner-name');
+            const avatarUrl = profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`;
+
+            if (sidebarNameEl) sidebarNameEl.textContent = displayName;
+
+            const sidebarAvatarImg = document.getElementById('sidebar-owner-avatar-img');
+            if (sidebarAvatarImg) sidebarAvatarImg.src = avatarUrl;
+            
+            const profilePageAvatarImg = document.getElementById('profile-page-avatar-img');
+            if (profilePageAvatarImg) profilePageAvatarImg.src = avatarUrl;
+            
+            const editProfileAvatarImg = document.getElementById('edit-profile-avatar-img');
+            if (editProfileAvatarImg) editProfileAvatarImg.src = avatarUrl;
+            
+            if (roleEl) {
+                if (profile.role === 'owner' && profile.package_plan === 'pro') {
+                    roleEl.innerHTML = '<i class="fa-solid fa-crown" style="color: #fef08a;"></i> เจ้าของพื้นที่ Pro';
+                    roleEl.style.background = 'linear-gradient(135deg, #d97706, #a46309)';
+                    roleEl.style.color = '#fff';
+                    roleEl.style.boxShadow = '0 2px 10px rgba(217, 119, 6, 0.3)';
+                } else {
+                    roleEl.innerHTML = '<i class="fa-solid fa-crown" style="color: #a46309;"></i> ' + (profile.role === 'owner' ? 'เจ้าของพื้นที่' : 'ผู้เช่าพื้นที่');
+                    roleEl.style.background = '#f1f5f9';
+                    roleEl.style.color = '#475569';
+                    roleEl.style.boxShadow = 'none';
+                }
+            }
+
+            const sidebarRoleEl = document.getElementById('sidebar-owner-role');
+            if (sidebarRoleEl) {
+                sidebarRoleEl.textContent = profile.role === 'owner' ? 'เจ้าของพื้นที่' : 'ผู้เช่าพื้นที่';
+            }
+
+            // Update Edit Profile fields
+            const editNameEl = document.getElementById('owner-edit-name');
+            if (editNameEl) editNameEl.value = profile.display_name || '';
+            
+            const editPhoneEl = document.getElementById('owner-edit-phone');
+            if (editPhoneEl) editPhoneEl.value = profile.phone || '';
+            
+            const isKycApproved = profile.kyc_status === 'approved' || profile.is_verified;
+            const editIdCardEl = document.getElementById('owner-edit-idcard');
+            if (editIdCardEl) {
+                editIdCardEl.value = profile.id_card_number || '';
+                if (isKycApproved) {
+                    editIdCardEl.readOnly = true;
+                    editIdCardEl.style.backgroundColor = '#f3f4f6';
+                    editIdCardEl.style.color = '#6b7280';
+                    editIdCardEl.style.cursor = 'not-allowed';
+                    editIdCardEl.title = 'เลขประจำตัวประชาชนได้รับการยืนยันตัวตน (e-KYC) แล้ว ไม่สามารถแก้ไขได้';
+                } else {
+                    editIdCardEl.readOnly = false;
+                    editIdCardEl.style.backgroundColor = '';
+                    editIdCardEl.style.color = '';
+                    editIdCardEl.style.cursor = '';
+                }
+            }
+            
+            const editEmailEl = document.getElementById('owner-edit-email');
+            if (editEmailEl && email) editEmailEl.value = email;
+            
+            const editCompanyEl = document.getElementById('owner-edit-company');
+            if (editCompanyEl) editCompanyEl.value = profile.company_name || '';
+
+            // Update Bank Account fields
+            const bankAccNoEl = document.getElementById('owner-bank-account-no');
+            if (bankAccNoEl) bankAccNoEl.value = profile.bank_account_no || '';
+            
+            const bankAccNameEl = document.getElementById('owner-bank-account-name');
+            if (bankAccNameEl) bankAccNameEl.value = profile.bank_account_name || '';
+            
+            if (profile.bank_name) {
+                const bankRadios = document.getElementsByName('bank_selection');
+                for (let radio of bankRadios) {
+                    if (radio.value === profile.bank_name) {
+                        radio.checked = true;
+                        break;
+                    }
+                }
+            }
+            
+            // Update active bank account card
+            const activeBankLogoEl = document.getElementById('active-bank-logo');
+            const activeBankAccEl = document.getElementById('active-bank-acc');
+            const activeBankNameEl = document.getElementById('active-bank-name');
+            const activeBankOwnerEl = document.getElementById('active-bank-owner');
+            
+            const currentBankSection = document.getElementById('current-bank-account-section');
+            const addBankSection = document.getElementById('add-bank-account-section');
+            const changeBankBtn = document.getElementById('change-bank-btn');
+            const bankFormTitle = document.getElementById('bank-form-title');
+            
+            if (activeBankOwnerEl) {
+                activeBankOwnerEl.textContent = profile.bank_account_name || 'ยังไม่ได้ตั้งค่า';
+            }
+            
+            if (profile.bank_account_no) {
+                if (currentBankSection) currentBankSection.style.display = 'block';
+                if (addBankSection) addBankSection.style.display = 'none';
+                if (changeBankBtn) changeBankBtn.style.display = 'block';
+                if (activeBankAccEl) {
+                    const acc = profile.bank_account_no;
+                    if (acc.length >= 10) {
+                        activeBankAccEl.textContent = acc.substring(0,3) + '-x-x' + acc.substring(acc.length-4, acc.length-1) + '-' + acc.substring(acc.length-1);
+                    } else {
+                        activeBankAccEl.textContent = acc;
+                    }
+                }
+            } else {
+                if (currentBankSection) currentBankSection.style.display = 'none';
+                if (addBankSection) addBankSection.style.display = 'block';
+                if (bankFormTitle) bankFormTitle.textContent = 'เพิ่มบัญชีธนาคาร';
+                if (activeBankAccEl) activeBankAccEl.textContent = 'ยังไม่ได้ตั้งค่า';
+            }
+            if (activeBankNameEl && activeBankLogoEl) {
+                const bankNames = {
+                    'kbank': { name: 'ธนาคารกสิกรไทย', logo: '../assets/กสิกรไทย.png' },
+                    'scb': { name: 'ธนาคารไทยพาณิชย์', logo: '../assets/ไทยพาณิชย์.jpg' },
+                    'bbl': { name: 'ธนาคารกรุงเทพ', logo: '../assets/กรุงเทพ.jpg' },
+                    'ktb': { name: 'ธนาคารกรุงไทย', logo: '../assets/กรุงไทย.png' },
+                    'bay': { name: 'ธนาคารกรุงศรีอยุธยา', logo: '../assets/กรุงศรี.png' },
+                    'ttb': { name: 'ธนาคารทหารไทยธนชาต', logo: '../assets/ทีทีบี.jpg' }
+                };
+                const bankInfo = bankNames[profile.bank_name] || { name: 'ไม่ได้ระบุ', logo: '../assets/กสิกรไทย.png' };
+                activeBankNameEl.textContent = bankInfo.name;
+                activeBankLogoEl.src = bankInfo.logo;
+                activeBankLogoEl.alt = bankInfo.name;
+            }
+            
+            // --- Update Package Section ---
+            const pStatus = document.getElementById('profile-package-status');
+            const pDesc = document.getElementById('profile-package-desc');
+            const curPkg = document.getElementById('current-package-text');
+            const btnPro = document.getElementById('btn-upgrade-pro');
+            const btnFree = document.getElementById('btn-free-plan');
+            const profileImg = document.getElementById('profile-page-avatar-img');
+            
+            if (profile.package_plan === 'pro') {
+                if (pStatus) pStatus.textContent = 'แพ็กเกจของฉัน (Pro)';
+                if (pDesc) {
+                    pDesc.textContent = 'ยอดเยี่ยม! คุณใช้แพ็กเกจสูงสุดแล้ว';
+                    pDesc.style.color = '#16a34a'; 
+                }
+                if (curPkg) curPkg.textContent = 'แพ็กเกจปัจจุบัน: มือโปร (Pro)';
+                if (btnPro) {
+                    btnPro.className = 'pkg-btn pkg-btn-disabled';
+                    btnPro.disabled = true;
+                    btnPro.textContent = 'กำลังใช้งาน';
+                }
+                if (btnFree) {
+                    btnFree.className = 'pkg-btn'; 
+                    btnFree.style.cssText = "background: #fff; color: #64748b; border: 1px solid #cbd5e1;";
+                    btnFree.disabled = false;
+                    btnFree.textContent = 'กลับไปใช้แพ็กเกจเริ่มต้น';
+                }
+                if (profileImg) profileImg.classList.add('pro-avatar-ring');
+            } else {
+                if (pStatus) pStatus.textContent = 'แพ็กเกจของฉัน (Free)';
+                if (pDesc) {
+                    pDesc.textContent = 'อัปเกรดเพื่อรับฟีเจอร์เพิ่ม';
+                    pDesc.style.color = '#d97706';
+                }
+                if (curPkg) curPkg.textContent = 'แพ็กเกจปัจจุบัน: เริ่มต้น (Free)';
+                if (btnPro) {
+                    btnPro.className = 'pkg-btn pkg-btn-primary';
+                    btnPro.disabled = false;
+                    btnPro.textContent = 'อัปเกรดเป็น Pro';
+                }
+                if (btnFree) {
+                    btnFree.className = 'pkg-btn pkg-btn-disabled';
+                    btnFree.style.cssText = "";
+                    btnFree.disabled = true;
+                    btnFree.textContent = 'กำลังใช้งาน';
+                }
+                if (profileImg) profileImg.classList.remove('pro-avatar-ring');
+            }
+            
+            const profileBankSummaryEl = document.getElementById('profile-bank-summary');
+            if (profileBankSummaryEl) {
+                if (profile.bank_name && profile.bank_account_no) {
+                    const bankNamesShort = {
+                        'kbank': 'กสิกรไทย',
+                        'scb': 'ไทยพาณิชย์',
+                        'bbl': 'กรุงเทพ',
+                        'ktb': 'กรุงไทย',
+                        'bay': 'กรุงศรีฯ',
+                        'ttb': 'ทีทีบี'
+                    };
+                    const bName = bankNamesShort[profile.bank_name] || profile.bank_name;
+                    const acc = profile.bank_account_no;
+                    const accShort = acc.length >= 4 ? '***' + acc.substring(acc.length-4) : acc;
+                    profileBankSummaryEl.textContent = bName + ' - ' + accShort;
+                } else {
+                    profileBankSummaryEl.textContent = 'ยังไม่ได้ตั้งค่าบัญชี';
+                }
+            }
+
+            // Update KYC Status badge
+            const kycBadge = document.getElementById('owner-kyc-badge');
+            const kycSubtitle = document.getElementById('owner-kyc-subtitle');
+            if (kycBadge && kycSubtitle) {
+                const status = profile.kyc_status || (profile.is_verified ? 'approved' : null);
+                if (status === 'approved') {
+                    kycBadge.style.background = '#10b981';
+                    kycBadge.textContent = 'อนุมัติแล้ว';
+                    kycSubtitle.textContent = 'ยืนยันตัวตนสำเร็จ บัญชีได้รับการรับรองแล้ว';
+                } else if (status === 'pending') {
+                    kycBadge.style.background = '#eab308';
+                    kycBadge.textContent = 'รอตรวจสอบ';
+                    kycSubtitle.textContent = 'เอกสารอยู่ระหว่างรอเจ้าหน้าที่ Admin ตรวจสอบ';
+                } else if (status === 'rejected') {
+                    kycBadge.style.background = '#ef4444';
+                    kycBadge.textContent = 'ไม่อนุมัติ';
+                    kycSubtitle.textContent = 'เอกสารไม่ผ่าน กรุณากดเพื่อยื่นข้อมูลใหม่';
+                } else {
+                    kycBadge.style.background = '#ef4444';
+                    kycBadge.textContent = 'ด่วน';
+                    kycSubtitle.textContent = 'เพื่อสร้างความน่าเชื่อถือให้ตลาด';
+                }
+            }
+
+            const verifiedBadge = document.getElementById('avatar-verified-badge');
+            if (verifiedBadge) {
+                const status = profile.kyc_status || (profile.is_verified ? 'approved' : null);
+                if (status === 'approved') {
+                    verifiedBadge.style.background = '#10b981';
+                    verifiedBadge.innerHTML = '<i class="fa-solid fa-check"></i>';
+                } else if (status === 'pending') {
+                    verifiedBadge.style.background = '#eab308';
+                    verifiedBadge.innerHTML = '<i class="fa-solid fa-clock"></i>';
+                } else {
+                    verifiedBadge.style.background = '#ef4444';
+                    verifiedBadge.innerHTML = '<i class="fa-solid fa-exclamation"></i>';
+                }
+            }
+        }
+
+        // 2. Render Skeleton Shimmer Loaders (shown if cache is absent)
+        function renderSkeletonOwnerVenues() {
+            const marketsList = document.getElementById('markets-list');
+            if (marketsList && marketsList.children.length === 0) {
+                const skCard = `
+                    <div class="listing-card owner-card skeleton-card">
+                        <div class="skeleton-shimmer" style="height: 180px; width: 100%;"></div>
+                        <div class="card-body" style="padding: 1.25rem;">
+                            <div class="skeleton-shimmer" style="height: 24px; width: 65%; margin-bottom: 12px;"></div>
+                            <div class="skeleton-shimmer" style="height: 16px; width: 45%; margin-bottom: 16px;"></div>
+                            <div class="skeleton-shimmer" style="height: 65px; width: 100%; margin-bottom: 16px; border-radius: 12px;"></div>
+                            <div class="skeleton-shimmer" style="height: 42px; width: 100%; border-radius: 10px;"></div>
+                        </div>
+                    </div>
+                `;
+                marketsList.innerHTML = skCard + skCard;
+            }
+        }
+
+        // 3. Stale-While-Revalidate: Instant paint from localStorage (0ms!)
+        function loadOwnerFromLocalCache() {
+            try {
+                const cachedProfile = JSON.parse(localStorage.getItem('spacemate_owner_profile') || 'null');
+                if (cachedProfile) {
+                    window.currentUserProfile = cachedProfile;
+                    renderOwnerProfileUI(cachedProfile);
+                }
+
+                const cachedDashboard = JSON.parse(localStorage.getItem('spacemate_owner_dashboard_cache') || 'null');
+                if (cachedDashboard && cachedDashboard.venues && cachedDashboard.venues.length > 0) {
+                    window.cachedOwnerVenues = cachedDashboard.venues;
+                    window.cachedOwnerSpaces = cachedDashboard.allSpaces || [];
+                    window.cachedOwnerBookings = cachedDashboard.allOwnerBookings || [];
+                    renderOwnerVenuesCards(cachedDashboard.venues, cachedDashboard.allSpaces, cachedDashboard.allOwnerBookings);
+                    if (typeof syncOwnerBookingsToNotifCache === 'function') {
+                        syncOwnerBookingsToNotifCache(cachedDashboard.venues, cachedDashboard.allSpaces, cachedDashboard.allOwnerBookings);
+                    }
+                } else {
+                    renderSkeletonOwnerVenues();
+                }
+            } catch (e) {
+                console.warn("Local cache read error:", e);
+                renderSkeletonOwnerVenues();
+            }
+        }
+
+        // Run local cache render immediately
+        loadOwnerFromLocalCache();
+
         async function checkAuth() {
             try {
                 // 1. Check if user is logged in
                 const session = await getSession();
                 
                 if (!session) {
-                    // Not logged in -> redirect to login page
                     window.location.replace('../index.html');
                     return;
                 }
 
-                // 2. Fetch profile data
-                const { data: profile, error } = await supabaseClient
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', session.user.id)
-                    .single();
+                // 2. Fetch Profile & Owner Venues in PARALLEL (Eliminates sequential latency!)
+                const [profileResult] = await Promise.all([
+                    supabaseClient
+                        .from('profiles')
+                        .select('*')
+                        .eq('id', session.user.id)
+                        .single(),
+                    fetchOwnerVenues(session.user.id)
+                ]);
 
-                if (error || !profile) {
-                    console.error('Error fetching profile:', error);
-                    return;
-                }
-                window.currentUserProfile = profile;
+                if (profileResult && profileResult.data) {
+                    const profile = profileResult.data;
+                    window.currentUserProfile = profile;
+                    try {
+                        localStorage.setItem('spacemate_owner_profile', JSON.stringify(profile));
+                    } catch (e) {}
 
-                // Ensure a 'user' doesn't stay on 'owner' page
-                if (profile.role === 'user') {
-                    window.location.replace('../user/main_user.html');
-                    return;
-                }
+                    if (profile.role === 'user') {
+                        window.location.replace('../user/main_user.html');
+                        return;
+                    }
 
-                // 3. Update DOM with user data
-                const nameEl = document.getElementById('owner-profile-name');
-                const roleEl = document.getElementById('owner-profile-role');
-                
-                let displayName = profile.display_name || 'ผู้ใช้ที่ไม่ได้ตั้งชื่อ';
-                
-                // Remove hyphens and trim
-                displayName = displayName.replace(/-/g, ' ').trim();
-                // Remove "คุณ" prefix if user doesn't want it
-                if (displayName.startsWith('คุณ')) {
-                    displayName = displayName.substring(3).trim();
+                    renderOwnerProfileUI(profile, session.user.email);
                 }
-
-                if (nameEl) {
-                    nameEl.textContent = displayName;
-                }
-                
-                const sidebarNameEl = document.getElementById('sidebar-owner-name');
-                const avatarUrl = profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`;
-
-                if (sidebarNameEl) {
-                    sidebarNameEl.textContent = displayName;
-                }
-
-                const sidebarAvatarImg = document.getElementById('sidebar-owner-avatar-img');
-                if (sidebarAvatarImg) sidebarAvatarImg.src = avatarUrl;
-                
-                const profilePageAvatarImg = document.getElementById('profile-page-avatar-img');
-                if (profilePageAvatarImg) profilePageAvatarImg.src = avatarUrl;
-                
-                const editProfileAvatarImg = document.getElementById('edit-profile-avatar-img');
-                if (editProfileAvatarImg) editProfileAvatarImg.src = avatarUrl;
-                
-                if (roleEl) {
-                    if (profile.role === 'owner' && profile.package_plan === 'pro') {
-                        roleEl.innerHTML = '<i class="fa-solid fa-crown" style="color: #fef08a;"></i> เจ้าของพื้นที่ Pro';
-                        roleEl.style.background = 'linear-gradient(135deg, #d97706, #a46309)';
-                        roleEl.style.color = '#fff';
-                        roleEl.style.boxShadow = '0 2px 10px rgba(217, 119, 6, 0.3)';
-                    } else {
-                        roleEl.innerHTML = '<i class="fa-solid fa-crown" style="color: #a46309;"></i> ' + (profile.role === 'owner' ? 'เจ้าของพื้นที่' : 'ผู้เช่าพื้นที่');
-                        roleEl.style.background = '#f1f5f9';
-                        roleEl.style.color = '#475569';
-                        roleEl.style.boxShadow = 'none';
-                    }
-                }
-
-                const sidebarRoleEl = document.getElementById('sidebar-owner-role');
-                if (sidebarRoleEl) {
-                    sidebarRoleEl.textContent = profile.role === 'owner' ? 'เจ้าของพื้นที่' : 'ผู้เช่าพื้นที่';
-                }
-
-                // Update Edit Profile fields
-                const editNameEl = document.getElementById('owner-edit-name');
-                if (editNameEl) editNameEl.value = profile.display_name || '';
-                
-                const editPhoneEl = document.getElementById('owner-edit-phone');
-                if (editPhoneEl) editPhoneEl.value = profile.phone || '';
-                
-                const isKycApproved = profile.kyc_status === 'approved' || profile.is_verified;
-                const editIdCardEl = document.getElementById('owner-edit-idcard');
-                if (editIdCardEl) {
-                    editIdCardEl.value = profile.id_card_number || '';
-                    if (isKycApproved) {
-                        editIdCardEl.readOnly = true;
-                        editIdCardEl.style.backgroundColor = '#f3f4f6';
-                        editIdCardEl.style.color = '#6b7280';
-                        editIdCardEl.style.cursor = 'not-allowed';
-                        editIdCardEl.title = 'เลขประจำตัวประชาชนได้รับการยืนยันตัวตน (e-KYC) แล้ว ไม่สามารถแก้ไขได้';
-                    } else {
-                        editIdCardEl.readOnly = false;
-                        editIdCardEl.style.backgroundColor = '';
-                        editIdCardEl.style.color = '';
-                        editIdCardEl.style.cursor = '';
-                    }
-                }
-                
-                const editEmailEl = document.getElementById('owner-edit-email');
-                if (editEmailEl) editEmailEl.value = session.user.email || profile.email || '';
-                
-                const editCompanyEl = document.getElementById('owner-edit-company');
-                if (editCompanyEl) editCompanyEl.value = profile.company_name || '';
-
-                // Update Bank Account fields
-                const bankAccNoEl = document.getElementById('owner-bank-account-no');
-                if (bankAccNoEl) bankAccNoEl.value = profile.bank_account_no || '';
-                
-                const bankAccNameEl = document.getElementById('owner-bank-account-name');
-                if (bankAccNameEl) bankAccNameEl.value = profile.bank_account_name || '';
-                
-                if (profile.bank_name) {
-                    const bankRadios = document.getElementsByName('bank_selection');
-                    for (let radio of bankRadios) {
-                        if (radio.value === profile.bank_name) {
-                            radio.checked = true;
-                            break;
-                        }
-                    }
-                }
-                
-                // Update active bank account card
-                const activeBankLogoEl = document.getElementById('active-bank-logo');
-                const activeBankAccEl = document.getElementById('active-bank-acc');
-                const activeBankNameEl = document.getElementById('active-bank-name');
-                const activeBankOwnerEl = document.getElementById('active-bank-owner');
-                
-                const currentBankSection = document.getElementById('current-bank-account-section');
-                const addBankSection = document.getElementById('add-bank-account-section');
-                const changeBankBtn = document.getElementById('change-bank-btn');
-                const bankFormTitle = document.getElementById('bank-form-title');
-                
-                if (activeBankOwnerEl) {
-                    activeBankOwnerEl.textContent = profile.bank_account_name || 'ยังไม่ได้ตั้งค่า';
-                }
-                
-                if (profile.bank_account_no) {
-                    if (currentBankSection) currentBankSection.style.display = 'block';
-                    if (addBankSection) addBankSection.style.display = 'none';
-                    if (changeBankBtn) changeBankBtn.style.display = 'block';
-                    if (activeBankAccEl) {
-                        const acc = profile.bank_account_no;
-                        if (acc.length >= 10) {
-                            activeBankAccEl.textContent = acc.substring(0,3) + '-x-x' + acc.substring(acc.length-4, acc.length-1) + '-' + acc.substring(acc.length-1);
-                        } else {
-                            activeBankAccEl.textContent = acc;
-                        }
-                    }
-                } else {
-                    if (currentBankSection) currentBankSection.style.display = 'none';
-                    if (addBankSection) addBankSection.style.display = 'block';
-                    if (bankFormTitle) bankFormTitle.textContent = 'เพิ่มบัญชีธนาคาร';
-                    if (activeBankAccEl) activeBankAccEl.textContent = 'ยังไม่ได้ตั้งค่า';
-                }
-                if (activeBankNameEl && activeBankLogoEl) {
-                    const bankNames = {
-                        'kbank': { name: 'ธนาคารกสิกรไทย', logo: '../assets/กสิกรไทย.png' },
-                        'scb': { name: 'ธนาคารไทยพาณิชย์', logo: '../assets/ไทยพาณิชย์.jpg' },
-                        'bbl': { name: 'ธนาคารกรุงเทพ', logo: '../assets/กรุงเทพ.jpg' },
-                        'ktb': { name: 'ธนาคารกรุงไทย', logo: '../assets/กรุงไทย.png' },
-                        'bay': { name: 'ธนาคารกรุงศรีอยุธยา', logo: '../assets/กรุงศรี.png' },
-                        'ttb': { name: 'ธนาคารทหารไทยธนชาต', logo: '../assets/ทีทีบี.jpg' }
-                    };
-                    const bankInfo = bankNames[profile.bank_name] || { name: 'ไม่ได้ระบุ', logo: '../assets/กสิกรไทย.png' };
-                    activeBankNameEl.textContent = bankInfo.name;
-                    activeBankLogoEl.src = bankInfo.logo;
-                    activeBankLogoEl.alt = bankInfo.name;
-                }
-                
-                // --- Update Package Section ---
-                const pStatus = document.getElementById('profile-package-status');
-                const pDesc = document.getElementById('profile-package-desc');
-                const curPkg = document.getElementById('current-package-text');
-                const btnPro = document.getElementById('btn-upgrade-pro');
-                const btnFree = document.getElementById('btn-free-plan');
-                const profileImg = document.getElementById('profile-page-avatar-img');
-                
-                if (profile.package_plan === 'pro') {
-                    if (pStatus) pStatus.textContent = 'แพ็กเกจของฉัน (Pro)';
-                    if (pDesc) {
-                        pDesc.textContent = 'ยอดเยี่ยม! คุณใช้แพ็กเกจสูงสุดแล้ว';
-                        pDesc.style.color = '#16a34a'; 
-                    }
-                    if (curPkg) curPkg.textContent = 'แพ็กเกจปัจจุบัน: มือโปร (Pro)';
-                    if (btnPro) {
-                        btnPro.className = 'pkg-btn pkg-btn-disabled';
-                        btnPro.disabled = true;
-                        btnPro.textContent = 'กำลังใช้งาน';
-                    }
-                    if (btnFree) {
-                        btnFree.className = 'pkg-btn'; 
-                        btnFree.style.cssText = "background: #fff; color: #64748b; border: 1px solid #cbd5e1;";
-                        btnFree.disabled = false;
-                        btnFree.textContent = 'กลับไปใช้แพ็กเกจเริ่มต้น';
-                    }
-                    if (profileImg) profileImg.classList.add('pro-avatar-ring');
-                } else {
-                    if (pStatus) pStatus.textContent = 'แพ็กเกจของฉัน (Free)';
-                    if (pDesc) {
-                        pDesc.textContent = 'อัปเกรดเพื่อรับฟีเจอร์เพิ่ม';
-                        pDesc.style.color = '#d97706';
-                    }
-                    if (curPkg) curPkg.textContent = 'แพ็กเกจปัจจุบัน: เริ่มต้น (Free)';
-                    if (btnPro) {
-                        btnPro.className = 'pkg-btn pkg-btn-primary';
-                        btnPro.disabled = false;
-                        btnPro.textContent = 'อัปเกรดเป็น Pro';
-                    }
-                    if (btnFree) {
-                        btnFree.className = 'pkg-btn pkg-btn-disabled';
-                        btnFree.style.cssText = "";
-                        btnFree.disabled = true;
-                        btnFree.textContent = 'กำลังใช้งาน';
-                    }
-                    if (profileImg) profileImg.classList.remove('pro-avatar-ring');
-                }
-                
-                const profileBankSummaryEl = document.getElementById('profile-bank-summary');
-                if (profileBankSummaryEl) {
-                    if (profile.bank_name && profile.bank_account_no) {
-                        const bankNamesShort = {
-                            'kbank': 'กสิกรไทย',
-                            'scb': 'ไทยพาณิชย์',
-                            'bbl': 'กรุงเทพ',
-                            'ktb': 'กรุงไทย',
-                            'bay': 'กรุงศรีฯ',
-                            'ttb': 'ทีทีบี'
-                        };
-                        const bName = bankNamesShort[profile.bank_name] || profile.bank_name;
-                        const acc = profile.bank_account_no;
-                        const accShort = acc.length >= 4 ? '***' + acc.substring(acc.length-4) : acc;
-                        profileBankSummaryEl.textContent = bName + ' - ' + accShort;
-                    } else {
-                        profileBankSummaryEl.textContent = 'ยังไม่ได้ตั้งค่าบัญชี';
-                    }
-                }
-
-                // Update KYC Status badge
-                const kycBadge = document.getElementById('owner-kyc-badge');
-                const kycSubtitle = document.getElementById('owner-kyc-subtitle');
-                if (kycBadge && kycSubtitle) {
-                    const status = profile.kyc_status || (profile.is_verified ? 'approved' : null);
-                    if (status === 'approved') {
-                        kycBadge.style.background = '#10b981';
-                        kycBadge.textContent = 'อนุมัติแล้ว';
-                        kycSubtitle.textContent = 'ยืนยันตัวตนสำเร็จ บัญชีได้รับการรับรองแล้ว';
-                    } else if (status === 'pending') {
-                        kycBadge.style.background = '#eab308';
-                        kycBadge.textContent = 'รอตรวจสอบ';
-                        kycSubtitle.textContent = 'เอกสารอยู่ระหว่างรอเจ้าหน้าที่ Admin ตรวจสอบ';
-                    } else if (status === 'rejected') {
-                        kycBadge.style.background = '#ef4444';
-                        kycBadge.textContent = 'ไม่อนุมัติ';
-                        kycSubtitle.textContent = 'เอกสารไม่ผ่าน กรุณากดเพื่อยื่นข้อมูลใหม่';
-                    } else {
-                        kycBadge.style.background = '#ef4444';
-                        kycBadge.textContent = 'ด่วน';
-                        kycSubtitle.textContent = 'เพื่อสร้างความน่าเชื่อถือให้ตลาด';
-                    }
-                }
-
-                const verifiedBadge = document.getElementById('avatar-verified-badge');
-                if (verifiedBadge) {
-                    const status = profile.kyc_status || (profile.is_verified ? 'approved' : null);
-                    if (status === 'approved') {
-                        verifiedBadge.style.background = '#10b981';
-                        verifiedBadge.innerHTML = '<i class="fa-solid fa-check"></i>';
-                    } else if (status === 'pending') {
-                        verifiedBadge.style.background = '#eab308';
-                        verifiedBadge.innerHTML = '<i class="fa-solid fa-clock"></i>';
-                    } else {
-                        verifiedBadge.style.background = '#ef4444';
-                        verifiedBadge.innerHTML = '<i class="fa-solid fa-exclamation"></i>';
-                    }
-                }
-
-                // 4. Fetch owner's venues
-                fetchOwnerVenues(session.user.id);
 
             } catch (err) {
                 console.error('Auth check error:', err);
@@ -5843,29 +5917,253 @@
             }
         }
 
+        // 4. Render Venue Cards with Smooth Animation
+        function renderOwnerVenuesCards(venues, allSpaces = [], allOwnerBookings = []) {
+            const marketsList = document.getElementById('markets-list');
+            const eventsList = document.getElementById('events-list');
+            const marketsEmpty = document.getElementById('markets-empty');
+            const eventsEmpty = document.getElementById('events-empty');
+
+            if (!marketsList || !eventsList) return;
+
+            let marketsHtml = '';
+            let eventsHtml = '';
+            let marketCount = 0;
+            let eventCount = 0;
+
+            const todayStr = getLocalDateString(new Date());
+
+            // Map bookings by space_id and venue_id
+            const bookingsBySpace = {};
+            (allOwnerBookings || []).forEach(b => {
+                if (!bookingsBySpace[b.space_id]) bookingsBySpace[b.space_id] = [];
+                bookingsBySpace[b.space_id].push(b);
+            });
+
+            const spaceToVenue = {};
+            (allSpaces || []).forEach(s => spaceToVenue[s.id] = s.venue_id);
+
+            const upcomingBookingsByVenue = {};
+            const allUpcomingBookings = [];
+
+            (allOwnerBookings || []).forEach(b => {
+                const isUpcoming = b.start_date > todayStr;
+                if (isUpcoming) {
+                    const vId = spaceToVenue[b.space_id];
+                    if (vId) {
+                        if (!upcomingBookingsByVenue[vId]) upcomingBookingsByVenue[vId] = [];
+                        upcomingBookingsByVenue[vId].push(b);
+                    }
+                    allUpcomingBookings.push(b);
+                }
+            });
+
+            // Update Home Upcoming Summary Widget
+            const homeSummaryEl = document.getElementById('home-upcoming-summary-widget');
+            if (homeSummaryEl) {
+                if (allUpcomingBookings.length > 0) {
+                    homeSummaryEl.style.display = 'block';
+                    homeSummaryEl.innerHTML = `
+                        <div class="home-upcoming-summary">
+                            <div class="home-upcoming-left">
+                                <div class="home-upcoming-icon">
+                                    <i class="fa-solid fa-calendar-check"></i>
+                                </div>
+                                <div>
+                                    <div class="home-upcoming-title">มีการจองล่วงหน้าทั้งหมด ${allUpcomingBookings.length} รายการ</div>
+                                    <div class="home-upcoming-sub">มีพ่อค้าแม่ค้าวางแผนเข้าขายในอนาคต คลิกดูคิวและผังร้านได้ทันที</div>
+                                </div>
+                            </div>
+                            <button type="button" class="home-upcoming-btn" onclick="switchView('notif', document.querySelector('.bottom-nav .nav-item[onclick*=\\'notif\\']'));">
+                                <i class="fa-solid fa-list-check"></i> ดูคิวทั้งหมด
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    homeSummaryEl.style.display = 'none';
+                }
+            }
+
+            if (venues && venues.length > 0) {
+                venues.forEach(venue => {
+                    const defaultImage = "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&q=80&w=800";
+                    const imageUrl = venue.cover_image_url || venue.map_image_url || defaultImage;
+                    const imgSrc = imageUrl.startsWith('data:') || imageUrl.startsWith('http') ? imageUrl : defaultImage;
+
+                    // Filter out label elements
+                    const realSpaces = (venue.spaces || []).filter(s => 
+                        s.status !== 'label' && 
+                        (!s.space_number || !s.space_number.startsWith('LABEL_'))
+                    );
+
+                    const venueUpcoming = upcomingBookingsByVenue[venue.id] || [];
+                    const upcomingCount = venueUpcoming.length;
+
+                    // Check occupied today
+                    let rentedCount = 0;
+                    realSpaces.forEach(s => {
+                        const sBookings = bookingsBySpace[s.id] || [];
+                        const bookedToday = sBookings.some(b => {
+                            const sDate = b.start_date;
+                            const eDate = b.end_date || sDate;
+                            return sDate <= todayStr && eDate >= todayStr;
+                        });
+                        if (s.status === 'booked' || s.status === 'rented' || bookedToday) {
+                            rentedCount++;
+                        }
+                    });
+
+                    const totalStalls = realSpaces.length;
+                    const rentedStalls = rentedCount;
+                    const vacantStalls = Math.max(0, totalStalls - rentedStalls);
+                    const occupancyRate = totalStalls > 0 ? Math.round((rentedStalls / totalStalls) * 100) : 0;
+
+                    // Calculate starting price
+                    let startingPriceText = '';
+                    if (realSpaces.length > 0) {
+                        const validPrices = realSpaces.map(s => Number(s.price) || 0).filter(p => p > 0);
+                        if (validPrices.length > 0) {
+                            const minPrice = Math.min(...validPrices);
+                            startingPriceText = `เริ่ม ฿${minPrice.toLocaleString()}/วัน`;
+                        }
+                    }
+                    if (!startingPriceText && venue.description) {
+                        const matchPrice = venue.description.match(/ราคาเริ่มต้น:\s*([\d,]+)/);
+                        if (matchPrice) {
+                            startingPriceText = `เริ่ม ฿${matchPrice[1]}/วัน`;
+                        }
+                    }
+
+                    // Extract operating hours
+                    let timeText = 'เปิดให้บริการ';
+                    if (venue.description) {
+                        const matchTime = venue.description.match(/เวลาให้บริการ:\s*([^\n\r]+)/);
+                        if (matchTime) {
+                            timeText = matchTime[1].trim();
+                        }
+                    }
+
+                    const venueDataStr = encodeURIComponent(JSON.stringify(venue));
+                    const isEvent = venue.type === 'event';
+                    const typeLabel = isEvent ? 'งานอีเวนต์' : 'ตลาดสด/ตลาดนัด';
+                    const typeIcon = isEvent ? 'fa-calendar-days' : 'fa-store';
+
+                    const cardHtml = `
+                        <div class="listing-card owner-card fade-in" data-location="${venue.location || ''}" onclick="openVenueModal('${venueDataStr}')">
+                            <div class="card-image-container">
+                                <img src="${imgSrc}" alt="${venue.name}" class="card-image" loading="lazy">
+                                <div class="card-badges-top">
+                                    <span class="badge-category ${isEvent ? 'badge-event' : 'badge-market'}">
+                                        <i class="fa-solid ${typeIcon}"></i> ${typeLabel}
+                                    </span>
+                                    <span class="badge-status-live">
+                                        <span class="pulse-dot"></span> เปิดบริการ
+                                    </span>
+                                </div>
+                                ${startingPriceText ? `<div class="card-badge-price">${startingPriceText}</div>` : ''}
+                            </div>
+                            <div class="card-body">
+                                <h3 class="card-title">${venue.name}</h3>
+                                <div class="card-meta-row">
+                                    <div class="meta-item" title="${venue.location || 'ไม่ได้ระบุ'}">
+                                        <i class="fa-solid fa-location-dot"></i>
+                                        <span>${venue.location || 'ไม่ได้ระบุที่ตั้ง'}</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fa-regular fa-clock"></i>
+                                        <span>${timeText}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Space Metrics KPI Grid -->
+                                <div class="owner-space-kpi">
+                                    <div class="kpi-mini-box">
+                                        <div class="kpi-mini-label"><i class="fa-solid fa-border-all"></i> ทั้งหมด</div>
+                                        <div class="kpi-mini-value">${totalStalls} <small>ล็อค</small></div>
+                                    </div>
+                                    <div class="kpi-mini-box vacant-box">
+                                        <div class="kpi-mini-label"><i class="fa-solid fa-circle-check"></i> ว่าง</div>
+                                        <div class="kpi-mini-value text-emerald">${vacantStalls} <small>ล็อค</small></div>
+                                    </div>
+                                    <div class="kpi-mini-box rented-box">
+                                        <div class="kpi-mini-label"><i class="fa-solid fa-user-check"></i> เช่าแล้ว</div>
+                                        <div class="kpi-mini-value text-amber">${rentedStalls} <small>ล็อค</small></div>
+                                    </div>
+                                    <div class="kpi-mini-box upcoming-box">
+                                        <div class="kpi-mini-label"><i class="fa-solid fa-calendar-check"></i> จองล่วงหน้า</div>
+                                        <div class="kpi-mini-value text-sky">${upcomingCount} <small>คิว</small></div>
+                                    </div>
+                                </div>
+
+                                ${upcomingCount > 0 ? `
+                                <div class="venue-upcoming-banner" onclick="event.stopPropagation(); window.location.href='tenant_info_owner.html?id=${venue.id}';">
+                                    <div class="banner-left">
+                                        <i class="fa-solid fa-calendar-days text-sky"></i>
+                                        <span>มีคิวจองล่วงหน้า ${upcomingCount} รายการ</span>
+                                    </div>
+                                    <span class="banner-pill">ดูคิว & ผังร้าน <i class="fa-solid fa-chevron-right" style="font-size:0.65rem;"></i></span>
+                                </div>
+                                ` : ''}
+
+                                <!-- Occupancy Progress Bar -->
+                                <div class="occupancy-section">
+                                    <div class="occupancy-labels">
+                                        <span>อัตราการจองพื้นที่</span>
+                                        <span class="occupancy-pct">${occupancyRate}%</span>
+                                    </div>
+                                    <div class="occupancy-bar-track">
+                                        <div class="occupancy-bar-fill" style="width: ${occupancyRate}%;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="card-footer owner-actions">
+                                    <button class="book-btn btn-manage-spaces" onclick="event.stopPropagation(); window.location.href='tenant_info_owner.html?id=${venue.id}';">
+                                        <i class="fa-solid fa-layer-group"></i> จัดการพื้นที่ & ผู้เช่า
+                                    </button>
+                                    <div class="action-buttons-group">
+                                        <button title="แก้ไขรายละเอียดตลาด" class="btn-card-action btn-edit" onclick="event.stopPropagation(); openEditVenueModal('${venueDataStr}');">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                        <button title="ลบตลาด" class="btn-card-action btn-delete" onclick="event.stopPropagation(); deleteVenue('${venue.id}');">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    if (venue.type === 'market') {
+                        marketsHtml += cardHtml;
+                        marketCount++;
+                    } else if (venue.type === 'event') {
+                        eventsHtml += cardHtml;
+                        eventCount++;
+                    }
+                });
+            }
+
+            marketsList.innerHTML = marketsHtml;
+            eventsList.innerHTML = eventsHtml;
+
+            if (marketsEmpty) marketsEmpty.style.display = marketCount === 0 ? 'block' : 'none';
+            if (eventsEmpty) eventsEmpty.style.display = eventCount === 0 ? 'block' : 'none';
+        }
+
+        // 5. Optimized fetchOwnerVenues (Lightweight Payload & Chunked Fetching)
         let isFetchingOwnerVenues = false;
         async function fetchOwnerVenues(ownerId) {
             if (isFetchingOwnerVenues) return;
             isFetchingOwnerVenues = true;
             try {
+                // Drop heavy map_data for ultra-fast query
                 const { data: venues, error } = await supabaseClient
                     .from('venues')
-                    .select('*, spaces(id, status, price, zone, space_number, map_data)')
+                    .select('*, spaces(id, status, price, zone, space_number)')
                     .eq('owner_id', ownerId)
                     .order('created_at', { ascending: false });
 
                 if (error) throw error;
-
-                const marketsList = document.getElementById('markets-list');
-                const eventsList = document.getElementById('events-list');
-                const marketsEmpty = document.getElementById('markets-empty');
-                const eventsEmpty = document.getElementById('events-empty');
-
-                let marketsHtml = '';
-                let eventsHtml = '';
-
-                let marketCount = 0;
-                let eventCount = 0;
 
                 // Collect all space IDs across all venues
                 const allSpaces = [];
@@ -5876,7 +6174,6 @@
                 });
                 const allSpaceIds = allSpaces.map(s => s.id);
 
-                const todayStr = getLocalDateString(new Date());
                 let allOwnerBookings = [];
 
                 if (allSpaceIds.length > 0) {
@@ -5889,7 +6186,7 @@
                         chunks.map(chunk => 
                             supabaseClient
                                 .from('bookings')
-                                .select('*, profiles(first_name, last_name, phone)')
+                                .select('id, space_id, start_date, end_date, total_price, status, created_at, payment_slip_url, profiles(first_name, last_name, phone)')
                                 .in('space_id', chunk)
                                 .neq('status', 'cancelled')
                                 .order('start_date', { ascending: true })
@@ -5902,224 +6199,10 @@
                     });
                 }
 
-                // Map bookings by space_id and venue_id
-                const bookingsBySpace = {};
-                allOwnerBookings.forEach(b => {
-                    if (!bookingsBySpace[b.space_id]) bookingsBySpace[b.space_id] = [];
-                    bookingsBySpace[b.space_id].push(b);
-                });
+                // Render smoothly in UI
+                renderOwnerVenuesCards(venues, allSpaces, allOwnerBookings);
 
-                const spaceToVenue = {};
-                allSpaces.forEach(s => spaceToVenue[s.id] = s.venue_id);
-
-                const upcomingBookingsByVenue = {};
-                const allUpcomingBookings = [];
-
-                allOwnerBookings.forEach(b => {
-                    const isUpcoming = b.start_date > todayStr;
-                    if (isUpcoming) {
-                        const vId = spaceToVenue[b.space_id];
-                        if (vId) {
-                            if (!upcomingBookingsByVenue[vId]) upcomingBookingsByVenue[vId] = [];
-                            upcomingBookingsByVenue[vId].push(b);
-                        }
-                        allUpcomingBookings.push(b);
-                    }
-                });
-
-                // Update Home Upcoming Summary Widget
-                const homeSummaryEl = document.getElementById('home-upcoming-summary-widget');
-                if (homeSummaryEl) {
-                    if (allUpcomingBookings.length > 0) {
-                        homeSummaryEl.style.display = 'block';
-                        homeSummaryEl.innerHTML = `
-                            <div class="home-upcoming-summary">
-                                <div class="home-upcoming-left">
-                                    <div class="home-upcoming-icon">
-                                        <i class="fa-solid fa-calendar-check"></i>
-                                    </div>
-                                    <div>
-                                        <div class="home-upcoming-title">มีการจองล่วงหน้าทั้งหมด ${allUpcomingBookings.length} รายการ</div>
-                                        <div class="home-upcoming-sub">มีพ่อค้าแม่ค้าวางแผนเข้าขายในอนาคต คลิกดูคิวและผังร้านได้ทันที</div>
-                                    </div>
-                                </div>
-                                <button type="button" class="home-upcoming-btn" onclick="switchView('notif', document.querySelector('.bottom-nav .nav-item[onclick*=\\'notif\\']'));">
-                                    <i class="fa-solid fa-list-check"></i> ดูคิวทั้งหมด
-                                </button>
-                            </div>
-                        `;
-                    } else {
-                        homeSummaryEl.style.display = 'none';
-                    }
-                }
-
-                if (venues && venues.length > 0) {
-                    venues.forEach(venue => {
-                        const defaultImage = "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&q=80&w=800";
-                        const imageUrl = venue.cover_image_url || venue.map_image_url || defaultImage;
-                        const imgSrc = imageUrl.startsWith('data:') || imageUrl.startsWith('http') ? imageUrl : defaultImage;
-
-                        // Filter out label elements
-                        const realSpaces = (venue.spaces || []).filter(s => 
-                            s.status !== 'label' && 
-                            (!s.map_data || !s.map_data.isLabel) && 
-                            (!s.space_number || !s.space_number.startsWith('LABEL_'))
-                        );
-
-                        const venueUpcoming = upcomingBookingsByVenue[venue.id] || [];
-                        const upcomingCount = venueUpcoming.length;
-
-                        // Check occupied today
-                        let rentedCount = 0;
-                        realSpaces.forEach(s => {
-                            const sBookings = bookingsBySpace[s.id] || [];
-                            const bookedToday = sBookings.some(b => {
-                                const sDate = b.start_date;
-                                const eDate = b.end_date || sDate;
-                                return sDate <= todayStr && eDate >= todayStr;
-                            });
-                            if (s.status === 'booked' || s.status === 'rented' || bookedToday) {
-                                rentedCount++;
-                            }
-                        });
-
-                        const totalStalls = realSpaces.length;
-                        const rentedStalls = rentedCount;
-                        const vacantStalls = Math.max(0, totalStalls - rentedStalls);
-                        const occupancyRate = totalStalls > 0 ? Math.round((rentedStalls / totalStalls) * 100) : 0;
-
-                        // Calculate starting price
-                        let startingPriceText = '';
-                        if (realSpaces.length > 0) {
-                            const validPrices = realSpaces.map(s => Number(s.price) || 0).filter(p => p > 0);
-                            if (validPrices.length > 0) {
-                                const minPrice = Math.min(...validPrices);
-                                startingPriceText = `เริ่ม ฿${minPrice.toLocaleString()}/วัน`;
-                            }
-                        }
-                        if (!startingPriceText && venue.description) {
-                            const matchPrice = venue.description.match(/ราคาเริ่มต้น:\s*([\d,]+)/);
-                            if (matchPrice) {
-                                startingPriceText = `เริ่ม ฿${matchPrice[1]}/วัน`;
-                            }
-                        }
-
-                        // Extract operating hours
-                        let timeText = 'เปิดให้บริการ';
-                        if (venue.description) {
-                            const matchTime = venue.description.match(/เวลาให้บริการ:\s*([^\n\r]+)/);
-                            if (matchTime) {
-                                timeText = matchTime[1].trim();
-                            }
-                        }
-
-                        const venueDataStr = encodeURIComponent(JSON.stringify(venue));
-                        const isEvent = venue.type === 'event';
-                        const typeLabel = isEvent ? 'งานอีเวนต์' : 'ตลาดสด/ตลาดนัด';
-                        const typeIcon = isEvent ? 'fa-calendar-days' : 'fa-store';
-
-                        const cardHtml = `
-                            <div class="listing-card owner-card" data-location="${venue.location || ''}" onclick="openVenueModal('${venueDataStr}')">
-                                <div class="card-image-container">
-                                    <img src="${imgSrc}" alt="${venue.name}" class="card-image" loading="lazy">
-                                    <div class="card-badges-top">
-                                        <span class="badge-category ${isEvent ? 'badge-event' : 'badge-market'}">
-                                            <i class="fa-solid ${typeIcon}"></i> ${typeLabel}
-                                        </span>
-                                        <span class="badge-status-live">
-                                            <span class="pulse-dot"></span> เปิดบริการ
-                                        </span>
-                                    </div>
-                                    ${startingPriceText ? `<div class="card-badge-price">${startingPriceText}</div>` : ''}
-                                </div>
-                                <div class="card-body">
-                                    <h3 class="card-title">${venue.name}</h3>
-                                    <div class="card-meta-row">
-                                        <div class="meta-item" title="${venue.location || 'ไม่ได้ระบุ'}">
-                                            <i class="fa-solid fa-location-dot"></i>
-                                            <span>${venue.location || 'ไม่ได้ระบุที่ตั้ง'}</span>
-                                        </div>
-                                        <div class="meta-item">
-                                            <i class="fa-regular fa-clock"></i>
-                                            <span>${timeText}</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Space Metrics KPI Grid -->
-                                    <div class="owner-space-kpi">
-                                        <div class="kpi-mini-box">
-                                            <div class="kpi-mini-label"><i class="fa-solid fa-border-all"></i> ทั้งหมด</div>
-                                            <div class="kpi-mini-value">${totalStalls} <small>ล็อค</small></div>
-                                        </div>
-                                        <div class="kpi-mini-box vacant-box">
-                                            <div class="kpi-mini-label"><i class="fa-solid fa-circle-check"></i> ว่าง</div>
-                                            <div class="kpi-mini-value text-emerald">${vacantStalls} <small>ล็อค</small></div>
-                                        </div>
-                                        <div class="kpi-mini-box rented-box">
-                                            <div class="kpi-mini-label"><i class="fa-solid fa-user-check"></i> เช่าแล้ว</div>
-                                            <div class="kpi-mini-value text-amber">${rentedStalls} <small>ล็อค</small></div>
-                                        </div>
-                                        <div class="kpi-mini-box upcoming-box">
-                                            <div class="kpi-mini-label"><i class="fa-solid fa-calendar-check"></i> จองล่วงหน้า</div>
-                                            <div class="kpi-mini-value text-sky">${upcomingCount} <small>คิว</small></div>
-                                        </div>
-                                    </div>
-
-                                    ${upcomingCount > 0 ? `
-                                    <div class="venue-upcoming-banner" onclick="event.stopPropagation(); window.location.href='tenant_info_owner.html?id=${venue.id}';">
-                                        <div class="banner-left">
-                                            <i class="fa-solid fa-calendar-days text-sky"></i>
-                                            <span>มีคิวจองล่วงหน้า ${upcomingCount} รายการ</span>
-                                        </div>
-                                        <span class="banner-pill">ดูคิว & ผังร้าน <i class="fa-solid fa-chevron-right" style="font-size:0.65rem;"></i></span>
-                                    </div>
-                                    ` : ''}
-
-                                    <!-- Occupancy Progress Bar -->
-                                    <div class="occupancy-section">
-                                        <div class="occupancy-labels">
-                                            <span>อัตราการจองพื้นที่</span>
-                                            <span class="occupancy-pct">${occupancyRate}%</span>
-                                        </div>
-                                        <div class="occupancy-bar-track">
-                                            <div class="occupancy-bar-fill" style="width: ${occupancyRate}%;"></div>
-                                        </div>
-                                    </div>
-
-                                    <div class="card-footer owner-actions">
-                                        <button class="book-btn btn-manage-spaces" onclick="event.stopPropagation(); window.location.href='tenant_info_owner.html?id=${venue.id}';">
-                                            <i class="fa-solid fa-layer-group"></i> จัดการพื้นที่ & ผู้เช่า
-                                        </button>
-                                        <div class="action-buttons-group">
-                                            <button title="แก้ไขรายละเอียดตลาด" class="btn-card-action btn-edit" onclick="event.stopPropagation(); openEditVenueModal('${venueDataStr}');">
-                                                <i class="fa-solid fa-pen-to-square"></i>
-                                            </button>
-                                            <button title="ลบตลาด" class="btn-card-action btn-delete" onclick="event.stopPropagation(); deleteVenue('${venue.id}');">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-
-                        if (venue.type === 'market') {
-                            marketsHtml += cardHtml;
-                            marketCount++;
-                        } else if (venue.type === 'event') {
-                            eventsHtml += cardHtml;
-                            eventCount++;
-                        }
-                    });
-                }
-
-                marketsList.innerHTML = marketsHtml;
-                eventsList.innerHTML = eventsHtml;
-
-                marketsEmpty.style.display = marketCount === 0 ? 'block' : 'none';
-                eventsEmpty.style.display = eventCount === 0 ? 'block' : 'none';
-
-                // Cache owner venues, spaces and bookings in memory to eliminate duplicate network traffic
+                // Cache in memory for instant view transitions
                 window.cachedOwnerVenues = venues;
                 window.cachedOwnerSpaces = allSpaces;
                 window.cachedOwnerBookings = allOwnerBookings;
@@ -6128,9 +6211,30 @@
                 if (typeof syncOwnerBookingsToNotifCache === 'function') {
                     syncOwnerBookingsToNotifCache(venues, allSpaces, allOwnerBookings);
                 }
+
+                // Persist lightweight cache to localStorage for 0ms load on next visit
+                try {
+                    const safeBookingsForCache = allOwnerBookings.map(b => {
+                        if (b.payment_slip_url && b.payment_slip_url.length > 1000) {
+                            return { ...b, payment_slip_url: '' };
+                        }
+                        return b;
+                    });
+                    localStorage.setItem('spacemate_owner_dashboard_cache', JSON.stringify({
+                        venues,
+                        allSpaces,
+                        allOwnerBookings: safeBookingsForCache
+                    }));
+                } catch (e) {
+                    console.warn("Could not save dashboard cache to localStorage:", e);
+                }
                 
             } catch (err) {
                 console.error("Error fetching venues:", err);
+            } finally {
+                isFetchingOwnerVenues = false;
+            }
+        }
             } finally {
                 isFetchingOwnerVenues = false;
             }
@@ -7253,9 +7357,46 @@
                     expandBtn.href = src;
                     expandBtn.style.display = 'inline-flex';
                 }
+            } else if (data.id) {
+                // Fetch slip on-demand without stalling initial page load
+                if (slipImg) slipImg.style.display = 'none';
+                if (noSlipMsg) {
+                    noSlipMsg.style.display = 'block';
+                    noSlipMsg.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="font-size:1.8rem; color:#a46309; margin-bottom: 0.5rem;"></i><p>กำลังโหลดรูปสลิป...</p>';
+                }
+                supabaseClient.from('bookings').select('payment_slip_url').eq('id', data.id).single()
+                    .then(({ data: bData }) => {
+                        if (bData && bData.payment_slip_url) {
+                            data.slipUrl = bData.payment_slip_url;
+                            const src = data.slipUrl.startsWith('data:') || data.slipUrl.startsWith('http') ? data.slipUrl : `data:image/jpeg;base64,${data.slipUrl}`;
+                            if (slipImg) {
+                                slipImg.src = src;
+                                slipImg.style.display = 'block';
+                            }
+                            if (noSlipMsg) noSlipMsg.style.display = 'none';
+                            if (expandBtn) {
+                                expandBtn.href = src;
+                                expandBtn.style.display = 'inline-flex';
+                            }
+                        } else {
+                            if (noSlipMsg) {
+                                noSlipMsg.innerHTML = '<i class="fa-solid fa-image-slash"></i><p>ไม่มีรูปสลิปการโอนเงินแนบมา</p>';
+                                noSlipMsg.style.display = 'block';
+                            }
+                        }
+                    })
+                    .catch(() => {
+                        if (noSlipMsg) {
+                            noSlipMsg.innerHTML = '<i class="fa-solid fa-image-slash"></i><p>ไม่มีรูปสลิปการโอนเงินแนบมา</p>';
+                            noSlipMsg.style.display = 'block';
+                        }
+                    });
             } else {
                 if (slipImg) slipImg.style.display = 'none';
-                if (noSlipMsg) noSlipMsg.style.display = 'block';
+                if (noSlipMsg) {
+                    noSlipMsg.innerHTML = '<i class="fa-solid fa-image-slash"></i><p>ไม่มีรูปสลิปการโอนเงินแนบมา</p>';
+                    noSlipMsg.style.display = 'block';
+                }
                 if (expandBtn) expandBtn.style.display = 'none';
             }
 
