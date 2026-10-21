@@ -3771,6 +3771,7 @@
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 ${priceStr ? `<span style="font-weight: 700; color: #059669; font-size: 0.8rem;">${priceStr}</span>` : ''}
+                                ${b.payment_slip_url ? `<button type="button" class="schedule-switch-date-btn" style="background:#fef3c7; color:#92400e; border-color:#fde68a;" onclick="viewBookingSlip('${b.id}')"><i class="fa-solid fa-receipt"></i> ดูสลิป</button>` : ''}
                                 ${!isActive ? `<button type="button" class="schedule-switch-date-btn" onclick="selectDateFromSchedule('${sDate}', '${space.id}')">ดูสถานะวันนี้</button>` : ''}
                             </div>
                         </div>
@@ -3779,6 +3780,33 @@
             });
 
             listEl.innerHTML = html;
+        }
+
+        function viewBookingSlip(bookingId) {
+            const booking = (activeBookings || []).find(b => b.id === bookingId);
+            if (!booking || !booking.payment_slip_url) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'ไม่มีสลิป',
+                    text: 'ไม่พบรูปสลิปการโอนเงินของคำขอนี้ครับ',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
+                return;
+            }
+            const src = booking.payment_slip_url.startsWith('data:') || booking.payment_slip_url.startsWith('http') 
+                ? booking.payment_slip_url 
+                : `data:image/jpeg;base64,${booking.payment_slip_url}`;
+            Swal.fire({
+                title: `หลักฐานสลิปโอนเงิน`,
+                text: `ยอดชำระ: ${booking.total_price ? '฿' + Number(booking.total_price).toLocaleString() : '-'}`,
+                imageUrl: src,
+                imageAlt: 'สลิปโอนเงิน',
+                showCloseButton: true,
+                showConfirmButton: false,
+                background: '#ffffff',
+                customClass: { popup: 'swal-custom-popup' }
+            });
         }
 
         function selectDateFromSchedule(dateStr, spaceId) {

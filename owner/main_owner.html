@@ -1738,6 +1738,54 @@
             background: linear-gradient(135deg, #b45309 0%, #92400e 100%);
         }
 
+        .btn-card-approve {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .btn-card-approve:hover {
+            background: #15803d;
+            color: #ffffff;
+            border-color: #15803d;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(21, 128, 61, 0.25);
+        }
+
+        .btn-card-reject {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .btn-card-reject:hover {
+            background: #b91c1c;
+            color: #ffffff;
+            border-color: #b91c1c;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(185, 28, 28, 0.25);
+        }
+
         .btn-card-phone {
             background: #f0fdf4;
             color: #166534;
@@ -6769,26 +6817,10 @@
             const timeAgo = new Date(booking.created_at).toLocaleDateString('th-TH', { hour: '2-digit', minute: '2-digit' });
             const dateRange = `${formatThaiDateShort(booking.start_date)} - ${formatThaiDateShort(booking.end_date || booking.start_date)}`;
             const initials = (booking.bookerName || 'ผ')[0].toUpperCase();
-
-            const bookingData = encodeURIComponent(JSON.stringify({
-                id: booking.id,
-                space_id: booking.space_id,
-                bookerName: booking.bookerName,
-                bookerPhone: booking.bookerPhone,
-                venueName: booking.venueName,
-                venueId: booking.venueId,
-                spaceNumber: booking.spaceNumber,
-                startDate: booking.start_date,
-                endDate: booking.end_date,
-                totalPrice: booking.total_price,
-                slipUrl: booking.payment_slip_url,
-                status: booking.status
-            }));
-
             const hasSlip = !!booking.payment_slip_url;
 
             return `
-                <div class="booking-req-card ${isUnread ? 'unread' : ''}" onclick="openBookingModal('${bookingData}', this)">
+                <div class="booking-req-card ${isUnread ? 'unread' : ''}" onclick="openInspectBooking('${booking.id}', this)">
                     <div class="booking-req-top">
                         <div class="booking-req-merchant">
                             <div class="merchant-avatar-circle">${initials}</div>
@@ -6841,9 +6873,17 @@
                                 </a>
                             ` : ''}
                         </div>
-                        <button type="button" class="btn-card-inspect" onclick="openBookingModal('${bookingData}')">
-                            <i class="fa-solid fa-receipt"></i> ตรวจสลิป & อนุมัติ
-                        </button>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button type="button" class="btn-card-inspect" onclick="openInspectBooking('${booking.id}')">
+                                <i class="fa-solid fa-receipt"></i> ตรวจสอบสลิป
+                            </button>
+                            <button type="button" class="btn-card-approve" onclick="quickDecideBooking('${booking.id}', 'confirmed')" title="อนุมัติการจอง">
+                                <i class="fa-solid fa-check"></i> อนุมัติ
+                            </button>
+                            <button type="button" class="btn-card-reject" onclick="quickDecideBooking('${booking.id}', 'cancelled')" title="ไม่อนุมัติ / สลิปไม่ถูกต้อง">
+                                <i class="fa-solid fa-xmark"></i> ปฏิเสธ
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -6856,23 +6896,8 @@
             const statusBg = isConfirmed ? '#dcfce7' : '#fef3c7';
             const statusColor = isConfirmed ? '#166534' : '#92400e';
 
-            const bookingData = encodeURIComponent(JSON.stringify({
-                id: booking.id,
-                space_id: booking.space_id,
-                bookerName: booking.bookerName,
-                bookerPhone: booking.bookerPhone,
-                venueName: booking.venueName,
-                venueId: booking.venueId,
-                spaceNumber: booking.spaceNumber,
-                startDate: booking.start_date,
-                endDate: booking.end_date,
-                totalPrice: booking.total_price,
-                slipUrl: booking.payment_slip_url,
-                status: booking.status
-            }));
-
             return `
-                <div class="upcoming-req-card">
+                <div class="upcoming-req-card" onclick="openInspectBooking('${booking.id}')">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                         <div style="display:flex; align-items:center; gap:8px;">
                             <span class="stall-pill-amber" style="background:#0284c7;"><i class="fa-solid fa-store"></i> ล็อค ${booking.spaceNumber}</span>
@@ -6901,12 +6926,12 @@
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px solid #f1f5f9;">
                         <div>
                             ${booking.payment_slip_url ? `
-                                <button type="button" class="notif-action-pill" onclick="openBookingModal('${bookingData}')" style="padding:4px 10px; font-size:0.78rem;">
+                                <button type="button" class="notif-action-pill" onclick="event.stopPropagation(); openInspectBooking('${booking.id}')" style="padding:4px 10px; font-size:0.78rem;">
                                     <i class="fa-solid fa-receipt"></i> ดูสลิป
                                 </button>
                             ` : '<span style="font-size:0.75rem; color:#94a3b8;">ไม่มีสลิปแนบ</span>'}
                         </div>
-                        <a href="tenant_info_owner.html?id=${booking.venueId}&date=${booking.start_date}" class="btn-card-map" style="color:#0284c7; border-color:#bae6fd; background:#f0f9ff;">
+                        <a href="tenant_info_owner.html?id=${booking.venueId}&date=${booking.start_date}" class="btn-card-map" style="color:#0284c7; border-color:#bae6fd; background:#f0f9ff;" onclick="event.stopPropagation();">
                             <i class="fa-solid fa-map-location-dot"></i> ดูผังตลาด & ล็อค
                         </a>
                     </div>
@@ -7258,18 +7283,76 @@
             document.getElementById('venue-modal').style.display = 'none';
         }
 
-        function openBookingModal(encodedData, element) {
+        function openBookingModal(dataOrId, element) {
+            if (typeof dataOrId === 'string' && (dataOrId.startsWith('%7B') || dataOrId.startsWith('{'))) {
+                try {
+                    const parsed = JSON.parse(decodeURIComponent(dataOrId));
+                    return openInspectBooking(parsed.id, element);
+                } catch(e) {}
+            }
+            return openInspectBooking(dataOrId, element);
+        }
+
+        async function openInspectBooking(bookingId, element) {
             if (element) {
                 markNotificationAsRead(element);
             }
+            if (!bookingId) return;
 
-            const data = JSON.parse(decodeURIComponent(encodedData));
+            // 1. Look up booking from memory caches
+            let data = (pendingBookingsCache || []).find(b => b.id === bookingId)
+                || (upcomingBookingsCache || []).find(b => b.id === bookingId)
+                || (window.cachedOwnerBookings || []).find(b => b.id === bookingId);
+
+            // If not found or if payment_slip_url is missing, query database
+            if (!data || !data.payment_slip_url) {
+                try {
+                    const { data: dbBooking } = await supabaseClient
+                        .from('bookings')
+                        .select('*, profiles(first_name, last_name, display_name, phone), spaces(space_number, venue_id, venues(id, name))')
+                        .eq('id', bookingId)
+                        .single();
+                    if (dbBooking) {
+                        const p = dbBooking.profiles || {};
+                        const s = dbBooking.spaces || {};
+                        const v = s.venues || {};
+                        data = {
+                            ...dbBooking,
+                            bookerName: p.first_name ? `${p.first_name} ${p.last_name || ''}`.trim() : (p.display_name || 'ผู้ใช้'),
+                            bookerPhone: p.phone || '',
+                            spaceNumber: s.space_number || data?.spaceNumber || '-',
+                            venueName: v.name || data?.venueName || '-',
+                            venueId: v.id || s.venue_id || data?.venueId || '',
+                            startDate: dbBooking.start_date,
+                            endDate: dbBooking.end_date,
+                            totalPrice: dbBooking.total_price,
+                            slipUrl: dbBooking.payment_slip_url,
+                            status: dbBooking.status
+                        };
+                    }
+                } catch (fetchErr) {
+                    console.warn("Could not fetch booking details:", fetchErr);
+                }
+            }
+
+            if (!data) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่พบข้อมูลคำขอจอง',
+                    text: 'ไม่สามารถโหลดข้อมูลคำขอจองนี้ได้ กรุณาลองใหม่อีกครั้งครับ',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
+                return;
+            }
+
             currentBookingId = data.id;
             currentSpaceId = data.space_id;
             currentBookingData = data;
 
+            // Fill Booker Info
             const nameEl = document.getElementById('modal-booker-name');
-            if (nameEl) nameEl.textContent = data.bookerName || '-';
+            if (nameEl) nameEl.textContent = data.bookerName || 'ผู้จอง';
 
             const phoneEl = document.getElementById('modal-booker-phone');
             const callBtn = document.getElementById('modal-call-btn');
@@ -7286,31 +7369,36 @@
                 }
             }
 
+            // Fill Venue & Space Info
             const venueEl = document.getElementById('modal-venue-name');
             if (venueEl) venueEl.textContent = data.venueName || '-';
 
             const spaceEl = document.getElementById('modal-space-name');
             if (spaceEl) spaceEl.textContent = 'ล็อค ' + (data.spaceNumber || '-');
 
+            // Fill Schedule
             const startEl = document.getElementById('modal-start-date');
-            if (startEl) startEl.textContent = formatThaiDateShort(data.startDate);
+            if (startEl) startEl.textContent = formatThaiDateShort(data.startDate || data.start_date);
 
             const endEl = document.getElementById('modal-end-date');
-            if (endEl) endEl.textContent = formatThaiDateShort(data.endDate || data.startDate);
+            if (endEl) endEl.textContent = formatThaiDateShort(data.endDate || data.end_date || data.startDate || data.start_date);
 
+            // Fill Price
             const priceEl = document.getElementById('modal-total-price');
-            if (priceEl) priceEl.textContent = '฿' + Number(data.totalPrice || 0).toLocaleString();
+            if (priceEl) priceEl.textContent = '฿' + Number(data.totalPrice || data.total_price || 0).toLocaleString();
 
+            // Map link
+            const mapLink = document.getElementById('modal-view-map-link');
+            if (mapLink) {
+                mapLink.href = data.venueId ? `tenant_info_owner.html?id=${data.venueId}&date=${data.startDate || data.start_date}` : '#';
+            }
+
+            // Status Banner and Action Buttons
             const statusBanner = document.getElementById('modal-status-banner');
             const statusText = document.getElementById('modal-status-text');
             const statusSub = document.getElementById('modal-status-sub');
             const approveBtn = document.getElementById('modal-btn-approve');
             const rejectBtn = document.getElementById('modal-btn-reject');
-            const mapLink = document.getElementById('modal-view-map-link');
-
-            if (mapLink) {
-                mapLink.href = data.venueId ? `tenant_info_owner.html?id=${data.venueId}&date=${data.startDate}` : '#';
-            }
 
             if (data.status === 'confirmed') {
                 if (statusBanner) {
@@ -7323,7 +7411,10 @@
                 }
                 if (statusSub) statusSub.textContent = 'รายการจองนี้ได้รับการยืนยันและเปิดสิทธิ์การเข้าขายแล้ว';
                 if (approveBtn) approveBtn.style.display = 'none';
-                if (rejectBtn) rejectBtn.style.display = 'inline-flex';
+                if (rejectBtn) {
+                    rejectBtn.style.display = 'inline-flex';
+                    rejectBtn.innerHTML = '<i class="fa-solid fa-xmark"></i> ยกเลิกการจอง';
+                }
             } else {
                 if (statusBanner) {
                     statusBanner.style.background = '#fef3c7';
@@ -7334,64 +7425,43 @@
                     statusText.style.color = '#92400e';
                 }
                 if (statusSub) statusSub.textContent = 'กรุณาตรวจสอบสลิปโอนเงินก่อนดำเนินการยืนยัน';
-                if (approveBtn) approveBtn.style.display = 'inline-flex';
-                if (rejectBtn) rejectBtn.style.display = 'inline-flex';
+                if (approveBtn) {
+                    approveBtn.style.display = 'inline-flex';
+                    approveBtn.innerHTML = '<i class="fa-solid fa-check"></i> ยืนยันสลิป & อนุมัติการจอง';
+                }
+                if (rejectBtn) {
+                    rejectBtn.style.display = 'inline-flex';
+                    rejectBtn.innerHTML = '<i class="fa-solid fa-xmark"></i> ปฏิเสธ (สลิปไม่ถูกต้อง)';
+                }
             }
 
+            // Slip display
             const slipImg = document.getElementById('modal-slip-image');
             const noSlipMsg = document.getElementById('modal-no-slip');
             const expandBtn = document.getElementById('modal-slip-expand-btn');
 
-            if (data.slipUrl) {
-                const src = data.slipUrl.startsWith('data:') || data.slipUrl.startsWith('http') ? data.slipUrl : `data:image/jpeg;base64,${data.slipUrl}`;
+            const rawSlip = data.slipUrl || data.payment_slip_url;
+            if (rawSlip) {
+                const src = rawSlip.startsWith('data:') || rawSlip.startsWith('http') ? rawSlip : `data:image/jpeg;base64,${rawSlip}`;
                 if (slipImg) {
                     slipImg.src = src;
                     slipImg.style.display = 'block';
+                    slipImg.style.cursor = 'zoom-in';
                 }
                 if (noSlipMsg) noSlipMsg.style.display = 'none';
                 if (expandBtn) {
                     expandBtn.href = src;
                     expandBtn.style.display = 'inline-flex';
+                    expandBtn.onclick = function(e) {
+                        e.preventDefault();
+                        openFullSlipImage(src);
+                    };
                 }
-            } else if (data.id) {
-                // Fetch slip on-demand without stalling initial page load
-                if (slipImg) slipImg.style.display = 'none';
-                if (noSlipMsg) {
-                    noSlipMsg.style.display = 'block';
-                    noSlipMsg.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="font-size:1.8rem; color:#a46309; margin-bottom: 0.5rem;"></i><p>กำลังโหลดรูปสลิป...</p>';
-                }
-                supabaseClient.from('bookings').select('payment_slip_url').eq('id', data.id).single()
-                    .then(({ data: bData }) => {
-                        if (bData && bData.payment_slip_url) {
-                            data.slipUrl = bData.payment_slip_url;
-                            const src = data.slipUrl.startsWith('data:') || data.slipUrl.startsWith('http') ? data.slipUrl : `data:image/jpeg;base64,${data.slipUrl}`;
-                            if (slipImg) {
-                                slipImg.src = src;
-                                slipImg.style.display = 'block';
-                            }
-                            if (noSlipMsg) noSlipMsg.style.display = 'none';
-                            if (expandBtn) {
-                                expandBtn.href = src;
-                                expandBtn.style.display = 'inline-flex';
-                            }
-                        } else {
-                            if (noSlipMsg) {
-                                noSlipMsg.innerHTML = '<i class="fa-solid fa-image-slash"></i><p>ไม่มีรูปสลิปการโอนเงินแนบมา</p>';
-                                noSlipMsg.style.display = 'block';
-                            }
-                        }
-                    })
-                    .catch(() => {
-                        if (noSlipMsg) {
-                            noSlipMsg.innerHTML = '<i class="fa-solid fa-image-slash"></i><p>ไม่มีรูปสลิปการโอนเงินแนบมา</p>';
-                            noSlipMsg.style.display = 'block';
-                        }
-                    });
             } else {
                 if (slipImg) slipImg.style.display = 'none';
                 if (noSlipMsg) {
-                    noSlipMsg.innerHTML = '<i class="fa-solid fa-image-slash"></i><p>ไม่มีรูปสลิปการโอนเงินแนบมา</p>';
                     noSlipMsg.style.display = 'block';
+                    noSlipMsg.innerHTML = '<i class="fa-solid fa-image-slash"></i><p>ไม่มีรูปสลิปการโอนเงินแนบมา</p>';
                 }
                 if (expandBtn) expandBtn.style.display = 'none';
             }
@@ -7433,126 +7503,145 @@
             return true;
         }
 
-        async function approveBooking() {
-            if (!requireOwnerKYC()) return;
-            if (!currentBookingId || !currentSpaceId) return;
+        async function quickDecideBooking(bookingId, status) {
+            if (!bookingId) return;
+            const isConfirmed = status === 'confirmed';
+            const actionText = isConfirmed ? 'ยืนยันการชำระเงินและอนุมัติการจอง' : 'ปฏิเสธคำขอจอง (สลิปไม่ถูกต้อง)';
+            const confirmColor = isConfirmed ? '#10b981' : '#ef4444';
 
             const res = await Swal.fire({
-                title: 'ยืนยันการอนุมัติ?',
-                text: 'คุณแน่ใจหรือไม่ที่จะอนุมัติการจองและสลิปนี้?',
                 icon: 'question',
+                title: 'ยืนยันการทำรายการ?',
+                text: `คุณต้องการ ${actionText} ใช่หรือไม่?`,
                 showCancelButton: true,
-                confirmButtonColor: '#10b981',
-                cancelButtonColor: '#64748b',
-                confirmButtonText: '<i class="fa-solid fa-check"></i> ใช่, อนุมัติการจอง',
+                confirmButtonText: isConfirmed ? '<i class="fa-solid fa-check"></i> ยืนยันอนุมัติ' : '<i class="fa-solid fa-xmark"></i> ยืนยันปฏิเสธ',
                 cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: confirmColor,
+                cancelButtonColor: '#64748b',
                 customClass: { popup: 'swal-custom-popup' }
             });
 
             if (!res.isConfirmed) return;
+            await executeBookingDecision(bookingId, status);
+        }
 
-            try {
-                // 1. Update Booking Status
-                const { error: bErr } = await supabaseClient
-                    .from('bookings')
-                    .update({ status: 'confirmed' })
-                    .eq('id', currentBookingId);
-                
-                if (bErr) throw bErr;
-
-                // 2. Update Space Status: only mark 'booked' if the booking actually covers today
-                const todayD = new Date();
-                const todayStr = `${todayD.getFullYear()}-${String(todayD.getMonth() + 1).padStart(2, '0')}-${String(todayD.getDate()).padStart(2, '0')}`;
-                const sDate = currentBookingData?.startDate || '';
-                const eDate = currentBookingData?.endDate || sDate;
-                const coversToday = (sDate <= todayStr && eDate >= todayStr);
-
-                const { error: sErr } = await supabaseClient
-                    .from('spaces')
-                    .update({ status: coversToday ? 'booked' : 'available' })
-                    .eq('id', currentSpaceId);
-
-                if (sErr) throw sErr;
-
-                closeBookingModal();
-                fetchPendingBookings(); // Refresh list
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'อนุมัติสำเร็จ!',
-                    text: 'อนุมัติการจองและแจ้งเตือนผู้เช่าเรียบร้อยแล้วครับ',
-                    confirmButtonText: 'ตกลง',
-                    confirmButtonColor: '#a46309',
-                    customClass: { popup: 'swal-custom-popup' },
-                    timer: 2000
-                });
-
-            } catch (err) {
-                console.error("Error approving booking:", err);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'เกิดข้อผิดพลาด',
-                    text: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้งครับ',
-                    confirmButtonText: 'ตกลง',
-                    confirmButtonColor: '#a46309',
-                    customClass: { popup: 'swal-custom-popup' }
-                });
-            }
+        async function approveBooking() {
+            if (!currentBookingId) return;
+            await quickDecideBooking(currentBookingId, 'confirmed');
         }
 
         async function rejectBooking() {
-            if (!currentBookingId || !currentSpaceId) return;
+            if (!currentBookingId) return;
+            await quickDecideBooking(currentBookingId, 'cancelled');
+        }
 
-            const res = await Swal.fire({
-                title: 'ยืนยันปฏิเสธการจอง?',
-                text: 'คุณแน่ใจหรือไม่ที่จะปฏิเสธการจองนี้? (พื้นที่นี้จะกลับมาว่างอีกครั้ง)',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#64748b',
-                confirmButtonText: 'ใช่, ปฏิเสธการจอง',
-                cancelButtonText: 'ยกเลิก',
-                customClass: { popup: 'swal-custom-popup' }
-            });
-
-            if (!res.isConfirmed) return;
-
+        async function executeBookingDecision(bookingId, status) {
             try {
-                // 1. Update Booking Status to cancelled
+                Swal.fire({
+                    title: 'กำลังบันทึกข้อมูล...',
+                    text: 'กรุณารอสักครู่',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading(),
+                    customClass: { popup: 'swal-custom-popup' }
+                });
+
+                // 1. Fetch booking details to know space_id, user_id, dates
+                const { data: bData, error: fetchErr } = await supabaseClient
+                    .from('bookings')
+                    .select('id, user_id, space_id, start_date, end_date, total_price, spaces(space_number, venue_id, venues(name))')
+                    .eq('id', bookingId)
+                    .single();
+
+                if (fetchErr || !bData) {
+                    throw new Error(fetchErr ? fetchErr.message : 'ไม่พบข้อมูลคำขอจอง');
+                }
+
+                const isConfirmed = status === 'confirmed';
+
+                // 2. Update booking status
                 const { error: bErr } = await supabaseClient
                     .from('bookings')
-                    .update({ status: 'cancelled' })
-                    .eq('id', currentBookingId);
-                
+                    .update({ status: status })
+                    .eq('id', bookingId);
+
                 if (bErr) throw bErr;
 
-                // 2. Space status to available
-                const { error: sErr } = await supabaseClient
-                    .from('spaces')
-                    .update({ status: 'available' })
-                    .eq('id', currentSpaceId);
-                    
-                if (sErr) throw sErr;
+                // 3. Update space status
+                if (bData.space_id) {
+                    const todayD = new Date();
+                    const todayStr = `${todayD.getFullYear()}-${String(todayD.getMonth() + 1).padStart(2, '0')}-${String(todayD.getDate()).padStart(2, '0')}`;
+                    const sDate = bData.start_date || '';
+                    const eDate = bData.end_date || sDate;
+                    const coversToday = (sDate <= todayStr && eDate >= todayStr);
+
+                    let newSpaceStatus = 'available';
+                    if (isConfirmed && coversToday) {
+                        newSpaceStatus = 'booked';
+                    }
+
+                    await supabaseClient
+                        .from('spaces')
+                        .update({ status: newSpaceStatus })
+                        .eq('id', bData.space_id);
+                }
+
+                // 4. Send notification to the Tenant (user_id)
+                if (bData.user_id) {
+                    const spaceNum = bData.spaces?.space_number || '-';
+                    const venueName = bData.spaces?.venues?.name || 'ตลาด';
+                    const statusText = isConfirmed ? 'ได้รับการอนุมัติแล้ว' : 'ถูกปฏิเสธ (สลิปไม่ถูกต้อง)';
+
+                    try {
+                        await supabaseClient.from('notifications').insert([{
+                            user_id: bData.user_id,
+                            title: isConfirmed ? 'คำขอจองได้รับการอนุมัติ 🎉' : 'คำขอจองไม่ผ่านการอนุมัติ',
+                            message: isConfirmed
+                                ? `เจ้าของตลาดได้ตรวจสอบสลิปและอนุมัติการจองล็อค ${spaceNum} ที่ ${venueName} เรียบร้อยแล้ว`
+                                : `คำขอจองล็อค ${spaceNum} ที่ ${venueName} ${statusText} กรุณาตรวจสอบหรือจองใหม่อีกครั้ง`,
+                            type: isConfirmed ? 'success' : 'warning',
+                            is_read: false
+                        }]);
+                    } catch (notifErr) {
+                        console.warn("Could not insert tenant notification:", notifErr);
+                    }
+                }
+
+                // 5. Update local memory caches
+                if (pendingBookingsCache) {
+                    pendingBookingsCache = pendingBookingsCache.filter(b => b.id !== bookingId);
+                }
+                if (upcomingBookingsCache) {
+                    const foundUp = upcomingBookingsCache.find(b => b.id === bookingId);
+                    if (foundUp) foundUp.status = status;
+                }
+                if (window.cachedOwnerBookings) {
+                    const found = window.cachedOwnerBookings.find(b => b.id === bookingId);
+                    if (found) found.status = status;
+                }
 
                 closeBookingModal();
-                fetchPendingBookings(); // Refresh list
+                updateNotifKPIs();
+                renderNotificationsFeed();
+
+                // Also trigger fresh fetch in background
+                fetchPendingBookings(true);
 
                 Swal.fire({
                     icon: 'success',
-                    title: 'ปฏิเสธการจองแล้ว',
-                    text: 'ปฏิเสธการจองเรียบร้อยแล้ว พื้นที่กลับมาพร้อมจองอีกครั้งครับ',
+                    title: isConfirmed ? 'อนุมัติการจองสำเร็จ' : 'ปฏิเสธคำขอจองเรียบร้อย',
+                    text: isConfirmed ? 'ระบบบันทึกสถานะและส่งการแจ้งเตือนไปยังผู้เช่าแล้วครับ' : 'ยกเลิกคำขอจองและเปิดล็อคให้ว่างแล้วครับ',
                     confirmButtonText: 'ตกลง',
                     confirmButtonColor: '#a46309',
                     customClass: { popup: 'swal-custom-popup' },
-                    timer: 2000
+                    timer: 2200
                 });
 
             } catch (err) {
-                console.error("Error rejecting booking:", err);
+                console.error("Error executing booking decision:", err);
                 Swal.fire({
                     icon: 'error',
                     title: 'เกิดข้อผิดพลาด',
-                    text: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้งครับ',
+                    text: err.message || 'ไม่สามารถทำรายการได้ กรุณาลองใหม่อีกครั้ง',
                     confirmButtonText: 'ตกลง',
                     confirmButtonColor: '#a46309',
                     customClass: { popup: 'swal-custom-popup' }
