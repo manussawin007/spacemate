@@ -15,6 +15,9 @@
             border-radius: 20px !important;
             font-family: 'Prompt', sans-serif !important;
         }
+        .swal2-container {
+            z-index: 9999999 !important;
+        }
         .day-btn {
             width: 38px;
             height: 38px;
@@ -1952,7 +1955,7 @@
             background: rgba(15, 23, 42, 0.65);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
-            z-index: 99999;
+            z-index: 10000;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -3446,393 +3449,540 @@
 
     <!-- Edit Profile View Container -->
     <div id="app-edit-profile" class="app-page" style="display: none;">
-        <header class="profile-header" style="display: flex; align-items: center;">
+        <header class="profile-header" style="display: flex; align-items: center; position: sticky; top: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); z-index: 50; padding: 1.1rem 1.5rem; border-bottom: 1px solid rgba(226, 232, 240, 0.8);">
             <a href="javascript:void(0)" class="back-btn" onclick="switchView('profile', document.querySelector('.bottom-nav .nav-item:last-child'))" style="position: absolute; left: 1.5rem;">
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
-            <h1 class="profile-title" style="flex: 1; text-align: center;">แก้ไขข้อมูลส่วนตัว</h1>
+            <h1 class="profile-title" style="flex: 1; text-align: center; font-size: 1.25rem; font-weight: 700; color: #1e293b;">แก้ไขข้อมูลส่วนตัว</h1>
         </header>
 
-        <div style="background-color: #dcfce7; color: #166534; padding: 0.75rem 1rem; text-align: center; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: -0.5rem;">
-            <i class="fa-solid fa-shield-halved"></i>
-            <span>ข้อมูลส่วนบุคคลของคุณถูกเข้ารหัสและรักษาความปลอดภัยระดับสูงสุด</span>
+        <!-- Security Trust Ribbon -->
+        <div style="background: linear-gradient(90deg, #ecfdf5 0%, #f0fdf4 100%); color: #166534; padding: 0.85rem 1.25rem; font-size: 0.825rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; border-bottom: 1px solid #bbf7d0;">
+            <i class="fa-solid fa-shield-halved" style="color: #16a34a; font-size: 1rem;"></i>
+            <span style="font-weight: 500;">ข้อมูลส่วนบุคคลได้รับการคุ้มครองตาม พ.ร.บ. PDPA และเข้ารหัสความปลอดภัย 256-Bit SSL</span>
         </div>
 
-        <div class="main-content">
-            <!-- Avatar Section -->
-            <div class="edit-avatar-container">
-                <img id="edit-profile-avatar-img" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200" alt="Avatar" class="edit-avatar">
-                <button class="edit-avatar-btn">
-                    <i class="fa-solid fa-camera"></i>
-                </button>
+        <div class="main-content" style="padding: 1.5rem; max-width: 650px; margin: 0 auto; padding-bottom: 6rem;">
+            <!-- Avatar Section with Glow & Badge -->
+            <div style="text-align: center; margin-bottom: 2rem; position: relative;">
+                <div style="position: relative; width: 120px; height: 120px; margin: 0 auto 1rem;">
+                    <img id="edit-profile-avatar-img" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid #ffffff; box-shadow: 0 10px 25px rgba(164, 99, 9, 0.25);">
+                    <button class="edit-avatar-btn" style="position: absolute; bottom: 2px; right: 2px; width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #a46309 0%, #d97706 100%); color: white; border: 3px solid #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2);" title="เปลี่ยนรูปโปรไฟล์">
+                        <i class="fa-solid fa-camera" style="font-size: 0.85rem;"></i>
+                    </button>
+                </div>
+                <div style="display: inline-flex; align-items: center; gap: 0.4rem; background: #fef3c7; color: #92400e; font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 9999px; border: 1px solid #fde68a;">
+                    <i class="fa-solid fa-briefcase"></i> บัญชีผู้ดูแลและเจ้าของพื้นที่
+                </div>
             </div>
 
-            <!-- Edit Form -->
-            <div class="edit-form-card">
-                <div class="form-group">
-                    <label class="form-label">ชื่อ-นามสกุล</label>
-                    <input type="text" id="owner-edit-name" class="form-control" value="คุณธนกฤต บริหารพื้นที่">
+            <!-- Edit Form Card -->
+            <div style="background: #ffffff; border-radius: 20px; padding: 1.75rem; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; margin-bottom: 1.5rem;">
+                
+                <div style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
+                    <i class="fa-solid fa-id-card-clip" style="color: #a46309;"></i>
+                    ข้อมูลติดต่อทั่วไป
                 </div>
-                <div class="form-group">
-                    <label class="form-label">เบอร์โทรศัพท์</label>
-                    <input type="tel" id="owner-edit-phone" class="form-control" value="0812345678" maxlength="10" inputmode="numeric" oninput="validateNumberOnly(this, 10)">
-                    <div id="owner-edit-phone-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: none;">⚠️ กรุณากรอกเบอร์โทรศัพท์เป็นตัวเลข 10 หลัก</div>
+
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label class="form-label" style="font-weight: 600; font-size: 0.85rem; color: #334155; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
+                        <i class="fa-regular fa-user" style="color: #a46309;"></i> ชื่อ-นามสกุล / ชื่อที่แสดง
+                    </label>
+                    <input type="text" id="owner-edit-name" class="form-control" value="คุณธนกฤต บริหารพื้นที่" style="border-radius: 12px; padding: 0.85rem 1rem; border: 1.5px solid #e2e8f0; font-size: 0.95rem;">
                 </div>
-                <div class="form-group">
-                    <label class="form-label">เลขประจำตัวประชาชน (13 หลัก)</label>
-                    <input type="text" id="owner-edit-idcard" class="form-control" value="1100200300405" placeholder="กรอกเลขประจำตัวประชาชน 13 หลัก" maxlength="13" inputmode="numeric" oninput="validateNumberOnly(this, 13)">
-                    <div id="owner-edit-idcard-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: none;">⚠️ กรุณากรอกเลขประจำตัวประชาชนเป็นตัวเลข 13 หลัก</div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" style="display: flex; align-items: center; gap: 0.4rem;">
-                        อีเมล
-                        <i class="fa-solid fa-circle-check" style="color: #16a34a; font-size: 0.9rem;" title="Verified"></i>
+
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label class="form-label" style="font-weight: 600; font-size: 0.85rem; color: #334155; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
+                        <i class="fa-solid fa-phone" style="color: #a46309;"></i> เบอร์โทรศัพท์ติดต่อ (10 หลัก)
                     </label>
                     <div style="position: relative;">
-                        <i class="fa-solid fa-lock" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #9ca3af;"></i>
-                        <input type="email" id="owner-edit-email" class="form-control" value="thanakrit.b@example.com" readonly style="background-color: #f3f4f6; color: #6b7280; padding-left: 2.5rem; cursor: not-allowed;">
+                        <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #64748b; font-weight: 600; font-size: 0.85rem; border-right: 1px solid #cbd5e1; padding-right: 0.6rem;">+66</span>
+                        <input type="tel" id="owner-edit-phone" class="form-control" value="0812345678" maxlength="10" inputmode="numeric" oninput="validateNumberOnly(this, 10)" style="padding-left: 3.8rem; border-radius: 12px; border: 1.5px solid #e2e8f0; font-size: 0.95rem;">
                     </div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem;">ติดต่อฝ่ายบริการลูกค้าหากต้องการเปลี่ยนอีเมล</div>
+                    <div id="owner-edit-phone-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: none;">⚠️ กรุณากรอกเบอร์โทรศัพท์เป็นตัวเลข 10 หลัก</div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">ชื่อบริษัท / ชื่อผู้ดูแล</label>
-                    <input type="text" id="owner-edit-company" class="form-control" value="บริษัท บริหารพื้นที่ จำกัด">
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label class="form-label" style="font-weight: 600; font-size: 0.85rem; color: #334155; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
+                        <i class="fa-regular fa-building" style="color: #a46309;"></i> ชื่อบริษัท / ชื่อผู้ดูแลตลาด
+                    </label>
+                    <input type="text" id="owner-edit-company" class="form-control" value="บริษัท บริหารพื้นที่ จำกัด" style="border-radius: 12px; padding: 0.85rem 1rem; border: 1.5px solid #e2e8f0; font-size: 0.95rem;" placeholder="ระบุชื่อบริษัทหรือชื่อโครงการตลาด">
                 </div>
+
+                <div style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem; margin-top: 1.5rem;">
+                    <i class="fa-solid fa-lock" style="color: #a46309;"></i>
+                    ความปลอดภัยและการยืนยันตัวตน
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label class="form-label" style="display: flex; align-items: center; justify-content: space-between; font-weight: 600; font-size: 0.85rem; color: #334155; margin-bottom: 0.4rem;">
+                        <span style="display: flex; align-items: center; gap: 0.4rem;">
+                            <i class="fa-regular fa-envelope" style="color: #a46309;"></i> อีเมลที่ลงทะเบียน
+                        </span>
+                        <span style="background: #ecfdf5; color: #166534; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 9999px;">
+                            <i class="fa-solid fa-circle-check"></i> ยืนยันแล้ว
+                        </span>
+                    </label>
+                    <div style="position: relative;">
+                        <i class="fa-solid fa-lock" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.9rem;"></i>
+                        <input type="email" id="owner-edit-email" class="form-control" value="thanakrit.b@example.com" readonly style="background-color: #f8fafc; color: #64748b; padding-left: 2.5rem; border-radius: 12px; cursor: not-allowed; border: 1.5px solid #e2e8f0; font-size: 0.95rem;">
+                    </div>
+                    <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.35rem; display: flex; align-items: center; gap: 0.3rem;">
+                        <i class="fa-solid fa-circle-info"></i> ติดต่อศูนย์บริการลูกค้าหากจำเป็นต้องเปลี่ยนอีเมลบัญชีหลัก
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-weight: 600; font-size: 0.85rem; color: #334155; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
+                        <i class="fa-solid fa-fingerprint" style="color: #a46309;"></i> เลขประจำตัวประชาชน (13 หลัก)
+                    </label>
+                    <input type="text" id="owner-edit-idcard" class="form-control" value="1100200300405" placeholder="กรอกเลขประจำตัวประชาชน 13 หลัก" maxlength="13" inputmode="numeric" oninput="validateNumberOnly(this, 13)" style="border-radius: 12px; padding: 0.85rem 1rem; border: 1.5px solid #e2e8f0; font-size: 0.95rem; letter-spacing: 0.5px;">
+                    <div id="owner-edit-idcard-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: none;">⚠️ กรุณากรอกเลขประจำตัวประชาชนเป็นตัวเลข 13 หลัก</div>
+                </div>
+
             </div>
 
-
-
-            <button class="save-btn" onclick="saveOwnerProfile()">บันทึกการเปลี่ยนแปลง</button>
+            <button class="save-btn" onclick="saveOwnerProfile()" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1rem; padding: 1rem; border-radius: 14px; box-shadow: 0 8px 20px rgba(164, 99, 9, 0.25);">
+                <i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูลส่วนตัว
+            </button>
         </div>
     </div>
 
     <!-- Bank Account View Container -->
     <style>
-        .bank-grid {
+        .bank-passbook-card {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #334155 100%);
+            border-radius: 24px;
+            padding: 1.75rem;
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 15px 35px rgba(15, 23, 42, 0.25), 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        .bank-passbook-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(217, 119, 6, 0.2) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .bank-passbook-card::after {
+            content: '';
+            position: absolute;
+            bottom: -50%;
+            left: -20%;
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .bank-chip-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 2;
+        }
+        .bank-chip {
+            width: 44px;
+            height: 34px;
+            background: linear-gradient(135deg, #fef08a 0%, #d97706 100%);
+            border-radius: 8px;
+            position: relative;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.4), 0 2px 6px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .bank-chip::after {
+            content: '';
+            width: 70%;
+            height: 60%;
+            border: 1px solid rgba(0,0,0,0.25);
+            border-radius: 4px;
+        }
+        .bank-wifi-icon {
+            font-size: 1.4rem;
+            color: rgba(255, 255, 255, 0.6);
+            transform: rotate(90deg);
+        }
+        .bank-acc-display {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: #f8fafc;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 2;
+            word-break: break-all;
+        }
+        .bank-card-footer {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+        .bank-holder-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            margin-bottom: 0.2rem;
+        }
+        .bank-holder-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+        .bank-brand-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(8px);
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .bank-grid-modern {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 0.75rem;
             margin-bottom: 1.5rem;
         }
-        .bank-tile {
-            border: 2px solid #e2e8f0;
+        @media (max-width: 480px) {
+            .bank-grid-modern {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        .bank-card-option {
+            position: relative;
+            border: 1.5px solid #e2e8f0;
             border-radius: 16px;
-            padding: 1rem 0.25rem;
+            padding: 1rem 0.5rem;
             text-align: center;
+            background: #ffffff;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            background-color: #ffffff;
-            position: relative;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-        .bank-tile:hover {
-            border-color: rgba(164, 99, 9, 0.4);
+        .bank-card-option:hover {
+            border-color: #a46309;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(164, 99, 9, 0.08);
+            box-shadow: 0 6px 18px rgba(164, 99, 9, 0.08);
         }
-        .bank-tile input[type="radio"] {
+        .bank-card-option input[type="radio"] {
             display: none;
         }
-        .bank-tile input[type="radio"]:checked + .bank-content {
-            color: #a46309;
-            font-weight: 600;
-        }
-        .bank-tile:has(input[type="radio"]:checked) {
+        .bank-card-option:has(input[type="radio"]:checked) {
             border-color: #a46309;
-            background-color: #fffaf0;
-            box-shadow: 0 8px 25px rgba(164, 99, 9, 0.15);
+            background: #fffaf0;
+            box-shadow: 0 8px 22px rgba(164, 99, 9, 0.15);
         }
-        .bank-tile:has(input[type="radio"]:checked)::after {
+        .bank-card-option:has(input[type="radio"]:checked)::after {
             content: '\f058';
             font-family: 'Font Awesome 6 Free';
             font-weight: 900;
             color: #a46309;
             position: absolute;
-            top: -8px;
-            right: -8px;
-            background: white;
+            top: -6px;
+            right: -6px;
+            background: #ffffff;
             border-radius: 50%;
-            font-size: 1.35rem;
+            font-size: 1.25rem;
             line-height: 1;
-            box-shadow: 0 2px 8px rgba(164, 99, 9, 0.2);
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 2px 6px rgba(164, 99, 9, 0.25);
+            animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        @keyframes popIn {
-            0% { transform: scale(0); }
-            100% { transform: scale(1); }
-        }
-        .bank-logo {
-            width: 42px;
-            height: 42px;
-            margin-bottom: 0.5rem;
+        .bank-logo-modern {
+            width: 46px;
+            height: 46px;
             border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 1rem;
             object-fit: cover;
+            margin-bottom: 0.5rem;
             box-shadow: 0 4px 10px rgba(0,0,0,0.08);
             transition: transform 0.3s ease;
         }
-        .bank-tile:hover .bank-logo {
+        .bank-card-option:hover .bank-logo-modern {
             transform: scale(1.1);
-        }
-        .bank-kbank { background-color: #138f2d; }
-        .bank-scb { background-color: #4e2a81; }
-        .bank-bbl { background-color: #1e4598; }
-        .bank-ktb { background-color: #1ba5e1; }
-        .bank-bay { background-color: #fec43b; color: #333; }
-        .bank-ttb { background-color: #0050f0; }
-        .bank-name {
-            font-size: 0.8rem;
-            color: var(--text-main);
-            font-weight: 500;
-            line-height: 1.2;
         }
     </style>
     <div id="app-bank-account" class="app-page" style="display: none;">
-        <header class="profile-header" style="display: flex; align-items: center;">
+        <header class="profile-header" style="display: flex; align-items: center; position: sticky; top: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); z-index: 50; padding: 1.1rem 1.5rem; border-bottom: 1px solid rgba(226, 232, 240, 0.8);">
             <a href="javascript:void(0)" class="back-btn" onclick="switchView('profile', document.querySelector('.bottom-nav .nav-item:last-child'))" style="position: absolute; left: 1.5rem;">
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
-            <h1 class="profile-title" style="flex: 1; text-align: center;">บัญชีธนาคารและการรับเงิน</h1>
+            <h1 class="profile-title" style="flex: 1; text-align: center; font-size: 1.25rem; font-weight: 700; color: #1e293b;">บัญชีธนาคารและการรับเงิน</h1>
         </header>
 
-        <div class="main-content">
-            <!-- Active Payout Account Card -->
+        <div class="main-content" style="padding: 1.5rem; max-width: 650px; margin: 0 auto; padding-bottom: 6rem;">
+            <!-- Active Payout Account Card Section -->
             <div id="current-bank-account-section" style="display: none;">
-                <h2 style="font-size: 1rem; color: var(--text-muted); margin-bottom: 0.75rem; margin-top: 0.5rem;">บัญชีรับเงินปัจจุบัน</h2>
-                <div style="background-color: var(--card-bg); border-radius: 16px; padding: 1.25rem; margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; align-items: center; gap: 1rem; border: 1px solid var(--border-color);">
-                    <img id="active-bank-logo" src="../assets/กสิกรไทย.png" alt="Bank Logo" class="bank-logo" style="width: 48px; height: 48px; margin-bottom: 0; object-fit: cover; border-radius: 50%;">
-                    <div style="flex: 1;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
-                            <div id="active-bank-acc" style="font-weight: 600; font-size: 1.1rem; color: var(--text-main); letter-spacing: 1px;">-</div>
-                            <span style="background-color: #dcfce7; color: #166534; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 12px; font-weight: 600;">● บัญชีรับเงินหลัก</span>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                    <div style="font-size: 0.95rem; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-credit-card" style="color: #a46309;"></i> บัญชีรับเงินค่าเช่าหลัก
+                    </div>
+                    <span style="background: #ecfdf5; color: #166534; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 9999px; display: flex; align-items: center; gap: 0.35rem;">
+                        <i class="fa-solid fa-circle" style="font-size: 0.45rem; color: #22c55e;"></i> เชื่อมโยงพร้อมรับเงิน
+                    </span>
+                </div>
+
+                <!-- Digital Bank Passbook Card Mockup -->
+                <div class="bank-passbook-card">
+                    <div class="bank-chip-row">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div class="bank-chip"></div>
+                            <i class="fa-solid fa-wifi bank-wifi-icon"></i>
                         </div>
-                        <div id="active-bank-name" style="font-size: 0.85rem; color: var(--text-muted);">-</div>
-                        <div id="active-bank-owner" style="font-size: 0.9rem; color: var(--text-main); margin-top: 0.2rem;">-</div>
+                        <div class="bank-brand-pill">
+                            <img id="active-bank-logo" src="../assets/กสิกรไทย.png" alt="Bank Logo" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover;">
+                            <span id="active-bank-name" style="font-size: 0.8rem; font-weight: 600; color: #ffffff;">-</span>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.25rem;">
+                        ACCOUNT NUMBER
+                    </div>
+                    <div id="active-bank-acc" class="bank-acc-display">-</div>
+
+                    <div class="bank-card-footer">
+                        <div>
+                            <div class="bank-holder-label">CARDHOLDER / ACCOUNT NAME</div>
+                            <div id="active-bank-owner" class="bank-holder-name">-</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="background: rgba(253, 224, 71, 0.2); color: #fde047; font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 6px; border: 1px solid rgba(253, 224, 71, 0.3);">
+                                <i class="fa-solid fa-star"></i> PRIMARY PAYOUT
+                            </span>
+                        </div>
                     </div>
                 </div>
-                <button id="change-bank-btn" class="save-btn" style="background: #fff; color: var(--primary-color); border: 1px solid var(--primary-color); margin-top: 0;" onclick="showAddBankForm()">แก้ไขบัญชีธนาคาร</button>
+
+                <!-- 3 Quick Payout Benefit Pills -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin-bottom: 1.5rem;">
+                    <div style="background: #ffffff; border-radius: 14px; padding: 0.75rem 0.5rem; text-align: center; border: 1px solid #f1f5f9; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+                        <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.2rem;"><i class="fa-solid fa-bolt" style="color: #eab308;"></i> รอบโอน</div>
+                        <div style="font-size: 0.85rem; font-weight: 700; color: #1e293b;">T+1 วันทำการ</div>
+                    </div>
+                    <div style="background: #ffffff; border-radius: 14px; padding: 0.75rem 0.5rem; text-align: center; border: 1px solid #f1f5f9; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+                        <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.2rem;"><i class="fa-solid fa-tag" style="color: #10b981;"></i> ค่าธรรมเนียม</div>
+                        <div style="font-size: 0.85rem; font-weight: 700; color: #16a34a;">ฟรี 0 บาท</div>
+                    </div>
+                    <div style="background: #ffffff; border-radius: 14px; padding: 0.75rem 0.5rem; text-align: center; border: 1px solid #f1f5f9; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+                        <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.2rem;"><i class="fa-solid fa-shield-halved" style="color: #3b82f6;"></i> ระบบคุ้มครอง</div>
+                        <div style="font-size: 0.85rem; font-weight: 700; color: #1e293b;">ปลอดภัย 100%</div>
+                    </div>
+                </div>
+
+                <button id="change-bank-btn" class="save-btn" style="background: #ffffff; color: #a46309; border: 1.5px solid #a46309; box-shadow: 0 4px 12px rgba(164, 99, 9, 0.1); margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 0.5rem;" onclick="showAddBankForm()">
+                    <i class="fa-solid fa-pen-to-square"></i> แก้ไขข้อมูลบัญชีธนาคาร
+                </button>
             </div>
 
             <!-- Form to Add/Edit Bank Account -->
             <div id="add-bank-account-section">
-                <h2 id="bank-form-title" style="font-size: 1rem; color: var(--text-muted); margin-bottom: 0.75rem;">เพิ่มบัญชีธนาคาร</h2>
-                <div class="edit-form-card" style="padding-bottom: 1.5rem;">
-                <label class="form-label">เลือกธนาคาร</label>
-                <div class="bank-grid">
-                    <label class="bank-tile">
-                        <input type="radio" name="bank_selection" value="kbank" checked>
-                        <div class="bank-content">
-                            <img src="../assets/กสิกรไทย.png" alt="กสิกรไทย" class="bank-logo">
-                            <div class="bank-name">กสิกรไทย</div>
-                        </div>
-                    </label>
-                    <label class="bank-tile">
-                        <input type="radio" name="bank_selection" value="scb">
-                        <div class="bank-content">
-                            <img src="../assets/ไทยพาณิชย์.jpg" alt="ไทยพาณิชย์" class="bank-logo">
-                            <div class="bank-name">ไทยพาณิชย์</div>
-                        </div>
-                    </label>
-                    <label class="bank-tile">
-                        <input type="radio" name="bank_selection" value="bbl">
-                        <div class="bank-content">
-                            <img src="../assets/กรุงเทพ.jpg" alt="กรุงเทพ" class="bank-logo">
-                            <div class="bank-name">กรุงเทพ</div>
-                        </div>
-                    </label>
-                    <label class="bank-tile">
-                        <input type="radio" name="bank_selection" value="ktb">
-                        <div class="bank-content">
-                            <img src="../assets/กรุงไทย.png" alt="กรุงไทย" class="bank-logo">
-                            <div class="bank-name">กรุงไทย</div>
-                        </div>
-                    </label>
-                    <label class="bank-tile">
-                        <input type="radio" name="bank_selection" value="bay">
-                        <div class="bank-content">
-                            <img src="../assets/กรุงศรี.png" alt="กรุงศรีฯ" class="bank-logo">
-                            <div class="bank-name">กรุงศรีฯ</div>
-                        </div>
-                    </label>
-                    <label class="bank-tile">
-                        <input type="radio" name="bank_selection" value="ttb">
-                        <div class="bank-content">
-                            <img src="../assets/ทีทีบี.jpg" alt="ทีทีบี" class="bank-logo">
-                            <div class="bank-name">ทีทีบี</div>
-                        </div>
-                    </label>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                    <h2 id="bank-form-title" style="font-size: 1.05rem; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-building-columns" style="color: #a46309;"></i> เพิ่มบัญชีธนาคาร
+                    </h2>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">เลขที่บัญชี</label>
-                    <input type="text" id="owner-bank-account-no" class="form-control" placeholder="ระบุเลขที่บัญชีธนาคาร 10-12 หลัก" pattern="[0-9]*" inputmode="numeric" maxlength="12" oninput="validateNumberOnly(this, 10)">
-                    <div id="owner-bank-account-no-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: none;">⚠️ กรุณากรอกเลขที่บัญชีธนาคารเป็นตัวเลข 10-12 หลัก</div>
-                </div>
-                
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label class="form-label">
-                        ชื่อบัญชีธนาคาร
+                <div style="background: #ffffff; border-radius: 20px; padding: 1.75rem; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; margin-bottom: 1.5rem;">
+                    <label class="form-label" style="font-weight: 700; font-size: 0.875rem; color: #334155; margin-bottom: 0.75rem; display: block;">
+                        เลือกสถาบันการเงิน / ธนาคาร
                     </label>
-                    <div style="position: relative;">
-                        <input type="text" id="owner-bank-account-name" class="form-control" placeholder="ระบุชื่อบัญชีธนาคาร">
+
+                    <div class="bank-grid-modern">
+                        <label class="bank-card-option">
+                            <input type="radio" name="bank_selection" value="kbank" checked>
+                            <img src="../assets/กสิกรไทย.png" alt="กสิกรไทย" class="bank-logo-modern">
+                            <div style="font-size: 0.8rem; font-weight: 600; color: #1e293b;">กสิกรไทย</div>
+                            <div style="font-size: 0.7rem; color: #64748b;">KBANK</div>
+                        </label>
+
+                        <label class="bank-card-option">
+                            <input type="radio" name="bank_selection" value="scb">
+                            <img src="../assets/ไทยพาณิชย์.jpg" alt="ไทยพาณิชย์" class="bank-logo-modern">
+                            <div style="font-size: 0.8rem; font-weight: 600; color: #1e293b;">ไทยพาณิชย์</div>
+                            <div style="font-size: 0.7rem; color: #64748b;">SCB</div>
+                        </label>
+
+                        <label class="bank-card-option">
+                            <input type="radio" name="bank_selection" value="bbl">
+                            <img src="../assets/กรุงเทพ.jpg" alt="กรุงเทพ" class="bank-logo-modern">
+                            <div style="font-size: 0.8rem; font-weight: 600; color: #1e293b;">กรุงเทพ</div>
+                            <div style="font-size: 0.7rem; color: #64748b;">BBL</div>
+                        </label>
+
+                        <label class="bank-card-option">
+                            <input type="radio" name="bank_selection" value="ktb">
+                            <img src="../assets/กรุงไทย.png" alt="กรุงไทย" class="bank-logo-modern">
+                            <div style="font-size: 0.8rem; font-weight: 600; color: #1e293b;">กรุงไทย</div>
+                            <div style="font-size: 0.7rem; color: #64748b;">KTB</div>
+                        </label>
+
+                        <label class="bank-card-option">
+                            <input type="radio" name="bank_selection" value="bay">
+                            <img src="../assets/กรุงศรี.png" alt="กรุงศรีฯ" class="bank-logo-modern">
+                            <div style="font-size: 0.8rem; font-weight: 600; color: #1e293b;">กรุงศรีฯ</div>
+                            <div style="font-size: 0.7rem; color: #64748b;">BAY</div>
+                        </label>
+
+                        <label class="bank-card-option">
+                            <input type="radio" name="bank_selection" value="ttb">
+                            <img src="../assets/ทีทีบี.jpg" alt="ทีทีบี" class="bank-logo-modern">
+                            <div style="font-size: 0.8rem; font-weight: 600; color: #1e293b;">ทีทีบี</div>
+                            <div style="font-size: 0.7rem; color: #64748b;">TTB</div>
+                        </label>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1.25rem;">
+                        <label class="form-label" style="font-weight: 600; font-size: 0.85rem; color: #334155; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
+                            <i class="fa-solid fa-hashtag" style="color: #a46309;"></i> เลขที่บัญชีธนาคาร (10-12 หลัก)
+                        </label>
+                        <input type="text" id="owner-bank-account-no" class="form-control" placeholder="ระบุเลขที่บัญชีธนาคาร 10-12 หลัก" pattern="[0-9]*" inputmode="numeric" maxlength="12" oninput="validateNumberOnly(this, 10)" style="border-radius: 12px; padding: 0.85rem 1rem; border: 1.5px solid #e2e8f0; font-size: 1rem; font-family: 'Courier New', monospace; letter-spacing: 1px;">
+                        <div id="owner-bank-account-no-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: none;">⚠️ กรุณากรอกเลขที่บัญชีธนาคารเป็นตัวเลข 10-12 หลัก</div>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="font-weight: 600; font-size: 0.85rem; color: #334155; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
+                            <i class="fa-regular fa-id-badge" style="color: #a46309;"></i> ชื่อบัญชีธนาคาร (ตรงกับหน้าสมุดบัญชี)
+                        </label>
+                        <input type="text" id="owner-bank-account-name" class="form-control" placeholder="ระบุชื่อบัญชีธนาคารให้ถูกต้อง" style="border-radius: 12px; padding: 0.85rem 1rem; border: 1.5px solid #e2e8f0; font-size: 0.95rem;">
+                        <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.35rem;">
+                            💡 แนะนำ: ชื่อบัญชีควรตรงกับชื่อผู้ลงทะเบียนหรือชื่อบริษัท เพื่อป้องกันความล่าช้าในการโอนเงิน
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div style="background-color: #dcfce7; color: #166534; padding: 1rem; border-radius: 12px; font-size: 0.85rem; display: flex; align-items: flex-start; gap: 0.75rem; margin-top: 1.5rem; margin-bottom: 1.5rem;">
-                <i class="fa-solid fa-lock" style="margin-top: 0.2rem; font-size: 1rem;"></i>
-                <span style="line-height: 1.4;">เงินค่าเช่าจะถูกโอนเข้าบัญชีนี้โดยอัตโนมัติหลังจากผู้เช่าชำระเงินเรียบร้อย กรุณาตรวจสอบความถูกต้องของข้อมูล</span>
-            </div>
+                <div style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); color: #166534; padding: 1rem 1.25rem; border-radius: 16px; font-size: 0.85rem; display: flex; align-items: flex-start; gap: 0.75rem; border: 1px solid #bbf7d0; margin-bottom: 1.5rem;">
+                    <i class="fa-solid fa-shield-halved" style="margin-top: 0.15rem; font-size: 1.1rem; color: #16a34a;"></i>
+                    <span style="line-height: 1.5;">เงินค่าเช่าจะถูกโอนเข้าบัญชีนี้โดยอัตโนมัติหลังจากผู้เช่าชำระเงินและสลิปผ่านการตรวจสอบเรียบร้อย ข้อมูลบัญชีของคุณได้รับการปกป้องด้วยมาตรฐานความปลอดภัยระดับธนาคาร</span>
+                </div>
 
-            <button class="save-btn" onclick="saveOwnerBankAccount()">บันทึกข้อมูลบัญชีธนาคาร</button>
+                <button class="save-btn" onclick="saveOwnerBankAccount()" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1rem; padding: 1rem; border-radius: 14px; box-shadow: 0 8px 20px rgba(164, 99, 9, 0.25);">
+                    <i class="fa-solid fa-circle-check"></i> บันทึกข้อมูลบัญชีธนาคาร
+                </button>
             </div>
         </div>
     </div>
 
     <!-- Packages View Container -->
     <style>
-        .pkg-card {
+        .pkg-grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            align-items: stretch;
+        }
+        @media (max-width: 680px) {
+            .pkg-grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        .pkg-modern-card {
             background-color: #ffffff;
             border-radius: 24px;
             padding: 2rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid #f1f5f9;
+            border: 1.5px solid #e2e8f0;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 10px 30px rgba(0,0,0,0.03);
             position: relative;
-            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
-        .pkg-card:hover {
+        .pkg-modern-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 35px rgba(0,0,0,0.06);
         }
-        .pkg-card.pro {
+        .pkg-modern-card.pro-tier {
             border: 2px solid transparent;
-            background: linear-gradient(#fff, #fff) padding-box, 
-                        linear-gradient(135deg, #a46309, #fde047, #a46309) border-box;
-            transform: scale(1.03);
-            margin-top: 2.5rem;
-            margin-bottom: 2.5rem;
-            z-index: 10;
+            background: linear-gradient(#ffffff, #ffffff) padding-box, 
+                        linear-gradient(135deg, #a46309 0%, #fbbf24 50%, #d97706 100%) border-box;
+            box-shadow: 0 15px 40px rgba(164, 99, 9, 0.12);
         }
-        .pkg-card.pro::before {
+        .pkg-modern-card.pro-tier::before {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(circle at top right, rgba(253, 224, 71, 0.15), transparent 70%);
-            z-index: 0;
+            background: radial-gradient(circle at top right, rgba(253, 224, 71, 0.12), transparent 70%);
             pointer-events: none;
+            border-radius: 22px;
         }
-        .pkg-card.pro > * {
-            position: relative;
-            z-index: 1;
-        }
-        .pkg-card.pro:hover {
-            box-shadow: 0 20px 50px rgba(164, 99, 9, 0.2);
-            transform: scale(1.05) translateY(-5px);
-        }
-        .pkg-badge {
+        .pkg-badge-gold {
             position: absolute;
-            top: -18px;
+            top: -16px;
             right: 1.5rem;
-            background: linear-gradient(135deg, #a46309, #d97706);
+            background: linear-gradient(135deg, #a46309 0%, #d97706 100%);
             color: white;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 700;
-            padding: 0.5rem 1.25rem;
-            border-radius: 20px;
+            padding: 0.4rem 1.1rem;
+            border-radius: 9999px;
             box-shadow: 0 6px 15px rgba(164, 99, 9, 0.3);
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            text-transform: uppercase;
+            gap: 0.4rem;
             letter-spacing: 0.5px;
-            animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
-        @keyframes bounceIn {
-            0% { transform: scale(0); opacity: 0; }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .pkg-title {
-            font-size: 1.35rem;
-            font-weight: 700;
-            color: var(--text-main);
-            margin-bottom: 0.25rem;
-        }
-        .pkg-price {
-            font-size: 2.2rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #a46309, #d97706);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.25rem;
-            font-family: 'Prompt', sans-serif;
-        }
-        .pkg-subtext {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-bottom: 1.5rem;
-        }
-        .pkg-features {
-            list-style: none;
-            margin-bottom: 2rem;
-        }
-        .pkg-feature {
+        .pkg-feature-item {
             display: flex;
             align-items: flex-start;
             gap: 0.75rem;
-            margin-bottom: 1rem;
-            font-size: 1rem;
-            color: var(--text-main);
+            margin-bottom: 0.9rem;
+            font-size: 0.925rem;
+            color: #334155;
             line-height: 1.5;
         }
-        .pkg-feature i.fa-check {
+        .pkg-feature-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+            margin-top: 0.15rem;
+        }
+        .pkg-feature-icon.check {
             color: #a46309;
             background: rgba(164, 99, 9, 0.1);
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-            flex-shrink: 0;
-            margin-top: 0.1rem;
         }
-        .pkg-feature i.fa-xmark {
+        .pkg-feature-icon.check-gold {
+            color: #d97706;
+            background: #fef3c7;
+        }
+        .pkg-feature-icon.cross {
             color: #94a3b8;
             background: #f1f5f9;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-            flex-shrink: 0;
-            margin-top: 0.1rem;
         }
-        .pkg-feature.disabled {
-            color: #94a3b8;
-        }
-        .pkg-btn {
+        .pkg-action-btn {
             width: 100%;
-            padding: 1rem;
-            border-radius: 16px;
+            padding: 0.95rem;
+            border-radius: 14px;
             font-family: inherit;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
             text-align: center;
             border: none;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 1.5rem;
         }
         .pkg-btn-disabled {
             background-color: #f1f5f9;
@@ -3841,103 +3991,133 @@
             border: 1px solid #e2e8f0;
         }
         .pkg-btn-primary {
-            background: linear-gradient(135deg, #a46309 0%, #8f5506 100%);
+            background: linear-gradient(135deg, #a46309 0%, #d97706 100%);
             color: white;
             box-shadow: 0 8px 20px rgba(164, 99, 9, 0.25);
-            animation: pulseGlow 2s infinite;
         }
         .pkg-btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 25px rgba(164, 99, 9, 0.4);
-            animation: none;
-        }
-        .pkg-btn-primary:active {
-            transform: scale(0.96);
-        }
-        
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 0 0 0 rgba(164, 99, 9, 0.4); }
-            70% { box-shadow: 0 0 0 12px rgba(164, 99, 9, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(164, 99, 9, 0); }
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(164, 99, 9, 0.35);
         }
     </style>
     <div id="app-packages" class="app-page" style="display: none;">
-        <header class="profile-header" style="display: flex; align-items: center;">
+        <header class="profile-header" style="display: flex; align-items: center; position: sticky; top: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); z-index: 50; padding: 1.1rem 1.5rem; border-bottom: 1px solid rgba(226, 232, 240, 0.8);">
             <a href="javascript:void(0)" class="back-btn" onclick="switchView('profile', document.querySelector('.bottom-nav .nav-item:last-child'))" style="position: absolute; left: 1.5rem;">
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
-            <h1 class="profile-title" style="flex: 1; text-align: center; font-family: 'Sarabun', 'Prompt', sans-serif;">แพ็กเกจของฉัน</h1>
+            <h1 class="profile-title" style="flex: 1; text-align: center; font-size: 1.25rem; font-weight: 700; color: #1e293b;">แพ็กเกจของฉัน</h1>
         </header>
 
-        <div id="current-package-text" style="background-color: #F8FAFC; color: #475569; padding: 0.75rem 1rem; text-align: center; font-size: 0.9rem; font-weight: 500; border-bottom: 1px solid #E2E8F0;">
-            แพ็กเกจปัจจุบัน: เริ่มต้น (Free)
+        <!-- Current Package Hero Banner -->
+        <div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-bottom: 1px solid #fde68a; padding: 1.25rem 1.5rem; text-align: center;">
+            <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: #ffffff; padding: 0.35rem 0.9rem; border-radius: 9999px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 0.5rem;">
+                <i class="fa-solid fa-sparkles" style="color: #d97706;"></i>
+                <span id="current-package-text" style="font-size: 0.85rem; font-weight: 700; color: #92400e;">
+                    แพ็กเกจปัจจุบัน: เริ่มต้น (Free)
+                </span>
+            </div>
+            <div style="font-size: 0.8rem; color: #78350f;">
+                เลือกแพ็กเกจที่เหมาะสมเพื่อขยายศักยภาพการบริหารตลาดของคุณให้เต็มประสิทธิภาพ
+            </div>
         </div>
 
-        <div class="main-content" style="padding-bottom: 6rem; padding-top: 1rem;">
+        <div class="main-content" style="padding: 1.5rem; max-width: 800px; margin: 0 auto; padding-bottom: 6rem;">
             
-            <!-- Free Plan -->
-            <div class="pkg-card">
-                <div class="pkg-title">เริ่มต้น (Free)</div>
-                <div class="pkg-price" style="color: #475569;">฿0 <span style="font-size: 0.9rem; font-weight: 400; color: var(--text-muted);">/ เดือน</span></div>
-                <div class="pkg-subtext" style="visibility: hidden;">Spacer</div>
-                
-                <ul class="pkg-features">
-                    <li class="pkg-feature">
-                        <i class="fa-solid fa-check"></i>
-                        <span>จัดการพื้นที่ได้ 1 ตลาด</span>
-                    </li>
-                    <li class="pkg-feature">
-                        <i class="fa-solid fa-check"></i>
-                        <span>รองรับสูงสุด 50 ล็อค</span>
-                    </li>
-                    <li class="pkg-feature">
-                        <i class="fa-solid fa-check"></i>
-                        <span>ดูสถานะการจองพื้นฐาน</span>
-                    </li>
-                    <li class="pkg-feature disabled">
-                        <i class="fa-solid fa-xmark"></i>
-                        <span>ระบบตรวจสลิปอัตโนมัติ</span>
-                    </li>
-                    <li class="pkg-feature disabled">
-                        <i class="fa-solid fa-xmark"></i>
-                        <span>รายงานสถิติเชิงลึก</span>
-                    </li>
-                </ul>
-                
-                <button id="btn-free-plan" class="pkg-btn pkg-btn-disabled" disabled onclick="downgradeToFree()">กำลังใช้งาน</button>
+            <div class="pkg-grid-container">
+                <!-- Free Plan Card -->
+                <div class="pkg-modern-card">
+                    <div>
+                        <div style="font-size: 1.2rem; font-weight: 700; color: #1e293b; margin-bottom: 0.25rem;">เริ่มต้น (Free)</div>
+                        <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;">สำหรับเจ้าของพื้นที่เริ่มต้นทดลองใช้งาน</div>
+                        
+                        <div style="font-size: 2.25rem; font-weight: 800; color: #1e293b; margin-bottom: 1.5rem; font-family: 'Prompt', sans-serif;">
+                            ฿0 <span style="font-size: 0.9rem; font-weight: 500; color: #64748b;">/ เดือน</span>
+                        </div>
+
+                        <div style="border-top: 1px solid #f1f5f9; padding-top: 1.25rem; margin-bottom: 1.5rem;">
+                            <div class="pkg-feature-item">
+                                <span class="pkg-feature-icon check"><i class="fa-solid fa-check"></i></span>
+                                <span>จัดการพื้นที่ได้ <strong>1 ตลาด</strong></span>
+                            </div>
+                            <div class="pkg-feature-item">
+                                <span class="pkg-feature-icon check"><i class="fa-solid fa-check"></i></span>
+                                <span>รองรับสูงสุด <strong>50 ล็อค</strong></span>
+                            </div>
+                            <div class="pkg-feature-item">
+                                <span class="pkg-feature-icon check"><i class="fa-solid fa-check"></i></span>
+                                <span>แดชบอร์ดตรวจสอบสถานะการจอง</span>
+                            </div>
+                            <div class="pkg-feature-item" style="color: #94a3b8;">
+                                <span class="pkg-feature-icon cross"><i class="fa-solid fa-xmark"></i></span>
+                                <span>ระบบตรวจสลิปอัตโนมัติด้วย AI</span>
+                            </div>
+                            <div class="pkg-feature-item" style="color: #94a3b8;">
+                                <span class="pkg-feature-icon cross"><i class="fa-solid fa-xmark"></i></span>
+                                <span>รายงานสถิติรายได้และวิเคราะห์ยอดขาย</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="btn-free-plan" class="pkg-action-btn pkg-btn-disabled" disabled onclick="downgradeToFree()">
+                        กำลังใช้งาน
+                    </button>
+                </div>
+
+                <!-- Pro Plan Card -->
+                <div class="pkg-modern-card pro-tier">
+                    <div class="pkg-badge-gold">
+                        <i class="fa-solid fa-crown" style="color: #fef08a;"></i> แนะนำสำหรับมือโปร
+                    </div>
+                    
+                    <div>
+                        <div style="font-size: 1.2rem; font-weight: 700; color: #1e293b; margin-bottom: 0.25rem;">มือโปร (Pro)</div>
+                        <div style="font-size: 0.85rem; color: #d97706; font-weight: 600; margin-bottom: 1rem;">ปลดล็อกทุกฟีเจอร์บริหารตลาดเต็มรูปแบบ</div>
+                        
+                        <div style="font-size: 2.25rem; font-weight: 800; background: linear-gradient(135deg, #a46309, #d97706); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1.5rem; font-family: 'Prompt', sans-serif;">
+                            ฿199 <span style="font-size: 0.9rem; font-weight: 500; color: #64748b; -webkit-text-fill-color: #64748b;">/ เดือน</span>
+                        </div>
+
+                        <div style="border-top: 1px solid #fef3c7; padding-top: 1.25rem; margin-bottom: 1.5rem;">
+                            <div class="pkg-feature-item">
+                                <span class="pkg-feature-icon check-gold"><i class="fa-solid fa-check"></i></span>
+                                <span>จัดการตลาดและล็อคได้ <strong>ไม่จำกัดจำนวน</strong></span>
+                            </div>
+                            <div class="pkg-feature-item">
+                                <span class="pkg-feature-icon check-gold"><i class="fa-solid fa-check"></i></span>
+                                <span>ระบบ <strong>AI ตรวจสอบสลิปอัตโนมัติ</strong> แม่นยำ</span>
+                            </div>
+                            <div class="pkg-feature-item">
+                                <span class="pkg-feature-icon check-gold"><i class="fa-solid fa-check"></i></span>
+                                <span>แจ้งเตือนอัปเดตและทวงค่าเช่าผ่าน <strong>SMS/LINE</strong></span>
+                            </div>
+                            <div class="pkg-feature-item">
+                                <span class="pkg-feature-icon check-gold"><i class="fa-solid fa-check"></i></span>
+                                <span>รายงานสถิติรายได้เชิงลึก & <strong>Export Excel</strong></span>
+                            </div>
+                            <div class="pkg-feature-item">
+                                <span class="pkg-feature-icon check-gold"><i class="fa-solid fa-check"></i></span>
+                                <span>ฝ่ายสนับสนุนระดับ <strong>VIP Priority 24/7</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="btn-upgrade-pro" class="pkg-action-btn pkg-btn-primary" onclick="upgradeToPro()">
+                        <i class="fa-solid fa-bolt"></i> อัปเกรดเป็น Pro ตอนนี้
+                    </button>
+                </div>
             </div>
 
-            <!-- Pro Plan -->
-            <div class="pkg-card pro">
-                <div class="pkg-badge"><i class="fa-solid fa-crown" style="color: #fef08a;"></i> ยอดนิยม</div>
-                <div class="pkg-title">มือโปร (Pro)</div>
-                <div class="pkg-price">฿199 <span style="font-size: 0.9rem; font-weight: 400; color: var(--text-muted);">/ เดือน</span></div>
-                <div class="pkg-subtext" style="color: #ea580c; font-weight: 500;">คุ้มค่าที่สุดสำหรับเจ้าของตลาด</div>
-                
-                <ul class="pkg-features">
-                    <li class="pkg-feature">
-                        <i class="fa-solid fa-check"></i>
-                        <span><strong>ไม่จำกัด</strong> จำนวนตลาดและล็อค</span>
-                    </li>
-                    <li class="pkg-feature">
-                        <i class="fa-solid fa-check"></i>
-                        <span>ระบบตรวจสลิปอัตโนมัติด้วย <strong>AI</strong></span>
-                    </li>
-                    <li class="pkg-feature">
-                        <i class="fa-solid fa-check"></i>
-                        <span>แจ้งเตือนทวงค่าเช่าผ่าน SMS</span>
-                    </li>
-                    <li class="pkg-feature">
-                        <i class="fa-solid fa-check"></i>
-                        <span>รายงานสถิติรายได้เชิงลึก</span>
-                    </li>
-                    <li class="pkg-feature">
-                        <i class="fa-solid fa-check"></i>
-                        <span>ซัพพอร์ตระดับพรีเมียม 24/7</span>
-                    </li>
-                </ul>
-                
-                <button id="btn-upgrade-pro" class="pkg-btn pkg-btn-primary" onclick="upgradeToPro()">อัปเกรดเป็น Pro</button>
+            <!-- Guarantee Strip -->
+            <div style="background: #ffffff; border-radius: 16px; padding: 1.25rem; border: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-around; flex-wrap: wrap; gap: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: #475569;">
+                    <i class="fa-solid fa-rotate-left" style="color: #a46309;"></i> ยกเลิกหรือเปลี่ยนแผนได้ตลอดเวลา
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: #475569;">
+                    <i class="fa-solid fa-shield-halved" style="color: #10b981;"></i> ระบบชำระเงินปลอดภัย 100%
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: #475569;">
+                    <i class="fa-solid fa-wand-magic-sparkles" style="color: #3b82f6;"></i> เริ่มใช้งานฟีเจอร์ได้ทันที
+                </div>
             </div>
 
         </div>
@@ -4917,97 +5097,245 @@
             transform: none;
         }
     </style>
+    <!-- Support View Container -->
+    <style>
+        .support-hero-modern {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 24px;
+            padding: 2.25rem 1.5rem;
+            text-align: center;
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(15, 23, 42, 0.15);
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .support-hero-modern::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(164, 99, 9, 0.3) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .faq-item-modern {
+            background: #ffffff;
+            border: 1px solid #f1f5f9;
+            border-radius: 16px;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .faq-item-modern:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+        }
+        .faq-question-bar {
+            padding: 1.1rem 1.25rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            gap: 1rem;
+        }
+        .faq-question-bar i.fa-angle-down {
+            color: #a46309;
+            transition: transform 0.3s ease;
+        }
+        .faq-item-modern.active .faq-question-bar i.fa-angle-down {
+            transform: rotate(180deg);
+        }
+        .faq-answer-box {
+            padding: 0 1.25rem 1.25rem 1.25rem;
+            font-size: 0.875rem;
+            color: #64748b;
+            line-height: 1.6;
+            display: none;
+            border-top: 1px solid #f8fafc;
+            padding-top: 0.75rem;
+        }
+        .faq-item-modern.active .faq-answer-box {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        .contact-card-line-vip {
+            background: linear-gradient(135deg, #06c755 0%, #05a847 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 10px 25px rgba(6, 199, 85, 0.25);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .contact-card-line-vip:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(6, 199, 85, 0.35);
+        }
+    </style>
     <div id="app-support" class="app-page" style="display: none;">
-        <header class="profile-header" style="display: flex; align-items: center;">
+        <header class="profile-header" style="display: flex; align-items: center; position: sticky; top: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); z-index: 50; padding: 1.1rem 1.5rem; border-bottom: 1px solid rgba(226, 232, 240, 0.8);">
             <a href="javascript:void(0)" class="back-btn" onclick="switchView('profile', document.querySelector('.bottom-nav .nav-item:last-child'))" style="position: absolute; left: 1.5rem;">
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
-            <h1 class="profile-title" style="flex: 1; text-align: center;">ศูนย์ช่วยเหลือ</h1>
+            <h1 class="profile-title" style="flex: 1; text-align: center; font-size: 1.25rem; font-weight: 700; color: #1e293b;">ศูนย์ช่วยเหลือ</h1>
         </header>
 
-        <div class="main-content" style="padding-bottom: 6rem; padding-top: 1rem;">
+        <div class="main-content" style="padding: 1.5rem; max-width: 750px; margin: 0 auto; padding-bottom: 6rem;">
             
-            <div class="support-hero">
-                <div class="support-icon-circle">
-                    <i class="fa-solid fa-headset"></i>
+            <!-- Modern Support Hero -->
+            <div class="support-hero-modern">
+                <div style="position: relative; z-index: 2;">
+                    <div style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(34, 197, 94, 0.2); color: #4ade80; font-size: 0.75rem; font-weight: 700; padding: 0.3rem 0.8rem; border-radius: 9999px; margin-bottom: 1rem; border: 1px solid rgba(74, 222, 128, 0.3);">
+                        <i class="fa-solid fa-circle" style="font-size: 0.45rem;"></i> เจ้าหน้าที่พร้อมให้บริการ
+                    </div>
+                    <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">ศูนย์ดูแลและช่วยเหลือเจ้าของตลาด</h2>
+                    <p style="font-size: 0.9rem; color: #cbd5e1; max-width: 480px; margin: 0 auto 1.5rem;">
+                        ทีมงาน SpaceMate และระบบผู้ช่วยอัจฉริยะพร้อมตอบทุกข้อสงสัยของคุณตลอด 24 ชั่วโมง
+                    </p>
+
+                    <!-- Search Input for FAQs -->
+                    <div style="position: relative; max-width: 450px; margin: 0 auto;">
+                        <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 1.1rem; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.95rem;"></i>
+                        <input type="text" id="faq-search-input" oninput="filterFaqs(this.value)" placeholder="ค้นหาคำถามที่คุณสงสัย (เช่น โอนเงิน, ผังตลาด, แพ็กเกจ)..." style="width: 100%; padding: 0.85rem 1rem 0.85rem 2.8rem; border-radius: 9999px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.15); color: #ffffff; font-size: 0.9rem; backdrop-filter: blur(8px); outline: none;">
+                    </div>
                 </div>
-                <div class="support-title">มีคำถามหรือข้อสงสัย?</div>
-                <div class="support-subtitle">ทีมงาน Spacemate และผู้ช่วยอัจฉริยะพร้อมดูแลคุณ</div>
             </div>
 
-            <div class="contact-section-title">ช่องทางการติดต่อ</div>
+            <!-- Contact Channels Title -->
+            <div style="font-size: 1rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-headset" style="color: #a46309;"></i> ช่องทางการติดต่อด่วน
+            </div>
             
-            <!-- LINE Official -->
-            <a href="https://line.me/R/ti/p/@049uytux" target="_blank" rel="noopener noreferrer" class="contact-card-premium">
-                <div class="contact-card-icon">
-                    <i class="fa-brands fa-line"></i>
+            <!-- LINE Official SpaceMate (VIP Card) -->
+            <a href="https://line.me/R/ti/p/@049uytux" target="_blank" rel="noopener noreferrer" class="contact-card-line-vip">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="width: 52px; height: 52px; background: rgba(255,255,255,0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; flex-shrink: 0;">
+                        <i class="fa-brands fa-line"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.5rem;">
+                            LINE Official: SpaceMate
+                            <span style="background: rgba(255,255,255,0.25); font-size: 0.65rem; padding: 0.15rem 0.5rem; border-radius: 9999px;">@049uytux</span>
+                        </div>
+                        <div style="font-size: 0.8rem; opacity: 0.9;">คลิกเพื่อแชทสอบถามกับทีมงานได้ทันที (ตอบกลับภายใน 5 นาที)</div>
+                    </div>
                 </div>
-                <div class="contact-card-info">
-                    <div class="contact-card-title">ติดต่อผ่าน LINE Official (@049uytux)</div>
-                    <div class="contact-card-sub">คลิกเพื่อแอดไลน์และติดต่อสอบถามกับทีมงานได้ทันที</div>
+                <div style="background: rgba(255,255,255,0.2); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
                 </div>
-                <i class="fa-solid fa-chevron-right" style="color: #cbd5e1;"></i>
             </a>
 
             <!-- Grid for Phone & Email -->
-            <div class="contact-grid">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
                 <!-- Phone -->
-                <a href="tel:020000000" class="contact-card-small contact-phone">
-                    <div class="icon-wrapper">
+                <a href="tel:020000000" style="background: #ffffff; border: 1px solid #f1f5f9; border-radius: 18px; padding: 1.25rem; display: flex; flex-direction: column; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: all 0.3s ease;">
+                    <div style="width: 44px; height: 44px; border-radius: 12px; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 0.75rem;">
                         <i class="fa-solid fa-phone"></i>
                     </div>
-                    <div class="contact-card-title">โทรศัพท์</div>
-                    <div class="contact-card-sub">02-XXX-XXXX</div>
+                    <div style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 0.2rem;">สายด่วนโทรศัพท์</div>
+                    <div style="font-size: 0.8rem; color: #64748b;">02-000-0000</div>
+                    <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 0.5rem;">จันทร์ - เสาร์ (08:30 - 20:00 น.)</div>
                 </a>
 
                 <!-- Email -->
-                <a href="mailto:support@spacemate.dev" class="contact-card-small contact-email">
-                    <div class="icon-wrapper">
+                <a href="mailto:support@spacemate.dev" style="background: #ffffff; border: 1px solid #f1f5f9; border-radius: 18px; padding: 1.25rem; display: flex; flex-direction: column; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: all 0.3s ease;">
+                    <div style="width: 44px; height: 44px; border-radius: 12px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 0.75rem;">
                         <i class="fa-solid fa-envelope"></i>
                     </div>
-                    <div class="contact-card-title">อีเมล</div>
-                    <div class="contact-card-sub">support@spacemate.dev</div>
+                    <div style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 0.2rem;">อีเมลฝ่ายสนับสนุน</div>
+                    <div style="font-size: 0.8rem; color: #64748b;">support@spacemate.dev</div>
+                    <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 0.5rem;">ตอบกลับภายใน 24 ชั่วโมง</div>
                 </a>
             </div>
 
-            <div class="contact-section-title">คำถามที่พบบ่อย (FAQ)</div>
-            
-            <div class="faq-card" onclick="this.classList.toggle('active')">
-                <div class="faq-question">
-                    เงินค่าเช่าจะโอนเข้าบัญชีวันไหน? <i class="fa-solid fa-angle-down"></i>
-                </div>
-                <div class="faq-answer">
-                    ระบบจะทำการโอนเงินเข้าบัญชีหลักของคุณภายใน 1-2 วันทำการ หลังจากที่ระบบตรวจสอบการชำระเงินจากผู้เช่าเรียบร้อยแล้ว
+            <!-- FAQ Section -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                <div style="font-size: 1rem; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-circle-question" style="color: #a46309;"></i> คำถามที่พบบ่อย (FAQ)
                 </div>
             </div>
             
-            <div class="faq-card" onclick="this.classList.toggle('active')">
-                <div class="faq-question">
-                    อยากเปลี่ยนรูปแผนผังตลาดทำอย่างไร? <i class="fa-solid fa-angle-down"></i>
+            <div id="faq-list-container">
+                <div class="faq-item-modern" onclick="this.classList.toggle('active')">
+                    <div class="faq-question-bar">
+                        <span>เงินค่าเช่าล็อคจะถูกโอนเข้าบัญชีธนาคารวันไหน?</span>
+                        <i class="fa-solid fa-angle-down"></i>
+                    </div>
+                    <div class="faq-answer-box">
+                        ระบบจะทำการโอนเงินเข้าบัญชีธนาคารหลักที่คุณได้ตั้งค่าไว้โดยอัตโนมัติภายใน <strong>1-2 วันทำการ (T+1)</strong> หลังจากที่ผู้เช่าทำการชำระเงินและสลิปได้รับการยืนยันความถูกต้องเรียบร้อยแล้ว โดยไม่มีค่าธรรมเนียมการโอน
+                    </div>
                 </div>
-                <div class="faq-answer">
-                    คุณสามารถไปที่เมนู 'จัดการพื้นที่' และเลือกแก้ไขรายละเอียดของตลาด จากนั้นอัปโหลดรูปแผนผังใหม่ได้เลย
+                
+                <div class="faq-item-modern" onclick="this.classList.toggle('active')">
+                    <div class="faq-question-bar">
+                        <span>ต้องการแก้ไขรูปแผนผังตลาดหรือเพิ่มล็อคใหม่ ต้องทำอย่างไร?</span>
+                        <i class="fa-solid fa-angle-down"></i>
+                    </div>
+                    <div class="faq-answer-box">
+                        คุณสามารถไปที่เมนู <strong>'จัดการพื้นที่'</strong> เลือกตลาดที่ต้องการ จากนั้นกดปุ่ม <strong>'แก้ไขผังตลาด'</strong> เพื่ออัปโหลดรูปแผนผังใหม่ หรือลากจัดวางล็อคในระบบ Map Editor ได้อย่างสะดวกตลอดเวลา
+                    </div>
+                </div>
+
+                <div class="faq-item-modern" onclick="this.classList.toggle('active')">
+                    <div class="faq-question-bar">
+                        <span>ระบบตรวจสลิปอัตโนมัติด้วย AI ทำงานอย่างไรและแม่นยำแค่ไหน?</span>
+                        <i class="fa-solid fa-angle-down"></i>
+                    </div>
+                    <div class="faq-answer-box">
+                        ระบบ AI ของ SpaceMate จะสแกนและตรวจสอบ Slip Verification กับฐานข้อมูลธนาคารทันทีที่ผู้เช่าแนบสลิป ตรวจสอบยอดเงิน วันที่ และเลขอ้างอิงอย่างแม่นยำ พร้อมแจ้งเตือนเจ้าของตลาดทันทีเมื่อพบสลิปปลอมหรือยอดเงินไม่ตรง
+                    </div>
+                </div>
+
+                <div class="faq-item-modern" onclick="this.classList.toggle('active')">
+                    <div class="faq-question-bar">
+                        <span>การอัปเกรดเป็นแพ็กเกจ Pro มีสิทธิประโยชน์และเงื่อนไขอย่างไร?</span>
+                        <i class="fa-solid fa-angle-down"></i>
+                    </div>
+                    <div class="faq-answer-box">
+                        แพ็กเกจ Pro ราคาเพียง 199 บาท/เดือน ปลดล็อกการสร้างตลาดและล็อคได้ไม่จำกัด พร้อมฟีเจอร์ตรวจสลิป AI, รายงานสถิติรายได้เชิงลึก, และทีมงานซัพพอร์ต VIP โดยสามารถยกเลิกหรือต่ออายุได้ตลอดเวลา
+                    </div>
                 </div>
             </div>
 
-            <div class="faq-card" onclick="this.classList.toggle('active')">
-                <div class="faq-question">
-                    การอัปเกรดเป็นแพ็กเกจ Pro <i class="fa-solid fa-angle-down"></i>
-                </div>
-                <div class="faq-answer">
-                    คุณสามารถอัปเกรดได้ที่เมนู 'แพ็กเกจของฉัน' ในหน้าโปรไฟล์ เพื่อใช้ฟีเจอร์ต่างๆ เช่น ระบบตรวจสลิปอัตโนมัติด้วย AI
-                </div>
-            </div>
-
-        </div>
         </div>
     </div>
+
+    <script>
+        function filterFaqs(query) {
+            const q = (query || '').toLowerCase().trim();
+            const items = document.querySelectorAll('#faq-list-container .faq-item-modern');
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (!q || text.includes(q)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+    </script>
 
     <!-- Floating Action Button -->
     <a href="#" onclick="requireOwnerKYC(event, 'add_space_owner.html')" class="fab-btn" id="main-fab">
         <i class="fa-solid fa-plus"></i>
     </a>
-    </div>
+    </div> <!-- .app-container -->
+    </div> <!-- .desktop-app -->
 
     <!-- Fixed Bottom Navbar -->
     <nav class="bottom-nav">
@@ -7108,7 +7436,7 @@
             // Pending bookings
             pendingBookingsCache = allBookings.filter(b => b.status === 'pending').map(b => {
                 const sp = spaceMap[b.space_id] || { number: '-', venueName: '-', venueId: '' };
-                const bName = b.profiles ? `${b.profiles.first_name || ''} ${b.profiles.last_name || ''}`.trim() || 'ผู้ใช้' : 'ผู้ใช้';
+                const bName = b.profiles ? ((b.profiles.first_name ? `${b.profiles.first_name} ${b.profiles.last_name || ''}`.trim() : (b.profiles.display_name?.trim() || '')) || b.profiles.display_name?.trim() || 'ผู้ใช้') : 'ผู้ใช้';
                 return {
                     ...b,
                     spaceNumber: sp.number,
@@ -7122,7 +7450,7 @@
             // Upcoming bookings
             upcomingBookingsCache = allBookings.filter(b => b.start_date > todayStr).map(b => {
                 const sp = spaceMap[b.space_id] || { number: '-', venueName: '-', venueId: '' };
-                const bName = b.profiles ? `${b.profiles.first_name || ''} ${b.profiles.last_name || ''}`.trim() || 'พ่อค้าแม่ค้า' : 'พ่อค้าแม่ค้า';
+                const bName = b.profiles ? ((b.profiles.first_name ? `${b.profiles.first_name} ${b.profiles.last_name || ''}`.trim() : (b.profiles.display_name?.trim() || '')) || b.profiles.display_name?.trim() || 'พ่อค้าแม่ค้า') : 'พ่อค้าแม่ค้า';
                 return {
                     ...b,
                     spaceNumber: sp.number,
@@ -7199,7 +7527,7 @@
                     chunks.map(chunk =>
                         supabaseClient
                             .from('bookings')
-                            .select('*, profiles(first_name, last_name, phone)')
+                            .select('*, profiles(first_name, last_name, display_name, phone)')
                             .in('space_id', chunk)
                             .neq('status', 'cancelled')
                             .order('created_at', { ascending: false })
@@ -7318,7 +7646,7 @@
                         const v = s.venues || {};
                         data = {
                             ...dbBooking,
-                            bookerName: p.first_name ? `${p.first_name} ${p.last_name || ''}`.trim() : (p.display_name || 'ผู้ใช้'),
+                            bookerName: (p.first_name ? `${p.first_name} ${p.last_name || ''}`.trim() : (p.display_name && p.display_name.trim())) || p.display_name || 'ผู้ใช้',
                             bookerPhone: p.phone || '',
                             spaceNumber: s.space_number || data?.spaceNumber || '-',
                             venueName: v.name || data?.venueName || '-',
@@ -7522,6 +7850,7 @@
             });
 
             if (!res.isConfirmed) return;
+            closeBookingModal();
             await executeBookingDecision(bookingId, status);
         }
 

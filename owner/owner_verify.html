@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ยืนยันตัวตนเจ้าของ - Spacemate</title>
+    <link rel="icon" type="image/png" href="../images/logo.png">
     <!-- Google Fonts: Prompt -->
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
@@ -17,17 +18,26 @@
             border-radius: 20px !important;
             font-family: 'Prompt', sans-serif !important;
         }
+        .swal2-container {
+            z-index: 9999999 !important;
+        }
         :root {
-            --bg-color: #F1F4F8;
-            --primary-color: #a46309;
-            --primary-light: #fbeedb;
+            --bg-color: #f8fafc;
+            --primary: #a46309;
+            --primary-hover: #8c5408;
+            --primary-light: #fef3c7;
+            --primary-gradient: linear-gradient(135deg, #a46309 0%, #d97706 100%);
             --card-bg: #FFFFFF;
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
             --border-color: #e2e8f0;
             --success: #10b981;
+            --success-bg: #ecfdf5;
             --danger: #ef4444;
-            --warning: #eab308;
+            --warning: #f59e0b;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+            --shadow-md: 0 10px 25px -5px rgba(0,0,0,0.06), 0 8px 10px -6px rgba(0,0,0,0.04);
+            --shadow-lg: 0 20px 30px -10px rgba(164, 99, 9, 0.12);
         }
 
         * {
@@ -39,7 +49,7 @@
         }
 
         body {
-            background-color: var(--bg-color);
+            background: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%);
             color: var(--text-main);
             line-height: 1.6;
             min-height: 100vh;
@@ -49,86 +59,216 @@
         .page-header {
             position: sticky;
             top: 0;
-            background-color: rgba(241, 244, 248, 0.95);
-            backdrop-filter: blur(8px);
-            padding: 1.25rem 1.5rem;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 1rem 1.75rem;
             z-index: 100;
             display: flex;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
         }
 
         .back-btn {
-            background: rgba(255, 255, 255, 0.8);
+            background: #ffffff;
             border: 1px solid #e2e8f0;
             color: #1e293b;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             cursor: pointer;
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
             margin-right: 1rem;
         }
         .back-btn:hover {
-            background: #ffffff;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
-            color: var(--primary-color);
+            background: #f8fafc;
+            transform: translateX(-3px);
+            color: var(--primary);
             border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
-        .back-btn:active {
-            transform: translateY(0);
+
+        .header-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .page-title {
-            flex: 1;
-            text-align: center;
             font-size: 1.25rem;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .page-header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: #fef3c7;
+            color: #b45309;
+            font-size: 0.75rem;
             font-weight: 600;
-            margin-right: 40px;
+            border-radius: 20px;
+            border: 1px solid #fde68a;
         }
 
         /* Main Content */
         .main-content {
-            padding: 1.5rem;
-            max-width: 600px;
+            padding: 2rem 1.5rem 4rem;
+            max-width: 1140px;
             margin: 0 auto;
-            padding-bottom: 3rem;
         }
 
-        /* Verification Card */
-        .verify-card {
-            background-color: var(--card-bg);
+        /* Hero Banner */
+        .kyc-hero {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 24px;
+            padding: 2rem 2.25rem;
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 35px -10px rgba(15, 23, 42, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+
+        .kyc-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, rgba(217, 119, 6, 0.3) 0%, rgba(217, 119, 6, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .kyc-hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 680px;
+        }
+
+        .kyc-hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(251, 191, 36, 0.15);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            color: #fbbf24;
+            padding: 4px 14px;
             border-radius: 20px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            margin-bottom: 1.5rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kyc-hero-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            line-height: 1.3;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .kyc-hero-desc {
+            font-size: 0.92rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 1.25rem;
+        }
+
+        .kyc-hero-perks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .kyc-perk-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: #f1f5f9;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 6px 14px;
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+        }
+
+        .kyc-perk-item i {
+            color: #10b981;
+        }
+
+        .kyc-hero-visual {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .kyc-shield-badge {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.1) 100%);
+            border: 2px solid rgba(245, 158, 11, 0.4);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #fbbf24;
+            box-shadow: 0 0 40px rgba(245, 158, 11, 0.25);
+            animation: pulseShield 3s infinite ease-in-out;
+        }
+
+        @keyframes pulseShield {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(245, 158, 11, 0.2); }
+            50% { transform: scale(1.04); box-shadow: 0 0 50px rgba(245, 158, 11, 0.4); }
         }
 
         /* Step Indicator */
         .step-indicator {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             margin-bottom: 2rem;
             position: relative;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         .step-indicator::before {
             content: '';
             position: absolute;
-            top: 15px;
-            left: 15%;
-            right: 15%;
-            height: 2px;
-            background-color: var(--border-color);
+            top: 24px;
+            left: 20%;
+            right: 20%;
+            height: 3px;
+            background: #e2e8f0;
             z-index: 1;
+            border-radius: 3px;
         }
 
         .step-item {
@@ -141,251 +281,95 @@
         }
 
         .step-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background-color: var(--border-color);
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
             color: var(--text-muted);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.85rem;
+            font-size: 1.15rem;
             margin-bottom: 0.5rem;
-            font-weight: 600;
-            transition: all 0.3s;
+            font-weight: 700;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .step-item.active .step-icon {
-            background-color: var(--primary-color);
+            background: var(--primary-gradient);
+            border-color: #d97706;
             color: white;
-            box-shadow: 0 0 0 4px var(--primary-light);
+            box-shadow: 0 8px 20px rgba(164, 99, 9, 0.25);
+            transform: translateY(-2px);
         }
         
         .step-item.completed .step-icon {
-            background-color: var(--success);
+            background: #10b981;
+            border-color: #059669;
             color: white;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.2);
         }
 
         .step-label {
-            font-size: 0.75rem;
-            font-weight: 500;
+            font-size: 0.85rem;
+            font-weight: 600;
             color: var(--text-muted);
             text-align: center;
+            transition: color 0.3s;
         }
 
         .step-item.active .step-label {
-            color: var(--primary-color);
-            font-weight: 600;
+            color: var(--primary);
+            font-weight: 700;
         }
 
         .step-item.completed .step-label {
             color: var(--success);
-            font-weight: 600;
-        }
-
-        /* Form Group */
-        .form-section-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--text-main);
-            margin-bottom: 0.5rem;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 0.875rem 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-family: inherit;
-            color: var(--text-main);
-            background-color: #f8fafc;
-            transition: all 0.2s;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            background-color: #fff;
-            box-shadow: 0 0 0 3px var(--primary-light);
-        }
-
-        /* Upload Box */
-        .upload-box {
-            border: 2px dashed var(--border-color);
-            border-radius: 16px;
-            padding: 1.5rem;
-            text-align: center;
-            background-color: #f8fafc;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-bottom: 1rem;
-            position: relative;
-        }
-
-        .upload-box:hover {
-            border-color: var(--primary-color);
-            background-color: var(--primary-light);
-        }
-        
-        .upload-box.has-file {
-            border-color: #10b981;
-            background-color: #f0fdf4;
-        }
-
-        .upload-icon {
-            font-size: 2rem;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-        }
-        
-        .upload-box:hover .upload-icon {
-            color: var(--primary-color);
-        }
-
-        .upload-title {
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: var(--text-main);
-            margin-bottom: 0.25rem;
-        }
-
-        .upload-desc {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-        
-        .upload-badge {
-            position: absolute;
-            top: -10px;
-            right: 15px;
-            background-color: #e2e8f0;
-            color: var(--text-muted);
-            font-size: 0.7rem;
-            padding: 0.15rem 0.5rem;
-            border-radius: 50px;
-            font-weight: 600;
-        }
-        
-        .upload-badge.optional {
-            background-color: #f1f5f9;
-            color: #94a3b8;
-        }
-
-        .upload-preview-container {
-            margin-top: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .upload-preview-img {
-            max-height: 120px;
-            max-width: 100%;
-            width: auto;
-            border-radius: 8px;
-            object-fit: contain;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            border: 1px solid #e2e8f0;
-        }
-
-        .upload-preview-name {
-            font-size: 0.8rem;
-            color: #166534;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        /* Submit Button */
-        .submit-btn {
-            width: 100%;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 1rem;
-            border-radius: 16px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 15px rgba(164, 99, 9, 0.2);
-            font-family: inherit;
-            margin-top: 1rem;
-        }
-
-        .submit-btn:hover {
-            background-color: #8c5408;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(164, 99, 9, 0.3);
-        }
-
-        .submit-btn:active {
-            transform: translateY(0) scale(0.98);
-        }
-
-        .divider {
-            height: 1px;
-            background-color: var(--border-color);
-            margin: 1.5rem 0;
+            font-weight: 700;
         }
 
         /* Status Alert Box */
         .kyc-status-banner {
-            padding: 1.25rem;
-            border-radius: 16px;
-            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
             display: flex;
-            gap: 1rem;
+            gap: 1.25rem;
             align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            box-shadow: var(--shadow-sm);
         }
 
         .kyc-status-banner.pending {
-            background: #fefce8;
-            border: 1px solid #fef08a;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border: 1px solid #fde68a;
         }
 
         .kyc-status-banner.approved {
-            background: #ecfdf5;
-            border: 1px solid #a7f3d0;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid #bbf7d0;
         }
 
         .kyc-status-banner.rejected {
-            background: #fef2f2;
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
             border: 1px solid #fecaca;
         }
 
         .kyc-status-icon {
-            width: 46px;
-            height: 46px;
-            border-radius: 50%;
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
         }
 
         .kyc-status-banner.pending .kyc-status-icon {
-            background: #eab308;
+            background: #f59e0b;
             color: white;
         }
 
@@ -399,37 +383,331 @@
             color: white;
         }
 
-        @media (max-width: 480px) {
-            .form-control {
-                font-size: 0.85rem;
-                padding: 0.75rem 0.8rem;
+        /* Dual Column Verification Grid */
+        .verify-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.75rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (min-width: 900px) {
+            .verify-grid {
+                grid-template-columns: 1.05fr 0.95fr;
+                gap: 2rem;
             }
-            .form-label {
-                font-size: 0.8rem;
+        }
+
+        /* Verification Card */
+        .verify-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .verify-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .form-section-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-section-title i {
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+
+        .section-badge {
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            border-radius: 12px;
+            background: #f1f5f9;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        /* Form Inputs */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-icon-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon-wrapper i.leading-icon {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 1rem;
+            pointer-events: none;
+            transition: color 0.2s;
+        }
+
+        .input-icon-wrapper .form-control {
+            padding-left: 42px;
+        }
+
+        .input-icon-wrapper:focus-within i.leading-icon {
+            color: var(--primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.85rem 1.1rem;
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: var(--text-main);
+            background-color: #f8fafc;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px var(--primary-light);
+        }
+
+        .form-control::placeholder {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .form-hint {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            margin-top: 0.35rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Upload Dropboxes */
+        .upload-box {
+            border: 2px dashed #cbd5e1;
+            border-radius: 18px;
+            padding: 1.75rem 1.5rem;
+            text-align: center;
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 1.25rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-box:hover {
+            border-color: var(--primary);
+            background: #fffbeb;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .upload-box.has-file {
+            border-color: #10b981;
+            border-style: solid;
+            background: #f0fdf4;
+        }
+
+        .upload-badge {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            background: #fee2e2;
+            color: #b91c1c;
+            font-size: 0.72rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+        
+        .upload-badge.optional {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .upload-icon-circle {
+            width: 58px;
+            height: 58px;
+            border-radius: 18px;
+            background: #f1f5f9;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin: 0 auto 0.85rem;
+            transition: all 0.25s;
+        }
+
+        .upload-box:hover .upload-icon-circle {
+            background: var(--primary-light);
+            color: var(--primary);
+            transform: scale(1.08);
+        }
+
+        .upload-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.35rem;
+        }
+
+        .upload-desc {
+            font-size: 0.82rem;
+            color: #64748b;
+            max-width: 320px;
+            margin: 0 auto;
+            line-height: 1.4;
+        }
+
+        .upload-guide-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 0.75rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .upload-preview-container {
+            margin-top: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .upload-preview-img {
+            max-height: 140px;
+            max-width: 100%;
+            width: auto;
+            border-radius: 12px;
+            object-fit: contain;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+            border: 2px solid #ffffff;
+        }
+
+        .upload-preview-name {
+            font-size: 0.82rem;
+            color: #166534;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #dcfce7;
+            padding: 4px 14px;
+            border-radius: 20px;
+        }
+
+        /* Consent Card */
+        .consent-card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 1.25rem 1.5rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 1.15rem 2rem;
+            border-radius: 18px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 25px 35px -8px rgba(164, 99, 9, 0.35);
+            background: linear-gradient(135deg, #b45309 0%, #ea580c 100%);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .trust-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 2rem;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-weight: 500;
+            flex-wrap: wrap;
+        }
+
+        .trust-footer span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        @media (max-width: 768px) {
+            .kyc-hero {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1.75rem 1.5rem;
+                gap: 1.5rem;
             }
-            .form-section-title {
-                font-size: 1rem;
+            .kyc-hero-visual {
+                display: none;
             }
-            .step-label {
-                font-size: 0.7rem;
+            .kyc-hero-title {
+                font-size: 1.4rem;
+            }
+            .verify-card {
+                padding: 1.5rem 1.25rem;
             }
             .page-title {
                 font-size: 1.1rem;
-            }
-            .name-fields-row {
-                flex-direction: column !important;
-                gap: 0.5rem !important;
-            }
-        }
-        @media (min-width: 768px) {
-            .main-content {
-                max-width: 1100px !important;
-            }
-            .verify-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 2rem;
-                align-items: start;
             }
         }
     </style>
@@ -440,11 +718,48 @@
         <a href="main_owner.html?view=profile" class="back-btn" onclick="sessionStorage.setItem('active_owner_view', 'profile'); window.location.href='main_owner.html?view=profile'; return false;">
             <i class="fa-solid fa-arrow-left"></i>
         </a>
-        <h1 class="page-title">ยืนยันตัวตนเจ้าของ</h1>
+        <div class="header-content">
+            <h1 class="page-title">
+                <i class="fa-solid fa-shield-halved" style="color: var(--primary);"></i>
+                ยืนยันตัวตนเจ้าของพื้นที่ (e-KYC)
+            </h1>
+            <span class="page-header-badge">
+                <i class="fa-solid fa-bolt"></i> อนุมัติไวใน 24 ชม.
+            </span>
+        </div>
     </header>
 
     <div class="main-content">
         
+        <!-- Hero Banner -->
+        <div class="kyc-hero">
+            <div class="kyc-hero-content">
+                <div class="kyc-hero-tag">
+                    <i class="fa-solid fa-shield-check"></i> Standard Security Level 4
+                </div>
+                <h2 class="kyc-hero-title">ยกระดับความน่าเชื่อถือพื้นที่ของคุณ</h2>
+                <p class="kyc-hero-desc">
+                    ยืนยันตัวตนเพื่อปลดล็อคการรับเงินค่าเช่าโดยตรง, เพิ่มความมั่นใจให้กับผู้เช่าแผงค้า และรับตราสัญลักษณ์ <strong>Verified Market Owner</strong> สีฟ้าบนระบบค้นหา
+                </p>
+                <div class="kyc-hero-perks">
+                    <div class="kyc-perk-item">
+                        <i class="fa-solid fa-circle-check"></i> ถอนเงินค่าเช่าอัตโนมัติ T+1
+                    </div>
+                    <div class="kyc-perk-item">
+                        <i class="fa-solid fa-circle-check"></i> ตราสัญลักษณ์ Verified Badge
+                    </div>
+                    <div class="kyc-perk-item">
+                        <i class="fa-solid fa-circle-check"></i> คุ้มครองข้อมูลตาม พ.ร.บ. PDPA
+                    </div>
+                </div>
+            </div>
+            <div class="kyc-hero-visual">
+                <div class="kyc-shield-badge">
+                    <i class="fa-solid fa-certificate"></i>
+                </div>
+            </div>
+        </div>
+
         <!-- Step Indicator -->
         <div class="step-indicator">
             <div class="step-item active" id="step-1">
@@ -453,135 +768,158 @@
             </div>
             <div class="step-item" id="step-2">
                 <div class="step-icon"><i class="fa-solid fa-clock"></i></div>
-                <div class="step-label">รอตรวจสอบ</div>
+                <div class="step-label">รอตรวจสอบสิทธิ์</div>
             </div>
         </div>
 
-        <!-- Dynamic KYC Status Banner (Shown when status is pending, approved or rejected) -->
+        <!-- Dynamic KYC Status Banner -->
         <div id="kyc-banner-container" style="display: none;"></div>
-
-        <div style="text-align: center; margin-bottom: 1.5rem;">
-            <div style="width: 64px; height: 64px; background: #fefce8; color: #eab308; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1rem;">
-                <i class="fa-solid fa-shield-cat"></i>
-            </div>
-            <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.5rem;">ระบบยืนยันตัวตน (e-KYC)</h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">เพื่อมาตรฐานความปลอดภัยสูงสุดของคอมมูนิตี้ Spacemate</p>
-        </div>
-
-        <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; gap: 0.75rem; align-items: flex-start;">
-            <i class="fa-solid fa-lock" style="color: #3b82f6; margin-top: 0.2rem;"></i>
-            <div style="font-size: 0.85rem; color: #1e3a8a;">
-                <strong>ข้อมูลถูกเข้ารหัสแบบ End-to-End</strong><br>
-                ข้อมูลเหล่านี้จะถูกใช้เพื่อการตรวจสอบความน่าเชื่อถือของเจ้าของพื้นที่โดย Admin เท่านั้น และจะไม่ถูกเปิดเผยต่อสาธารณะ
-            </div>
-        </div>
 
         <form id="owner-verify-form" onsubmit="return submitVerification(event)">
             
             <div class="verify-grid">
-            <div class="verify-card">
-                <h2 class="form-section-title">
-                    <i class="fa-regular fa-id-card" style="color: var(--primary-color);"></i>
-                    ข้อมูลส่วนตัว
-                </h2>
                 
-                <div class="form-group name-fields-row" style="display: flex; gap: 1rem;">
-                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end;">
-                        <label class="form-label">ชื่อ (ตามบัตรประชาชน) *</label>
-                        <input type="text" id="owner-verify-firstname" class="form-control" placeholder="เช่น สมชาย" required>
+                <!-- Left Column: Personal Identity Details -->
+                <div class="verify-card">
+                    <div class="verify-card-header">
+                        <h2 class="form-section-title">
+                            <i class="fa-regular fa-address-card"></i>
+                            ข้อมูลส่วนบุคคล (ตามบัตร ปชช.)
+                        </h2>
+                        <span class="section-badge">ตอนที่ 1 จาก 2</span>
                     </div>
-                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end;">
-                        <label class="form-label">นามสกุล (ตามบัตรประชาชน) *</label>
-                        <input type="text" id="owner-verify-lastname" class="form-control" placeholder="เช่น ใจดี" required>
+                    
+                    <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <label class="form-label">ชื่อจริง (ภาษาไทย) *</label>
+                            <div class="input-icon-wrapper">
+                                <i class="fa-solid fa-user leading-icon"></i>
+                                <input type="text" id="owner-verify-firstname" class="form-control" placeholder="เช่น สมชาย" required>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">นามสกุล (ภาษาไทย) *</label>
+                            <div class="input-icon-wrapper">
+                                <i class="fa-solid fa-user leading-icon"></i>
+                                <input type="text" id="owner-verify-lastname" class="form-control" placeholder="เช่น ใจดี" required>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">เลขบัตรประจำตัวประชาชน 13 หลัก *</label>
-                    <input type="text" id="owner-verify-idcard" class="form-control" placeholder="กรอกเลขประจำตัวประชาชน 13 หลัก" required pattern="[0-9]{13}" title="กรุณากรอกตัวเลข 13 หลัก" maxlength="13" inputmode="numeric" oninput="validateNumberOnly(this, 13)">
-                    <div id="owner-verify-idcard-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: none;">⚠️ กรุณากรอกเลขบัตรประจำตัวประชาชนเป็นตัวเลข 13 หลัก</div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">ที่อยู่ตามบัตรประชาชน *</label>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 0.8rem;">
-                        <input type="text" id="owner-verify-address-number" class="form-control" placeholder="บ้านเลขที่/หมู่/ซอย" required>
-                        <input type="text" id="owner-verify-address-subdistrict" class="form-control" placeholder="แขวง/ตำบล" required>
+                    
+                    <div class="form-group">
+                        <label class="form-label">เลขประจำตัวประชาชน 13 หลัก *</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fa-solid fa-fingerprint leading-icon"></i>
+                            <input type="text" id="owner-verify-idcard" class="form-control" placeholder="กรอกเลขบัตร ปชช. 13 หลัก" required pattern="[0-9]{13}" title="กรุณากรอกตัวเลข 13 หลัก" maxlength="13" inputmode="numeric" oninput="validateNumberOnly(this, 13)">
+                        </div>
+                        <div id="owner-verify-idcard-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: none;">
+                            ⚠️ กรุณากรอกเลขบัตรประจำตัวประชาชนให้ครบ 13 หลัก
+                        </div>
+                        <div class="form-hint">
+                            <i class="fa-solid fa-lock"></i> ข้อมูลจะถูกเข้ารหัสแบบ 256-bit SSL ไม่เปิดเผยสาธารณะ
+                        </div>
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 0.8rem;">
-                        <input type="text" id="owner-verify-address-district" class="form-control" placeholder="เขต/อำเภอ" required>
-                        <input type="text" id="owner-verify-address-province" class="form-control" placeholder="จังหวัด" required>
+
+                    <div class="form-group">
+                        <label class="form-label">เบอร์โทรศัพท์มือถือ *</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fa-solid fa-phone leading-icon"></i>
+                            <input type="tel" id="owner-verify-phone" class="form-control" placeholder="เช่น 0812345678" required maxlength="10" inputmode="numeric" oninput="validateNumberOnly(this, 10)">
+                        </div>
+                        <div id="owner-verify-phone-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: none;">
+                            ⚠️ กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้องเป็นตัวเลข 10 หลัก
+                        </div>
                     </div>
-                    <input type="text" id="owner-verify-address-zip" class="form-control" placeholder="รหัสไปรษณีย์" required maxlength="5" inputmode="numeric" oninput="validateNumberOnly(this, 5)">
+                    
+                    <div class="form-group">
+                        <label class="form-label">ที่อยู่ตามทะเบียนบ้าน / บัตรประชาชน *</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 0.8rem;">
+                            <input type="text" id="owner-verify-address-number" class="form-control" placeholder="บ้านเลขที่ / หมู่บ้าน / ซอย" required>
+                            <input type="text" id="owner-verify-address-subdistrict" class="form-control" placeholder="แขวง / ตำบล" required>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 0.8rem;">
+                            <input type="text" id="owner-verify-address-district" class="form-control" placeholder="เขต / อำเภอ" required>
+                            <input type="text" id="owner-verify-address-province" class="form-control" placeholder="จังหวัด" required>
+                        </div>
+                        <input type="text" id="owner-verify-address-zip" class="form-control" placeholder="รหัสไปรษณีย์ 5 หลัก" required maxlength="5" inputmode="numeric" oninput="validateNumberOnly(this, 5)">
+                    </div>
+
                 </div>
-                
-                <div class="form-group">
-                    <label class="form-label">เบอร์โทรศัพท์ติดต่อ *</label>
-                    <input type="tel" id="owner-verify-phone" class="form-control" placeholder="กรอกเบอร์โทรศัพท์ 10 หลัก" required maxlength="10" inputmode="numeric" oninput="validateNumberOnly(this, 10)">
-                    <div id="owner-verify-phone-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: none;">⚠️ กรุณากรอกเบอร์โทรศัพท์เป็นตัวเลข 10 หลัก</div>
+
+                <!-- Right Column: Verification Documents -->
+                <div class="verify-card">
+                    <div class="verify-card-header">
+                        <h2 class="form-section-title">
+                            <i class="fa-solid fa-file-shield"></i>
+                            เอกสารประกอบการยืนยัน
+                        </h2>
+                        <span class="section-badge">ตอนที่ 2 จาก 2</span>
+                    </div>
+                    
+                    <!-- Box 1: ID Card -->
+                    <input type="file" id="file-idcard" accept="image/*" style="display: none;" onchange="handleFileChange(event, 'idcard')">
+                    <div class="upload-box" id="box-idcard" onclick="document.getElementById('file-idcard').click()">
+                        <span class="upload-badge">จำเป็น</span>
+                        <div class="upload-icon-circle">
+                            <i class="fa-solid fa-id-card"></i>
+                        </div>
+                        <div class="upload-title">รูปถ่ายหน้าบัตรประจำตัวประชาชน</div>
+                        <div class="upload-desc">ถ่ายรูปบัตรประชาชนให้เห็นชื่อ เลขบัตร และรูปถ่ายคมชัด ไม่สะท้อนแสง</div>
+                        <div class="upload-guide-pill">
+                            <i class="fa-solid fa-shield-halved" style="color: var(--primary);"></i> มีระบบประทับลายน้ำคุ้มครองอัตโนมัติ
+                        </div>
+                        <div class="upload-preview-container" id="preview-idcard" style="display: none;"></div>
+                    </div>
+                    
+                    <!-- Box 2: Selfie -->
+                    <input type="file" id="file-selfie" accept="image/*" style="display: none;" onchange="handleFileChange(event, 'selfie')">
+                    <div class="upload-box" id="box-selfie" onclick="document.getElementById('file-selfie').click()">
+                        <span class="upload-badge">จำเป็น</span>
+                        <div class="upload-icon-circle">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                        <div class="upload-title">รูปเซลฟี่หน้าตรงคู่กับบัตรประชาชน</div>
+                        <div class="upload-desc">ถือบัตรประชาชนแนบข้างใบหน้า เห็นหน้าตรงชัดเจน ไม่สวมแว่นดำหรือหมวก</div>
+                        <div class="upload-guide-pill">
+                            <i class="fa-solid fa-user-check" style="color: #059669;"></i> ยืนยันบุคคลจริง (Liveness Verification)
+                        </div>
+                        <div class="upload-preview-container" id="preview-selfie" style="display: none;"></div>
+                    </div>
+                    
+                    <!-- Box 3: Business Doc (Optional) -->
+                    <input type="file" id="file-business" accept="image/*,application/pdf" style="display: none;" onchange="handleFileChange(event, 'business')">
+                    <div class="upload-box" id="box-business" onclick="document.getElementById('file-business').click()" style="margin-bottom: 0;">
+                        <span class="upload-badge optional">ไม่บังคับ</span>
+                        <div class="upload-icon-circle">
+                            <i class="fa-solid fa-file-contract"></i>
+                        </div>
+                        <div class="upload-title">ทะเบียนการค้า / หนังสือรับรองนิติบุคคล</div>
+                        <div class="upload-desc">แนบเพื่อยืนยันสถานะนิติบุคคลหรือเจ้าของสัมปทานตลาด (เพิ่มความน่าเชื่อถือ)</div>
+                        <div class="upload-preview-container" id="preview-business" style="display: none;"></div>
+                    </div>
+
                 </div>
+
             </div>
 
-            <div class="verify-card">
-                <h2 class="form-section-title">
-                    <i class="fa-solid fa-file-arrow-up" style="color: var(--primary-color);"></i>
-                    เอกสารยืนยัน
-                </h2>
-                
-                <!-- Box 1: ID Card -->
-                <input type="file" id="file-idcard" accept="image/*" style="display: none;" onchange="handleFileChange(event, 'idcard')">
-                <div class="upload-box" id="box-idcard" onclick="document.getElementById('file-idcard').click()">
-                    <span class="upload-badge">จำเป็น</span>
-                    <i class="fa-solid fa-id-card upload-icon"></i>
-                    <div class="upload-title">รูปถ่ายหน้าบัตรประชาชน</div>
-                    <div class="upload-desc">คลิกเพื่ออัปโหลดรูปบัตรประชาชนให้เห็นรายละเอียดชัดเจน</div>
-                    <div style="display: inline-block; margin-top: 0.5rem; background: #fefce8; color: #a46309; padding: 0.25rem 0.5rem; border-radius: 8px; font-size: 0.7rem; border: 1px solid #fef08a;">
-                        <i class="fa-solid fa-shield"></i> มีลายน้ำความปลอดภัย
-                    </div>
-                    <div class="upload-preview-container" id="preview-idcard" style="display: none;"></div>
-                </div>
-                
-                <!-- Box 2: Selfie -->
-                <input type="file" id="file-selfie" accept="image/*" style="display: none;" onchange="handleFileChange(event, 'selfie')">
-                <div class="upload-box" id="box-selfie" onclick="document.getElementById('file-selfie').click()">
-                    <span class="upload-badge">จำเป็น</span>
-                    <i class="fa-solid fa-camera-retro upload-icon"></i>
-                    <div class="upload-title">รูปถ่ายเซลฟี่คู่กับบัตรประชาชน</div>
-                    <div class="upload-desc">คลิกเพื่ออัปโหลดรูปใบหน้าพร้อมถือบัตรประชาชน</div>
-                    <div style="display: inline-block; margin-top: 0.5rem; background: #ecfeff; color: #0891b2; padding: 0.25rem 0.5rem; border-radius: 8px; font-size: 0.7rem;">
-                        <i class="fa-solid fa-robot"></i> ตรวจสอบบุคคลจริง (Liveness Check)
-                    </div>
-                    <div class="upload-preview-container" id="preview-selfie" style="display: none;"></div>
-                </div>
-                
-                <div class="divider"></div>
-                <!-- Box 3: Business Doc (Optional) -->
-                <input type="file" id="file-business" accept="image/*,application/pdf" style="display: none;" onchange="handleFileChange(event, 'business')">
-                <div class="upload-box" id="box-business" onclick="document.getElementById('file-business').click()">
-                    <span class="upload-badge optional">ไม่บังคับ</span>
-                    <i class="fa-solid fa-file-contract upload-icon"></i>
-                    <div class="upload-title">ใบอนุญาตประกอบธุรกิจ / ทะเบียนพาณิชย์</div>
-                    <div class="upload-desc">ช่วยเพิ่มความน่าเชื่อถือให้กับพื้นที่และตลาดของคุณ</div>
-                    <div class="upload-preview-container" id="preview-business" style="display: none;"></div>
-                </div>
-            </div>
-            </div>
-
-            <div style="padding: 0 0.5rem; margin-bottom: 1.5rem;">
-                <label style="display: flex; gap: 0.75rem; align-items: flex-start; cursor: pointer;">
-                    <input type="checkbox" id="owner-verify-consent" required style="margin-top: 0.25rem; width: 16px; height: 16px; accent-color: #a46309;">
-                    <span style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
-                        ข้าพเจ้ายินยอมให้ประมวลผลข้อมูลส่วนบุคคลตาม <a href="#" style="color: #a46309; text-decoration: underline;">พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA)</a> และรับรองว่าข้อมูลทั้งหมดเป็นความจริง
+            <!-- PDPA Consent Card -->
+            <div class="consent-card">
+                <label style="display: flex; gap: 1rem; align-items: flex-start; cursor: pointer;">
+                    <input type="checkbox" id="owner-verify-consent" required style="margin-top: 0.3rem; width: 18px; height: 18px; accent-color: #a46309; cursor: pointer;">
+                    <span style="font-size: 0.85rem; color: #475569; line-height: 1.5;">
+                        ข้าพเจ้าขอยืนยันว่าข้อมูลและเอกสารทั้งหมดเป็นความจริง และยินยอมให้ระบบประมวลผลข้อมูลส่วนบุคคลตาม <a href="#" style="color: #a46309; font-weight: 600; text-decoration: underline;">พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA)</a> เพื่อวัตถุประสงค์ในการตรวจสอบสิทธิ์เจ้าของพื้นที่ตลาดในระบบ SpaceMate เท่านั้น
                     </span>
                 </label>
             </div>
 
             <button type="submit" id="submit-btn" class="submit-btn">
-                ส่งข้อมูลยืนยันตัวตน
+                <i class="fa-solid fa-paper-plane"></i> ยืนยันและส่งเอกสาร e-KYC
             </button>
             
-            <div style="text-align: center; padding-top: 2rem; color: #94a3b8; font-size: 0.75rem;">
-                <i class="fa-solid fa-shield-halved"></i> Secured by 256-bit SSL Encryption
+            <div class="trust-footer">
+                <span><i class="fa-solid fa-shield-halved" style="color: #10b981;"></i> 256-bit SSL Bank-Grade Encryption</span>
+                <span><i class="fa-solid fa-user-lock" style="color: #3b82f6;"></i> PDPA Compliant</span>
+                <span><i class="fa-solid fa-building-columns" style="color: #a46309;"></i> SpaceMate Verified Partner</span>
             </div>
 
         </form>

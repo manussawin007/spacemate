@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>จองล็อคเดิมอีกครั้ง - Spacemate</title>
+    <link rel="icon" type="image/png" href="../images/logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -16,6 +17,9 @@
         .swal-custom-popup {
             border-radius: 20px !important;
             font-family: 'Prompt', sans-serif !important;
+        }
+        .swal2-container {
+            z-index: 9999999 !important;
         }
         :root {
             --bg-color: #F1F4F8;
@@ -1565,8 +1569,8 @@
                 const dObj = new Date(dateStr + 'T00:00:00');
                 const dayOfWeek = dObj.getDay();
                 const isPast = dateStr < todayStr;
-                const isBookedAlready = spaceBookedDates.has(dateStr);
-                const isMarketOpen = marketSchedule.openDayIndices.includes(dayOfWeek);
+                const isMarketOpen = marketSchedule && marketSchedule.openDayIndices ? marketSchedule.openDayIndices.includes(dayOfWeek) : true;
+                const isBookedAlready = isMarketOpen && spaceBookedDates.has(dateStr);
                 const isToday = dateStr === todayStr;
 
                 let classes = ['cal-day-cell'];
@@ -1575,14 +1579,14 @@
 
                 if (isPast) {
                     classes.push('is-past');
-                } else if (isBookedAlready) {
-                    classes.push('is-booked-already');
-                    clickAttr = `onclick="handleBookedDayClick('${dateStr}')"`;
-                    innerExtra = '<span class="booked-indicator"><i class="fa-solid fa-lock"></i></span>';
                 } else if (!isMarketOpen) {
                     classes.push('is-closed');
                     clickAttr = `onclick="handleClosedDayClick('${THAI_DAY_FULL[dayOfWeek]}')"`;
                     innerExtra = '<span class="closed-indicator"><i class="fa-solid fa-xmark"></i></span>';
+                } else if (isBookedAlready) {
+                    classes.push('is-booked-already');
+                    clickAttr = `onclick="handleBookedDayClick('${dateStr}')"`;
+                    innerExtra = '<span class="booked-indicator"><i class="fa-solid fa-lock"></i></span>';
                 } else {
                     classes.push('is-open');
                     clickAttr = `onclick="handleCalendarDayClick('${dateStr}')"`;
@@ -1907,7 +1911,9 @@
                             const s = new Date(b.start_date + 'T00:00:00');
                             const e = new Date((b.end_date || b.start_date) + 'T00:00:00');
                             for (let d = new Date(s); d <= e; d.setDate(d.getDate() + 1)) {
-                                spaceBookedDates.add(getLocalDateString(d));
+                                if (!marketSchedule || !marketSchedule.openDayIndices || marketSchedule.openDayIndices.includes(d.getDay())) {
+                                    spaceBookedDates.add(getLocalDateString(d));
+                                }
                             }
                         });
                     }

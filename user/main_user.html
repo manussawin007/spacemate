@@ -15,6 +15,9 @@
             border-radius: 20px !important;
             font-family: 'Prompt', sans-serif !important;
         }
+        .swal2-container {
+            z-index: 9999999 !important;
+        }
         :root {
             --bg-color: #ffffff;
             --primary-color: #a46309;
@@ -1800,9 +1803,12 @@
             box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
         }
 
-        .user-notif-card.unread {
+        .user-notif-card.unread,
+        .user-notif-card.is-unread {
             background: linear-gradient(180deg, #ffffff 0%, #fffdf8 100%);
             border-color: #fde68a;
+            border-left: 5px solid #a46309;
+            box-shadow: 0 4px 16px rgba(164, 99, 9, 0.07);
         }
 
         /* Type accents */
@@ -4501,7 +4507,7 @@
                         <div class="help-faq-content">
                             ไม่ต้องกังวลครับ คุณสามารถดำเนินการได้ดังนี้:
                             <ul>
-                                <li>ติดต่อเจ้าหน้าที่ผ่าน <strong><a href="https://line.me/R/ti/p/@049uytux" target="_blank" rel="noopener noreferrer" style="color: #06c755; text-decoration: underline;">LINE Official (@049uytux)</a></strong> พร้อมแจ้ง <em>รหัสการจอง (Booking Ref)</em> และส่งรูปสลิปที่ถูกต้องเข้ามา</li>
+                                <li>ติดต่อเจ้าหน้าที่ผ่าน <strong><a href="https://line.me/R/ti/p/@049uytux" target="_blank" rel="noopener noreferrer" style="color: #06c755; text-decoration: underline;">LINE Official (SpaceMate)</a></strong> พร้อมแจ้ง <em>รหัสการจอง (Booking Ref)</em> และส่งรูปสลิปที่ถูกต้องเข้ามา</li>
                                 <li>ทีมงานจะประสานงานกับเจ้าของพื้นที่เพื่ออัปเดตและยืนยันการชำระเงินให้คุณอย่างรวดเร็วครับ</li>
                             </ul>
                         </div>
@@ -4576,7 +4582,7 @@
                                 <li><strong>แจ้งล่วงหน้าอย่างน้อย 3-5 วัน:</strong> สามารถติดต่อประสานงานเพื่อขอเลื่อนรอบวัน หรือขอคืนเงินตามเงื่อนไขของตลาดนั้นๆ</li>
                                 <li><strong>กรณีตลาดเลื่อนหรืองดจัดงาน:</strong> (เช่น ฝนตกหนัก เหตุสุดวิสัย) ทางตลาดจะประสานงานโอนเงินคืนเต็มจำนวนเข้าบัญชีธนาคารเดิมของคุณภายใน 1-3 วันทำการ</li>
                             </ul>
-                            กรุณาติดต่อผ่าน <strong><a href="https://line.me/R/ti/p/@049uytux" target="_blank" rel="noopener noreferrer" style="color: #06c755; text-decoration: underline;">LINE Official (@049uytux)</a></strong> เพื่อส่งเรื่องขอประสานงานกับผู้ดูแลตลาดครับ
+                            กรุณาติดต่อผ่าน <strong><a href="https://line.me/R/ti/p/@049uytux" target="_blank" rel="noopener noreferrer" style="color: #06c755; text-decoration: underline;">LINE Official (SpaceMate)</a></strong> เพื่อส่งเรื่องขอประสานงานกับผู้ดูแลตลาดครับ
                         </div>
                     </div>
                 </div>
@@ -4657,16 +4663,16 @@
                     </div>
                     <div style="flex: 1;">
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
-                            <span style="font-weight: 700; font-size: 1.05rem; letter-spacing: 0.2px;">LINE Official</span>
+                            <span style="font-weight: 700; font-size: 1.05rem; letter-spacing: 0.2px;">LINE Official (SpaceMate)</span>
                             <span style="background: rgba(255,255,255,0.22); padding: 2px 8px; border-radius: 50px; font-size: 0.72rem; font-weight: 500;">
                                 <i class="fa-solid fa-user-plus"></i> แอดไลน์
                             </span>
                         </div>
                         <div style="font-size: 0.85rem; opacity: 0.95; line-height: 1.4;">
-                            @049uytux (คลิกเพื่อแอดไลน์และติดต่อสอบถามได้ทันที)
+                            SpaceMate (คลิกเพื่อแอดไลน์และติดต่อสอบถามได้ทันที)
                         </div>
                         <div style="font-size: 0.74rem; opacity: 0.85; margin-top: 4px;">
-                            <i class="fa-solid fa-arrow-up-right-from-square"></i> เปิด LINE เพื่อเพิ่มเพื่อน @049uytux
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> เปิด LINE เพื่อเพิ่มเพื่อน SpaceMate
                         </div>
                     </div>
                     <i class="fa-solid fa-chevron-right" style="font-size: 1.15rem; opacity: 0.85;"></i>
@@ -5385,11 +5391,18 @@
                     finalIdCard = window.currentUserProfile.id_card_number || idCardVal;
                 }
 
+                // Split displayVal to keep first_name and last_name in sync across all views
+                const nameParts = displayVal.trim().split(/\s+/);
+                const firstName = nameParts[0] || displayVal;
+                const lastName = nameParts.slice(1).join(' ') || '';
+
                 const { error } = await supabaseClient
                     .from('profiles')
                     .upsert({
                         id: currentUserId,
                         display_name: displayVal,
+                        first_name: firstName,
+                        last_name: lastName,
                         phone: phoneVal,
                         id_card_number: finalIdCard,
                         address: addressVal
@@ -5411,6 +5424,8 @@
                 // Update Local State
                 if (window.currentUserProfile) {
                     window.currentUserProfile.display_name = displayVal;
+                    window.currentUserProfile.first_name = firstName;
+                    window.currentUserProfile.last_name = lastName;
                     window.currentUserProfile.phone = phoneVal;
                 }
                 
@@ -5845,9 +5860,11 @@
                     fullAddress = `${addrNo} ${addrRoad ? 'ถนน'+addrRoad : ''} ต.${addrSubdistrict} อ.${addrDistrict} จ.${addrProvince} ${addrZip}`.replace(/\s+/g, ' ').trim();
                 }
 
+                const kycFullName = `${firstVal} ${lastVal}`.trim();
                 const { error } = await supabaseClient
                     .from('profiles')
                     .update({
+                        display_name: kycFullName,
                         first_name: firstVal,
                         last_name: lastVal,
                         id_card_number: idVal,
@@ -5860,6 +5877,13 @@
 
                 if (error) {
                     throw error;
+                }
+                
+                if (window.currentUserProfile) {
+                    window.currentUserProfile.display_name = kycFullName;
+                    window.currentUserProfile.first_name = firstVal;
+                    window.currentUserProfile.last_name = lastVal;
+                    window.currentUserProfile.phone = phoneVal;
                 }
                 
                 // Safely attempt to save address if column exists (ignore error if missing)
@@ -6016,7 +6040,7 @@
                 return;
             }
 
-            // นำทางไปเปิดแอดไลน์ @049uytux ทันที
+            // นำทางไปเปิดแอดไลน์ SpaceMate (@049uytux) ทันที
             window.open(window.spacemateLineConfig.lineAddFriendUrl, '_blank');
         }
 
@@ -6088,7 +6112,7 @@
             const roleEl = document.getElementById('user-profile-role');
             const sidebarNameEl = document.getElementById('sidebar-user-name');
             
-            let displayName = profile.display_name || 'ผู้ใช้ที่ไม่ได้ตั้งชื่อ';
+            let displayName = (profile.first_name ? `${profile.first_name} ${profile.last_name || ''}`.trim() : (profile.display_name || '')).trim() || profile.display_name || 'ผู้ใช้ที่ไม่ได้ตั้งชื่อ';
             displayName = displayName.replace(/-/g, ' ').trim();
             if (displayName.startsWith('คุณ')) {
                 displayName = displayName.substring(3).trim();
@@ -6115,7 +6139,7 @@
 
             // Populate Edit Profile
             const editDisplayName = document.getElementById('user-edit-displayname');
-            if (editDisplayName) editDisplayName.value = profile.display_name || '';
+            if (editDisplayName) editDisplayName.value = (profile.first_name ? `${profile.first_name} ${profile.last_name || ''}`.trim() : (profile.display_name || '')) || profile.display_name || '';
             const editPhone = document.getElementById('user-edit-phone');
             if (editPhone) editPhone.value = profile.phone || '';
             const editIdCard = document.getElementById('user-edit-idcard');
@@ -6280,6 +6304,11 @@
                 }
 
                 if (userProfile) {
+                    const realFullName = (userProfile.first_name ? `${userProfile.first_name} ${userProfile.last_name || ''}`.trim() : '').trim();
+                    if (realFullName && (!userProfile.display_name || userProfile.display_name !== realFullName)) {
+                        userProfile.display_name = realFullName;
+                        supabaseClient.from('profiles').update({ display_name: realFullName }).eq('id', userProfile.id).then();
+                    }
                     window.currentUserProfile = userProfile;
                     try {
                         localStorage.setItem('spacemate_user_profile', JSON.stringify(userProfile));
@@ -6745,6 +6774,19 @@
             }
         }
 
+        // Global helper fallback for view switching
+        window.switchUserPage = function(pageId) {
+            if (pageId === 'user-bookings' || pageId === 'bookings') {
+                if (typeof switchUserView === 'function') switchUserView('bookings');
+            } else if (pageId === 'user-notif' || pageId === 'user-notifications' || pageId === 'notif') {
+                if (typeof switchUserView === 'function') switchUserView('notif');
+            } else if (pageId === 'user-profile' || pageId === 'profile') {
+                if (typeof switchUserView === 'function') switchUserView('profile');
+            } else {
+                if (typeof switchUserView === 'function') switchUserView('home');
+            }
+        };
+
         // -------------------------------------------------------------
         // USER NOTIFICATIONS ENGINE (Clean, Modern & User-Friendly)
         // -------------------------------------------------------------
@@ -6775,15 +6817,34 @@
                 try {
                     const { data: bData, error: bErr } = await supabaseClient
                         .from('bookings')
-                        .select('id, space_id, stall_id, created_at, status, total_price, spaces(id, name, location, image_url), stalls(id, stall_number, name)')
+                        .select(`
+                            id,
+                            space_id,
+                            created_at,
+                            status,
+                            total_price,
+                            spaces (
+                                id,
+                                space_number,
+                                zone,
+                                venues (
+                                    id,
+                                    name,
+                                    cover_image_url,
+                                    location
+                                )
+                            )
+                        `)
                         .eq('user_id', userId)
                         .order('created_at', { ascending: false })
                         .limit(20);
 
                     if (!bErr && bData) {
                         bookingNotifs = bData.map(b => {
-                            const marketName = b.spaces?.name || 'ตลาด';
-                            const stallName = b.stalls?.name || b.stalls?.stall_number || 'ล็อคค้าขาย';
+                            const marketName = b.spaces?.venues?.name || 'ตลาด';
+                            const zoneText = b.spaces?.zone ? ` (${b.spaces.zone})` : '';
+                            const spaceNum = b.spaces?.space_number ? `ล็อค ${b.spaces.space_number}` : 'ล็อคค้าขาย';
+                            const stallName = `${spaceNum}${zoneText}`;
                             const isConfirmed = b.status === 'confirmed';
                             const isPending = b.status === 'pending';
                             const isCancelled = b.status === 'cancelled' || b.status === 'rejected';
@@ -6792,7 +6853,7 @@
                             let message = `คุณได้ทำการจอง ${stallName} ที่ ${marketName}`;
                             let type = 'info';
                             let statusBadge = 'การจอง';
-                            let actionUrl = `javascript:switchUserPage('user-bookings')`;
+                            let actionUrl = `javascript:switchUserView('bookings')`;
                             let actionLabel = 'ดูการจอง';
                             let actionIcon = 'fa-solid fa-list-check';
 
@@ -6809,7 +6870,7 @@
                                 message = `ระบบได้รับคำขอจอง ${marketName} แล้ว อยู่ระหว่างตรวจสอบหลักฐานการชำระเงิน`;
                                 type = 'warning';
                                 statusBadge = 'รอดำเนินการ';
-                                actionUrl = `javascript:switchUserPage('user-bookings')`;
+                                actionUrl = `javascript:switchUserView('bookings')`;
                                 actionLabel = 'ติดตามสถานะ';
                                 actionIcon = 'fa-solid fa-hourglass-half';
                             } else if (isCancelled) {
@@ -6817,7 +6878,7 @@
                                 message = `รายการจองที่ ${marketName} ได้สิ้นสุดหรือถูกยกเลิกแล้ว`;
                                 type = 'danger';
                                 statusBadge = 'ยกเลิกแล้ว';
-                                actionUrl = `javascript:switchUserPage('user-bookings')`;
+                                actionUrl = `javascript:switchUserView('bookings')`;
                                 actionLabel = 'ประวัติการจอง';
                                 actionIcon = 'fa-solid fa-rotate-left';
                             }
@@ -6879,7 +6940,7 @@
                         title: 'ยินดีต้อนรับสู่ SpaceMate!',
                         message: 'เริ่มต้นค้นหาตลาดทำเลทอง เลือกล็อคที่ถูกใจ และทำการจองออนไลน์ได้สะดวกรวดเร็วทันที',
                         status_badge: 'เริ่มต้นใช้งาน',
-                        action_url: 'javascript:switchUserPage("user-home")',
+                        action_url: 'javascript:switchUserView("home")',
                         action_label: 'ค้นหาตลาด',
                         action_icon: 'fa-solid fa-store',
                         is_read: false,
@@ -7057,7 +7118,7 @@
                 ` : '';
 
                 html += `
-                    <div class="user-notif-card ${isUnread ? 'is-unread' : ''}" data-id="${n.id}">
+                    <div class="user-notif-card ${isUnread ? 'is-unread unread' : ''}" data-id="${n.id}">
                         <div class="notif-card-icon-area">
                             <div class="user-notif-icon-circle ${iconWrapClass}">
                                 <i class="fa-solid ${iconClass}"></i>

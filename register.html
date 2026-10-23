@@ -407,6 +407,9 @@
             border-radius: 20px !important;
             font-family: 'Prompt', sans-serif !important;
         }
+        .swal2-container {
+            z-index: 9999999 !important;
+        }
 
         /* Responsive Mobile Adjustment */
         @media (max-width: 580px) {
@@ -736,7 +739,7 @@
                         data: {
                             first_name: firstName,
                             last_name: lastName,
-                            display_name: firstName,
+                            display_name: `${firstName} ${lastName}`.trim(),
                             phone: phoneVal,
                             role: role
                         }
@@ -754,7 +757,7 @@
                             id: data.user.id,
                             first_name: firstName,
                             last_name: lastName,
-                            display_name: firstName,
+                            display_name: `${firstName} ${lastName}`.trim(),
                             phone: phoneVal,
                             role: role
                         });

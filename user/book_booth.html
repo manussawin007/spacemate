@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>จองบูธอีเวนต์ - Spacemate</title>
+    <link rel="icon" type="image/png" href="../images/logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -11,6 +12,9 @@
         .swal-custom-popup {
             border-radius: 20px !important;
             font-family: 'Prompt', sans-serif !important;
+        }
+        .swal2-container {
+            z-index: 9999999 !important;
         }
         :root {
             --primary-color: #a46309;
@@ -1271,8 +1275,8 @@
                 const dObj = new Date(dateStr + 'T00:00:00');
                 const dayOfWeek = dObj.getDay();
                 const isPast = dateStr < todayStr;
-                const isBookedAlready = spaceBookedDates.has(dateStr);
-                const isMarketOpen = marketSchedule.openDayIndices.includes(dayOfWeek);
+                const isMarketOpen = marketSchedule && marketSchedule.openDayIndices ? marketSchedule.openDayIndices.includes(dayOfWeek) : true;
+                const isBookedAlready = isMarketOpen && spaceBookedDates.has(dateStr);
                 const isToday = dateStr === todayStr;
 
                 let classes = ['cal-day-cell'];
@@ -1281,14 +1285,14 @@
 
                 if (isPast) {
                     classes.push('is-past');
-                } else if (isBookedAlready) {
-                    classes.push('is-booked-already');
-                    clickAttr = `onclick="handleBookedDayClick('${dateStr}')"`;
-                    innerExtra = '<span class="booked-indicator"><i class="fa-solid fa-lock"></i></span>';
                 } else if (!isMarketOpen) {
                     classes.push('is-closed');
                     clickAttr = `onclick="handleClosedDayClick('${THAI_DAY_FULL[dayOfWeek]}')"`;
                     innerExtra = '<span class="closed-indicator"><i class="fa-solid fa-xmark"></i></span>';
+                } else if (isBookedAlready) {
+                    classes.push('is-booked-already');
+                    clickAttr = `onclick="handleBookedDayClick('${dateStr}')"`;
+                    innerExtra = '<span class="booked-indicator"><i class="fa-solid fa-lock"></i></span>';
                 } else {
                     classes.push('is-open');
                     clickAttr = `onclick="handleCalendarDayClick('${dateStr}')"`;
@@ -1310,7 +1314,7 @@
                     classes.push('is-in-range');
                 }
 
-                const cellTitle = isPast ? 'วันที่ผ่านมาแล้ว' : (isBookedAlready ? 'ติดจองแล้ว (กดไม่ได้)' : (isMarketOpen ? 'เปิดทำการ (กดเลือกได้)' : 'ปิดทำการ (กดไม่ได้)'));
+                const cellTitle = isPast ? 'วันที่ผ่านมาแล้ว' : (!isMarketOpen ? 'ปิดทำการ (กดไม่ได้)' : (isBookedAlready ? 'ติดจองแล้ว (กดไม่ได้)' : 'เปิดทำการ (กดเลือกได้)'));
                 html += `<div class="${classes.join(' ')}" ${clickAttr} title="${cellTitle}">
                     <span>${day}</span>
                     ${innerExtra}
@@ -1391,7 +1395,9 @@
                                 const s = new Date(b.start_date + 'T00:00:00');
                                 const e = new Date((b.end_date || b.start_date) + 'T00:00:00');
                                 for (let d = new Date(s); d <= e; d.setDate(d.getDate() + 1)) {
-                                    spaceBookedDates.add(getLocalDateString(d));
+                                    if (marketSchedule && marketSchedule.openDayIndices && marketSchedule.openDayIndices.includes(d.getDay())) {
+                                        spaceBookedDates.add(getLocalDateString(d));
+                                    }
                                 }
                             });
                         }

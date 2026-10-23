@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Spacemate - Admin Portal</title>
+    <link rel="icon" type="image/png" href="../images/logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -11,6 +12,9 @@
         .swal-custom-popup {
             border-radius: 20px !important;
             font-family: 'Prompt', sans-serif !important;
+        }
+        .swal2-container {
+            z-index: 9999999 !important;
         }
         :root {
             --primary: #a46309;
@@ -282,7 +286,393 @@
             font-size: 0.95rem;
         }
 
-        /* Stats Grid Desktop */
+        /* Executive Command Hero Banner */
+        .admin-hero-card {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 24px;
+            padding: 2rem 2.25rem;
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .admin-hero-card::before {
+            content: '';
+            position: absolute;
+            top: -60%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(164, 99, 9, 0.25) 0%, rgba(164, 99, 9, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .admin-hero-main {
+            position: relative;
+            z-index: 2;
+            max-width: 640px;
+        }
+
+        .admin-hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fbbf24;
+            padding: 5px 14px;
+            border-radius: 99px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+
+        .pulse-indicator {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse-ring 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .admin-hero-title {
+            font-size: 1.85rem;
+            font-weight: 800;
+            line-height: 1.25;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+            color: #ffffff;
+        }
+
+        .admin-hero-desc {
+            font-size: 0.92rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        .admin-hero-status {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.75rem;
+        }
+
+        .system-health-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #34d399;
+            padding: 6px 16px;
+            border-radius: 99px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .health-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+        }
+
+        .admin-sync-time {
+            font-size: 0.78rem;
+            color: #94a3b8;
+        }
+
+        .btn-sync-refresh {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-sync-refresh:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Stats Grid Executive (Fixed 5 Metrics in 1 Single Row on Desktop) */
+        .stats-grid-executive {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card-executive {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 1.25rem 1rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            min-width: 0; /* Prevents overflow inside grid columns */
+        }
+
+        .stat-card-executive:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 30px -5px rgba(0,0,0,0.08);
+            border-color: #cbd5e1;
+        }
+
+        .stat-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            gap: 4px;
+        }
+
+        .stat-icon-wrapper {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .stat-icon-wrapper.user-accent { background: #e0f2fe; color: #0284c7; }
+        .stat-icon-wrapper.owner-accent { background: #fef3c7; color: #d97706; }
+        .stat-icon-wrapper.venue-accent { background: #f3e8ff; color: #9333ea; }
+        .stat-icon-wrapper.kyc-accent { background: #ffedd5; color: #ea580c; }
+        .stat-icon-wrapper.slip-accent { background: #ecfdf5; color: #059669; }
+
+        .stat-badge {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 99px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .stat-badge.user-accent { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
+        .stat-badge.owner-accent { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+        .stat-badge.venue-accent { background: #faf5ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+        .stat-badge.kyc-accent { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
+        .stat-badge.slip-accent { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+
+        .stat-number {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.1;
+            margin-bottom: 0.3rem;
+            font-feature-settings: "tnum";
+            letter-spacing: -0.5px;
+        }
+
+        .stat-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 0.65rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .stat-footer-sub {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding-top: 0.55rem;
+            border-top: 1px solid #f8fafc;
+            margin-top: auto;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        @media (min-width: 769px) and (max-width: 1200px) {
+            .stats-grid-executive {
+                gap: 0.6rem;
+            }
+            .stat-card-executive {
+                padding: 1rem 0.7rem;
+            }
+            .stat-icon-wrapper {
+                width: 36px;
+                height: 36px;
+                font-size: 1.05rem;
+                border-radius: 10px;
+            }
+            .stat-badge {
+                font-size: 0.62rem;
+                padding: 2px 5px;
+            }
+            .stat-number {
+                font-size: 1.65rem;
+            }
+            .stat-title {
+                font-size: 0.74rem;
+            }
+            .stat-footer-sub {
+                font-size: 0.66rem;
+            }
+        }
+
+        /* Admin Quick Command Strip */
+        .admin-quick-strip {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 1.25rem 1.75rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .quick-strip-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quick-strip-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .quick-action-pill {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #334155;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .quick-action-pill:hover {
+            background: #ffffff;
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(164, 99, 9, 0.12);
+        }
+
+        /* Queue Header & Search */
+        .queue-section-header {
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .queue-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -0.3px;
+        }
+
+        .queue-subtitle {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+
+        .queue-search-bar {
+            position: relative;
+            width: 320px;
+            max-width: 100%;
+        }
+
+        .queue-search-bar i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .queue-search-bar input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border-radius: 14px;
+            border: 1.5px solid var(--border-color);
+            background: #ffffff;
+            font-size: 0.88rem;
+            font-family: inherit;
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .queue-search-bar input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* Stats Grid Desktop (Legacy fallback) */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -863,6 +1253,134 @@
                 font-size: 0.75rem;
                 line-height: 1.2;
             }
+
+            /* --- Executive Dashboard in App Mode --- */
+            .admin-hero-card {
+                padding: 1.35rem 1.15rem;
+                border-radius: 20px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.25rem;
+                margin-bottom: 1.25rem;
+            }
+            .admin-hero-title {
+                font-size: 1.35rem;
+            }
+            .admin-hero-desc {
+                font-size: 0.82rem;
+            }
+            .admin-hero-status {
+                align-items: flex-start;
+                width: 100%;
+                gap: 0.65rem;
+                padding-top: 0.75rem;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .btn-sync-refresh {
+                width: 100%;
+                justify-content: center;
+                padding: 10px 16px;
+                font-size: 0.85rem;
+            }
+
+            /* 5 Metrics in App Mode (2x2 Grid + 1 Full Width Bottom Card) */
+            .stats-grid-executive {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+                margin-bottom: 1.25rem;
+            }
+            .stat-card-executive {
+                padding: 1rem 0.85rem;
+                border-radius: 16px;
+            }
+            .stat-card-top {
+                margin-bottom: 0.65rem;
+            }
+            .stat-icon-wrapper {
+                width: 36px;
+                height: 36px;
+                font-size: 1.05rem;
+                border-radius: 10px;
+            }
+            .stat-badge {
+                font-size: 0.65rem;
+                padding: 2px 6px;
+            }
+            .stat-number {
+                font-size: 1.55rem;
+                margin-bottom: 0.2rem;
+            }
+            .stat-title {
+                font-size: 0.76rem;
+                margin-bottom: 0.4rem;
+                white-space: normal;
+                line-height: 1.3;
+            }
+            .stat-footer-sub {
+                font-size: 0.68rem;
+                padding-top: 0.45rem;
+                white-space: normal;
+            }
+
+            /* Card 5 (Payment Slips) spans 2 columns in App Mode */
+            .stat-card-executive:nth-child(5) {
+                grid-column: span 2;
+                background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+                border-color: #bbf7d0;
+            }
+
+            /* Quick Action Strip in App Mode */
+            .admin-quick-strip {
+                padding: 1.1rem 1rem;
+                border-radius: 16px;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
+                margin-bottom: 1.25rem;
+            }
+            .quick-strip-actions {
+                flex-direction: column;
+                width: 100%;
+                gap: 0.5rem;
+            }
+            .quick-action-pill {
+                width: 100%;
+                justify-content: flex-start;
+                padding: 10px 14px;
+                font-size: 0.82rem;
+            }
+
+            /* Queue Header & Search in App Mode */
+            .queue-section-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
+            }
+            .queue-title {
+                font-size: 1.15rem;
+            }
+            .queue-subtitle {
+                font-size: 0.78rem;
+            }
+            .queue-search-bar {
+                width: 100%;
+            }
+
+            /* KYC Tabs in App Mode: smooth horizontal scrolling */
+            .kyc-tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                flex-wrap: nowrap;
+                padding: 4px;
+                border-radius: 14px;
+                gap: 4px;
+            }
+            .kyc-tab-btn {
+                white-space: nowrap;
+                font-size: 0.78rem;
+                padding: 0.55rem 0.85rem;
+                flex-shrink: 0;
+            }
             
             .kyc-list {
                 padding: 0.5rem 1rem;
@@ -1189,43 +1707,150 @@
         
         <!-- View: Dashboard -->
         <div id="dashboard" class="admin-view active">
-            <div class="admin-page-header">
-                <h1 class="admin-greeting">ภาพรวมระบบ (Dashboard)</h1>
-                <p class="admin-subtitle">จัดการข้อมูลผู้ใช้งาน พื้นที่เช่า และการอนุมัติต่างๆ ในระบบ Spacemate</p>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
-                    <div class="stat-info">
-                        <div class="stat-value" id="stat-users">0</div>
-                        <div class="stat-label">ผู้ใช้งานทั่วไป</div>
+            
+            <!-- Executive Command Header Banner -->
+            <div class="admin-hero-card">
+                <div class="admin-hero-main">
+                    <div class="admin-hero-tag">
+                        <span class="pulse-indicator"></span> ระบบบริหารจัดการส่วนกลาง (Admin Central Operations)
                     </div>
+                    <h1 class="admin-hero-title">ภาพรวมระบบ SpaceMate</h1>
+                    <p class="admin-hero-desc">ศูนย์ควบคุมตรวจสอบสิทธิ์ผู้ใช้งาน ตรวจสอบสลิปการจอง และสถิติพื้นที่ตลาดแบบเรียลไทม์</p>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fa-solid fa-user-tie"></i></div>
-                    <div class="stat-info">
-                        <div class="stat-value" id="stat-owners">0</div>
-                        <div class="stat-label">เจ้าของพื้นที่</div>
+                <div class="admin-hero-status">
+                    <div class="system-health-badge">
+                        <span class="health-dot"></span> All Systems Operational
                     </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fa-solid fa-clipboard-check"></i></div>
-                    <div class="stat-info">
-                        <div class="stat-value" id="stat-pending">0</div>
-                        <div class="stat-label">คำขอรออนุมัติ</div>
-                    </div>
+                    <div class="admin-sync-time" id="admin-last-sync">อัปเดตล่าสุด: กำลังเชื่อมต่อ...</div>
+                    <button class="btn-sync-refresh" onclick="refreshAdminData(this)" title="รีเฟรชข้อมูล">
+                        <i class="fa-solid fa-arrows-rotate"></i> ซิงค์ข้อมูลล่าสุด
+                    </button>
                 </div>
             </div>
 
-            <div class="page-header" style="margin-top: 2rem;">
-                <h2 class="page-title">รายการรอตรวจสอบ (Pending Verification)</h2>
+            <!-- Enhanced KPI Stats Grid (5 Metric Cards) -->
+            <div class="stats-grid-executive">
+                <!-- KPI 1: General Users -->
+                <div class="stat-card-executive">
+                    <div class="stat-card-top">
+                        <div class="stat-icon-wrapper user-accent">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <span class="stat-badge user-accent">ผู้เช่า / ผู้ใช้</span>
+                    </div>
+                    <div class="stat-number" id="stat-users">0</div>
+                    <div class="stat-title">ผู้ใช้งานทั่วไปทั้งหมด</div>
+                    <div class="stat-footer-sub">
+                        <i class="fa-solid fa-user-check"></i> บัญชีพร้อมจองพื้นที่
+                    </div>
+                </div>
+
+                <!-- KPI 2: Market Owners -->
+                <div class="stat-card-executive">
+                    <div class="stat-card-top">
+                        <div class="stat-icon-wrapper owner-accent">
+                            <i class="fa-solid fa-user-tie"></i>
+                        </div>
+                        <span class="stat-badge owner-accent">เจ้าของพื้นที่</span>
+                    </div>
+                    <div class="stat-number" id="stat-owners">0</div>
+                    <div class="stat-title">พาร์ทเนอร์เจ้าของตลาด</div>
+                    <div class="stat-footer-sub">
+                        <i class="fa-solid fa-shop"></i> เจ้าของสัมปทานและอีเวนต์
+                    </div>
+                </div>
+
+                <!-- KPI 3: Total Markets & Venues -->
+                <div class="stat-card-executive">
+                    <div class="stat-card-top">
+                        <div class="stat-icon-wrapper venue-accent">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                        </div>
+                        <span class="stat-badge venue-accent">สถานที่ทั้งหมด</span>
+                    </div>
+                    <div class="stat-number" id="stat-venues">0</div>
+                    <div class="stat-title">ตลาดและอีเวนต์ในระบบ</div>
+                    <div class="stat-footer-sub">
+                        <i class="fa-solid fa-circle-check" style="color: #10b981;"></i> แผนผังและจุดจอง
+                    </div>
+                </div>
+
+                <!-- KPI 4: Pending KYC Verification -->
+                <div class="stat-card-executive" onclick="switchKycTab('owners', document.querySelector('.kyc-tab-btn:first-child')); scrollToQueue();" style="cursor: pointer;">
+                    <div class="stat-card-top">
+                        <div class="stat-icon-wrapper kyc-accent">
+                            <i class="fa-solid fa-id-card-clip"></i>
+                        </div>
+                        <span class="stat-badge kyc-accent">รอตรวจสิทธิ์</span>
+                    </div>
+                    <div class="stat-number" id="stat-pending">0</div>
+                    <div class="stat-title">คำขอ e-KYC รออนุมัติ</div>
+                    <div class="stat-footer-sub">
+                        <i class="fa-solid fa-arrow-right"></i> คลิกเพื่อไปตรวจสอบ
+                    </div>
+                </div>
+
+                <!-- KPI 5: Pending Payment Slips -->
+                <div class="stat-card-executive" onclick="switchKycTab('payments', document.querySelectorAll('.kyc-tab-btn')[2]); scrollToQueue();" style="cursor: pointer;">
+                    <div class="stat-card-top">
+                        <div class="stat-icon-wrapper slip-accent">
+                            <i class="fa-solid fa-receipt"></i>
+                        </div>
+                        <span class="stat-badge slip-accent">รอตรวจสลิป</span>
+                    </div>
+                    <div class="stat-number" id="stat-payments-pending">0</div>
+                    <div class="stat-title">ยอดเงินรอตรวจสอบสลิป</div>
+                    <div class="stat-footer-sub">
+                        <i class="fa-solid fa-arrow-right"></i> สลิปโอนเงินเข้าบัญชี
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action Command Strip -->
+            <div class="admin-quick-strip">
+                <div class="quick-strip-title">
+                    <i class="fa-solid fa-bolt" style="color: #f59e0b;"></i> คำสั่งด่วนของผู้ดูแลระบบ (Quick Actions)
+                </div>
+                <div class="quick-strip-actions">
+                    <a href="map_builder.html" class="quick-action-pill">
+                        <i class="fa-solid fa-map-location-dot"></i> ออกแบบแผนผัง 2D (Map Builder)
+                    </a>
+                    <button class="quick-action-pill" onclick="switchKycTab('payments', document.querySelectorAll('.kyc-tab-btn')[2]); scrollToQueue();">
+                        <i class="fa-solid fa-money-check-dollar"></i> ตรวจสอบสลิปการจองล่าสุด
+                    </button>
+                    <button class="quick-action-pill" onclick="switchKycTab('owners', document.querySelectorAll('.kyc-tab-btn')[0]); scrollToQueue();">
+                        <i class="fa-solid fa-user-shield"></i> อนุมัติบัตรประชาชน e-KYC
+                    </button>
+                </div>
+            </div>
+
+            <!-- Queue Area with Filter Toolbar & Search -->
+            <div class="queue-section-header" id="verification-queue-header">
+                <div>
+                    <h2 class="queue-title">
+                        <i class="fa-solid fa-clipboard-check" style="color: var(--primary);"></i>
+                        คิวรายการรอตรวจสอบ (Verification & Approval Queue)
+                    </h2>
+                    <p class="queue-subtitle">เลือกแท็บเพื่อดูรายการที่ต้องดำเนินการอนุมัติ หรือใช้ช่องค้นหาเพื่อกรองรายชื่อ</p>
+                </div>
+
+                <!-- Live Search Box for Queue -->
+                <div class="queue-search-bar">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="queue-filter-input" oninput="filterVerificationQueue(this.value)" placeholder="ค้นหาชื่อ, เบอร์โทร, รหัสการจอง...">
+                </div>
             </div>
             
             <div class="kyc-tabs">
-                <button class="kyc-tab-btn active" onclick="switchKycTab('owners', this)">เจ้าของพื้นที่ <span class="kyc-badge" id="badge-owners-count">0</span></button>
-                <button class="kyc-tab-btn" onclick="switchKycTab('merchants', this)">ผู้ใช้งานทั่วไป <span class="kyc-badge" id="badge-merchants-count">0</span></button>
-                <button class="kyc-tab-btn" onclick="switchKycTab('payments', this)">การชำระเงิน <span class="kyc-badge" id="badge-payments-count" style="background:#fef3c7; color:#d97706;">0</span></button>
+                <button class="kyc-tab-btn active" onclick="switchKycTab('owners', this)">
+                    <i class="fa-solid fa-user-tie"></i> เจ้าของพื้นที่ <span class="kyc-badge" id="badge-owners-count">0</span>
+                </button>
+                <button class="kyc-tab-btn" onclick="switchKycTab('merchants', this)">
+                    <i class="fa-solid fa-users"></i> ผู้ใช้งานทั่วไป <span class="kyc-badge" id="badge-merchants-count">0</span>
+                </button>
+                <button class="kyc-tab-btn" onclick="switchKycTab('payments', this)">
+                    <i class="fa-solid fa-receipt"></i> การชำระเงินและสลิป <span class="kyc-badge" id="badge-payments-count" style="background:#fef3c7; color:#d97706;">0</span>
+                </button>
             </div>
             
             <div id="list-owners" class="kyc-list">
@@ -1434,20 +2059,79 @@
                 .select('*', { count: 'exact', head: true })
                 .eq('role', 'owner');
 
-            // Count pending bookings
+            // Count pending bookings (payments with slip)
             const { count: pendingCount } = await supabaseClient
                 .from('bookings')
                 .select('*', { count: 'exact', head: true })
                 .eq('status', 'pending')
                 .not('payment_slip_url', 'is', null);
 
-            document.getElementById('stat-users').innerText = (usersCount || 0).toLocaleString();
-            document.getElementById('stat-owners').innerText = (ownersCount || 0).toLocaleString();
-            document.getElementById('stat-pending').innerText = (pendingCount || 0).toLocaleString();
+            // Count total venues/markets
+            const { count: venuesCount } = await supabaseClient
+                .from('venues')
+                .select('*', { count: 'exact', head: true });
+
+            // Count pending KYC (both owners and merchants)
+            const { count: pendingKycCount } = await supabaseClient
+                .from('profiles')
+                .select('*', { count: 'exact', head: true })
+                .eq('kyc_status', 'pending');
+
+            const usersEl = document.getElementById('stat-users');
+            if (usersEl) usersEl.innerText = (usersCount || 0).toLocaleString();
+
+            const ownersEl = document.getElementById('stat-owners');
+            if (ownersEl) ownersEl.innerText = (ownersCount || 0).toLocaleString();
+
+            const pendingEl = document.getElementById('stat-pending');
+            if (pendingEl) pendingEl.innerText = (pendingKycCount || 0).toLocaleString();
+
+            const venuesEl = document.getElementById('stat-venues');
+            if (venuesEl) venuesEl.innerText = (venuesCount || 0).toLocaleString();
+
+            const paymentsEl = document.getElementById('stat-payments-pending');
+            if (paymentsEl) paymentsEl.innerText = (pendingCount || 0).toLocaleString();
+
+            const lastSyncEl = document.getElementById('admin-last-sync');
+            if (lastSyncEl) {
+                const now = new Date();
+                lastSyncEl.innerText = 'อัปเดตล่าสุด: ' + now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            }
 
         } catch (err) {
             console.error('Error loading stats:', err);
         }
+    }
+
+    function scrollToQueue() {
+        const el = document.getElementById('verification-queue-header');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function refreshAdminData(btn) {
+        let icon = null;
+        if (btn) {
+            icon = btn.querySelector('i');
+            if (icon) icon.classList.add('fa-spin');
+        }
+        await loadAdminStats();
+        await loadKycUsers();
+        if (icon) {
+            setTimeout(() => {
+                icon.classList.remove('fa-spin');
+            }, 600);
+        }
+    }
+
+    function filterVerificationQueue(query) {
+        const q = (query || '').toLowerCase().trim();
+        const activeList = document.querySelector('.kyc-list:not([style*="display: none"])');
+        if (!activeList) return;
+        const cards = activeList.querySelectorAll('.kyc-card');
+        cards.forEach(c => {
+            const text = c.textContent.toLowerCase();
+            c.style.display = (!q || text.includes(q)) ? 'flex' : 'none';
+        });
     }
 
     // 3. Load KYC / User list from Supabase
@@ -1566,8 +2250,8 @@
 
     async function handleKycDecision(status) {
         if (!currentSelectedUserId) return;
-        await updateKycInDb(currentSelectedUserId, status);
         closeInspectModal();
+        await updateKycInDb(currentSelectedUserId, status);
     }
 
     async function quickDecideKyc(userId, status) {
@@ -1590,9 +2274,17 @@
     async function updateKycInDb(userId, status) {
         try {
             const isApproved = status === 'approved';
+            const user = cachedUsers.find(u => u.id === userId);
+            const updatePayload = { kyc_status: status, is_verified: isApproved };
+            if (isApproved && user) {
+                const kycFullName = ((user.first_name || '') + ' ' + (user.last_name || '')).trim();
+                if (kycFullName) {
+                    updatePayload.display_name = kycFullName;
+                }
+            }
             let { data, error } = await supabaseClient
                 .from('profiles')
-                .update({ kyc_status: status, is_verified: isApproved })
+                .update(updatePayload)
                 .eq('id', userId)
                 .select();
 
@@ -1731,8 +2423,8 @@
 
     async function handlePaymentDecision(status) {
         if (!currentSelectedPaymentId) return;
-        await updatePaymentInDb(currentSelectedPaymentId, status);
         closePaymentInspectModal();
+        await updatePaymentInDb(currentSelectedPaymentId, status);
     }
 
     async function quickDecidePayment(bookingId, status) {
@@ -1857,11 +2549,19 @@
 
     function switchKycTab(tabId, element) {
         document.querySelectorAll('.kyc-tab-btn').forEach(btn => btn.classList.remove('active'));
-        element.classList.add('active');
+        if (element) element.classList.add('active');
         
-        document.getElementById('list-owners').style.display = (tabId === 'owners') ? 'flex' : 'none';
-        document.getElementById('list-merchants').style.display = (tabId === 'merchants') ? 'flex' : 'none';
-        document.getElementById('list-payments').style.display = (tabId === 'payments') ? 'flex' : 'none';
+        const listOwners = document.getElementById('list-owners');
+        const listMerchants = document.getElementById('list-merchants');
+        const listPayments = document.getElementById('list-payments');
+        if (listOwners) listOwners.style.display = (tabId === 'owners') ? 'flex' : 'none';
+        if (listMerchants) listMerchants.style.display = (tabId === 'merchants') ? 'flex' : 'none';
+        if (listPayments) listPayments.style.display = (tabId === 'payments') ? 'flex' : 'none';
+
+        const filterInput = document.getElementById('queue-filter-input');
+        if (filterInput && filterInput.value) {
+            filterVerificationQueue(filterInput.value);
+        }
     }
 
     function updateIndicator(activeItem) {
