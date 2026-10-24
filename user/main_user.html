@@ -6567,7 +6567,6 @@
                         end_date,
                         total_price,
                         status,
-                        payment_slip_url,
                         created_at,
                         spaces (
                             id,
@@ -6612,6 +6611,24 @@
                     return;
                 }
 
+                // Lightweight check for pending slip existence without downloading large Base64 blobs
+                const pendingBookings = bookings.filter(b => b.status === 'pending');
+                const pendingWithSlipSet = new Set();
+                if (pendingBookings.length > 0) {
+                    try {
+                        const { data: slips } = await supabaseClient
+                            .from('bookings')
+                            .select('id')
+                            .in('id', pendingBookings.map(b => b.id))
+                            .not('payment_slip_url', 'is', null);
+                        if (slips && slips.length > 0) {
+                            slips.forEach(s => pendingWithSlipSet.add(s.id));
+                        }
+                    } catch (slipErr) {
+                        console.warn("Could not check pending slips:", slipErr);
+                    }
+                }
+
                 bookingList.innerHTML = '';
 
                 bookings.forEach(b => {
@@ -6633,7 +6650,7 @@
                         </div>
                     `;
 
-                    if (b.status === 'pending' && (!b.payment_slip_url || b.payment_slip_url.trim() === '')) {
+                    if (b.status === 'pending' && !pendingWithSlipSet.has(b.id)) {
                         statusTab = 'ค้างชำระ';
                         badgeClass = 'badge-pending';
                         badgeText = 'รอชำระเงิน';

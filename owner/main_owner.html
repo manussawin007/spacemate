@@ -6562,7 +6562,7 @@
                         chunks.map(chunk => 
                             supabaseClient
                                 .from('bookings')
-                                .select('id, space_id, start_date, end_date, total_price, status, created_at, payment_slip_url, profiles(first_name, last_name, phone)')
+                                .select('id, space_id, start_date, end_date, total_price, status, created_at, profiles(first_name, last_name, phone)')
                                 .in('space_id', chunk)
                                 .neq('status', 'cancelled')
                                 .order('start_date', { ascending: true })
@@ -6573,6 +6573,26 @@
                             allOwnerBookings = allOwnerBookings.concat(bData);
                         }
                     });
+
+                    // Lightweight check for pending slip existence without downloading megabytes of Base64 blobs
+                    const pendingForSlipCheck = allOwnerBookings.filter(b => b.status === 'pending');
+                    if (pendingForSlipCheck.length > 0) {
+                        try {
+                            const { data: slips } = await supabaseClient
+                                .from('bookings')
+                                .select('id')
+                                .in('id', pendingForSlipCheck.map(b => b.id))
+                                .not('payment_slip_url', 'is', null);
+                            if (slips && slips.length > 0) {
+                                const slipSet = new Set(slips.map(s => s.id));
+                                pendingForSlipCheck.forEach(b => {
+                                    b.has_slip = slipSet.has(b.id);
+                                });
+                            }
+                        } catch (slipErr) {
+                            console.warn("Could not check slip presence:", slipErr);
+                        }
+                    }
                 }
 
                 // Render smoothly in UI
@@ -7145,7 +7165,7 @@
             const timeAgo = new Date(booking.created_at).toLocaleDateString('th-TH', { hour: '2-digit', minute: '2-digit' });
             const dateRange = `${formatThaiDateShort(booking.start_date)} - ${formatThaiDateShort(booking.end_date || booking.start_date)}`;
             const initials = (booking.bookerName || 'ผ')[0].toUpperCase();
-            const hasSlip = !!booking.payment_slip_url;
+            const hasSlip = !!booking.has_slip || !!booking.payment_slip_url;
 
             return `
                 <div class="booking-req-card ${isUnread ? 'unread' : ''}" onclick="openInspectBooking('${booking.id}', this)">
@@ -7253,7 +7273,7 @@
 
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px solid #f1f5f9;">
                         <div>
-                            ${booking.payment_slip_url ? `
+                            ${(booking.has_slip || booking.payment_slip_url) ? `
                                 <button type="button" class="notif-action-pill" onclick="event.stopPropagation(); openInspectBooking('${booking.id}')" style="padding:4px 10px; font-size:0.78rem;">
                                     <i class="fa-solid fa-receipt"></i> ดูสลิป
                                 </button>
@@ -7865,6 +7885,10 @@
         }
 
         async function executeBookingDecision(bookingId, status) {
+            if (!bookingId) {
+                console.error("executeBookingDecision called with null/empty bookingId");
+                return;
+            }
             try {
                 Swal.fire({
                     title: 'กำลังบันทึกข้อมูล...',

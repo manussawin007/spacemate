@@ -2780,7 +2780,7 @@
                             const chunk = spaceIds.slice(i, i + chunkSize);
                             const { data: bData, error: bErr } = await supabaseClient
                                 .from('bookings')
-                                .select('id, space_id, user_id, status, start_date, end_date, total_price, payment_slip_url, created_at, profiles(first_name, last_name, display_name, phone)')
+                                .select('id, space_id, user_id, status, start_date, end_date, total_price, created_at, profiles(first_name, last_name, display_name, phone)')
                                 .in('space_id', chunk)
                                 .neq('status', 'cancelled')
                                 .order('created_at', { ascending: false });
@@ -2791,11 +2791,31 @@
                                 console.warn("Primary bookings fetch error, using fallback query:", bErr);
                                 const { data: fbData } = await supabaseClient
                                     .from('bookings')
-                                    .select('id, space_id, user_id, status, start_date, end_date, total_price, payment_slip_url, created_at')
+                                    .select('id, space_id, user_id, status, start_date, end_date, total_price, created_at')
                                     .in('space_id', chunk)
                                     .neq('status', 'cancelled')
                                     .order('created_at', { ascending: false });
                                 if (fbData) allBookings = allBookings.concat(fbData);
+                            }
+                        }
+
+                        // Lightweight check for slip existence without downloading megabytes of Base64 blobs
+                        const activeNonCancelled = allBookings.filter(b => b.status !== 'cancelled');
+                        if (activeNonCancelled.length > 0) {
+                            try {
+                                const { data: slips } = await supabaseClient
+                                    .from('bookings')
+                                    .select('id')
+                                    .in('id', activeNonCancelled.map(b => b.id))
+                                    .not('payment_slip_url', 'is', null);
+                                if (slips && slips.length > 0) {
+                                    const slipSet = new Set(slips.map(s => s.id));
+                                    activeNonCancelled.forEach(b => {
+                                        b.has_slip = slipSet.has(b.id);
+                                    });
+                                }
+                            } catch (slipErr) {
+                                console.warn("Could not check slip presence:", slipErr);
                             }
                         }
 
@@ -3773,7 +3793,7 @@
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 ${priceStr ? `<span style="font-weight: 700; color: #059669; font-size: 0.8rem;">${priceStr}</span>` : ''}
-                                ${b.payment_slip_url ? `<button type="button" class="schedule-switch-date-btn" style="background:#fef3c7; color:#92400e; border-color:#fde68a;" onclick="viewBookingSlip('${b.id}')"><i class="fa-solid fa-receipt"></i> ดูสลิป</button>` : ''}
+                                ${(b.has_slip || b.payment_slip_url) ? `<button type="button" class="schedule-switch-date-btn" style="background:#fef3c7; color:#92400e; border-color:#fde68a;" onclick="viewBookingSlip('${b.id}')"><i class="fa-solid fa-receipt"></i> ดูสลิป</button>` : ''}
                                 ${!isActive ? `<button type="button" class="schedule-switch-date-btn" onclick="selectDateFromSchedule('${sDate}', '${space.id}')">ดูสถานะวันนี้</button>` : ''}
                             </div>
                         </div>
@@ -3784,18 +3804,39 @@
             listEl.innerHTML = html;
         }
 
-        function viewBookingSlip(bookingId) {
+        async function viewBookingSlip(bookingId) {
             const booking = (activeBookings || []).find(b => b.id === bookingId);
-            if (!booking || !booking.payment_slip_url) {
+            if (!booking) return;
+
+            if (!booking.payment_slip_url) {
                 Swal.fire({
-                    icon: 'info',
-                    title: 'ไม่มีสลิป',
-                    text: 'ไม่พบรูปสลิปการโอนเงินของคำขอนี้ครับ',
-                    confirmButtonColor: '#a46309',
-                    customClass: { popup: 'swal-custom-popup' }
+                    title: 'กำลังโหลดสลิป...',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
                 });
-                return;
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('bookings')
+                        .select('payment_slip_url')
+                        .eq('id', bookingId)
+                        .single();
+                    if (error || !data || !data.payment_slip_url) {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'ไม่มีสลิป',
+                            text: 'ไม่พบรูปสลิปการโอนเงินของคำขอนี้ครับ',
+                            confirmButtonColor: '#a46309',
+                            customClass: { popup: 'swal-custom-popup' }
+                        });
+                        return;
+                    }
+                    booking.payment_slip_url = data.payment_slip_url;
+                } catch (err) {
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถดึงรูปสลิปได้' });
+                    return;
+                }
             }
+
             const src = booking.payment_slip_url.startsWith('data:') || booking.payment_slip_url.startsWith('http') 
                 ? booking.payment_slip_url 
                 : `data:image/jpeg;base64,${booking.payment_slip_url}`;

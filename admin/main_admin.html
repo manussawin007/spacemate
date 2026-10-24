@@ -2250,8 +2250,9 @@
 
     async function handleKycDecision(status) {
         if (!currentSelectedUserId) return;
+        const targetUserId = currentSelectedUserId;
         closeInspectModal();
-        await updateKycInDb(currentSelectedUserId, status);
+        await updateKycInDb(targetUserId, status);
     }
 
     async function quickDecideKyc(userId, status) {
@@ -2272,6 +2273,10 @@
     }
 
     async function updateKycInDb(userId, status) {
+        if (!userId) {
+            console.error("updateKycInDb called with null/empty userId");
+            return;
+        }
         try {
             const isApproved = status === 'approved';
             const user = cachedUsers.find(u => u.id === userId);
@@ -2341,7 +2346,6 @@
                     id, 
                     status, 
                     total_price, 
-                    payment_slip_url, 
                     created_at,
                     profiles:user_id (id, display_name, avatar_url, first_name, last_name, phone)
                 `)
@@ -2399,7 +2403,7 @@
         });
     }
 
-    function openInspectPayment(bookingId) {
+    async function openInspectPayment(bookingId) {
         currentSelectedPaymentId = bookingId;
         const payment = cachedPayments.find(p => p.id === bookingId);
         if (!payment) return;
@@ -2410,10 +2414,34 @@
         document.getElementById('modal-payment-user').innerHTML = `<i class="fa-solid fa-user" style="color:var(--primary); font-size: 0.9rem;"></i> ${fullName} (โทร: ${profile.phone || '-'})`;
         document.getElementById('modal-payment-amount').innerHTML = `<i class="fa-solid fa-money-bill" style="color:var(--primary); font-size: 0.9rem;"></i> ฿${payment.total_price}`;
         
+        const slipImg = document.getElementById('modal-payment-slip');
         const noSlipUrl = 'https://placehold.co/400x600/f8fafc/94a3b8?text=No+Slip';
-        document.getElementById('modal-payment-slip').src = payment.payment_slip_url || noSlipUrl;
 
         document.getElementById('payment-inspect-modal').style.display = 'flex';
+
+        // Check if already fetched in memory
+        if (payment.payment_slip_url) {
+            slipImg.src = payment.payment_slip_url;
+        } else {
+            slipImg.src = 'https://placehold.co/400x600/f8fafc/94a3b8?text=Loading+Slip...';
+            try {
+                const { data, error } = await supabaseClient
+                    .from('bookings')
+                    .select('payment_slip_url')
+                    .eq('id', bookingId)
+                    .single();
+                if (!error && data && data.payment_slip_url) {
+                    payment.payment_slip_url = data.payment_slip_url;
+                    if (currentSelectedPaymentId === bookingId) {
+                        slipImg.src = payment.payment_slip_url;
+                    }
+                } else {
+                    slipImg.src = noSlipUrl;
+                }
+            } catch (e) {
+                slipImg.src = noSlipUrl;
+            }
+        }
     }
 
     function closePaymentInspectModal() {
@@ -2423,8 +2451,9 @@
 
     async function handlePaymentDecision(status) {
         if (!currentSelectedPaymentId) return;
+        const targetPaymentId = currentSelectedPaymentId;
         closePaymentInspectModal();
-        await updatePaymentInDb(currentSelectedPaymentId, status);
+        await updatePaymentInDb(targetPaymentId, status);
     }
 
     async function quickDecidePayment(bookingId, status) {
@@ -2445,6 +2474,10 @@
     }
 
     async function updatePaymentInDb(bookingId, status) {
+        if (!bookingId) {
+            console.error("updatePaymentInDb called with null/empty bookingId");
+            return;
+        }
         try {
             // First, get the booking details to know who to notify
             const { data: bookingData, error: fetchErr } = await supabaseClient
