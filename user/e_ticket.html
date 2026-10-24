@@ -990,14 +990,19 @@
             document.getElementById('ticket-total-price').innerText = `฿${totalNum.toLocaleString()}`;
 
             // 9. Generate QR Code
-            generateQrCode(refCode, venueName, stallNum, booking.start_date);
+            generateQrCode(refCode, booking.id, booking.start_date);
         }
 
-        function generateQrCode(refCode, venueName, stallNum, startDate) {
+        function generateQrCode(refCode, bookingId, startDate) {
             const qrContainer = document.getElementById('qrcode');
+            if (!qrContainer) return;
             qrContainer.innerHTML = '';
 
-            const verifyPayload = `SPACEMATE:REF=${refCode}:VENUE=${venueName}:STALL=${stallNum}:DATE=${startDate}`;
+            // Use URL or concise ASCII payload to prevent multi-byte UTF-8 buffer overflow
+            let verifyPayload = `SPACEMATE:REF=${refCode}:ID=${bookingId || ''}:DATE=${startDate || ''}`;
+            if (window.location.protocol.startsWith('http') && bookingId) {
+                verifyPayload = `${window.location.origin}${window.location.pathname}?booking_id=${bookingId}`;
+            }
 
             try {
                 qrCodeInstance = new QRCode(qrContainer, {
@@ -1009,8 +1014,21 @@
                     correctLevel: QRCode.CorrectLevel.M
                 });
             } catch (err) {
-                console.error('Error generating QR code:', err);
-                qrContainer.innerHTML = '<div style="font-size:0.75rem; color:#64748b;">[QR Code]</div>';
+                console.warn('QRCode standard generation failed, trying minimal payload:', err);
+                try {
+                    qrContainer.innerHTML = '';
+                    qrCodeInstance = new QRCode(qrContainer, {
+                        text: `SPACEMATE:${refCode}`,
+                        width: 120,
+                        height: 120,
+                        colorDark: '#0f172a',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.L
+                    });
+                } catch (fallbackErr) {
+                    console.error('QR generation fallback failed:', fallbackErr);
+                    qrContainer.innerHTML = `<div style="font-size:0.75rem; color:#64748b; padding:10px; text-align:center;">${refCode}</div>`;
+                }
             }
         }
 
