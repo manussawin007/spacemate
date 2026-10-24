@@ -795,13 +795,14 @@
                     renderFallbackBank(ownerProfile, venueName);
                 }
 
-                // PromptPay integration if owner has phone
+                // PromptPay display: Use static QR image assets/images/qr.jpg
+                const qrImg = document.getElementById('qr-image');
+                if (qrImg) {
+                    qrImg.src = '../assets/images/qr.jpg';
+                }
+
                 const cleanPhone = (ownerProfile.phone || '').replace(/\D/g, '');
                 if (cleanPhone && (cleanPhone.length === 10 || cleanPhone.length === 13)) {
-                    const qrImg = document.getElementById('qr-image');
-                    if (qrImg) {
-                        qrImg.src = `https://promptpay.io/${cleanPhone}/${totalPrice > 0 ? totalPrice : ''}.png`;
-                    }
                     const ppInfoBox = document.getElementById('promptpay-info-box');
                     const ppPhoneText = document.getElementById('promptpay-phone-text');
                     if (ppInfoBox && ppPhoneText) {
@@ -1015,20 +1016,10 @@
 
         function saveQrCode() {
             const qrImg = document.getElementById('qr-image');
-            if (!qrImg || !qrImg.src) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'ไม่พบรูปภาพ',
-                    text: 'ไม่พบรูป QR Code สำหรับบันทึกครับ',
-                    confirmButtonText: 'ตกลง',
-                    confirmButtonColor: '#a46309',
-                    customClass: { popup: 'swal-custom-popup' }
-                });
-                return;
-            }
+            const targetSrc = qrImg?.getAttribute('src') || qrImg?.src || '../assets/images/qr.jpg';
             const a = document.createElement('a');
-            a.href = qrImg.src;
-            a.download = `PromptPay_QR_${totalPrice || 'payment'}.png`;
+            a.href = targetSrc;
+            a.download = 'PromptPay_QR.jpg';
             a.target = '_blank';
             document.body.appendChild(a);
             a.click();
