@@ -555,7 +555,7 @@
             align-items: center;
             justify-content: space-between;
             margin-top: -0.25rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             font-size: 0.86rem;
         }
 
@@ -586,6 +586,122 @@
         .forgot-link:hover {
             color: var(--primary-hover);
             text-decoration: underline;
+        }
+
+        /* CAPTCHA Widget Styling */
+        .captcha-widget-card {
+            background: rgba(254, 243, 199, 0.45);
+            border: 1.5px dashed rgba(164, 99, 9, 0.35);
+            border-radius: 16px;
+            padding: 0.85rem 1rem;
+            margin-bottom: 1.25rem;
+            transition: all 0.2s ease;
+        }
+
+        .captcha-widget-card:focus-within {
+            border-color: var(--primary);
+            background: rgba(254, 243, 199, 0.65);
+            box-shadow: 0 0 0 3px var(--focus-ring);
+        }
+
+        .captcha-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.82rem;
+        }
+
+        .captcha-title-label {
+            font-weight: 600;
+            color: #78350f;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-refresh-captcha {
+            background: transparent;
+            border: none;
+            color: var(--primary);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 2px 6px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-refresh-captcha:hover {
+            background: rgba(164, 99, 9, 0.1);
+            color: var(--primary-hover);
+        }
+
+        .captcha-body-flex {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .captcha-canvas-wrap {
+            position: relative;
+            flex-shrink: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            border: 1.5px solid #fde68a;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.15s ease;
+        }
+
+        .captcha-canvas-wrap:hover {
+            transform: scale(1.02);
+            border-color: var(--primary);
+        }
+
+        #captcha-canvas {
+            display: block;
+        }
+
+        .captcha-input-field {
+            flex: 1;
+            width: 100%;
+            height: 42px;
+            padding: 0 0.85rem;
+            background: #ffffff;
+            border: 1.5px solid var(--border-light);
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-align: center;
+            color: var(--text-dark);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .captcha-input-field:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--focus-ring);
+        }
+
+        .captcha-input-field::placeholder {
+            font-family: 'Prompt', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 400;
+            letter-spacing: 0;
+            color: #94a3b8;
+            text-transform: none;
         }
 
         /* Submit Button */
@@ -923,6 +1039,34 @@
                             <a href="auth/forgot_password.html" class="forgot-link">ลืมรหัสผ่าน?</a>
                         </div>
 
+                        <!-- CAPTCHA Security Verification -->
+                        <div class="captcha-widget-card" id="captcha-widget-card">
+                            <div class="captcha-header-row">
+                                <label for="captcha-input" class="captcha-title-label">
+                                    <i class="fa-solid fa-shield-halved" style="color: var(--primary);"></i> ยืนยันความปลอดภัย (CAPTCHA)
+                                </label>
+                                <button type="button" class="btn-refresh-captcha" onclick="refreshCaptcha()" title="คลิกเพื่อสุ่มรหัสใหม่">
+                                    <i class="fa-solid fa-rotate-right" id="captcha-refresh-icon"></i>
+                                    <span>เปลี่ยนรูป</span>
+                                </button>
+                            </div>
+                            <div class="captcha-body-flex">
+                                <div class="captcha-canvas-wrap" onclick="refreshCaptcha()" title="คลิกที่รูปภาพเพื่อเปลี่ยนรหัส">
+                                    <canvas id="captcha-canvas" width="130" height="42"></canvas>
+                                </div>
+                                <input 
+                                    type="text" 
+                                    id="captcha-input" 
+                                    class="captcha-input-field" 
+                                    placeholder="รหัส 5 หลักตามภาพ" 
+                                    maxlength="6"
+                                    autocomplete="off"
+                                    spellcheck="false"
+                                    required
+                                >
+                            </div>
+                        </div>
+
                         <!-- Submit CTA -->
                         <button type="submit" class="btn-login-primary" id="login-button">
                             <span id="btn-text">เข้าสู่ระบบ</span>
@@ -974,8 +1118,95 @@
             }
         }
 
-        // Load Remembered Email on Page Load
+        // CAPTCHA Engine
+        let currentCaptchaCode = '';
+        const CAPTCHA_CHARS = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+
+        function generateCaptchaCode(length = 5) {
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += CAPTCHA_CHARS.charAt(Math.floor(Math.random() * CAPTCHA_CHARS.length));
+            }
+            return result;
+        }
+
+        function drawCaptcha() {
+            const canvas = document.getElementById('captcha-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+
+            currentCaptchaCode = generateCaptchaCode(5);
+
+            // Background gradient
+            const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+            bgGrad.addColorStop(0, '#fffbeb');
+            bgGrad.addColorStop(1, '#fef3c7');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, width, height);
+
+            // Background noise dots
+            for (let i = 0; i < 35; i++) {
+                ctx.fillStyle = `rgba(164, 99, 9, ${0.08 + Math.random() * 0.16})`;
+                ctx.beginPath();
+                ctx.arc(Math.random() * width, Math.random() * height, Math.random() * 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Noise lines
+            for (let i = 0; i < 3; i++) {
+                ctx.strokeStyle = `rgba(180, 83, 9, ${0.15 + Math.random() * 0.25})`;
+                ctx.lineWidth = 1.2;
+                ctx.beginPath();
+                ctx.moveTo(Math.random() * (width * 0.3), Math.random() * height);
+                ctx.bezierCurveTo(
+                    Math.random() * width, Math.random() * height,
+                    Math.random() * width, Math.random() * height,
+                    width - Math.random() * (width * 0.2), Math.random() * height
+                );
+                ctx.stroke();
+            }
+
+            // Characters with subtle rotation
+            const charColors = ['#a46309', '#92400e', '#b45309', '#78350f', '#0f172a'];
+            const charSpacing = width / (currentCaptchaCode.length + 1);
+
+            for (let i = 0; i < currentCaptchaCode.length; i++) {
+                const char = currentCaptchaCode[i];
+                const x = charSpacing * (i + 0.8);
+                const y = height / 2 + (Math.random() * 6 - 3);
+                const angle = (Math.random() * 26 - 13) * Math.PI / 180;
+
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(angle);
+                ctx.font = 'bold 22px "Outfit", "Prompt", sans-serif';
+                ctx.fillStyle = charColors[i % charColors.length];
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(char, 0, 0);
+                ctx.restore();
+            }
+        }
+
+        function refreshCaptcha() {
+            const icon = document.getElementById('captcha-refresh-icon');
+            if (icon) {
+                icon.style.transition = 'transform 0.4s ease';
+                icon.style.transform = 'rotate(360deg)';
+                setTimeout(() => {
+                    icon.style.transition = 'none';
+                    icon.style.transform = 'rotate(0deg)';
+                }, 400);
+            }
+            drawCaptcha();
+        }
+
+        // Load Remembered Email on Page Load & Initialize CAPTCHA
         window.addEventListener('DOMContentLoaded', () => {
+            drawCaptcha();
+
             const savedEmail = localStorage.getItem('spacemate_remembered_email');
             const rememberMeCheckbox = document.getElementById('remember-me');
             const emailInput = document.getElementById('login-email');
@@ -1007,6 +1238,39 @@
                     confirmButtonColor: '#a46309',
                     customClass: { popup: 'swal-custom-popup' }
                 });
+                return;
+            }
+
+            // CAPTCHA verification
+            const captchaInput = document.getElementById('captcha-input');
+            const userCaptcha = (captchaInput ? captchaInput.value : '').trim().toUpperCase();
+            if (!userCaptcha) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณากรอกรหัส CAPTCHA',
+                    text: 'กรุณากรอกรหัสความปลอดภัย 5 หลักตามภาพก่อนเข้าสู่ระบบครับ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
+                if (captchaInput) captchaInput.focus();
+                return;
+            }
+
+            if (userCaptcha !== currentCaptchaCode) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'รหัส CAPTCHA ไม่ถูกต้อง',
+                    text: 'รหัสความปลอดภัยไม่ตรงกับภาพ กรุณาลองใหม่อีกครั้งครับ',
+                    confirmButtonText: 'ลองใหม่',
+                    confirmButtonColor: '#a46309',
+                    customClass: { popup: 'swal-custom-popup' }
+                });
+                refreshCaptcha();
+                if (captchaInput) {
+                    captchaInput.value = '';
+                    captchaInput.focus();
+                }
                 return;
             }
 
@@ -1086,11 +1350,17 @@
                     customClass: { popup: 'swal-custom-popup' }
                 });
 
-                // Reset button state
+                // Reset button state & refresh CAPTCHA
                 loginBtn.disabled = false;
                 loginBtn.style.background = '';
                 btnText.textContent = 'เข้าสู่ระบบ';
                 btnIcon.className = 'fa-solid fa-arrow-right';
+
+                refreshCaptcha();
+                const captchaInput = document.getElementById('captcha-input');
+                if (captchaInput) {
+                    captchaInput.value = '';
+                }
             }
         }
     </script>
